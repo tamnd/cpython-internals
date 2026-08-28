@@ -1,0 +1,21 @@
+[project]
+name = "nbdiagram"
+version = "0.1.0"
+description = "Excalidraw diagrams for the lessons, generated from Python and rendered to SVG"
+requires-python = ">=3.14"
+license = "MIT"
+dependencies = ["nbbuild", "pyxray"]
+
+[project.scripts]
+nbdiagram = "nbdiagram.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nbdiagram"]
+
+[tool.uv.sources]
+nbbuild = { workspace = true }
+pyxray = { workspace = true }

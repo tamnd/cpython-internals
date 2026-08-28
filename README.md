@@ -53,10 +53,13 @@ Pinned to `v3.15.0rc1` today and moving to `v3.15.0` when it ships on 1 October 
 | `pyxray` | The instrumentation every lesson imports: build banner, object headers, reference counts, bytecode as data, and CPython's compiler run one stage at a time | [pyxray](pyxray) |
 | `nbcheck` | The rules a lesson notebook has to follow, checked before review rather than after: the Colab badge points at itself, the build banner runs before anything it could explain, no code cell appears without a sentence introducing it, and no outputs are committed | [tools/nbcheck](tools/nbcheck) |
 | `nbbuild` | Lessons are written as Python and generated into notebooks, because nobody should have to edit a `.ipynb` by hand or review a diff of one. The generated file is committed as well, and CI fails if it stops matching the code that produced it | [tools/nbbuild](tools/nbbuild) |
+| `nbdiagram` | Every picture in a lesson is an Excalidraw scene drawn from Python, written out as an editable `.excalidraw` and as the `.svg` GitHub and Colab display. Colours, type and spacing come from one shared theme, so the diagrams, the charts and the animations look like one project | [tools/nbdiagram](tools/nbdiagram) |
 
 ## The lessons
 
 Every lesson is a notebook with a Colab badge on it, so there is nothing to install and nothing to build. Each one is executed end to end in CI on 3.15.0rc1 and on 3.14 before it merges, and every claim it makes about CPython carries a file, a line range and a symbol that `refcheck` resolves against the pinned tree.
+
+The pictures are generated too. A lesson's `diagrams.py` sits next to its `build.py` and writes each scene out twice, once as an `.excalidraw` anybody can open and edit and once as the `.svg` the notebook embeds, and CI redraws them on every change to check the committed files still match. T02 has eleven of them.
 
 | | Lesson | What you come away with | Milestone | Run it |
 |---|---|---|---|---|

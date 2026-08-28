@@ -69,6 +69,9 @@ jobs:
       # a reader clicking a Colab badge cannot run a build step first. This is the step that
       # stops the two from drifting after somebody edits a cell in Jupyter and commits it.
       - run: uv run nbbuild check
+      # Same argument one level down: a lesson embeds its diagrams as images served from
+      # this repository, so the committed SVG has to still be what the script draws.
+      - run: uv run nbdiagram check
       - run: uv run nbcheck lint
       # The notebooks install pyxray from this repository when they run in Colab. Here the
       # workspace copy is already installed, so what gets executed is the working tree and
