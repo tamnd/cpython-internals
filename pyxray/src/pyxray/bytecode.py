@@ -9,6 +9,7 @@ and a diff between two disassemblies.
 from __future__ import annotations
 
 import dis
+import opcode
 import types
 from dataclasses import dataclass
 
@@ -139,6 +140,118 @@ def diff(left: CodeLike, right: CodeLike, *, labels: tuple[str, str] = ("left", 
         lines.append(f"{left_name:<{width}}  {mark}{right_name}".rstrip())
     lines.append("")
     lines.append(f"{len(a)} instructions vs {len(b)}")
+    return "\n".join(lines)
+
+
+# What the argument byte means for a handful of instructions where the generic answer
+# ("a plain number") is true and useless. Everything else is classified from the tables in
+# the `opcode` module, so this stays short on purpose. A test checks every name here still
+# exists, because an opcode that gets renamed should break the build and not the reader.
+ARGUMENT_NOTES = {
+    "LOAD_SMALL_INT": "the integer itself, not an index",
+    "LOAD_COMMON_CONSTANT": "which of the handful of values the interpreter keeps around",
+    "BINARY_OP": "which operator, numbered by the order they appear in the C table",
+    "CALL": "how many arguments are on the stack",
+    "LOAD_FAST_LOAD_FAST": "two local slots packed into one byte, four bits each",
+    "LOAD_FAST_BORROW_LOAD_FAST_BORROW": "two local slots packed into one byte, four bits each",
+    "STORE_FAST_STORE_FAST": "two local slots packed into one byte, four bits each",
+    "STORE_FAST_LOAD_FAST": "two local slots packed into one byte, four bits each",
+    "COPY": "how far down the stack to copy from, counting from the top",
+    "SWAP": "how far down the stack to swap with, counting from the top",
+    "UNPACK_SEQUENCE": "how many values to spread out",
+    "BUILD_TUPLE": "how many values to take off the stack",
+    "BUILD_LIST": "how many values to take off the stack",
+    "RESUME": "which kind of resume point this is: function start, after a yield, after an await",
+}
+
+
+def argument_meaning(opname: str) -> str:
+    """What the argument byte of an instruction is counting or indexing.
+
+    This is the question that stops a reader cold. `LOAD_CONST 1` and `LOAD_NAME 1` and
+    `CALL 1` all print the same way and the 1 means three unrelated things. Nearly every
+    answer is in the tables the `opcode` module already publishes, which is where these
+    come from.
+    """
+    if opname in ARGUMENT_NOTES:
+        return ARGUMENT_NOTES[opname]
+    number = opcode.opmap.get(opname)
+    if number is None:
+        raise KeyError(f"no such instruction: {opname}")
+    if number in opcode.hasconst:
+        return "an index into co_consts"
+    if number in opcode.hasname:
+        return "an index into co_names"
+    if number in opcode.haslocal:
+        return "which local variable, by slot"
+    if number in opcode.hasfree:
+        return "which closed over variable, by slot"
+    if number in opcode.hasjrel:
+        return "how far to jump, in instructions rather than bytes"
+    if number in opcode.hascompare:
+        return "which comparison, encoded"
+    if number in opcode.hasexc:
+        return "where the exception handler starts"
+    if number in opcode.hasarg:
+        return "a plain number this instruction knows what to do with"
+    return "nothing; the byte is written but never read"
+
+
+@dataclass(frozen=True)
+class Jump:
+    """One jump, with the arithmetic that gets you from the argument to the target."""
+
+    offset: int
+    opname: str
+    arg: int
+    resumes_at: int
+    target: int
+
+    @property
+    def backwards(self) -> bool:
+        return self.target < self.offset
+
+    def arithmetic(self) -> str:
+        """The sum, written out, so a reader can check it against the listing."""
+        sign = "-" if self.backwards else "+"
+        return f"{self.resumes_at} {sign} {self.arg} * 2 = {self.target}"
+
+
+def jumps(target: CodeLike) -> list[Jump]:
+    """Every jump in the code, with where it lands and why.
+
+    Jump arguments trip people up twice. They count instructions rather than bytes, so the
+    argument is half the distance you measure with your finger. And they count from the
+    instruction after this one including its caches, not from the jump itself, so an
+    instruction with caches lands further along than the arithmetic suggests.
+    """
+    found = []
+    for item in disassemble(target):
+        if item.jump_target is None or item.arg is None:
+            continue
+        found.append(
+            Jump(
+                offset=item.offset,
+                opname=item.opname,
+                arg=item.arg,
+                resumes_at=item.offset + item.total_size,
+                target=item.jump_target,
+            )
+        )
+    return found
+
+
+def jump_table(target: CodeLike) -> str:
+    """The jumps as a readable table, one line of arithmetic each."""
+    found = jumps(target)
+    width = max((len(jump.opname) for jump in found), default=0)
+    lines = []
+    for jump in found:
+        way = "back" if jump.backwards else "on"
+        lines.append(
+            f"{jump.offset:>4}  {jump.opname:<{width}} {jump.arg:>4}"
+            f"   {jump.arithmetic():<22}  jumps {way}"
+        )
     return "\n".join(lines)
 
 
