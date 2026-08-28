@@ -10,6 +10,11 @@
       "first_line": "term[expr_ty]:",
       "lines": 7
     },
+    "Include/internal/pycore_interpframe_structs.h:29-53@v3.15.0rc1": {
+      "digest": "0f12951337d13d71",
+      "first_line": "struct _PyInterpreterFrame {",
+      "lines": 25
+    },
     "Include/internal/pycore_opcode_metadata.h:35-38@v3.15.0rc1": {
       "digest": "6f9b72fd4f002de2",
       "first_line": "extern int _PyOpcode_num_popped(int opcode, int oparg);",
@@ -49,6 +54,21 @@
       "digest": "a6db4c383b0c66af",
       "first_line": "`PyTraceBack_Here()`, which is in [Python/traceback.c](../Python/traceback.c).",
       "lines": 16
+    },
+    "InternalDocs/frames.md:16-25@v3.15.0rc1": {
+      "digest": "9f5cc619aecf751a",
+      "first_line": "# Allocation",
+      "lines": 10
+    },
+    "InternalDocs/interpreter.md:209-214@v3.15.0rc1": {
+      "digest": "91df9ada60567bac",
+      "first_line": "Since 3.11, the `CALL` instruction special-cases function objects to \"inline\"",
+      "lines": 6
+    },
+    "InternalDocs/stack_protection.md:33-38@v3.15.0rc1": {
+      "digest": "18061efa7557d342",
+      "first_line": "We get the current stack pointer using compiler intrinsics where available, or by taking the address of a C local variable. See `_Py_get_machine_stack_pointer()`.",
+      "lines": 6
     },
     "Lib/ast.py:117-121@v3.15.0rc1": {
       "digest": "e9ce78ffb705c8f3",
@@ -195,15 +215,35 @@
       "first_line": "replicate(4) inst(LOAD_SMALL_INT, (-- value)) {",
       "lines": 6
     },
+    "Python/bytecodes.c:393-400@v3.15.0rc1": {
+      "digest": "ec8128ae72b4a19e",
+      "first_line": "no_save_ip inst(END_FOR, (value -- )) {",
+      "lines": 8
+    },
     "Python/bytecodes.c:6092-6098@v3.15.0rc1": {
       "digest": "4432bf6918bcccf7",
       "first_line": "tier1 inst(EXTENDED_ARG, ( -- )) {",
+      "lines": 7
+    },
+    "Python/ceval.c:1212-1218@v3.15.0rc1": {
+      "digest": "09b5726b4931d812",
+      "first_line": "PyObject* _Py_HOT_FUNCTION DONT_SLP_VECTORIZE",
       "lines": 7
     },
     "Python/ceval.c:1213-1213@v3.15.0rc1": {
       "digest": "f816c4c48d43b078",
       "first_line": "_PyEval_EvalFrameDefault(PyThreadState *tstate, _PyInterpreterFrame *frame, int throwflag)",
       "lines": 1
+    },
+    "Python/ceval_macros.h:128-141@v3.15.0rc1": {
+      "digest": "b032ce0706e98a42",
+      "first_line": "#elif USE_COMPUTED_GOTOS",
+      "lines": 14
+    },
+    "Python/ceval_macros.h:198-206@v3.15.0rc1": {
+      "digest": "a10580d39ae4878d",
+      "first_line": "/* Do interpreter dispatch accounting for tracing and instrumentation */",
+      "lines": 9
     },
     "Python/ceval_macros.h:256-261@v3.15.0rc1": {
       "digest": "de6abf86f0026b15",
