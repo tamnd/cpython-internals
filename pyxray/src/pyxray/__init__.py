@@ -12,7 +12,7 @@ tells the reader what still works, rather than raising something they cannot rea
 
 from __future__ import annotations
 
-from . import bytecode, compiler, obj
+from . import bytecode, compiler, draw, obj, tokens
 from .build import Build, banner, capabilities, current
 from .cite import link
 
@@ -23,9 +23,11 @@ __all__ = [
     "capabilities",
     "compiler",
     "current",
+    "draw",
     "link",
     "obj",
     "show",
+    "tokens",
 ]
 __version__ = "0.1.0"
 
