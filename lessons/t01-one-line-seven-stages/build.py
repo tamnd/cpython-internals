@@ -21,6 +21,7 @@ from nbdiagram import Diagrams
 lesson = Lesson("t01-one-line-seven-stages", "t01")
 badge = lesson.badge
 cite = lesson.cite
+term = lesson.term
 figure = Diagrams("t01-one-line-seven-stages").figure
 
 lesson.md(f"""
@@ -32,9 +33,11 @@ This lesson follows one line of Python, `answer = 6 * 7`, from the bytes in a fi
 
 {figure("seven-stages", "eight boxes from your file to the answer, with the CPython source file under each one")}
 
-You do not need to know any C to follow this, and you do not need to already know what a compiler is. By the end you will have watched CPython do your multiplication for you, before your program ran at all, and you will know which file did it.
+No C knowledge is assumed, and you do not need to already know what a compiler is. By the end you will have found the point where CPython does the multiplication in that line, which is earlier than most people expect, and you will know which source file does it.
 
 Everything below runs in continuous integration on CPython 3.15.0rc1 and on 3.14 before it reaches you. Where the two versions disagree the lesson says so and prints what your build actually did, so you are never asked to trust a number that was true on somebody else's machine.
+
+Words that turn up here and get used again later, like {term("code object")} and {term("bytecode")}, have one definition each in the [glossary](https://github.com/tamnd/cpython-internals/blob/main/GLOSSARY.md). Follow a link when a word is new to you, ignore it when it is not.
 """)
 
 
@@ -86,7 +89,7 @@ pyxray.show()
 lesson.md("""
 ## The line
 
-Here it is. One assignment, two numbers, one multiplication.
+One assignment, two numbers, one multiplication.
 """)
 
 
@@ -100,7 +103,7 @@ print(SOURCE)
 lesson.md(f"""
 ## Stage 1. Bytes become tokens
 
-CPython reads your file as bytes and cuts it into tokens: a name, an equals sign, a number, an operator, another number, an end of line. The code that does the cutting is {cite("Parser/lexer/lexer.c:1626-1635@v3.15.0rc1#_PyTokenizer_Get")}, and somebody wrote it by hand rather than generating it from a description of the language.
+CPython reads your file as bytes and cuts it into {term("token", "tokens")}: a name, an equals sign, a number, an operator, another number, an end of line. The code that does the cutting is {cite("Parser/lexer/lexer.c:1626-1635@v3.15.0rc1#_PyTokenizer_Get")}, and somebody wrote it by hand rather than generating it from a description of the language.
 
 {figure("tokens-of-one-line", "the five tokens in answer = 6 * 7, each joined to the characters it came from")}
 
@@ -134,16 +137,16 @@ for item in compiler.tokens("if answer:\n    print(answer)\n"):
 
 
 lesson.md("""
-`INDENT` and `DEDENT` appear nowhere in that text. The tokenizer works them out from column numbers and hands the parser something that behaves exactly like the braces other languages make you type. That is all Python's significant whitespace is, and it is settled here, in the first stage. Nothing later in the pipeline knows or cares how your code was laid out.
+`INDENT` and `DEDENT` appear nowhere in that text. The tokenizer works them out from column numbers and hands the parser something that behaves like the braces other languages make you type. That is all Python's significant whitespace is, and it is settled here, in the first stage. Nothing later on knows or cares how your code was laid out.
 
-T02 is entirely about this stage, so there is a lot more where that came from.
+T02 is entirely about this stage, so there is a lot more there.
 """)
 
 
 lesson.md(f"""
 ## Stage 2. Tokens become a tree
 
-The parser reads the token stream and builds a syntax tree. CPython has used a PEG parser since 3.9, generated from a grammar file into `Parser/parser.c`, and the function that drives it is {cite("Parser/pegen.c:938-941@v3.15.0rc1#_PyPegen_run_parser")}.
+The parser reads the token stream and builds an {term("abstract syntax tree", "abstract syntax tree")}. CPython has used a {term("PEG parser")} since 3.9, generated from a {term("grammar")} file into `Parser/parser.c`, and the function that drives it is {cite("Parser/pegen.c:938-941@v3.15.0rc1#_PyPegen_run_parser")}.
 
 The tree for a single assignment is small enough to look at whole.
 
@@ -163,7 +166,7 @@ print(ast.dump(tree, indent=4))
 lesson.md("""
 Read it from the inside out. Two `Constant` nodes hold 6 and 7. A `BinOp` holds those two with a `Mult` between them. An `Assign` puts the result into a `Name` whose context is `Store`, which means the name is being written to rather than read from.
 
-Nothing has been worked out yet. `6 * 7` is still a multiplication of two constants sitting in a tree.
+Nothing has been worked out yet, and `6 * 7` is still a multiplication of two constants sitting in a tree.
 
 The tree is an ordinary Python object, so you can change it and compile the result.
 """)
@@ -183,7 +186,7 @@ print(namespace["answer"])
 lesson.md(f"""
 ## Stage 3. The tree gets a symbol table
 
-Before generating a single instruction, CPython walks the tree and works out what every name in it is. Is `answer` a local, a global, or something borrowed from an enclosing function? The compiler cannot pick an instruction until it knows, because a local is a numbered slot in a frame and a global is a dictionary lookup by name. Those are different opcodes with very different costs. The pass that decides is {cite("Python/symtable.c:415-418@v3.15.0rc1#_PySymtable_Build")}.
+Before generating a single {term("instruction")}, CPython walks the tree and works out what every name in it is. Is `answer` a local, a global, or something borrowed from an enclosing function? The compiler cannot pick an instruction until it knows, because a local is a numbered slot in a {term("frame")} and a global is a dictionary lookup by name. Those are different {term("opcode", "opcodes")} with very different costs. The pass that decides builds the {term("symbol table")}, and it is {cite("Python/symtable.c:415-418@v3.15.0rc1#_PySymtable_Build")}.
 """)
 
 
@@ -216,9 +219,9 @@ There is also a scope called `__annotate__` in there that you did not write. Tha
 lesson.md(f"""
 ## Stage 4. The tree becomes instructions
 
-Now the compiler walks the tree a second time and emits instructions, a small pile of them per node. The case that handles an expression is {cite("Python/codegen.c:894-897@v3.15.0rc1#_PyCodegen_Expression")}.
+Now the compiler walks the tree a second time and emits instructions, a small pile of them per node. That pass is {term("code generation")}, and the case that handles an expression is {cite("Python/codegen.c:894-897@v3.15.0rc1#_PyCodegen_Expression")}.
 
-This is usually the point where you can no longer see what a stock interpreter is doing. CPython ships a module called `_testinternalcapi` that exposes the compiler's stages one at a time, and that is what lets you hold the instruction sequence in your hands before the optimizer has touched it. If the next cell raises, read the message: it means your interpreter was built without those hooks, and it will tell you what still works.
+This is usually the point where you can no longer see what a stock interpreter is doing. CPython ships a module called `_testinternalcapi` that exposes the compiler's stages one at a time, and that is what lets you read the instruction sequence before the optimizer has touched it. If the next cell raises, read the message: it means your interpreter was built without those hooks, and it will tell you what still works.
 """)
 
 
@@ -230,17 +233,17 @@ for item in result.codegen:
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 `LOAD_CONST 0`, `LOAD_CONST 1`, `BINARY_OP 5`. The multiplication is still there, and as far as this stage is concerned it is still going to happen while your program runs. `BINARY_OP 5` is multiply, 5 being the position of `*` in CPython's table of binary operators.
 
-`ANNOTATIONS_PLACEHOLDER` is marked pseudo. Pseudo instructions only exist inside the compiler, as markers for later passes, and none of them ever reaches a code object. This one holds the spot where the module's annotations would be set up if it had any.
+`ANNOTATIONS_PLACEHOLDER` is marked pseudo. A {term("pseudo instruction")} only exists inside the compiler, as a marker for a later pass, and none of them ever reaches a code object. This one holds the spot where the module's annotations would be set up if it had any.
 """)
 
 
 lesson.md(f"""
 ## Stage 5. The optimizer rewrites the instructions
 
-The instruction sequence is turned into a control flow graph, and then the graph is optimized. The entry point is {cite("Python/flowgraph.c:3753-3757@v3.15.0rc1#_PyCfg_OptimizeCodeUnit")}. Here is what it did, with the two sequences side by side.
+The instruction sequence is turned into a {term("control flow graph")}, and then the graph is optimized. The entry point is {cite("Python/flowgraph.c:3753-3757@v3.15.0rc1#_PyCfg_OptimizeCodeUnit")}. The next cell prints what it did, with the two sequences side by side.
 """)
 
 
@@ -250,11 +253,11 @@ print(compiler.what_the_optimizer_did(result))
 
 
 lesson.md(f"""
-Look at the right hand column. `LOAD_CONST`, `LOAD_CONST`, `BINARY_OP` has turned into a single `LOAD_SMALL_INT 42`. The multiplication is gone. It ran once, at compile time, inside {cite("Python/flowgraph.c:1860-1866@v3.15.0rc1#eval_const_binop")}, and the answer went straight into the instruction stream. Your program will never multiply anything.
+Look at the right hand column. `LOAD_CONST`, `LOAD_CONST`, `BINARY_OP` has turned into a single `LOAD_SMALL_INT 42`, so the multiplication is gone. It ran once, at compile time, inside {cite("Python/flowgraph.c:1860-1866@v3.15.0rc1#eval_const_binop")}, and the answer went straight into the instruction stream. Your program will never multiply anything.
 
 {figure("the-multiplication-disappears", "three instructions on the left becoming one on the right")}
 
-That is constant folding, and CPython does it twice, in two places, on two different data structures.
+That is {term("constant folding")}, and CPython does it twice, in two places, on two different data structures.
 
 {figure("two-constant-folders", "the tree folder and the graph folder, one after the other")}
 
@@ -275,7 +278,7 @@ print(compiler.what_the_optimizer_did(compiler.stages("answer = six * 7\n")))
 lesson.md(f"""
 ## Stage 6. The instructions become a code object
 
-The assembler turns the optimized graph into the immutable object CPython actually executes, built by {cite("Objects/codeobject.c:715-718@v3.15.0rc1#_PyCode_New")}. The whole front end, every stage above, is driven from {cite("Python/compile.c:1526-1540@v3.15.0rc1#_PyAST_Compile")}.
+The {term("assembler")} turns the optimized graph into the {term("code object")}, which is the object CPython actually executes and cannot be changed once built. It is built by {cite("Objects/codeobject.c:715-718@v3.15.0rc1#_PyCode_New")}. The whole front end, every stage above, is driven from {cite("Python/compile.c:1526-1540@v3.15.0rc1#_PyAST_Compile")}.
 """)
 
 
@@ -296,7 +299,7 @@ Two details in there are worth a second look, and the next cell makes both of th
 
 The constant table still contains 6, and nothing loads it. The table was built while the multiplication still existed, and nobody pruned it afterwards, so a number your program has no use for gets carried around inside the code object for as long as the code object lives.
 
-The 42 is not in the constant table at all. It is the argument of `LOAD_SMALL_INT`, sitting inside the instruction itself. Small integers do not need a table entry, because CPython keeps them alive permanently anyway, which is a lesson of its own later on.
+The 42 is not in the constant table at all. It is the {term("oparg", "argument")} of `LOAD_SMALL_INT`, sitting inside the instruction itself. A small integer does not need a table entry, because CPython keeps a shared copy of it alive permanently, which is the {term("small integer cache")} and gets a lesson of its own later on.
 
 {figure("where-the-42-lives", "6 sitting unused in co_consts, and 42 sitting inside the instruction")}
 """)
@@ -312,8 +315,8 @@ print("where the 42 actually lives:      ", inline)
 """)
 
 
-lesson.md("""
-The last two instructions are the module's implicit `return None`, and they are spelled differently depending on which build you are on. From 3.15 there is a `LOAD_COMMON_CONSTANT`, which pulls `None` out of a fixed table shared by every code object, so `None` no longer needs an entry of its own. On 3.14 it is still an ordinary `LOAD_CONST`. The bytecode is a couple of bytes longer on 3.15 for an unrelated reason: `RESUME` grew an inline cache entry.
+lesson.md(f"""
+The last two instructions are the module's implicit `return None`, and they are spelled differently depending on which build you are on. From 3.15 there is a `LOAD_COMMON_CONSTANT`, which pulls `None` out of a fixed table shared by every code object, so `None` no longer needs an entry of its own. On 3.14 it is still an ordinary `LOAD_CONST`. The bytecode is a couple of bytes longer on 3.15 for an unrelated reason: `RESUME` grew an {term("inline cache")} entry.
 
 Rather than take either version's word for it, print what your build did.
 """)
@@ -331,7 +334,7 @@ print("None is a constant", None in result.code.co_consts)
 lesson.md(f"""
 ## Stage 7. The code object runs
 
-Finally the evaluation loop executes the code object one instruction at a time, in {cite("Python/ceval.c:1213@v3.15.0rc1#_PyEval_EvalFrameDefault")}. It is one very large switch statement, and lessons later in the series take it apart properly.
+Finally the {term("eval loop", "evaluation loop")} executes the code object one instruction at a time, in {cite("Python/ceval.c:1213@v3.15.0rc1#_PyEval_EvalFrameDefault")}. It is one very large switch statement, and lessons later in the series take it apart properly.
 """)
 
 
@@ -346,7 +349,7 @@ print(namespace["answer"])
 lesson.md("""
 42, and your program did not multiply anything to get there.
 
-Here is the whole trip in one line of counts.
+The whole trip, in one line of counts.
 """)
 
 

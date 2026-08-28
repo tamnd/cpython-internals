@@ -22,6 +22,7 @@ from nbdiagram import Diagrams
 lesson = Lesson("t02-text-becomes-tokens", "t02")
 badge = lesson.badge
 cite = lesson.cite
+term = lesson.term
 figure = Diagrams("t02-text-becomes-tokens").figure
 
 lesson.md(f"""
@@ -29,11 +30,11 @@ lesson.md(f"""
 
 {badge}
 
-A Python file is just characters. The tokenizer is the part of CPython that cuts those characters into pieces and gives each piece a name: this is a number, that is a name, this one is a plus sign.
+A Python file is just characters. The {term("tokenizer")} is the part of CPython that cuts those characters into pieces and gives each piece a name: this is a number, that is a name, this one is a plus sign. Each piece is a {term("token")}.
 
 Two of the things people find confusing about Python are decided here and nowhere else.
 
-The first is indentation. Python has no braces, and the reason that works is that the tokenizer adds a token when a block opens and another when it closes. You never type them and you never see them, but the parser does, and to the parser they do the job braces do in C.
+The first is indentation. Python has no braces, and the reason that works is that the tokenizer adds a token when a block opens and another when it closes. You never type them and you never see them, but the parser does, and to the parser they do the job braces do in C. They are called {term("indent and dedent")}.
 
 The second is f-strings. An f-string is not one string with special handling bolted on. The tokenizer takes it apart, and the code between the braces comes out as ordinary Python tokens.
 
@@ -43,7 +44,7 @@ Here is where this lesson sits. T01 walked past all seven stages. This one stops
 
 By the end you will have run the real tokenizer on your own input, seen it produce tokens that are not in your file, read the indentation algorithm in full, and broken it three different ways on purpose.
 
-No C required. Everything here runs on a normal Python.
+No C required, and everything here runs on a normal Python.
 """)
 
 
@@ -101,11 +102,11 @@ pyxray.show()
 lesson.md(f"""
 ## It is a real program, and you are about to run it
 
-CPython's tokenizer is hand written C. Not a generated table, and not a pile of regular expressions. It lives in `Parser/lexer/lexer.c`, and the way in is {cite("Parser/lexer/lexer.c:1626-1635@v3.15.0rc1#_PyTokenizer_Get")}. Call it and you get one token. Call it again and you get the next one.
+CPython's tokenizer is hand written C rather than a generated table or a pile of regular expressions. It lives in `Parser/lexer/lexer.c`, and the way in is {cite("Parser/lexer/lexer.c:1626-1635@v3.15.0rc1#_PyTokenizer_Get")}. Call it and you get one token. Call it again and you get the next one.
 
 The standard library has a `tokenize` module, and for most of Python's life that module was a separate reimplementation written in Python. It drifted away from the C over the years, and it disagreed with it in small ways, which made it a poor thing to learn from.
 
-That changed in 3.12. `tokenize` now calls into the C tokenizer through a small module called `_tokenize`. So when you tokenize something in a moment, the code doing the work is the code cited above, not a copy of it.
+That changed in 3.12, and `tokenize` now calls into the C tokenizer through a small module called `_tokenize`. So when you tokenize something in a moment, the code doing the work is the code cited above rather than a copy of it.
 """)
 
 
@@ -136,7 +137,7 @@ print(tokens.table(SOURCE))
 
 
 lesson.md("""
-That is a lot of rows for two short lines. Here is the first line drawn against the text it came from, so you can see which characters became which token.
+That is a lot of rows for two short lines. The next cell draws the first line against the text it came from, so you can see which characters became which token.
 """)
 
 
@@ -155,9 +156,7 @@ The same idea on a different line, as a picture. Notice that `INDENT` covers the
 lesson.md("""
 ## Four of those tokens are not in your file
 
-Go back and count. Compare the tokens against what you typed.
-
-`ENCODING`, `INDENT`, `DEDENT` and `ENDMARKER` were all added by the tokenizer.
+Go back and compare the tokens against what you typed. `ENCODING`, `INDENT`, `DEDENT` and `ENDMARKER` were all added by the tokenizer.
 
 `ENCODING` comes first. It is the tokenizer reporting what it decided your bytes meant. That is a real decision rather than a formality, because a Python file is allowed to declare its own encoding in a comment on line 1 or line 2, and until that is settled the tokenizer cannot read a single character.
 
@@ -191,7 +190,7 @@ for item in tokens.stream("if x:\n    pass\n"):
 
 
 lesson.md(f"""
-So where do keywords come from? The parser, one step later.
+So where do keywords come from? From the parser, one step later.
 
 {figure("who-knows-about-keywords", "the tokenizer handing a NAME token to the parser")}
 
@@ -227,7 +226,7 @@ lesson.md("""
 
 Now the part most people come here for.
 
-`INDENT` and `DEDENT` are the tokens that stand in for the braces other languages make you type. They are not symmetric, and that is the thing to hang on to.
+`INDENT` and `DEDENT` are the tokens that stand in for the braces other languages make you type. The thing to hang on to is that they are not symmetric.
 """)
 
 
@@ -243,9 +242,7 @@ for name in ("INDENT", "DEDENT"):
 lesson.md(f"""
 `INDENT` has text in it. There really are four spaces at the start of that line, and the tokenizer hands them over.
 
-`DEDENT` has nothing. It is zero characters wide, sitting at the first column of the line that ended the block. No part of your file corresponds to it.
-
-So if you have ever gone looking for the dedent in the source text, that is why you did not find it. It is a message rather than a substring.
+`DEDENT` has nothing in it. It is zero characters wide, sitting at the first column of the line that ended the block, and no part of your file corresponds to it. If you have ever gone looking for the dedent in the source text, that is why you did not find it: it is a message rather than a substring.
 
 {figure("indent-is-not-symmetric", "INDENT four columns wide and DEDENT with no width at all")}
 
@@ -265,14 +262,14 @@ for item in tokens.stream(DEEP):
 
 
 lesson.md("""
-Three indents going in. Three dedents coming out, all reported at the same spot, the start of line 5, back to back, before the tokenizer even looks at `e`.
+Three indents going in, and three dedents coming out. All three dedents are reported at the same spot, the start of line 5, back to back, before the tokenizer even looks at `e`.
 """)
 
 
 lesson.md(f"""
 ## The whole algorithm
 
-Here it is, and it is smaller than you would expect.
+The algorithm is smaller than you would expect.
 
 There is a stack of column numbers. It starts with one entry, zero. For every line that has real code on it:
 
@@ -280,7 +277,7 @@ There is a stack of column numbers. It starts with one entry, zero. For every li
 - Column is bigger: push it and emit one `INDENT`.
 - Column is smaller: pop until the top matches, emitting one `DEDENT` per pop. If the stack runs out without a match, that is the "unindent does not match any outer indentation level" error.
 
-That is the whole feature. Here it is running:
+That is the whole feature, and here it is running:
 
 {figure("how-the-stack-moves", "four lines of source with the indent stack after each one")}
 
@@ -288,7 +285,7 @@ It comes to about thirty lines of C in {cite("Parser/lexer/lexer.c:500-530@v3.15
 
 One detail matters if you ever write one of these yourself. The dedents are not handed out immediately. The tokenizer counts them into a field called `pendin` and then returns them one per call until the count reaches zero, at {cite("Parser/lexer/lexer.c:616-634@v3.15.0rc1#pendin")}. The function can only return one token, so a line that closes three blocks has to be remembered across three calls.
 
-`pyxray.tokens.indent_trace` is that algorithm transcribed into Python. Not a summary, and not pseudocode. The test suite runs it and the real CPython tokenizer over the same set of programs and requires the same answer from both, so if the C ever changes, this lesson fails its tests instead of quietly going wrong.
+`pyxray.tokens.indent_trace` is that algorithm transcribed into Python, rather than a summary of it or pseudocode for it. The test suite runs it and the real CPython tokenizer over the same set of programs and requires the same answer from both, so if the C ever changes, this lesson fails its tests instead of quietly going wrong.
 """)
 
 
@@ -298,11 +295,11 @@ print(tokens.indent_report(DEEP))
 
 
 lesson.md("""
-The `stack` column is the whole story. Everything else is bookkeeping.
+The `stack` column is the whole story, and everything else in that table is bookkeeping.
 
 Ignore the `alt` column for one more minute. It gets its own section, because it answers a question nobody has asked you yet.
 
-Same thing again as a shape, which makes it easy to see at a glance. The bars step right as blocks open and drop back as they close.
+Same thing again as a shape, which is easier to take in at a glance. The bars step right as blocks open and drop back as they close.
 """)
 
 
@@ -324,13 +321,11 @@ print(tokens.indent_report("x = 1\n            # what am I even doing here\n\ny 
 lesson.md(f"""
 ## A tab is not worth a fixed number of spaces
 
-Ask around and people will tell you a tab is four columns, or eight, or that it depends on your editor.
-
-For the tokenizer it is none of those. A tab moves to the next multiple of eight, so what a tab is worth depends on what came before it.
+Ask around and people will tell you a tab is four columns, or eight, or that it depends on your editor. For the tokenizer it is none of those. A tab moves to the next multiple of eight, so what a tab is worth depends on what came before it.
 
 {figure("where-a-tab-lands", "the same tab character landing on a tab stop from three different starting columns")}
 
-Eight is not configurable and it is not a convention. It is a constant in {cite("Parser/lexer/state.c:5-33@v3.15.0rc1#TABSIZE")} with `/* Never change this */` written above it, and that comment is not about style. The number decides whether two lines count as equally indented, so it is part of the language.
+Eight is neither configurable nor a convention. It is a constant in {cite("Parser/lexer/state.c:5-33@v3.15.0rc1#TABSIZE")} with `/* Never change this */` written above it, and that comment is not about style. The number decides whether two lines count as equally indented, so it is part of the language.
 """)
 
 
@@ -374,8 +369,6 @@ for text in ["    x", "\tx", "\t\tx"]:
 lesson.md(f"""
 ## Breaking it on purpose, three ways
 
-Now to make it fail.
-
 `pyxray.tokens.failure` runs the tokenizer and hands the error back as an object instead of raising it, so you can read the message without a traceback in the way.
 
 First, the case from the last section. Line 2 is indented with one tab and line 3 with eight spaces. Under a tab stop of 8 those are the same column, so it looks fine. Under a tab stop of 1 they are not, so the tokenizer knows the match was an accident. The check is {cite("Parser/tokenizer/helpers.c:90-97@v3.15.0rc1#_PyTokenizer_indenterror")}, which does nothing except record the error code and give up.
@@ -393,7 +386,7 @@ print(tokens.failure(TABS))
 lesson.md(f"""
 Second, a dedent to a column nobody ever indented to.
 
-The stack holds 0 and 2. Line 3 arrives at column 1. That is smaller than 2, so the tokenizer pops. Now the top is 0, and 1 is not 0. There is nothing left to pop and still no match, so it stops.
+The stack holds 0 and 2. Line 3 arrives at column 1, which is smaller than 2, so the tokenizer pops. Now the top is 0, and 1 is not 0. There is nothing left to pop and still no match, so it stops.
 
 {figure("a-dedent-with-no-home", "an indent stack that runs out before it finds a matching column")}
 """)
@@ -452,9 +445,7 @@ print(tokens.table("x = (1,\n     2)\n"))
 lesson.md(f"""
 One `NL` where line 1 ended, one `NEWLINE` where the statement ended, and no `INDENT` for the five spaces in front of the 2.
 
-There is a second thing worth noticing here.
-
-The parser never sees that `NL`. The tokenizer has a flag for returning extra tokens, and the `tokenize` module switches it on, because a code formatter needs to see comments and blank lines. When the compiler runs the tokenizer that flag is off, and those tokens are dropped inside the loop instead of being returned.
+There is a second thing worth noticing, which is that the parser never sees that `NL`. The tokenizer has a flag for returning extra tokens, and the `tokenize` module switches it on, because a code formatter needs to see comments and blank lines. When the compiler runs the tokenizer that flag is off, and those tokens are dropped inside the loop instead of being returned.
 
 {figure("two-token-streams", "the token stream tokenize returns above the shorter one the compiler receives")}
 
@@ -488,7 +479,7 @@ lesson.md(f"""
 
 Until 3.12, an f-string arrived as a single `STRING` token holding the whole thing, braces and all. The compiler pulled it apart later using a second parser written for the job. That is where the odd restrictions came from: you could not reuse the same quote inside, you could not put a backslash in, and error messages pointed at the wrong place.
 
-PEP 701 removed all that. The tokenizer now handles f-strings directly and the pieces come out separately.
+PEP 701 removed all that, and the tokenizer now handles f-strings directly with the pieces coming out separately.
 
 The trick is a mode switch. The tokenizer has two modes, and {cite("Parser/lexer/lexer.c:1615-1624@v3.15.0rc1#tok_get")} is the two line function that picks one on every call.
 
@@ -578,7 +569,7 @@ print(tokens.table(""))
 
 
 lesson.md("""
-**Five.** This one is worth getting wrong. Is the word `if` inside a string tokenized as a `NAME`? Predict first.
+**Five.** This one is worth getting wrong. Is the word `if` inside a string tokenized as a `NAME`? Write your answer down before you run it.
 """)
 
 
@@ -612,7 +603,7 @@ The tokenizer is hand written C that returns one token at a time, and the `token
 
 It adds tokens of its own. `ENCODING` and `ENDMARKER` bracket the stream. `INDENT` and `DEDENT` carry the block structure that other languages spell with braces.
 
-Indentation is a stack of column numbers and three comparisons. Bigger than the top: push and emit one `INDENT`. Smaller: pop and emit one `DEDENT` per level. Equal: emit nothing.
+Indentation is a stack of column numbers and three comparisons. Bigger than the top means push and emit one `INDENT`, smaller means pop and emit one `DEDENT` per level, and equal means emit nothing.
 
 A tab moves to the next multiple of eight, and every line is measured a second time with a tab stop of one, so lining up by accident can be told apart from lining up on purpose. That is the mixed tabs and spaces check.
 
