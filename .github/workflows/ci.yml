@@ -78,6 +78,19 @@ jobs:
       # not whatever is on main, which is the whole point of running them in a pull request.
       - run: uv run nbcheck run
 
+  blueprints:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      # Structure only. The citations inside a blueprint are resolved by the citations job
+      # below, which already treats blueprints/ as one of its roots.
+      - run: uv run pytest tools/bpcheck/tests
+      - run: uv run bpcheck lint
+
   citations:
     runs-on: ubuntu-latest
     steps:
