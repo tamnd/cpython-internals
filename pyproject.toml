@@ -1,0 +1,48 @@
+[project]
+name = "cpython-internals"
+version = "0.0.0"
+description = "A visual teardown of CPython 3.15, and a specification you can reimplement from"
+readme = "README.md"
+requires-python = ">=3.14"
+license = "MIT"
+
+dependencies = [
+    "refcheck",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "ruff>=0.9",
+]
+
+[tool.uv.workspace]
+members = ["tools/refcheck"]
+
+[tool.uv.sources]
+refcheck = { workspace = true }
+
+[tool.pytest.ini_options]
+testpaths = ["tools/refcheck/tests"]
+addopts = "-q --strict-markers --strict-config"
+markers = [
+    "pinned: needs the pinned CPython source tree",
+    "freethreaded: needs a free threaded build",
+]
+filterwarnings = ["error"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = [
+    # The instrumentation packages deliberately touch private interpreter internals, and
+    # renaming those to satisfy a linter would make them stop matching CPython's own names.
+    "N802",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/*" = ["E501"]
