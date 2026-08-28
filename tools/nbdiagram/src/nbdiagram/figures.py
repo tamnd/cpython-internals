@@ -299,6 +299,41 @@ def tree(
     return scene
 
 
+def beside(
+    name: str,
+    panels: Sequence[tuple[str, Scene]],
+    *,
+    title: str = "",
+    caption: str = "",
+    gap: float = 80,
+) -> Scene:
+    """Several finished scenes laid out left to right, each under its own heading.
+
+    Written for two syntax trees that have to be compared, where the comparison is the
+    whole point and stacking them down the page means the reader is holding one in their
+    head while they look at the other. Any figure can be a panel, since a panel is just a
+    scene, and each one is drawn by the same call that would have drawn it on its own.
+    """
+    scene = Scene(name)
+    top = 0.0
+    if title:
+        scene.text(title, 0, top, size=theme.TITLE_SIZE)
+        top += theme.TITLE_SIZE * theme.LINE_HEIGHT + theme.GRID
+
+    heading_height = theme.BODY_SIZE * theme.LINE_HEIGHT + 12
+    x = 0.0
+    for heading, panel in panels:
+        left, panel_top, right, _ = panel.bounds()
+        scene.text(heading, x, top, size=theme.BODY_SIZE, align="left")
+        scene.absorb(panel, dx=x - left, dy=top + heading_height - panel_top)
+        x += (right - left) + gap
+
+    if caption:
+        bottom = max(element.box[3] for element in scene.elements)
+        scene.text(caption, 0, bottom + theme.GRID, size=theme.CAPTION_SIZE, colour=theme.MUTED)
+    return scene
+
+
 def spans(
     name: str,
     text: str,

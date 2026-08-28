@@ -75,6 +75,8 @@ The stages are named after the artefact rather than the verb, so "tokens" and no
 
 `tree` draws a tree downwards with every parent centred over its own children, for the syntax tree the front end lessons keep needing. `ast.dump` is correct and it makes the reader recover the shape of a tree from nested brackets, which is work they should not have to do.
 
+`beside` takes finished scenes and lays them out left to right under their own headings, which is how T03 gets two syntax trees next to each other. Stacking them down the page does not work, because the reader ends up holding one in their head while looking at the other, and the comparison was the whole point. Any figure can be a panel, since a panel is only a scene, and each one comes from the same call that would have drawn it on its own.
+
 `spans` is the one with an opinion in it. A token name is nearly always wider than the token it names, so labels parked under their spans either overlap each other or drift away from the thing they point at. Leader lines fix the overlap and then cross. So the labels go in a row of their own, in the same order as the spans, and each one is joined to its span by a filled ribbon. Two sequences in the same order cannot cross, and a shape reads at a glance where a thin line has to be traced.
 
 Anything genuinely one of a kind gets drawn with the `Scene` primitives directly, which is what T02's INDENT and DEDENT picture does. That is fine. What is not fine is a second, slightly different pipeline figure.

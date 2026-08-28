@@ -59,12 +59,13 @@ Pinned to `v3.15.0rc1` today and moving to `v3.15.0` when it ships on 1 October 
 
 Every lesson is a notebook with a Colab badge on it, so there is nothing to install and nothing to build. Each one is executed end to end in CI on 3.15.0rc1 and on 3.14 before it merges, and every claim it makes about CPython carries a file, a line range and a symbol that `refcheck` resolves against the pinned tree.
 
-The pictures are generated too. A lesson's `diagrams.py` sits next to its `build.py` and writes each scene out twice, once as an `.excalidraw` anybody can open and edit and once as the `.svg` the notebook embeds, and CI redraws them on every change to check the committed files still match. T02 has eleven of them.
+The pictures are generated too. A lesson's `diagrams.py` sits next to its `build.py` and writes each scene out twice, once as an `.excalidraw` anybody can open and edit and once as the `.svg` the notebook embeds, and CI redraws them on every change to check the committed files still match. Every lesson opens with the same map of the pipeline, from shared data rather than from a copy per lesson, so it cannot drift apart as the material grows.
 
 | | Lesson | What you come away with | Milestone | Run it |
 |---|---|---|---|---|
 | T01 | [One line, seven stages](lessons/t01-one-line-seven-stages/t01.ipynb) | Where `answer = 6 * 7` goes between the file and the answer, which CPython source file does each step, and why the multiplication never happens while your program is running | M1 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t01-one-line-seven-stages/t01.ipynb) |
 | T02 | [Text becomes tokens](lessons/t02-text-becomes-tokens/t02.ipynb) | How indentation actually works, why the tokenizer has never heard of a keyword, what mixed tabs and spaces really means, and what an f-string turns into | M1 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t02-text-becomes-tokens/t02.ipynb) |
+| T03 | [Tokens become a tree](lessons/t03-tokens-become-a-tree/t03.ipynb) | What a syntax tree keeps about your file and what it throws away, where the node types are written down, and a property test that says the tree is the whole meaning | M1 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t03-tokens-become-a-tree/t03.ipynb) |
 
 More are landing in order. [lessons/README.md](lessons/README.md) explains how one is put together and how to run them locally.
 
