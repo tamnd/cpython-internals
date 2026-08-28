@@ -7,6 +7,7 @@ requires-python = ">=3.14"
 license = "MIT"
 
 dependencies = [
+    "pyxray",
     "refcheck",
 ]
 
@@ -18,19 +19,23 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["tools/refcheck"]
+members = ["pyxray", "tools/refcheck"]
 
 [tool.uv.sources]
+pyxray = { workspace = true }
 refcheck = { workspace = true }
 
 [tool.pytest.ini_options]
-testpaths = ["tools/refcheck/tests"]
+testpaths = ["pyxray/tests", "tools/refcheck/tests"]
 addopts = "-q --strict-markers --strict-config"
 markers = [
     "pinned: needs the pinned CPython source tree",
     "freethreaded: needs a free threaded build",
 ]
 filterwarnings = ["error"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["pyxray", "refcheck"]
 
 [tool.ruff]
 line-length = 100

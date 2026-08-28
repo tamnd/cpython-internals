@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from refcheck.citation import Citation, CitationError, find_all
 
 
