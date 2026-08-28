@@ -38,6 +38,14 @@ nodes = programs.L2.load()  # a fresh namespace every time, nothing cached
 first = nodes.chain(("a", "b", "c"), ring=True)
 ```
 
+## The glossary
+
+There is one definition per term and it lives in [GLOSSARY.md](../GLOSSARY.md). A lesson uses a word and links to it rather than stopping to explain it, which means you can follow a link when you need one and ignore it when you do not.
+
+A builder writes `{lesson.term("code object")}` and gets a link into that file. Asking for a term nobody has defined fails while the lesson is being built, so a lesson cannot ship a link that lands at the top of the page and looks fine.
+
+The file is generated from `pyxray/src/pyxray/glossary.py`, which is also where the definitions are edited. Run `just build-glossary` after changing them. Where a definition rests on something in CPython rather than on the language reference it carries a citation, and those are resolved against the pinned tree along with every other claim in the project.
+
 ## How a lesson is put together
 
 Every code cell has a markdown cell in front of it saying what it is about to show. Every claim about CPython carries a reference to the source that makes it true, written as `Python/ceval.c:1213@v3.15.0rc1#_PyEval_EvalFrameDefault`, which is a file, a line range, a release tag and a function name. Those references are resolved against the pinned source tree on every change, so one that has gone stale fails the build rather than misleading you.

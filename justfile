@@ -70,6 +70,12 @@ build-diagrams:
 lessons:
     uv run nbbuild check
 
+# Rewrite GLOSSARY.md after editing the terms. There is no separate checker recipe for it,
+# because the test suite already compares the committed file against the module, and one
+# check that runs everywhere beats two that disagree.
+build-glossary:
+    uv run pyxray-glossary
+
 # Regenerate the notebooks after editing a builder.
 build-lessons:
     uv run nbbuild build

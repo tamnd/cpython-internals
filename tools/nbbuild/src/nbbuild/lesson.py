@@ -24,6 +24,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from pyxray.cite import markdown as cite_markdown
+from pyxray.glossary import link as glossary_link
 
 #: Colab reads notebooks straight out of GitHub, so the badge has to name the branch as
 #: well as the path. Anything else opens an older copy of the lesson without saying so.
@@ -92,6 +93,16 @@ class Lesson:
         skimming for the file and line should not have to hover over anything.
         """
         return cite_markdown(citation, citation)
+
+    def term(self, name: str, text: str = "") -> str:
+        """A word linked into the glossary, so a lesson can use it without defining it.
+
+        `text` is there for when the sentence wants a different form of the word, as in
+        `term("oparg", "the argument byte")`. Asking for a term that does not exist raises
+        at build time, which is the point: a lesson cannot ship a link to a definition
+        somebody renamed.
+        """
+        return glossary_link(name, text)
 
     def _add(self, kind: str, text: str, extra: dict) -> None:
         body = text.strip("\n")

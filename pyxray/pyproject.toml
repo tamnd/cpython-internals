@@ -6,6 +6,12 @@ requires-python = ">=3.14"
 license = "MIT"
 dependencies = ["refcheck"]
 
+# The glossary is content rather than a tool, but it is generated content, so it needs
+# something to run. One entry point is cheaper than a justfile recipe that knows how to
+# import a module.
+[project.scripts]
+pyxray-glossary = "pyxray.glossary:main"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
