@@ -10,10 +10,35 @@
       "first_line": "term[expr_ty]:",
       "lines": 7
     },
+    "Include/internal/pycore_interp_structs.h:271-286@v3.15.0rc1": {
+      "digest": "84ddd939ee6f307f",
+      "first_line": "#ifndef Py_GIL_DISABLED",
+      "lines": 16
+    },
     "Include/internal/pycore_interpframe_structs.h:29-53@v3.15.0rc1": {
       "digest": "0f12951337d13d71",
       "first_line": "struct _PyInterpreterFrame {",
       "lines": 25
+    },
+    "Include/internal/pycore_obmalloc.h:128-146@v3.15.0rc1": {
+      "digest": "2b3a0f329f4a22fe",
+      "first_line": "/*",
+      "lines": 19
+    },
+    "Include/internal/pycore_obmalloc.h:156-164@v3.15.0rc1": {
+      "digest": "730e3d06114e6a07",
+      "first_line": "* The following invariants must hold:",
+      "lines": 9
+    },
+    "Include/internal/pycore_obmalloc.h:216-226@v3.15.0rc1": {
+      "digest": "0e3a4d9e9f71759d",
+      "first_line": "#ifdef USE_LARGE_ARENAS",
+      "lines": 11
+    },
+    "Include/internal/pycore_obmalloc.h:232-241@v3.15.0rc1": {
+      "digest": "15889a76c582778b",
+      "first_line": "/*",
+      "lines": 10
     },
     "Include/internal/pycore_opcode_metadata.h:35-38@v3.15.0rc1": {
       "digest": "6f9b72fd4f002de2",
@@ -69,6 +94,11 @@
       "digest": "8cfc823933b20d75",
       "first_line": "#ifndef _Py_OPAQUE_PYOBJECT",
       "lines": 12
+    },
+    "Include/refcount.h:417-429@v3.15.0rc1": {
+      "digest": "a2af4e3c17465fe0",
+      "first_line": "static inline Py_ALWAYS_INLINE void Py_DECREF(PyObject *op)",
+      "lines": 13
     },
     "InternalDocs/exception_handling.md:108-118@v3.15.0rc1": {
       "digest": "e46da0c84e413233",
@@ -134,6 +164,26 @@
       "digest": "cbd279b0c7890bfe",
       "first_line": "static PyObject *",
       "lines": 6
+    },
+    "Objects/object.c:3282-3300@v3.15.0rc1": {
+      "digest": "6b3a6c6e934a76fc",
+      "first_line": "/*",
+      "lines": 19
+    },
+    "Objects/obmalloc.c:2594-2607@v3.15.0rc1": {
+      "digest": "b8f8c06a6e754647",
+      "first_line": "static void",
+      "lines": 14
+    },
+    "Objects/obmalloc.c:681-700@v3.15.0rc1": {
+      "digest": "35ed0214227df57e",
+      "first_line": "void",
+      "lines": 20
+    },
+    "Objects/weakrefobject.c:1001-1024@v3.15.0rc1": {
+      "digest": "2990efebc60f458b",
+      "first_line": "/* This function is called by the tp_dealloc handler to clear weak references.",
+      "lines": 24
     },
     "Parser/Python.asdl:104-105@v3.15.0rc1": {
       "digest": "8781db4c9c043822",
@@ -364,6 +414,26 @@
       "digest": "c7ded299b687e18b",
       "first_line": "/* Find the flow path that needs the largest stack.  We assume that",
       "lines": 38
+    },
+    "Python/gc.c:1041-1074@v3.15.0rc1": {
+      "digest": "3d19617d23da0777",
+      "first_line": "/* Run first-time finalizers (if any) on all the objects in collectable.",
+      "lines": 34
+    },
+    "Python/gc.c:393-412@v3.15.0rc1": {
+      "digest": "4ec4d8fcac6f2fbf",
+      "first_line": "/* Set all gc_refs = ob_refcnt.  After this, gc_refs is > 0 and",
+      "lines": 20
+    },
+    "Python/gc.c:485-501@v3.15.0rc1": {
+      "digest": "2e571c593e6b01da",
+      "first_line": "/* Subtract internal references from gc_refs.  After this, gc_refs is >= 0",
+      "lines": 17
+    },
+    "Python/gc.c:566-583@v3.15.0rc1": {
+      "digest": "ec0b2854fab4f304",
+      "first_line": "/* Move the unreachable objects from young to unreachable.  After this,",
+      "lines": 18
     },
     "Python/symtable.c:1139-1150@v3.15.0rc1": {
       "digest": "c7fd0736ea195896",
