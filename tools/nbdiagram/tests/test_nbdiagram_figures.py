@@ -294,3 +294,54 @@ def test_nesting_deeper_than_the_palette_reuses_the_last_tone():
     # Four tones and five levels has to give a colour rather than an IndexError.
     scene = figures.nest("n", ("a", [("b", [("c", [("d", ["e"])])])]))
     assert box_named(scene, "e").data["backgroundColor"]
+
+
+def bands(scene):
+    """The filled shapes in the scene, which is what a bar is drawn as."""
+    return [element for element in scene.elements if element.data["type"] == "line"]
+
+
+def test_bar_length_is_proportional_to_the_value():
+    scene = figures.bars("b", [("small", 10), ("large", 40)], width=400)
+    short, long = (element.box[2] - element.box[0] for element in bands(scene))
+    assert long == pytest.approx(short * 4)
+
+
+def test_the_largest_bar_fills_the_width():
+    scene = figures.bars("b", [("a", 3), ("b", 12)], width=500)
+    widest = max(element.box[2] - element.box[0] for element in bands(scene))
+    assert widest == pytest.approx(500)
+
+
+def test_every_bar_starts_at_the_same_place():
+    # A chart whose bars do not share a baseline is a chart that lies about the ratios.
+    scene = figures.bars("b", [("a", 1), ("bbbbbbbbbb", 2), ("cc", 3)])
+    assert len({element.box[0] for element in bands(scene)}) == 1
+
+
+def test_a_zero_is_still_drawn_as_a_row():
+    scene = figures.bars("b", [("nothing", 0), ("something", 5)])
+    assert len(bands(scene)) == 2
+    assert min(element.box[2] - element.box[0] for element in bands(scene)) > 0
+
+
+def test_the_value_is_printed_with_its_unit():
+    scene = figures.bars("b", [("list", 56)], unit="bytes")
+    assert "56 bytes" in labels(scene)
+
+
+def test_a_negative_value_is_refused_rather_than_drawn_backwards():
+    with pytest.raises(ValueError, match="nowhere to go"):
+        figures.bars("b", [("a", 1), ("b", -1)])
+
+
+def test_an_empty_chart_is_refused():
+    with pytest.raises(ValueError, match="at least one row"):
+        figures.bars("b", [])
+
+
+def test_rows_do_not_overlap_vertically():
+    scene = figures.bars("b", [("a", 1), ("b", 2), ("c", 3)])
+    boxes = sorted((element.box for element in bands(scene)), key=lambda box: box[1])
+    for before, after in pairwise(boxes):
+        assert before[3] <= after[1]

@@ -489,6 +489,84 @@ def spans(
     return scene
 
 
+def bars(
+    name: str,
+    rows: Sequence[tuple[str, float]],
+    *,
+    unit: str = "",
+    title: str = "",
+    caption: str = "",
+    tones: Sequence[str] | None = None,
+    width: float = 620,
+) -> Scene:
+    """A horizontal bar chart, for the places where a table of numbers hides the shape.
+
+    A column of `sys.getsizeof` results is a column of numbers a reader skims past. The
+    same numbers as bars show at a glance that one of them is four times the others, which
+    is the thing worth noticing. Anything where the ratio is the point belongs here and
+    anything where the exact values are the point belongs in `table`.
+
+    Bars are drawn from a zero baseline and scaled to the largest value, because a chart
+    that starts anywhere else is a chart that lies. The value is printed at the end of each
+    bar, so nobody has to estimate off an axis this deliberately does not have.
+    """
+    scene = Scene(name)
+    y = 0.0
+    if title:
+        scene.text(title, 0, y, size=theme.TITLE_SIZE)
+        y += theme.TITLE_SIZE * theme.LINE_HEIGHT + theme.GRID
+
+    labels = [label for label, _value in rows]
+    values = [value for _label, value in rows]
+    if not rows:
+        raise ValueError("a bar chart needs at least one row")
+    if min(values) < 0:
+        raise ValueError("bars are drawn from zero, so a negative value has nowhere to go")
+
+    gutter = max(text_width(label, theme.CAPTION_SIZE, mono=True) for label in labels) + theme.GRID
+    largest = max(values) or 1
+    height = 34
+    space = 10
+
+    for index, (label, value) in enumerate(rows):
+        top = y + index * (height + space)
+        scene.text(
+            label,
+            0,
+            top + (height - theme.CAPTION_SIZE * theme.LINE_HEIGHT) / 2,
+            size=theme.CAPTION_SIZE,
+            mono=True,
+        )
+        # A value of zero still gets a sliver, so the row reads as a bar of nothing rather
+        # than as a row where the drawing code gave up.
+        length = max(width * value / largest, 3)
+        tone = theme.tone(tones[index]) if tones else theme.cycle(index)
+        scene.band(
+            [
+                (gutter, top),
+                (gutter + length, top),
+                (gutter + length, top + height),
+                (gutter, top + height),
+            ],
+            fill=tone.fill,
+            colour=tone.stroke,
+        )
+        reading = f"{value:g}{' ' + unit if unit else ''}"
+        scene.text(
+            reading,
+            gutter + length + 10,
+            top + (height - theme.CAPTION_SIZE * theme.LINE_HEIGHT) / 2,
+            size=theme.CAPTION_SIZE,
+            colour=theme.MUTED,
+            mono=True,
+        )
+
+    if caption:
+        bottom = max(element.box[3] for element in scene.elements)
+        scene.text(caption, 0, bottom + theme.GRID, size=theme.CAPTION_SIZE, colour=theme.MUTED)
+    return scene
+
+
 def compare(
     name: str,
     left: tuple[str, Sequence[str]],
