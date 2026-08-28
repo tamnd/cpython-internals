@@ -28,6 +28,7 @@ from nbdiagram import Diagrams
 lesson = Lesson("t03-tokens-become-a-tree", "t03")
 badge = lesson.badge
 cite = lesson.cite
+term = lesson.term
 figure = Diagrams("t03-tokens-become-a-tree").figure
 
 lesson.md(f"""
@@ -35,15 +36,15 @@ lesson.md(f"""
 
 {badge}
 
-T02 left you with a flat list of tokens. A name, an equals sign, a number, a star, another number. That list is in the right order and it says nothing about what goes with what.
+T02 left you with a flat list of {term("token", "tokens")}: a name, an equals sign, a number, a star, another number. That list is in the right order, and it says nothing about what goes with what.
 
-This lesson is about the part that fixes that. The parser reads the tokens and builds a tree, and the tree is the first thing in the pipeline that knows `6 * 7` is one thing rather than three.
+This lesson is about the part that fixes that. The parser reads the tokens and builds an {term("abstract syntax tree")}, and the tree is the first thing in the pipeline that knows `6 * 7` is one thing rather than three.
 
 {figure("where-we-are", "the eight stages of running Python, with the syntax tree highlighted")}
 
-The interesting question about the tree is not how it gets built. It is what it keeps. Your brackets are gone by the end of this stage, and so are your spacing and your comments, and everything they meant is still there. By the end you will have watched three different files turn into exactly the same tree, and then checked that claim against every module in your own standard library.
+The interesting question about the tree is not how it gets built but what it keeps. Your brackets are gone by the end of this stage, and so are your spacing and your comments, and everything they meant is still there. By the end you will have watched three different files turn into exactly the same tree, and then checked that claim against every module in your own standard library.
 
-No C required, and no build of your own. Everything here runs on a normal Python.
+No C required and no build of your own, since everything here runs on a normal Python.
 """)
 
 
@@ -99,7 +100,7 @@ pyxray.show()
 lesson.md(f"""
 ## One line, one tree
 
-`ast.parse` runs the real parser, the same one that runs when you import a module. It is a PEG parser, generated from a grammar file into `Parser/parser.c` and driven by {cite("Parser/pegen.c:938-941@v3.15.0rc1#_PyPegen_run_parser")}, and the Python side of it is {cite("Lib/ast.py:26-30@v3.15.0rc1#parse")}, which is a thin wrapper around `compile` with a flag set.
+`ast.parse` runs the real parser, the same one that runs when you import a module. It is a {term("PEG parser")}, generated from a {term("grammar")} file into `Parser/parser.c` and driven by {cite("Parser/pegen.c:938-941@v3.15.0rc1#_PyPegen_run_parser")}, and the Python side of it is {cite("Lib/ast.py:26-30@v3.15.0rc1#parse")}, which is a thin wrapper around `compile` with a flag set.
 
 Start with the line from T01.
 """)
@@ -131,13 +132,13 @@ print(ast.dump(ast.parse(SOURCE), indent=4))
 lesson.md(f"""
 ## Where the node types are written down
 
-Python's syntax tree is not defined inside a compiler somewhere. It is defined in one readable file, {cite("Parser/Python.asdl:62@v3.15.0rc1#BinOp")}, in a small language called ASDL that exists to describe tree shapes.
+Python's syntax tree is not defined inside a compiler somewhere. It is defined in one readable file, {cite("Parser/Python.asdl:62@v3.15.0rc1#BinOp")}, in a small language called {term("ASDL")} that exists to describe tree shapes.
 
-The line for `BinOp` in that file says it has three fields: an expression on the left, an operator, and an expression on the right. Here is the nice part. That line is the docstring of the class.
+The line for `BinOp` in that file says it has three fields: an expression on the left, an operator, and an expression on the right. The neat part is that the same line ends up as the docstring of the class.
 
 {figure("where-the-node-classes-come-from", "Python.asdl is read by asdl_c.py, which generates the classes and puts the declaration in the docstring")}
 
-{cite("Parser/asdl_c.py:95-109@v3.15.0rc1#asdl_of")} turns each declaration back into text at build time, and {cite("Parser/asdl_c.py:1617-1619@v3.15.0rc1#make_type")} hands it to `type()` as the docstring of the generated class. So what comes back below is the definition itself, not somebody's description of it.
+{cite("Parser/asdl_c.py:95-109@v3.15.0rc1#asdl_of")} turns each declaration back into text at build time, and {cite("Parser/asdl_c.py:1617-1619@v3.15.0rc1#make_type")} hands it to `type()` as the docstring of the generated class. Everything below `Lib/ast.py` here is a {term("generated file")}, so what comes back is the definition itself rather than somebody's description of it.
 """)
 
 
@@ -162,7 +163,7 @@ print("Mult has fields:", trees.fields(ast.Mult))
 
 
 lesson.md(f"""
-`Mult` has no fields, because it is a case rather than a container. It is not a node holding a `*` somewhere inside it. It is the name of which operator this is, and the full list is fixed at {cite("Parser/Python.asdl:104-105@v3.15.0rc1#operator")}. An operator that is not on that list cannot reach the compiler, because there is nothing for the parser to build.
+`Mult` has no fields, because it is a case rather than a container. It is not a node holding a `*` somewhere inside it, it is the name of which operator this is, and the full list is fixed at {cite("Parser/Python.asdl:104-105@v3.15.0rc1#operator")}. An operator that is not on that list cannot reach the compiler, because there is nothing for the parser to build.
 
 The C function that actually assembles one of these is {cite("Python/Python-ast.c:7767-7770@v3.15.0rc1#_PyAST_BinOp")}, and it is generated from the same ASDL file.
 """)
@@ -171,11 +172,11 @@ The C function that actually assembles one of these is {cite("Python/Python-ast.
 lesson.md(f"""
 ## Three files, one tree
 
-Here is the claim this lesson is really about. The tree keeps what your code means and throws away how you wrote it.
+The claim this lesson is really about is that the tree keeps what your code means and throws away how you wrote it.
 
 {figure("three-sources-one-tree", "three differently written files all producing one identical tree")}
 
-Three files. Brackets in one, no spaces in another, a comment on the third. Ask whether any two of them produce the same tree.
+Three files, with brackets in one, no spaces in another and a comment on the third. Ask whether any two of them produce the same tree.
 """)
 
 
@@ -188,7 +189,7 @@ for other in WRITTEN[1:]:
 
 
 lesson.md("""
-All the same tree. Not similar, not equivalent: identical, field for field.
+All three give the same tree, and not just a similar or equivalent one: identical, field for field.
 
 It is worth seeing that the brackets really were there a moment ago. The tokenizer from T02 hands the parser both of them as ordinary tokens, and the parser is where they stop existing.
 """)
@@ -209,7 +210,7 @@ print(trees.outline("answer = (6 * 7)\n"))
 lesson.md(f"""
 ## What the brackets did is still there
 
-The obvious objection is that brackets change what code means, so they cannot just vanish. They do not vanish. They are turned into shape.
+The obvious objection is that brackets change what code means, so they cannot just vanish. They do not vanish, they are turned into shape.
 
 {figure("precedence-is-the-shape", "the trees for 1 + 2 * 3 and (1 + 2) * 3, side by side")}
 
@@ -256,7 +257,7 @@ lesson.md("""
 lesson.md(f"""
 ## Turning a tree back into text
 
-{cite("Lib/ast.py:653-659@v3.15.0rc1#unparse")} takes a tree and gives you source code back. Not your source code. Source code that means the same thing.
+{cite("Lib/ast.py:653-659@v3.15.0rc1#unparse")} takes a tree and gives you source code back. It is not your source code, it is source code that means the same thing.
 
 {figure("what-unparse-rewrites", "a table of five things you might write and what unparse gives back")}
 
@@ -273,16 +274,16 @@ for source in ["x = 0x2a", "x = 1_000_000", "x = 'a' 'b'", "x = (1 + 2)", "x = 1
 lesson.md("""
 `0x2a` comes back as `42` because the tree holds the number and not the base you wrote it in. `1_000_000` loses its underscores for the same reason. `'a' 'b'` was already joined into one string by the parser, since adjacent string literals are glued together as part of the grammar rather than at runtime.
 
-Every one of them says "same tree". That is the property worth remembering, and it is worth checking rather than believing.
+Every one of them says "same tree", which is the property worth remembering and worth checking rather than believing.
 """)
 
 
 lesson.md("""
 ## The round trip, on real code
 
-Here is the property in one sentence. Take any source file, parse it, unparse it, and parse the result. The two trees should be identical.
+The property in one sentence: take any source file, parse it, unparse it, and parse the result, and the two trees should be identical.
 
-Four examples proving a property is not proof of anything. So run it over every module in the standard library that shipped with the interpreter you are using right now.
+Four examples do not prove a property, so run it over every module in the standard library that shipped with the interpreter you are using right now.
 """)
 
 
@@ -295,7 +296,7 @@ print(report)
 
 
 lesson.md("""
-Every module, same tree both times. That is a real property test over a few hundred thousand lines of code that nobody wrote for this lesson, and it took about a second.
+Every module gives the same tree both times. That is a real property test over a few hundred thousand lines of code that nobody wrote for this lesson, and it took about a second.
 
 It is worth being clear about what it does not prove. It says nothing about whether the unparsed text is nice to read, and nothing about the files that were skipped, which are mostly test fixtures that are deliberately not valid on this version. What it does show is that the tree really is the whole meaning of the file, because you can throw the file away and rebuild it.
 """)
@@ -336,12 +337,12 @@ Then you checked the whole thing by turning trees back into text and parsing the
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## Where this goes next
 
 The tree is the last stage that is only about syntax. Everything after it is about meaning.
 
-T04 is the next box along, and it is the first pass that asks a question the tree cannot answer on its own: when this code says `answer`, which `answer` is that? The tree has a `Name` node and nothing else. The symbol table decides whether that name is a local, a global, or something borrowed from an enclosing function, and the compiler cannot pick an instruction until it knows.
+T04 is the next box along, and it is the first pass that asks a question the tree cannot answer on its own: when this code says `answer`, which `answer` is that? The tree has a `Name` node and nothing else. The {term("symbol table")} decides whether that name is a local, a global, or something borrowed from an enclosing function, and the compiler cannot pick an instruction until it knows.
 
 That pass is also where one of Python's most confusing error messages comes from. A function that assigns to a name anywhere treats it as local everywhere, including on the line before the assignment, which is why you can get an `UnboundLocalError` from a name that clearly has a value.
 """)
