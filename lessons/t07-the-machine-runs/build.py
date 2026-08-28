@@ -24,6 +24,7 @@ from nbdiagram import Diagrams
 lesson = Lesson("t07-the-machine-runs", "t07")
 badge = lesson.badge
 cite = lesson.cite
+term = lesson.term
 figure = Diagrams("t07-the-machine-runs").figure
 
 lesson.md(f"""
@@ -31,17 +32,15 @@ lesson.md(f"""
 
 {badge}
 
-Six lessons of building. Text became tokens, tokens became a tree, the tree got scopes, the scopes became bytecode, and T06 taught you to read the result. Every one of those lessons ended with something on the table and nothing happening to it.
-
-This is the lesson where something happens.
+Six lessons of building. Text became tokens, tokens became a tree, the tree got scopes, the scopes became bytecode, and T06 taught you to read the result. Every one of those lessons ended with something built and nothing running. This is the lesson where it runs.
 
 {figure("where-we-are", "the eight stages of running Python, with the last stage highlighted")}
 
-The part of CPython that runs bytecode is smaller than most people expect. It is one loop. It reads an instruction, does what the instruction says, and reads the next one. There is no scheduler, no plan, and no lookahead. Everything Python can do is one of about two hundred handlers inside that loop.
+The part of CPython that runs {term("bytecode")} is smaller than most people expect. It is one loop, called the {term("eval loop")}, and it reads an instruction, does what the instruction says, and reads the next one. There is no scheduler, no plan and no lookahead, and everything Python can do is one of about two hundred handlers inside that loop.
 
 By the end you will have watched a real function run one instruction at a time, seen frames appear and disappear as calls are made, and found out why ninety thousand Python calls are fine on your machine while two thousand calls through `sorted` are not.
 
-No C required. Everything here runs on a normal Python.
+No C required, and everything here runs on a normal Python.
 """)
 
 
@@ -94,28 +93,28 @@ pyxray.show()
 lesson.md(f"""
 ## The loop
 
-Here is the whole interpreter.
+The whole interpreter fits in one picture.
 
 {figure("the-loop", "the interpreter as a ring: read two bytes, look up the handler, run it, move the pointer on")}
 
-Read two bytes. That gives an opcode and an argument, which is exactly the encoding T06 pulled apart. Look up the code for that opcode. Run it, which usually means pushing or popping a few things. Move the instruction pointer past the instruction and past any inline cache slots behind it. Then go back to the top.
+Read two bytes, which gives an opcode and an argument, exactly the encoding T06 pulled apart. Look up the code for that opcode. Run it, which usually means pushing or popping a few things. Move the instruction pointer past the instruction and past any inline cache slots behind it. Then go back to the top.
 
 The C for that ring is two macros. {cite("Python/ceval_macros.h:198-206@v3.15.0rc1#DISPATCH")} is the whole cycle: read the next opcode and argument, then jump to the handler. Every handler ends by calling it.
 
 The function containing all of this is {cite("Python/ceval.c:1212-1218@v3.15.0rc1#_PyEval_EvalFrameDefault")}. It is around six thousand lines, and almost all of that is the handlers rather than the loop. The loop itself is the four boxes above.
 
-One thing worth noticing early: nothing in that ring says "call a function". A Python function calling a Python function does not leave the loop. We will get to why that matters.
+One thing worth noticing early: nothing in that ring says "call a function". A Python function calling a Python function does not leave the loop, and the section on two stacks is where that starts to matter.
 """)
 
 
 lesson.md(f"""
 ## Three ways to get to the handler
 
-"Look up the code for that opcode" hides a choice, and CPython makes it three different ways depending on how it was built.
+"Look up the code for that opcode" hides a choice. That step is called {term("dispatch")}, and CPython does it three different ways depending on how it was built.
 
 {figure("three-ways-to-jump", "three dispatch strategies with their costs and when CPython uses each")}
 
-The plain version is a `switch` on the opcode inside a `while` loop, which every C compiler understands. The faster version is a jump table: an array of label addresses, one per opcode, and `goto *opcode_targets[opcode]`. That gives every instruction its own copy of the jump, which the processor's branch predictor can learn separately, and it is worth real percentage points.
+The plain version is a `switch` on the opcode inside a `while` loop, which every C compiler understands. The faster version is a {term("computed goto")}: an array of label addresses, one per opcode, and `goto *opcode_targets[opcode]`. That gives every instruction its own copy of the jump, which the processor's branch predictor can learn separately, and it is worth real percentage points.
 
 The newest version replaces the jump table with a table of functions, and each handler ends by tail calling the next one. Written as a normal call it would grow the C stack forever, so it relies on the compiler turning a tail call into a jump. All three live in the same header: {cite("Python/ceval_macros.h:128-141@v3.15.0rc1#DISPATCH_GOTO")}.
 
@@ -140,18 +139,18 @@ for argument in arguments.replace("'", "").split():
 
 
 lesson.md("""
-Same instruction set and same results either way. This is one of the places where CPython is genuinely two or three programs wearing the same source code, and the difference is invisible from Python except through the note above.
+Same instruction set and the same results either way. This is one of the places where CPython is really two or three programs built from the same source, and the difference is invisible from Python except through the note above.
 """)
 
 
 lesson.md(f"""
 ## What one call needs
 
-The loop needs somewhere to keep things. That somewhere is a frame, and it is one block of memory laid out in a fixed order.
+The loop needs somewhere to keep things. That somewhere is a {term("frame")}, and it is one block of memory laid out in a fixed order.
 
 {figure("a-frame", "a frame as three stacked regions: specials, locals, and the value stack")}
 
-The specials are the fixed size part: which code object is running, the globals, the builtins, the previous frame, and `instr_ptr`, which is where we are in the bytecode. Then one slot per local variable. Then `co_stacksize` slots of working space, which is the number T06 spent half a lesson computing.
+The specials are the fixed size part: which code object is running, the globals, the builtins, the previous frame, and `instr_ptr`, which is where we are in the bytecode. Then one slot per local variable. Then `co_stacksize` slots of working space for the {term("value stack")}, which is the number T06 spent half a lesson computing.
 
 The struct is {cite("Include/internal/pycore_interpframe_structs.h:29-53@v3.15.0rc1#_PyInterpreterFrame")}. The layout is why the interpreter can be fast about locals: `LOAD_FAST 3` is an offset from the start of the frame, worked out at compile time, so there is no dictionary and no name lookup at all.
 
@@ -162,7 +161,7 @@ Frames are not allocated one at a time. They go on a per thread stack, contiguou
 lesson.md(f"""
 ## Calling Python from Python
 
-Now the part that surprises people. When your Python function calls another Python function, the interpreter does not call itself.
+This is the part that surprises people. When your Python function calls another Python function, the interpreter does not call itself.
 
 {figure("a-call-in-four-moves", "CALL pushes a frame, jumps to the callee, runs the same loop, and RETURN_VALUE pops it")}
 
@@ -177,7 +176,7 @@ This is why `RETURN_VALUE` had a stack effect of zero back in T06. The value is 
 lesson.md(f"""
 ## Two stacks, and only one of them is small
 
-There are two stacks in play and they are easy to confuse, so here they are side by side.
+There are two stacks in play and they are easy to confuse, so the picture below puts them side by side.
 
 {figure("two-stacks", "Python calling Python grows only the data stack, while calling through C grows both")}
 
@@ -185,7 +184,7 @@ The data stack is the per thread thing frames live on. It grows as needed and it
 
 Python calling Python only touches the first one. Python calling something written in C that calls back into Python touches both, because the C function has a real C stack frame that has to stay put while the callback runs. `sorted` with a `key` is the classic example.
 
-The next cell shows the difference. It takes a few seconds and it will print a `RecursionError`, which is the point.
+The next cell shows the difference. It takes a few seconds and prints a `RecursionError`, which is the point.
 """)
 
 
@@ -232,7 +231,7 @@ The number you got is specific to your machine, your build, and how much stack w
 lesson.md(f"""
 ## Watching it happen
 
-Everything so far has been description. Now we watch.
+Everything so far has been description, and the rest of the lesson is observation.
 
 Since 3.12 there is a supported way to ask the interpreter to tell you what it is doing, and it is a lot better than the old one. You claim a tool id, register callbacks for the events you care about, and turn those events on for a specific code object.
 
@@ -263,7 +262,7 @@ print("   ", ", ".join(events))
 lesson.md("""
 ## Frames appearing and disappearing
 
-Three events are enough to draw a call tree: a function started, a function returned, a function left because of an exception. Nothing here parses anything or guesses. Every line is the interpreter reporting a frame being pushed or popped.
+Three events are enough to draw a call tree: a function started, a function returned, a function left because of an exception. Nothing here parses or guesses, and every line is the interpreter reporting a frame being pushed or popped.
 """)
 
 
@@ -330,7 +329,7 @@ finally:
 
 
 lesson.md("""
-Three `leaf` frames go on, the innermost one raises, and all three come off through `PY_UNWIND` rather than `PY_RETURN`. Then `top` catches it and returns normally. That is the frame stack unwinding, one frame per line, in real time.
+Three `leaf` frames go on, the innermost one raises, and all three come off through `PY_UNWIND` rather than `PY_RETURN`. Then `top` catches it and returns normally. That is the frame stack unwinding, one frame per line, as it happens.
 
 That cell uses `set_events`, which turns the events on for the whole process, and the callbacks throw away anything that is not one of our two functions. The cheaper call is `set_local_events`, which turns events on for one code object and leaves everything else in the process paying nothing. It is used further down for exactly that reason.
 
@@ -373,7 +372,7 @@ print("   ", ", ".join(local))
 lesson.md("""
 ## One instruction at a time
 
-`INSTRUCTION` is the event that fires for every single instruction, and it is what a stepper is built on. There is one thing it will not give you.
+`INSTRUCTION` is the event that fires for every single instruction, and it is what a stepper is built on. One thing it will not give you is described below.
 """)
 
 
@@ -409,9 +408,9 @@ print(recording.table())
 
 
 lesson.md("""
-Read the offset column rather than the step column. It counts up, then drops back to the offset of the `FOR_ITER`, three times over. That is the loop, and the drop is the back edge T06 taught you to spot in a listing. Here you are watching it get taken.
+Read the offset column rather than the step column. It counts up, then drops back to the offset of the `FOR_ITER`, three times over. That is the loop, and the drop is the back edge T06 taught you to spot in a listing, here being taken.
 
-The exact offsets depend on your version, because inline cache sizes change between releases. The shape does not.
+The exact offsets depend on your version, because inline cache sizes change between releases, and the shape stays the same.
 
 The bars on the right are the stack height after each instruction. It peaks inside the loop body, when `LOAD_FAST_BORROW_LOAD_FAST_BORROW` puts both `total` and `item` on top of what was already there, then comes back down. That peak is exactly `co_stacksize`, which is the number T06 spent half a lesson working out, and this run used all of it.
 
@@ -422,7 +421,7 @@ The last `FOR_ITER` is the one that finds the list empty. After it comes `POP_IT
 lesson.md(f"""
 ### The instruction that never shows up
 
-Count rows against a disassembly of `total_of` and one instruction is missing. There is an `END_FOR` between the last `FOR_ITER` and the `POP_ITER`, and it is not in the table above. Not once.
+Count rows against a disassembly of `total_of` and one instruction is missing. There is an `END_FOR` between the last `FOR_ITER` and the `POP_ITER`, and it does not appear in the table above at all.
 
 That is deliberate and it is written into the instruction's declaration: {cite("Python/bytecodes.c:393-400@v3.15.0rc1#END_FOR")}. The `no_save_ip` marker means this instruction does not update the recorded instruction pointer, so as far as instrumentation is concerned it never becomes the current instruction. The comment explains why: `POP_ITER` needs to see the `FOR_ITER` as the instruction before it.
 
@@ -446,7 +445,7 @@ for offset, opname in compiled.items():
 lesson.md("""
 ## Which way did the branch go
 
-`INSTRUCTION` is the heaviest event there is. Most of the time you want less. `JUMP`, `BRANCH_LEFT` and `BRANCH_RIGHT` report only the moments where control could have gone two ways, and they tell you which way it went.
+`INSTRUCTION` is the heaviest event there is, and most of the time you want less. `JUMP`, `BRANCH_LEFT` and `BRANCH_RIGHT` report only the moments where control could have gone two ways, and they say which way it went.
 """)
 
 
@@ -491,14 +490,14 @@ This is what a coverage tool wants. It does not care about every instruction, it
 
 ## Why this is cheap
 
-Here is the design decision that makes `sys.monitoring` different from everything before it.
+One design decision makes `sys.monitoring` different from everything before it.
 """)
 
 
 lesson.md(f"""
 {figure("turning-an-event-off", "returning None keeps firing, returning DISABLE stops at that location")}
 
-A callback can return `sys.monitoring.DISABLE`. That does not turn the event off. It turns the event off at that one code location, permanently, until somebody calls `restart_events`. A loop that runs a million times fires the callback once per instruction in the body and then goes quiet.
+A callback can return `sys.monitoring.DISABLE`. That does not turn the event off everywhere, it turns it off at that one code location, permanently, until somebody calls `restart_events`. A loop that runs a million times fires the callback once per instruction in the body and then goes quiet.
 
 The next cell counts the calls both ways on the same five pass loop.
 """)
@@ -543,7 +542,7 @@ for label, disable in [("returning None", False), ("returning DISABLE", True)]:
 
 
 lesson.md(f"""
-Forty calls against fifteen. The loop body ran five times and the callback saw it once.
+Forty calls against fifteen: the loop body ran five times and the callback saw it once.
 
 The old way is `sys.settrace`, which is what `pdb` and the original `coverage` are built on. It has one hook for the whole process, it fires on every line of every function once it is on, and there is no way to say "stop telling me about this one". Turning it on also switches the interpreter into a slower dispatch mode for everything, because instrumentation has to be checked between instructions: {cite("Python/ceval_macros.h:128-141@v3.15.0rc1#DISPATCH_GOTO")} is where the tracing and non tracing tables diverge.
 
@@ -585,15 +584,15 @@ for kind, number in seen.most_common():
 
 
 lesson.md("""
-Thirty nine calls, and no way to reduce them except by turning the whole thing off. `sys.monitoring` was added because debuggers and coverage tools were paying that price on every line of every program they touched.
+Thirty nine calls, with no way to reduce them except by turning the whole thing off. `sys.monitoring` was added because debuggers and coverage tools were paying that price on every line of every program they touched.
 
-`settrace` still works and is not going anywhere. If you are writing something new, the newer one is the one to reach for.
+`settrace` still works and is not going anywhere. For anything new, reach for the newer one.
 
 ## Frames from Python
 
-The frame the interpreter uses is not a Python object. It is the block of memory from the diagram earlier. `PyFrameObject`, the thing you get from `sys._getframe()`, is built on demand and cached in the `frame_obj` field of that block, which you can see in the struct listing above.
+The frame the interpreter uses is not a Python object, it is the block of memory from the diagram earlier. `PyFrameObject`, the thing you get from `sys._getframe()`, is built on demand and cached in the `frame_obj` field of that block, which you can see in the struct listing above.
 
-You can watch the caching happen.
+The caching is visible from Python.
 """)
 
 
@@ -674,30 +673,30 @@ first()
 
 
 lesson.md("""
-Innermost first, out to whatever is running the notebook. `stepper.chain` is nine lines and it does nothing clever: take `sys._getframe()`, read `f_back` until it is `None`.
+Innermost first, out to whatever is running the notebook. `stepper.chain` is nine lines and does nothing clever: take `sys._getframe()` and read `f_back` until it is `None`.
 
 ## Try it yourself
 
-One. Run the stepper on a function with a `try` and an `except` in it, and raise something. Watch where the offsets jump to when the exception fires, then compare that with what `dis` shows for the exception table.
+**One.** Run the stepper on a function with a `try` and an `except` in it, and raise something. Watch where the offsets jump to when the exception fires, then compare that with what `dis` shows for the exception table.
 
-Two. Take the branch counting cell and turn it into a tiny coverage tool: record every `(offset, destination)` pair once, return `DISABLE`, and afterwards report which branches were never taken.
+**Two.** Take the branch counting cell and turn it into a small coverage tool: record every `(offset, destination)` pair once, return `DISABLE`, and afterwards report which branches were never taken.
 
-Three. `stepper.run` records the function you pass it and nothing it calls. Change it so it records a whole call tree by setting local events on the callee too when `PY_START` fires. Then find out how much slower the recording is.
+**Three.** `stepper.run` records the function you pass it and nothing it calls. Change it so it records a whole call tree by setting local events on the callee too when `PY_START` fires, then find out how much slower the recording is.
 
-Four. Find the recursion depth your machine allows through `sorted`, then try again with the thread's stack size raised using the `threading.stack_size` function. The number should move.
+**Four.** Find the recursion depth your machine allows through `sorted`, then try again with the thread's stack size raised using the `threading.stack_size` function. The number should move.
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## What just happened
 
 The interpreter is one loop: read two bytes, look up the handler, run it, move the pointer on. Everything Python does is a handler inside that loop.
 
-How the loop reaches the handler depends on the build. A `switch`, a computed goto through a jump table, or a tail call through a table of functions. Same results either way.
+How the loop reaches the handler depends on the build: a `switch`, a computed goto through a jump table, or a tail call through a table of functions. Same results either way.
 
 A frame is one block of memory holding the specials, the locals, and `co_stacksize` slots of working space. Frames go on a per thread stack, not on the C stack, so they can outlive the call.
 
-Python calling Python pushes a frame and jumps. It does not recurse in C, which is why ninety thousand deep is fine. Going out through a C function and back in grows the real C stack, which is a few megabytes and runs out at a few thousand.
+Python calling Python pushes a frame and jumps rather than recursing in C, which is why ninety thousand deep is fine. Going out through a C function and back in grows the real C stack, which is a few megabytes and runs out at a few thousand.
 
 `sys.monitoring` reports what the interpreter is doing, per code object, with a `DISABLE` return value that switches an event off at one location. That makes it cheap in a way `sys.settrace` never was.
 
@@ -707,7 +706,7 @@ Nothing in the standard library reads the values on the value stack. Joining obs
 
 You have now followed one line of Python from text all the way to a running instruction, which was the whole point of the first part.
 
-T08 turns around and looks at what all those instructions have been pushing and popping. Every one of those values is a `PyObject`, every `PyObject` has a type, and the type is where the behaviour lives. That is the start of the second half.
+T08 turns around and looks at what all those instructions have been pushing and popping. Every one of those values is a `PyObject`, every `PyObject` has a {term("type object", "type")}, and the type is where the behaviour lives. That is the start of the second half.
 """)
 
 

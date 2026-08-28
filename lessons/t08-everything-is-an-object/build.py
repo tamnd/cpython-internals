@@ -23,6 +23,7 @@ from nbdiagram import Diagrams
 lesson = Lesson("t08-everything-is-an-object", "t08")
 badge = lesson.badge
 cite = lesson.cite
+term = lesson.term
 figure = Diagrams("t08-everything-is-an-object").figure
 
 lesson.md(f"""
@@ -36,7 +37,7 @@ T07 ended with the interpreter loop pushing and popping things. This lesson is a
 
 Notice that nothing is lit up. The earlier lessons each owned one box in that picture. This one is about what travels along every arrow between them, which is the same kind of value at every stage: a `PyObject`.
 
-You have probably read the sentence "everything in Python is an object" and nodded at it. It is more literal than it sounds. An integer is an object. A string is an object. A function is an object. The type of a function is an object. The module you are in is an object, and so is the frame you are running in. All of them start with the same two fields in memory, and that is what lets one interpreter loop push any of them around without knowing what they are.
+You have probably read the sentence "everything in Python is an object" and nodded at it, and it is more literal than it sounds. An integer is an {term("object")}, so is a string, so is a function, and so is the type of that function. The module you are in is an object, and so is the {term("frame")} you are running in. All of them start with the same two fields in memory, which is what lets one interpreter loop push any of them around without knowing what they are.
 
 By the end you will be able to answer four questions about any value on your screen, you will know why `257 is 257` says True for a reason that has nothing to do with the answer everybody gives, and you will know why `sys.getrefcount` started giving different answers for the same object in 3.14.
 """)
@@ -93,7 +94,7 @@ Before anything else, four one line questions. Write your four answers down some
 
 Does `256 is 256` say True? Does `257 is 257`? Does `"a" * 1 is "a"`? Does `[] is []`?
 
-Guessing badly here is the useful outcome. Three of these four have an answer that is right for a reason almost nobody gets right, and the rest of the lesson is about that gap.
+Guessing wrong here is the useful part. Three of these four have an answer that is right for a reason almost nobody gets right, and the rest of the lesson is about that gap.
 """)
 
 
@@ -123,29 +124,29 @@ If you predicted False for the second one because you read somewhere that the ca
 
 ## What every object starts with
 
-Here is what sits in front of every value in a running Python.
+Every value in a running Python has the same thing sitting in front of it.
 """)
 
 
 lesson.md(f"""
 {figure("the-header", "the object header as three stacked fields: refcount, type pointer, then the type specific data")}
 
-Two fields, then whatever the specific type needs. The C is {cite("Include/object.h:127-150@v3.15.0rc1#_object")}, and it is shorter than most people expect for the most important struct in the codebase.
+Two fields, then whatever the specific type needs. That is the {term("object header")}, and the C for it is {cite("Include/object.h:127-150@v3.15.0rc1#_object")}, which is shorter than most people expect for the most important {term("struct")} in the codebase.
 
-That shape is the whole trick. The interpreter loop from T07 pushes and pops `PyObject *`, which is a pointer to those two fields. It never needs to know whether the thing on the end of the pointer is a dictionary or a socket. When it needs behaviour it follows `ob_type` and asks the type. When it is done with a value it decrements `ob_refcnt`.
+That shape is what makes the rest of it work. The {term("eval loop")} from T07 pushes and pops `PyObject *`, which is a {term("pointer")} to those two fields, so it never needs to know whether the thing on the end of the pointer is a dictionary or a socket. When it needs behaviour it follows `ob_type` and asks the type, and when it is done with a value it decrements `ob_refcnt`.
 
-The free threaded build has a wider header, because a plain increment is not safe when two threads do it at once: {cite("Include/object.h:156-170@v3.15.0rc1#_object")}. Same idea, more fields. Everything below is about the ordinary build.
+The free threaded build has a wider header, because a plain increment is not safe when two threads do it at once: {cite("Include/object.h:156-170@v3.15.0rc1#_object")}. It is the same idea with more fields in it. Everything below is about the ordinary build.
 """)
 
 
 lesson.md(f"""
 ## Four questions
 
-There are exactly four things Python will tell you about the header, and each one is easy to over read.
+There are exactly four things Python will tell you about the header, and each one is easy to read too much into.
 
 {figure("four-questions", "a table of id, type, getrefcount and getsizeof with what each one does not tell you")}
 
-The last column is the one worth memorising. Every popular confusion about identity, memory and lifetime lives in that column.
+The last column is the one worth memorising, because every popular confusion about identity, memory and lifetime lives in it.
 
 `pyxray.obj.header` asks all four at once and prints them as a sentence.
 """)
@@ -159,10 +160,10 @@ for value in [None, 42, "hello", [1, 2, 3], {"a": 1}, obj.header]:
 """)
 
 
-lesson.md("""
-Read the last line. `obj.header` is a function, and a function has an address, a type, a reference count and a size just like a list does. That is the sentence "everything is an object" turned into something you can print.
+lesson.md(f"""
+Look at the last line. `obj.header` is a function, and a function has an address, a type, a {term("reference count")} and a size just like a list does. That is the sentence "everything is an object" turned into something you can print.
 
-Two things in that output are worth pausing on. `None` reports that its reference count is parked rather than reporting a number, which we get to below. And the ints and the strings say they are not tracked by the cycle collector, because an int cannot hold a reference to anything, so it can never be part of a cycle, so the collector does not carry the extra header for it. The collector is opt in per type rather than universal, and T09 is where that becomes the whole story.
+Two things in that output are worth pausing on. `None` reports that its reference count is parked rather than reporting a number, which we get to below. And the ints and the strings say they are not tracked by the {term("cycle collector")}, because an int cannot hold a reference to anything, so it can never be part of a cycle, and the collector does not carry the extra header for it. The collector is opt in per type rather than universal, and T09 is where that starts to matter.
 
 ## Two questions that look alike
 
@@ -175,9 +176,9 @@ lesson.md(f"""
 
 `==` is a method call. `int.__eq__` compares values, `str.__eq__` compares characters, and your own class can make it mean whatever you like.
 
-`is` compares two addresses. The instruction is {cite("Python/bytecodes.c:3363-3370@v3.15.0rc1#_IS_OP")}, and the whole implementation is one call to `Py_Is`, which is a pointer comparison. No type is consulted and no method is called, which is why you cannot override it and why it is fast.
+`is` compares two addresses. The {term("instruction")} is {cite("Python/bytecodes.c:3363-3370@v3.15.0rc1#_IS_OP")}, and the whole implementation is one call to `Py_Is`, which is a pointer comparison. No type is consulted and no method is called, which is why you cannot override it and why it is fast.
 
-So `a is b` is asking "are these two names pointing at the same object", and `a == b` is asking "do these two objects agree that they are equal". Different questions with different answers.
+So `a is b` is asking "are these two names pointing at the same object", and `a == b` is asking "do these two objects agree that they are equal". They are different questions and they can give different answers.
 """)
 
 
@@ -203,16 +204,16 @@ The rule for which one to use is short. Use `is` for `None`, `True`, `False` and
 
 ## The shelf
 
-Now the small integers.
+Small integers get special treatment, and it is worth knowing exactly what the treatment is.
 """)
 
 
 lesson.md(f"""
 {figure("the-shelf", "the small integer cache drawn as a row of prebuilt boxes with everything past the end built fresh")}
 
-CPython builds a block of integer objects while it is starting up, before your code runs, and hands out pointers into that block whenever an arithmetic result lands in range. The handing out is one line: {cite("Objects/longobject.c:60-65@v3.15.0rc1#get_small_int")}, which indexes an array rather than allocating anything.
+CPython builds a block of integer objects while it is starting up, before your code runs, and hands out pointers into that block whenever an arithmetic result lands in range. That block is the {term("small integer cache")}, and the handing out is one line: {cite("Objects/longobject.c:60-65@v3.15.0rc1#get_small_int")}, which indexes an array rather than allocating anything.
 
-The size of the array is a number in a header file: {cite("Include/internal/pycore_runtime_structs.h:96-98@v3.15.0rc1#_PY_NSMALLPOSINTS")}. That is where the famous 256 came from, and it is why the famous 256 is now wrong. On 3.15 it is 1025.
+The size of the array is a number in a {term("header file")}: {cite("Include/internal/pycore_runtime_structs.h:96-98@v3.15.0rc1#_PY_NSMALLPOSINTS")}. That is where the famous 256 came from, and it is also why the famous 256 is now wrong, because on 3.15 it is 1025.
 
 It exists because small integers are everywhere. Loop counters, list lengths, indexes, flags. Allocating a fresh object for every `i + 1` in a program would be a lot of allocation for a handful of distinct values.
 
@@ -233,11 +234,11 @@ for value in [-6, -5, 0, 255, 256, 257, 1024, 1025]:
 
 
 lesson.md("""
-Note how the probe builds its integers. It uses `int(str(n))` rather than writing the literal twice, and that is not decoration.
+Note how the probe builds its integers. It uses `int(str(n))` rather than writing the literal twice, and the next section is about why that matters.
 
 ## Two reasons to say True
 
-Here is the thing the famous example gets wrong.
+The famous `257 is 257` example gets one thing wrong, and it is worth being exact about which thing.
 """)
 
 
@@ -263,7 +264,7 @@ print("a is b ->", scope["a"] is scope["b"], "  because there is one constant, n
 
 
 lesson.md("""
-One 257 in the tuple, two instructions loading it. The cache never came into it.
+One 257 in the tuple and two instructions loading it, so the cache never came into it.
 
 Now the same question asked in a way the compiler cannot answer ahead of time.
 """)
@@ -283,24 +284,22 @@ print("int('99999') twice->", fresh("99999") is fresh("99999"))
 lesson.md(f"""
 That last block is measuring the shelf. On 3.15 the first two say True and the third says False. On 3.14 the first says False, because 257 is past the old limit.
 
-So `257 is 257` says True on both versions for a compiler reason, and it would still say True if the cache were deleted tomorrow. Every tutorial that uses it to demonstrate the cache is demonstrating something else and getting away with it.
+So `257 is 257` says True on both versions for a compiler reason, and it would still say True if the cache were deleted tomorrow. Every tutorial that uses it to demonstrate the cache is demonstrating the compiler instead.
 
-The practical lesson is the one the CPython docs have always stated: identity of immutable values is not something the language promises. It is an implementation detail that has already changed once inside this project's own lifetime.
+The practical lesson is the one the CPython docs have always stated: identity of immutable values is not something the language promises, and it is an implementation detail that has already changed once inside this project's own lifetime.
 
 ## Strings get the same treatment, with a rule
 
-Strings have their own version of the shelf, called the intern table. It is a hash table hanging off the interpreter state, at {cite("Include/internal/pycore_runtime_structs.h:91-94@v3.15.0rc1#_Py_cached_objects")}, and a string in it is shared by everything that asks for an equal string.
-
-Not every string goes in. The rule is about what the string looks like.
+Strings have their own version of the shelf, called the intern table, and putting a string into it is called {term("interning")}. It is a hash table hanging off the interpreter state, at {cite("Include/internal/pycore_runtime_structs.h:91-94@v3.15.0rc1#_Py_cached_objects")}, and a string in it is shared by everything that asks for an equal string. Not every string goes in, and the rule is about what the string looks like.
 """)
 
 
 lesson.md(f"""
 {figure("what-gets-interned", "six string literals with whether they are interned and why")}
 
-The check is fifteen lines and it is exactly what you would guess if you knew what interning was for: {cite("Objects/codeobject.c:116-137@v3.15.0rc1#should_intern_string")}. ASCII, and every character alphanumeric or an underscore. In other words, strings shaped like identifiers.
+The check is fifteen lines and it is what you would guess if you knew what interning was for: {cite("Objects/codeobject.c:116-137@v3.15.0rc1#should_intern_string")}. The string has to be ASCII with every character alphanumeric or an underscore, which is another way of saying strings shaped like identifiers.
 
-That is the point of the whole thing. Attribute lookups, variable names, keyword arguments and dictionary keys are compared constantly while your program runs, and comparing two pointers is faster than comparing two sets of characters. Strings shaped like names get pooled because those are the ones the interpreter compares. A sentence with a space in it is not worth the table entry.
+That is what the table is for. Attribute lookups, variable names, keyword arguments and dictionary keys are compared constantly while your program runs, and comparing two pointers is faster than comparing two sets of characters. Strings shaped like names get pooled because those are the ones the interpreter compares. A sentence with a space in it is not worth the table entry.
 
 `pyxray.obj.is_interned` asks the question without changing the answer, which takes a little care: interning the string you were handed would put it in the table, and every call after the first would say True regardless of the truth.
 """)
@@ -315,7 +314,7 @@ for text in ["", "a", "append", "_private", "x1", "hello world", "a-b"]:
 
 
 lesson.md("""
-That is the same list as the table above, measured on your interpreter rather than quoted at you.
+That is the same list as the table above, measured on your interpreter rather than quoted from the prose.
 
 Two things worth knowing. Strings you build at runtime are not interned, even when they are identifier shaped, because the interning happens when a code object is created and a string built by `join` was never a constant in one. And `sys.intern` lets you put one in yourself, which is worth doing if you are about to compare the same string a few million times and worth ignoring otherwise.
 """)
@@ -338,9 +337,9 @@ print("and it handed back the same object:", kept is built)
 lesson.md("""
 ## Counting who is holding it
 
-The reference count is the first field in the header, and it is the number that decides when an object goes away. Every place holding the object adds one. When it hits zero the object is freed on the spot.
+The reference count is the first field in the header, and it is the number that decides when an object goes away. Every place holding the object adds one, and when it hits zero the object is freed on the spot.
 
-Asking for it is where it gets interesting.
+Asking Python for that number turns out to be harder than it sounds.
 """)
 
 
@@ -349,7 +348,7 @@ lesson.md(f"""
 
 `sys.getrefcount` is documented as reporting one more than you expect, because passing the object to the function creates a reference. Every tutorial written before 3.14 says to subtract one and move on.
 
-In 3.14 that stopped being reliable. `LOAD_FAST_BORROW` arrived, and loading a local variable now hands the interpreter a borrowed reference rather than a counted one, since the frame is already holding the object and cannot stop holding it during the call. Loading a global still takes a real reference, because nothing guarantees the global survives.
+In 3.14 that stopped being reliable. `LOAD_FAST_BORROW` arrived, and loading a local variable now hands the interpreter a {term("borrowed reference")} rather than a counted one, since the frame is already holding the object and cannot stop holding it during the call. Loading a global still takes a real reference, because nothing guarantees the global survives.
 
 So the correction depends on the instruction that pushed the argument, and the same code gives a different number depending on whether the name was local or global.
 """)
@@ -379,7 +378,7 @@ Both lists are held in exactly one place. The raw numbers disagree and the corre
 
 `pyxray.obj.refcount` gets there by disassembling the caller, looking at the instruction immediately before the call, and subtracting one only if that instruction took a real reference. That sounds like a lot of work for one number, and it is, but a lesson that shows a beginner 0 references for a variable they just bound is teaching them to distrust the number instead of understand it.
 
-Watch the count move.
+Here is the count moving as containers pick the object up and put it down again.
 """)
 
 
@@ -413,7 +412,7 @@ watch()
 
 
 lesson.md("""
-One, three, four, two, one. Nothing clever is happening. Each container that holds the object holds a reference, and dropping the container drops the reference.
+One, three, four, two, one. Each container that holds the object holds a reference, and dropping the container drops the reference.
 
 The whole thing is wrapped in a function on purpose. At the top level of a notebook, a name lives in the module dictionary, and that dictionary holds a reference too, so every number above would be one higher and the first one would read 2 for a thing you just made. That is a good example of the trap in the third column of the table: the count is real, and working out which places it is counting is on you.
 
@@ -440,7 +439,7 @@ Two dicts and a list. The list and one of the dicts are the two containers the c
 
 ## The objects that are never freed
 
-Some objects have their reference count parked at a value the interpreter never decrements. `None`, `True`, `False`, the small integers, the interned strings and every type object are immortal. The check is a sign test: {cite("Include/refcount.h:125-136@v3.15.0rc1#_Py_IsImmortal")}.
+Some objects have their reference count parked at a value the interpreter never decrements. `None`, `True`, `False`, the small integers, the interned strings and every {term("type object")} are {term("immortal object", "immortal")}. The check is a sign test: {cite("Include/refcount.h:125-136@v3.15.0rc1#_Py_IsImmortal")}.
 
 The reason is threading. Incrementing a shared counter means writing to a cache line, and every core touching `None` a million times a second means those cores fighting over one cache line. Freezing the count for objects that will never be freed anyway makes the write unnecessary. This landed in 3.12 and it is what made the free threaded build plausible.
 
@@ -533,7 +532,7 @@ Every value in a running Python starts with the same two fields: a reference cou
 
 There are four questions you can ask about an object and each has a sharp edge. `id` tells you where it is and nothing about equal objects elsewhere. `type` tells you where the behaviour lives and nothing about which instance you have. `getrefcount` tells you how many places hold it, plus however many the asking cost. `getsizeof` tells you the object's own bytes and nothing about what it points at.
 
-`is` compares addresses and `==` calls a method. They are unrelated questions and the answers agreeing is a coincidence you should not build on.
+`is` compares addresses and `==` calls a method. They are unrelated questions, and the two agreeing on a particular pair of values is a coincidence you should not build on.
 
 CPython shares small integers and identifier shaped strings, because those are the values programs use constantly. Both are implementation details, both have moved, and the famous `257 is 257` example measures the compiler rather than the cache.
 
