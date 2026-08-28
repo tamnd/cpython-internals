@@ -41,3 +41,5 @@ lesson.md(f"...{figure('where-a-tab-lands', 'a tab landing on a tab stop')}...")
 ```
 
 The URL that produces is absolute rather than relative, because Colab has no idea which repository the notebook came from and a relative path would be a broken image for every reader who arrived through the badge. Asking for a diagram that has not been drawn yet is an error at build time rather than a broken image in the notebook.
+
+Every lesson opens with the same map, the row of boxes from your file to the answer, with its own box lit up. That map is shared data in `nbdiagram.stages` rather than something each lesson lays out for itself, so it cannot drift apart between one lesson and the next.
