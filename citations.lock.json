@@ -10,6 +10,16 @@
       "first_line": "term[expr_ty]:",
       "lines": 7
     },
+    "Include/internal/pycore_symtable.h:165-177@v3.15.0rc1": {
+      "digest": "67a1765701591c2a",
+      "first_line": "#define DEF_GLOBAL 1             /* global stmt */",
+      "lines": 13
+    },
+    "Include/internal/pycore_symtable.h:187-192@v3.15.0rc1": {
+      "digest": "0ed710258d44157f",
+      "first_line": "#define LOCAL 1",
+      "lines": 6
+    },
     "Lib/ast.py:117-121@v3.15.0rc1": {
       "digest": "e9ce78ffb705c8f3",
       "first_line": "def dump(",
@@ -130,15 +140,30 @@
       "first_line": "static int",
       "lines": 14
     },
+    "Python/bytecodes.c:271-280@v3.15.0rc1": {
+      "digest": "a63de5613d11a6e2",
+      "first_line": "inst(LOAD_FAST_CHECK, (-- value)) {",
+      "lines": 10
+    },
     "Python/ceval.c:1213-1213@v3.15.0rc1": {
       "digest": "f816c4c48d43b078",
       "first_line": "_PyEval_EvalFrameDefault(PyThreadState *tstate, _PyInterpreterFrame *frame, int throwflag)",
       "lines": 1
     },
+    "Python/codegen.c:3281-3300@v3.15.0rc1": {
+      "digest": "84adbc4d62605d1b",
+      "first_line": "codegen_nameop(compiler *c, location loc,",
+      "lines": 20
+    },
     "Python/codegen.c:894-897@v3.15.0rc1": {
       "digest": "8b917b6660187af0",
       "first_line": "int",
       "lines": 4
+    },
+    "Python/compile.c:1009-1048@v3.15.0rc1": {
+      "digest": "0c72fff53cb4852f",
+      "first_line": "_PyCompile_ResolveNameop(compiler *c, PyObject *mangled, int scope,",
+      "lines": 40
     },
     "Python/compile.c:1526-1540@v3.15.0rc1": {
       "digest": "50ec4f7c0b2ce56a",
@@ -150,15 +175,30 @@
       "first_line": "static PyObject *",
       "lines": 7
     },
+    "Python/flowgraph.c:3362-3401@v3.15.0rc1": {
+      "digest": "3ee44b6a56e3f872",
+      "first_line": "add_checks_for_loads_of_uninitialized_variables(basicblock *entryblock,",
+      "lines": 40
+    },
     "Python/flowgraph.c:3753-3757@v3.15.0rc1": {
       "digest": "a39b1dba71eee757",
       "first_line": "int",
       "lines": 5
     },
+    "Python/symtable.c:1139-1150@v3.15.0rc1": {
+      "digest": "c7fd0736ea195896",
+      "first_line": "analyze_block(PySTEntryObject *ste, PyObject *bound, PyObject *free,",
+      "lines": 12
+    },
     "Python/symtable.c:415-418@v3.15.0rc1": {
       "digest": "e7e89dd474de9717",
       "first_line": "struct symtable *",
       "lines": 4
+    },
+    "Python/symtable.c:669-708@v3.15.0rc1": {
+      "digest": "ad75696a832af002",
+      "first_line": "analyze_name(PySTEntryObject *ste, PyObject *scopes, PyObject *name, long flags,",
+      "lines": 40
     }
   },
   "commit": "37e98da7c19a9e5892ee756d6dee08225422cd49",

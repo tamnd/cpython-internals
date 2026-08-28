@@ -205,3 +205,61 @@ def test_every_shape_renders(shape):
     scene = Scene("one")
     scene.box("a", 0, 0, shape=shape)
     assert to_svg(scene).count("<") > 3
+
+
+def test_a_label_keeps_the_line_breaks_it_was_written_with():
+    # A code listing in a box is laid out by whoever wrote it, and reflowing it would put
+    # the indentation somewhere it was never meant to be.
+    assert wrap("def f():\n    return 1", 400, 16, mono=True) == ["def f():", "    return 1"]
+
+
+def test_each_line_of_a_label_is_wrapped_on_its_own():
+    lines = wrap("short\nthis line is much too long to fit anywhere", 60, 16)
+    assert lines[0] == "short"
+    assert len(lines) > 2
+
+
+def test_a_block_of_text_is_as_wide_as_its_widest_line():
+    # Measuring the raw string would run the lines together and make the box far too wide.
+    assert text_width("ab\nabcd", 16, mono=True) == text_width("abcd", 16, mono=True)
+
+
+def test_a_box_is_tall_enough_for_a_label_with_line_breaks():
+    scene = Scene("t")
+    one = scene.box("one", 0, 0, width=300, height=10)
+    many = Scene("t").box("one\ntwo\nthree", 0, 0, width=300, height=10)
+    assert many.box[3] > one.box[3]
+
+
+def test_a_panel_puts_its_name_in_the_top_left_rather_than_the_middle():
+    scene = Scene("t")
+    panel = scene.panel("outer's frame", 0, 0, 400, 300)
+    label = next(element for element in scene.elements if element.data["type"] == "text")
+    assert label.box[1] < panel.centre()[1]
+    assert label.box[0] < panel.centre()[0]
+
+
+def test_a_panel_label_is_not_bound_to_the_panel():
+    # Bound text in Excalidraw is always centred vertically, which is wrong for a shape whose
+    # job is to be the background behind other shapes.
+    scene = Scene("t")
+    scene.panel("outer", 0, 0, 400, 300)
+    label = next(element for element in scene.elements if element.data["type"] == "text")
+    assert label.data["containerId"] is None
+
+
+def test_a_label_on_a_downward_arrow_sits_beside_it_not_above_it():
+    # Above the top of a downward arrow is inside the box the arrow leaves, so the label
+    # would be printed over the contents of that box.
+    scene = Scene("t")
+    scene.arrow((100, 100), (100, 300), label="becomes")
+    label = next(element for element in scene.elements if element.data["type"] == "text")
+    assert 100 < label.box[1] < 300
+    assert label.box[0] > 100
+
+
+def test_a_label_on_a_sideways_arrow_still_sits_above_it():
+    scene = Scene("t")
+    scene.arrow((100, 100), (400, 100), label="becomes")
+    label = next(element for element in scene.elements if element.data["type"] == "text")
+    assert label.box[3] <= 100

@@ -63,6 +63,12 @@ def wrap(text: str, width: float, size: int, *, mono: bool = False) -> list[str]
     normalises runs of spaces, and half the labels in this project are monospaced source
     where the padding is doing the aligning, so a label that fits must never go through it.
     """
+    if "\n" in text:
+        # A label that already has line breaks in it is source code, or something laid out
+        # on purpose, so the breaks the caller wrote are kept and each piece is measured on
+        # its own. Excalidraw honours the newlines in bound text, so the editor and the
+        # committed SVG agree.
+        return [line for piece in text.split("\n") for line in wrap(piece, width, size, mono=mono)]
     if text_width(text, size, mono=mono) <= width:
         return [text]
     lines: list[str] = []
@@ -91,6 +97,10 @@ def text_width(text: str, size: int, *, mono: bool = False) -> float:
     their labels and the image itself is cut off at the right edge, because the image is
     sized from these numbers too. Guessing high costs a few pixels of air.
     """
+    if "\n" in text:
+        # The width of a block of text is the width of its widest line, not the width of all
+        # of it run together, which is what measuring the raw string would give.
+        return max(text_width(line, size, mono=mono) for line in text.split("\n"))
     if mono:
         return len(text) * size * 0.60
     narrow = sum(1 for character in text if character in "iIljtfr.,:;'`|!()[]{}")
@@ -195,7 +205,7 @@ class Scene:
         monospace face would put every mark in the wrong place.
         """
         width = text_width(content, size, mono=mono)
-        height = size * theme.LINE_HEIGHT
+        height = size * theme.LINE_HEIGHT * len(content.split("\n"))
         left = {"left": x, "centre": x - width / 2, "right": x - width}[align]
         return self._add(
             self._base(
@@ -288,6 +298,50 @@ class Scene:
         container.data["boundElements"] = [{"id": inner.id, "type": "text"}]
         return container
 
+    def panel(
+        self,
+        label: str,
+        x: float,
+        y: float,
+        width: float,
+        height: float,
+        *,
+        tone: str = "quiet",
+        size: int = theme.CAPTION_SIZE,
+        mono: bool = False,
+    ) -> Element:
+        """A container with its name in the top left corner, for drawing things inside it.
+
+        `box` centres its label, which is right for a box that holds a word and wrong for
+        one that holds other boxes, because the name would land in the middle of the
+        contents. Excalidraw's bound text is always vertically centred, so the label here is
+        a separate text element rather than a bound one. The cost is that dragging the
+        container in the editor leaves its name behind, which is a fair trade for a shape
+        that is meant to be a background.
+        """
+        colours = theme.tone(tone)
+        container = self._add(
+            self._base(
+                "rectangle",
+                x,
+                y,
+                width,
+                height,
+                strokeColor=colours.stroke,
+                backgroundColor=colours.fill,
+                roundness={"type": 3},
+            )
+        )
+        self.text(
+            label,
+            x + theme.PADDING,
+            y + theme.PADDING / 2,
+            size=size,
+            colour=colours.stroke,
+            mono=mono,
+        )
+        return container
+
     def arrow(
         self,
         start: Element | tuple[float, float],
@@ -340,14 +394,27 @@ class Scene:
                     {"id": element.id, "type": "arrow"},
                 ]
         if label:
-            self.text(
-                label,
-                (x0 + x1) / 2,
-                min(y0, y1) - theme.CAPTION_SIZE * theme.LINE_HEIGHT - 6,
-                size=theme.CAPTION_SIZE,
-                colour=theme.MUTED,
-                align="centre",
-            )
+            line_height = theme.CAPTION_SIZE * theme.LINE_HEIGHT
+            if abs(y1 - y0) > abs(x1 - x0):
+                # A label sitting above a downward arrow lands inside the box the arrow came
+                # out of, because the top of the arrow is the bottom of that box. Vertical
+                # arrows get their label alongside the middle instead.
+                self.text(
+                    label,
+                    max(x0, x1) + 10,
+                    (y0 + y1) / 2 - line_height / 2,
+                    size=theme.CAPTION_SIZE,
+                    colour=theme.MUTED,
+                )
+            else:
+                self.text(
+                    label,
+                    (x0 + x1) / 2,
+                    min(y0, y1) - line_height - 6,
+                    size=theme.CAPTION_SIZE,
+                    colour=theme.MUTED,
+                    align="centre",
+                )
         return element
 
     def line(

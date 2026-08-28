@@ -16,7 +16,15 @@ Nothing here needs a debug build, a C compiler or `ctypes`. The reader on a lock
 
 `pyxray.compiler` runs CPython's front end one stage at a time through `_testinternalcapi`, so a reader can watch the compiler emit an instruction sequence and watch the optimizer rewrite it. This is the best teaching hook in the codebase and almost nobody uses it.
 
+`pyxray.tokens` is the tokenizer as a table you can read, with the column positions lined up under the line they came from, which is the only way indentation errors ever make sense.
+
+`pyxray.trees` is the syntax tree as something you can walk, compare and round trip, rather than as the nested brackets `ast.dump` prints.
+
+`pyxray.scopes` answers where a name lives. It puts `symtable`'s decision and the opcode the compiler produced from that decision in the same row, so you can see the two agree instead of taking either one on trust.
+
 `pyxray.cite` turns a citation into a clickable link using the same parser CI checks citations with, so there is one implementation of the format rather than two.
+
+`pyxray.theme` is the colours, the type sizes and the spacing, in one place. The diagrams, the charts and the animations all import it, which is why they look like one project.
 
 ## Using it
 

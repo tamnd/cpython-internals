@@ -210,3 +210,64 @@ def test_panels_start_at_the_same_height_however_tall_they_are():
     tall = figures.tree("b", ("Assign", [("BinOp", ["Constant 2", "Add", "Constant 3"])]))
     scene = figures.beside("t", [("short", short), ("tall", tall)])
     assert box_named(scene, "Constant 1").box[1] == box_named(scene, "Assign").box[1]
+
+
+def panel_named(scene, label):
+    """The container rectangle drawn immediately before a given free floating label.
+
+    `nest` draws each container as a rectangle and then its name as loose text, so the
+    rectangle is the element added just before the text that names it.
+    """
+    for index, element in enumerate(scene.elements):
+        if element.data["type"] == "text" and element.data["text"] == label:
+            return scene.elements[index - 1]
+    raise AssertionError(f"no panel called {label!r}")
+
+
+def test_every_container_and_leaf_in_a_nest_gets_drawn():
+    scene = figures.nest("n", ("module", ["answer", ("def f():", ["total"])]))
+    assert set(labels(scene)) == {"module", "answer", "def f():", "total"}
+
+
+def test_a_child_is_drawn_inside_its_container():
+    scene = figures.nest("n", ("module", [("def f():", ["total"])]))
+    outer = panel_named(scene, "module")
+    inner = panel_named(scene, "def f():")
+    assert outer.box[0] < inner.box[0]
+    assert outer.box[2] > inner.box[2]
+    assert outer.box[3] > inner.box[3]
+
+
+def test_a_container_is_drawn_before_the_things_inside_it():
+    # SVG has no z index, so a container added after its contents paints over them.
+    scene = figures.nest("n", ("module", ["answer"]))
+    ids = [element.id for element in scene.elements]
+    assert ids.index(panel_named(scene, "module").id) < ids.index(box_named(scene, "answer").id)
+
+
+def test_siblings_in_a_nest_do_not_overlap():
+    scene = figures.nest("n", ("module", ["one", "two", "three"]))
+    boxes = sorted(
+        (box_named(scene, name).box for name in ["one", "two", "three"]), key=lambda b: b[1]
+    )
+    for before, after in pairwise(boxes):
+        assert before[3] <= after[1]
+
+
+def test_siblings_in_a_nest_are_all_the_same_width():
+    scene = figures.nest("n", ("module", ["a", "a much longer row than the other one"]))
+    first = box_named(scene, "a").box
+    second = box_named(scene, "a much longer row than the other one").box
+    assert first[2] - first[0] == second[2] - second[0]
+
+
+def test_a_container_grows_to_hold_a_deeper_child():
+    shallow = figures.nest("a", ("module", ["one"]))
+    deep = figures.nest("b", ("module", [("def f():", [("def g():", ["one"])])]))
+    assert panel_named(deep, "module").box[3] > panel_named(shallow, "module").box[3]
+
+
+def test_nesting_deeper_than_the_palette_reuses_the_last_tone():
+    # Four tones and five levels has to give a colour rather than an IndexError.
+    scene = figures.nest("n", ("a", [("b", [("c", [("d", ["e"])])])]))
+    assert box_named(scene, "e").data["backgroundColor"]

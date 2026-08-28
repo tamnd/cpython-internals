@@ -75,11 +75,15 @@ The stages are named after the artefact rather than the verb, so "tokens" and no
 
 `tree` draws a tree downwards with every parent centred over its own children, for the syntax tree the front end lessons keep needing. `ast.dump` is correct and it makes the reader recover the shape of a tree from nested brackets, which is work they should not have to do.
 
+`nest` draws boxes inside boxes, sized from the inside out so a container is exactly big enough for what it holds. T04 uses it for the symbol table, where the point being made is that a block contains other blocks and a decision is made once per block. A tree would have been the wrong picture there, because a tree says only that these things are related to each other and the claim is containment. Containers are drawn before their contents, since SVG has no z-index and a container drawn last paints over everything inside it.
+
 `beside` takes finished scenes and lays them out left to right under their own headings, which is how T03 gets two syntax trees next to each other. Stacking them down the page does not work, because the reader ends up holding one in their head while looking at the other, and the comparison was the whole point. Any figure can be a panel, since a panel is only a scene, and each one comes from the same call that would have drawn it on its own.
 
 `spans` is the one with an opinion in it. A token name is nearly always wider than the token it names, so labels parked under their spans either overlap each other or drift away from the thing they point at. Leader lines fix the overlap and then cross. So the labels go in a row of their own, in the same order as the spans, and each one is joined to its span by a filled ribbon. Two sequences in the same order cannot cross, and a shape reads at a glance where a thin line has to be traced.
 
 Anything genuinely one of a kind gets drawn with the `Scene` primitives directly, which is what T02's INDENT and DEDENT picture does. That is fine. What is not fine is a second, slightly different pipeline figure.
+
+Two `Scene` methods are worth knowing about before you start drawing by hand. `scene.box` centres its label, which is what you want for a box that is the whole thing. `scene.panel` puts the label in the top left corner instead and leaves the middle empty, which is what you want for a box you are about to draw other boxes inside. And a label with `\n` in it keeps the line breaks you wrote, so a box can hold a few lines of source without you laying out each line yourself.
 
 ## The renderer
 
