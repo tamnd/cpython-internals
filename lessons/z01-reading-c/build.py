@@ -20,6 +20,7 @@ from nbdiagram import Diagrams
 lesson = Lesson("z01-reading-c", "z01")
 badge = lesson.badge
 cite = lesson.cite
+term = lesson.term
 figure = Diagrams("z01-reading-c").figure
 
 lesson.md(f"""
@@ -27,7 +28,7 @@ lesson.md(f"""
 
 {badge}
 
-Every lesson in this material points at CPython's own source, and CPython is written in C. If you have never read C, those links are a wall. This lesson takes the wall down.
+Every lesson in this material points at CPython's own source, and CPython is written in C. If you have never read C, those links are a wall, and this lesson is about getting over it.
 
 {figure("where-we-are", "the eight stages of the pipeline with none of them highlighted")}
 
@@ -35,7 +36,7 @@ You are not going to learn C here. You are going to learn to read one specific d
 
 We are going to do the whole thing through one function: `list.append`. It is nine lines long, it calls two other things, and between them they use almost every idiom you will meet anywhere else in the codebase.
 
-By the end you will be able to read a struct, follow a pointer, tell a new reference from a borrowed one, know what a macro is hiding, and recognise the `goto error` pattern that at first glance looks like terrible code and is in fact the correct answer.
+By the end you will be able to read a {term("struct")}, follow a {term("pointer")}, tell a {term("new reference")} from a {term("borrowed reference", "borrowed one")}, know what a macro is hiding, and recognise the `goto error` pattern, which looks like terrible code at first glance and is in fact the right answer.
 """)
 
 
@@ -86,9 +87,9 @@ pyxray.show()
 lesson.md(f"""
 ## A pointer is an arrow
 
-If there is one thing that stops people reading C, it is the star. `PyObject *v`. `PyObject **items`. It looks like punctuation soup and it is actually very simple.
+If there is one thing that stops people reading C, it is the star, as in `PyObject *v` and `PyObject **items`. It looks like punctuation soup and it is actually very simple.
 
-A pointer is a variable that holds an address instead of a value. That is the whole idea. When you see a star in a type, read it as "an arrow to", and read it from right to left. `PyObject *v` is "v is an arrow to a PyObject". `PyObject **items` is "items is an arrow to an arrow to a PyObject", which in practice means "items is an array of arrows".
+A pointer is a variable that holds an address instead of a value, and that is the whole idea. When you see a star in a type, read it as "an arrow to", and read it from right to left. `PyObject *v` is "v is an arrow to a PyObject". `PyObject **items` is "items is an arrow to an arrow to a PyObject", which in practice means "items is an array of arrows".
 
 Here is a Python list with two things in it, drawn as it actually sits in memory.
 
@@ -96,16 +97,16 @@ Here is a Python list with two things in it, drawn as it actually sits in memory
 
 Three separate blocks of memory. The name in your program holds an address. The struct at that address holds five fields, one of which is another address. The array at that address holds addresses of the actual objects.
 
-This is why `values[0]` is fast and why a list of a million things does not have to be a million things sitting next to each other. The list holds arrows, not objects.
+This is why `values[0]` is fast and why a list of a million things does not have to be a million things sitting next to each other, because the list holds arrows rather than objects.
 """)
 
 
 lesson.md(f"""
 ## A struct is a fixed layout
 
-The second thing that stops people is the struct. It is even simpler than the pointer. A struct is a list of fields with fixed sizes, laid out one after another in memory, and it never changes shape at run time.
+The second thing that stops people is the struct, and it is even simpler than the pointer. A struct is a list of fields with fixed sizes, laid out one after another in memory, and it never changes shape at run time.
 
-Here is the whole of a Python list, from {cite("Include/cpython/listobject.h:5-22@v3.15.0rc1#PyListObject")}:
+Here is the whole of a Python list, from a {term("header file")}, {cite("Include/cpython/listobject.h:5-22@v3.15.0rc1#PyListObject")}:
 
 ```c
 typedef struct {{
@@ -125,7 +126,7 @@ typedef struct {{
 }} PyListObject;
 ```
 
-Two fields, plus whatever `PyObject_VAR_HEAD` brings. That macro expands to three more fields, which T08 covered: the reference count, the type pointer, and the size. So a list is five fields and nothing else.
+Two fields, plus whatever `PyObject_VAR_HEAD` brings. That macro expands to three more fields, which T08 covered: the {term("reference count")}, the type pointer, and the size. So a list is five fields and nothing else.
 
 {figure("the-struct", "a table of the five fields of a list, their C types, and what each one is for")}
 
@@ -151,13 +152,13 @@ list_append_impl(PyListObject *self, PyObject *object)
 }}
 ```
 
-Line by line.
+Here is what each part of that does.
 
 `static` means this function is private to this one file. Nothing outside `listobject.c` can call it. When you are searching for callers of something and it is `static`, you only have to search one file, which is a genuinely useful thing to notice.
 
 `PyObject *` is the return type: an arrow to some Python value. Every function in CPython that is callable from Python returns one of these, because at that boundary nothing knows what type anything is.
 
-`list_append_impl` has that `_impl` suffix because the argument parsing is generated by a tool called Argument Clinic. The generated wrapper unpacks the arguments and then calls this. When you go looking for a method's implementation, the `_impl` version is the one with the actual code in it.
+`list_append_impl` has that `_impl` suffix because the argument parsing is generated by a tool called {term("Argument Clinic")}. The generated wrapper unpacks the arguments and then calls this. When you go looking for a method's implementation, the `_impl` version is the one with the actual code in it.
 
 `PyListObject *self` and `PyObject *object` are the two arguments. `self` is the list, and the type is specific because the caller already checked. `object` is the thing being appended, and the type is not specific because it can be anything.
 
@@ -178,7 +179,7 @@ lesson.md(f"""
 
 {figure("seven-idioms", "a table of seven CPython C idioms and how to read each one")}
 
-Those seven cover most of what makes CPython's C look foreign to somebody arriving from Python. None of them are C language features you need to study. They are house style.
+Those seven cover most of what makes CPython's C look foreign to somebody arriving from Python. None of them are C language features you need to study, they are house style.
 
 The leading underscore convention is worth one extra sentence, because it appears everywhere and the rule is simple. A name starting with `_Py` or `_PY` is private to CPython and can change in any release without notice. A name starting with `Py` with no underscore is public API and comes with a compatibility promise. When you see `_PyList_AppendTakeRef`, the underscore is telling you not to build anything on it.
 """)
@@ -256,7 +257,7 @@ lesson.md(f"""
 
 {figure("macros-are-text", "four macros on the left and what the compiler actually sees on the right")}
 
-Before the C compiler sees the file, a separate program called the preprocessor goes through it and replaces every macro with its definition, as text. That is all a macro is. No types, no scope, no address, no function call.
+Before the C compiler sees the file, a separate program called the preprocessor goes through it and replaces every macro with its definition, as text. That is all a macro is: no types, no scope, no address and no function call.
 
 Here is `Py_RETURN_NONE`, from {cite("Include/object.h:623-629@v3.15.0rc1#Py_RETURN_NONE")}:
 
@@ -274,7 +275,7 @@ Two things to take from that.
 
 The `#if` and `#else` are the preprocessor choosing which definition to use, before compilation. This is `#ifdef`, and CPython uses it heavily: for the free threaded build, for debug builds, for platform differences. When you are reading a file and a block looks like it contradicts another block a few lines up, check whether there is an `#ifdef` between them.
 
-The two definitions are different for a real reason. `None` became immortal in 3.12, so on a modern build returning it costs nothing at all. On an older limited API build it still needs the count bumped. The macro hides the difference, which is exactly what macros are for.
+The two definitions are different for a real reason. `None` became {term("immortal object", "immortal")} in 3.12, so on a modern build returning it costs nothing at all. On an older limited API build it still needs the count bumped. The macro hides the difference, which is exactly what macros are for.
 
 The practical consequence of macros being text is that your editor's "go to definition" often fails on them, and a debugger will step straight through them as if they were not there. When you cannot find where something is defined, `grep` for `#define` and the name. Nothing else will find it.
 
@@ -303,7 +304,7 @@ lesson.md(f"""
     return _PyList_AppendTakeRefListResize(self, newitem);
 ```
 
-Read it out loud. How many slots are in use. How many slots exist. If there is a spare one, write into it, add one to the size, done. Otherwise go and get more room.
+Read it out loud and it is short. How many slots are in use, how many slots exist, and if there is a spare one, write into it, add one to the size, and you are done. Otherwise go and get more room.
 
 Three things worth noticing about how that is written.
 
@@ -311,7 +312,7 @@ Three things worth noticing about how that is written.
 
 `assert` disappears entirely in a release build. It is documentation that gets checked in debug builds and costs nothing in the one you are running. When you see an assert, read it as the author telling you something they believe is always true.
 
-`TakeRef` in the name is the ownership contract, in the name. This function steals the reference you hand it, which is why the caller wrote `Py_NewRef(object)` rather than just `object`. Whoever named it saved a paragraph of documentation.
+`TakeRef` in the name is the ownership contract stated in the name. This function takes a {term("stolen reference", "stolen reference")} from you, which is why the caller wrote `Py_NewRef(object)` rather than just `object`. Whoever named it saved a paragraph of documentation.
 """)
 
 
@@ -389,9 +390,9 @@ print("growth pattern: ", pattern[:10])
 lesson.md("""
 Zero disagreements over two thousand appends, and the growth pattern the cell measured is the same list the C comment wrote down: 4, 8, 16, 24, 32, 40, 52, 64, 76, 92.
 
-You just read a line of C, worked out what it does from first principles, reimplemented it in a language it was not written in, and confirmed the reimplementation against a running interpreter two thousand times. That is the whole method of this project in one cell, and you did it in an hour without a compiler.
+You just read a line of C, worked out what it does from first principles, reimplemented it in a language it was not written in, and confirmed the reimplementation against a running interpreter two thousand times. That is the whole method of this project in one cell, done in an hour without a compiler.
 
-It also answers a question you may have had for years. Appending a million items to a list does not do a million reallocations. It does about eighty, because each one buys roughly an eighth more room than the last. That is what "amortized constant time" means, and it is nine words of C.
+It also answers a common question. Appending a million items to a list does not do a million reallocations. It does about eighty, because each one buys roughly an eighth more room than the last. That is what "amortized constant time" means, and it is nine words of C.
 """)
 
 
@@ -437,7 +438,7 @@ lesson.md(f"""
 
 {figure("what-to-reach-for", "a table of six questions and where in the tree the answer lives")}
 
-Reading C turns out not to be the hard part of reading CPython. Knowing which of two million lines to open is, and Z02 is entirely about that.
+Reading C turns out not to be the hard part of reading CPython. The hard part is knowing which of two million lines to open, and Z02 is entirely about that.
 
 One habit is worth starting today. When a line of C confuses you, run `git log -S` on it in a CPython checkout. That finds the commit that introduced that exact text, and the commit message usually links an issue, and the issue usually has somebody explaining why the obvious approach did not work. A surprising amount of CPython is the way it is for a reason somebody wrote down.
 """)
@@ -454,18 +455,18 @@ lesson.md("""
 
 **Four.** `Py_CLEAR(item)` appears in the repr function above. Find its definition, work out why it is a multi line macro rather than just `Py_DECREF(item); item = NULL;`, and then find the comment in the source that explains it. The reason involves the object's own destructor.
 
-**Five.** Pick any method on `list` you use often and find its `_impl` function. Read it. Most of them are under thirty lines and several are under ten.
+**Five.** Pick any method on `list` you use often and find its `_impl` function and read it. Most of them are under thirty lines and several are under ten.
 """)
 
 
 lesson.md("""
 ## What just happened
 
-You read C, without writing any.
+You read C without writing any.
 
 A pointer is a variable holding an address, and a star in a type means "an arrow to". A struct is a fixed set of fields laid out one after another, and a Python list is five of them. Following one arrow at a time is all that reading this code requires.
 
-CPython's C has about seven house style idioms on top of the language. `static` for file local. `PyObject *` at every boundary. `NULL` and negative numbers as failure. `goto error` for cleanup. A leading underscore for private. `_impl` for the real body of a method. Names that state their own ownership contract, like `TakeRef`.
+CPython's C has about seven house style idioms on top of the language: `static` for file local, `PyObject *` at every boundary, `NULL` and negative numbers as failure, `goto error` for cleanup, a leading underscore for private, `_impl` for the real body of a method, and names that state their own ownership contract, like `TakeRef`.
 
 Reference ownership is the part with no Python equivalent and no compiler help. New, borrowed, or stolen, and only the documentation says which.
 

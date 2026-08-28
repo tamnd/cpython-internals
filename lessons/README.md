@@ -52,6 +52,16 @@ Every code cell has a markdown cell in front of it saying what it is about to sh
 
 No notebook has its outputs committed. Every lesson is executed end to end in continuous integration on CPython 3.15.0rc1 and on 3.14 before it is merged, so the numbers you see are the ones your own interpreter produced rather than somebody else's screenshot. Where the two versions disagree the lesson says so and prints what your build did.
 
+## How it is written
+
+Plain English, aimed at somebody who has written Python and has never opened a C file. A sentence explains the subject rather than the lesson, so "this is the part that catches everybody out" is fine and "now the part that catches everybody out" is not, because the second one is building suspense about a paragraph the reader has not read yet.
+
+Short dramatic fragments used as punctuation are the thing to watch for. A paragraph that ends on "There it is." or "Not once." or "Then it does not." is performing rather than explaining, and joining the fragment back into the sentence it was cut off from loses nothing. The same goes for the "not X, Y" shape: "These are not vague guidelines. They are exact." says less than "They are exact rather than rules of thumb."
+
+Short sentences are fine when they carry something. The answer to a prediction cell, a fact like "an instruction is two bytes", and a line out of a quoted C comment all belong.
+
+The mechanical rules are that there are no em dashes, no hard wrapping inside a paragraph, and no horizontal rules. A term links into the glossary the first time a lesson uses it and not after that. Exercise lists are numbered in bold, `**One.**` through `**Five.**`.
+
 ## Running them locally
 
 ```
