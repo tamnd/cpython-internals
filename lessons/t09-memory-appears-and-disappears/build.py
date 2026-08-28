@@ -23,6 +23,7 @@ from nbdiagram import Diagrams
 lesson = Lesson("t09-memory-appears-and-disappears", "t09")
 badge = lesson.badge
 cite = lesson.cite
+term = lesson.term
 figure = Diagrams("t09-memory-appears-and-disappears").figure
 
 lesson.md(f"""
@@ -30,11 +31,11 @@ lesson.md(f"""
 
 {badge}
 
-T08 finished on the reference count: a small number in front of every object saying how many places are holding it. This lesson is about what happens when that number reaches zero, and about the one situation where it never does.
+T08 finished on the {term("reference count")}: a small number in front of every object saying how many places are holding it. This lesson is about what happens when that number reaches zero, and about the one situation where it never does.
 
 {figure("where-we-are", "the eight stages of the pipeline with none of them highlighted")}
 
-Nothing is highlighted again, for the same reason as last time. This is not a stage of the pipeline. It is what is happening to the values underneath every stage, all the time, while the pipeline runs.
+Nothing is highlighted again, for the same reason as last time. This is not a stage of the pipeline, it is what happens to the values underneath every stage, all the time, while the pipeline runs.
 
 Most languages you have used have a garbage collector and you have never had to think about when it runs. Python is different in one important way: most of the freeing happens immediately, at a moment you can predict exactly, and only a small leftover case needs a collector at all. Knowing which is which is the difference between a `close()` you can rely on and one you cannot.
 
@@ -89,7 +90,7 @@ pyxray.show()
 lesson.md("""
 ## Predict first
 
-Two objects, each holding the other. Then both names go away.
+Two objects, each holding the other, and then both names go away.
 
 ```python
 a = Node("a")
@@ -137,18 +138,18 @@ True, then 2, then False.
 
 The two objects outlived every name that could reach them, and stayed in memory until something else came along and swept them up. If you had written this in a loop you would have a program whose memory use climbs and never comes back down until the collector decides to run.
 
-That is the whole shape of this lesson. Most of the time Python frees things the instant you let go of them. This is the case where it does not, and the rest of the material is about why, and about what is underneath.
+That is the shape of this lesson. Most of the time Python frees things the instant you let go of them, and this is the case where it does not, so the rest of the material is about why, and about what sits underneath.
 
 ## The count that decides everything
 
-Every object carries a count of how many places are currently holding it. Assigning it to a name adds one. Putting it in a list adds one. The name going out of scope takes one away. When the count reaches zero the object is freed, right then, before the next line of your program runs.
+Every object carries a count of how many places are currently holding it. Assigning it to a name adds one, putting it in a list adds one, and the name going out of scope takes one away. When the count reaches zero the object is freed, right then, before the next line of your program runs.
 """)
 
 
 lesson.md(f"""
 {figure("the-count-moves", "a table of six lines of Python and the reference count after each one")}
 
-Watch it move. The demo is inside a function on purpose, because at the top level of a notebook the module's own dictionary holds an extra reference to everything and every number below would be one higher.
+Here is the count moving. The demo is inside a function on purpose, because at the top level of a notebook the module's own dictionary holds an extra reference to everything and every number below would be one higher.
 """)
 
 
@@ -180,15 +181,15 @@ watch()
 lesson.md(f"""
 1, 2, 3, 2, 1. When `watch` returns, `thing` goes out of scope, the count reaches zero, and the list is freed before the next statement in the notebook starts.
 
-The C behind that is about as small as a load bearing piece of code gets.
+The C behind that is very short for a piece of code the whole language rests on.
 
 {cite("Include/refcount.h:417-429@v3.15.0rc1#Py_DECREF")}
 
-Subtract one. If the result is zero, free it. Everything else in this lesson is a consequence of those two lines, including the bug in them, which is that they can be true for two objects that are only holding each other.
+It subtracts one, and if the result is zero it frees the object. Everything else in this lesson is a consequence of those two lines, including the gap in them, which is that neither line ever fires for two objects that are only holding each other.
 
 The immortality check at the top is the 3.14 change T08 ended on. `None`, `True`, small integers and every interned string skip the count entirely, so this function does nothing at all for a large fraction of the objects it is called on.
 
-What happens at zero is one function.
+The work at zero happens in one function.
 
 {cite("Objects/object.c:3282-3300@v3.15.0rc1#_Py_Dealloc")}
 
@@ -196,7 +197,7 @@ The comment above it is worth reading. Freeing a list frees everything in it, wh
 
 ## Watching the moment it dies
 
-You cannot observe a free with an ordinary variable, because holding the object is exactly what stops it happening. What you need is a reference that does not count, which is what `weakref` is for.
+You cannot observe a free with an ordinary variable, because holding the object is exactly what stops it happening. What you need is a reference that does not count, which is what a {term("weak reference")} is for.
 """)
 
 
@@ -225,7 +226,7 @@ plain()
 
 
 lesson.md(f"""
-`heap.Deaths` is a thin wrapper over `weakref.ref` with a callback, and the callback is the interesting part. It runs at the moment the object is freed, which means it runs from inside the deallocator.
+`heap.Deaths` is a thin wrapper over `weakref.ref` with a callback, and the callback is the interesting part. It runs at the moment the object is freed, which means it runs from inside the {term("deallocation", "deallocator")}.
 
 {cite("Objects/weakrefobject.c:1001-1024@v3.15.0rc1#PyObject_ClearWeakRefs")}
 
@@ -235,7 +236,7 @@ Not everything can be watched this way. `int`, `str` and `tuple` have no room fo
 
 ## When `__del__` runs
 
-If a class defines `__del__`, that method runs during the free. Because the free is immediate, so is `__del__`, and this is the property that makes people say Python has deterministic destruction.
+If a class defines `__del__`, that method is its {term("finalizer")}, and it runs during the free. Because the free is immediate, so is `__del__`, and this is the property that makes people say Python has deterministic destruction.
 """)
 
 
@@ -275,7 +276,7 @@ lesson.md(f"""
 
 Both counts start at 2, one for the name and one for the other object. Dropping both names takes each count to 1 and stops there. Neither one ever reaches zero, so `Py_DECREF` never calls the deallocator, and the two objects sit in memory with nothing in the program able to reach them.
 
-This is not an exotic situation. A doubly linked list is cycles. A parent pointer on a tree node is cycles. An exception traceback holds the frame and the frame holds the exception. A closure that refers to the function it lives in is a cycle. Any real program makes these constantly.
+None of this is exotic. A doubly linked list is full of {term("reference cycle", "reference cycles")}, and so is a tree whose nodes carry a parent pointer. An exception traceback holds the {term("frame")} and the frame holds the exception. A {term("closure")} that refers to the function it lives in is a cycle. Any real program makes these constantly.
 """)
 
 
@@ -310,7 +311,7 @@ lesson.md(f"""
 
 {figure("two-ways-to-free", "reference counting and the cycle collector side by side")}
 
-The important row is the last one on each side. Counting cannot free a cycle, and cycles are the only reason the collector exists. If you never made one, `gc.collect()` would have nothing to do.
+The important row is the last one on each side. Counting cannot free a cycle, and cycles are the only reason the {term("cycle collector")} exists. If you never made one, `gc.collect()` would have nothing to do.
 
 ## How the collector actually decides
 
@@ -329,7 +330,7 @@ Step two walks each candidate and subtracts one from the scratch copy of everyth
 
 {cite("Python/gc.c:485-501@v3.15.0rc1#subtract_refs")}
 
-Now the arithmetic pays off. A scratch count of zero means every reference to that object came from inside the group. A count above zero means somebody outside is holding it, and that somebody was never on the candidate list, so it is alive and so is everything it can reach.
+The arithmetic is what pays off here. A scratch count of zero means every reference to that object came from inside the group. A count above zero means somebody outside is holding it, and that somebody was never on the candidate list, so it is alive and so is everything it can reach.
 
 {cite("Python/gc.c:566-583@v3.15.0rc1#move_unreachable")}
 
@@ -396,7 +397,7 @@ The `_PyGC_SET_FINALIZED` flag is what guarantees "exactly once". A finalizer is
 
 ## Generations
 
-Running the whole subtract trick over every object in the process would be far too slow to do often. So the collector splits objects into three groups by how long they have survived, and looks at the young group far more often than the old one.
+Running the whole subtract trick over every object in the process would be far too slow to do often. So the collector splits objects into three {term("generation", "generations")} by how long they have survived, and looks at the young group far more often than the old one.
 """)
 
 
@@ -450,21 +451,21 @@ for value in [42, "text", (1, 2), [1, 2], {"k": 1}, (1, [2])]:
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 The two tuples are the interesting pair. A tuple is a container, so it starts out tracked, but a tuple holding only untracked things can never be on a cycle either. The collector notices this the first time it looks at one and stops tracking it. That is why `(1, 2)` prints False here and would print True if you built it and asked immediately, and why `(1, [2])` stays tracked forever.
 
 ## Where the bytes came from
 
 Everything up to here has been about deciding when to free. Underneath that is a separate question: where the memory came from in the first place, and where it goes back to.
 
-Python objects are small and there are a lot of them. A program that called the operating system's `malloc` for every 56 byte list would spend most of its time in the allocator. So CPython has its own allocator sitting on top, and it works in four layers.
+Python objects are small and there are a lot of them. A program that called the operating system's `malloc` for every 56 byte list would spend most of its time in the allocator. So CPython has its own allocator sitting on top, called {term("obmalloc")}, and it works in four layers.
 """)
 
 
 lesson.md(f"""
 {figure("the-allocator-layers", "blocks inside a pool inside an arena inside the operating system")}
 
-Your object is a block. Blocks of the same size share a pool. Pools share an arena. Only the arena ever talks to the operating system, and it asks for a big piece rarely rather than a small piece constantly.
+Your object sits in a {term("block")}. Blocks of the same size share a {term("pool")}, pools share an {term("arena")}, and only the arena ever talks to the operating system, which it does with one big request now and then rather than a small request constantly.
 
 {cite("Include/internal/pycore_obmalloc.h:216-226@v3.15.0rc1#ARENA_BITS")}
 
@@ -498,11 +499,11 @@ for want in [1, 16, 17, 56, 88, 500, 512, 513]:
 
 
 lesson.md(f"""
-An empty list is 56 bytes and takes a 64 byte block, so 8 bytes are wasted. That is the deal.
+An empty list is 56 bytes and takes a 64 byte block, so 8 bytes go unused, and that is the price of the whole arrangement.
 
 ## Giving it back
 
-Here is the part that surprises people. Freeing a large object usually does not make your process smaller.
+Freeing a large object usually does not make your process smaller, which catches most people out the first time they measure it.
 
 {figure("giving-it-back", "the four steps between a count reaching zero and the operating system hearing about it")}
 
@@ -536,7 +537,7 @@ print("after dropping them        ", freed)
 
 
 lesson.md("""
-The middle number is about ten thousand higher and the last one is back where it started. The blocks came back. Whether the operating system ever hears about it is a separate question, and the answer is usually no.
+The middle number is about ten thousand higher and the last one is back where it started, so the blocks came back. Whether the operating system ever hears about it is a separate question, and the answer is usually no.
 
 The clearest way to see that the memory really is reused is to watch an address come back.
 """)
