@@ -9,6 +9,7 @@ what, and a reviewer who cannot see what moved approves the update without readi
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -52,6 +53,21 @@ class Lock:
     def put(self, resolved: Resolved) -> None:
         entry = Entry.from_resolved(resolved)
         self.entries[entry.key] = entry
+
+    def keep_only(self, keys: Iterable[str]) -> list[str]:
+        """Drop entries for citations nobody makes any more, and say which went.
+
+        Without this the lockfile only ever grows. Narrowing a citation from thirty lines
+        to twenty leaves the thirty line entry behind, and a year of that is a file where
+        most of the entries are for text nothing points at. Worse, a reviewer reading the
+        diff cannot tell a live entry from a dead one, and the whole reason this file has
+        plain text in it is so the diff can be read.
+        """
+        wanted = set(keys)
+        dropped = sorted(key for key in self.entries if key not in wanted)
+        for key in dropped:
+            del self.entries[key]
+        return dropped
 
     @classmethod
     def load(cls, path: Path) -> Lock:

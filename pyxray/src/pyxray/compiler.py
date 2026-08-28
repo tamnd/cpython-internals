@@ -15,7 +15,9 @@ lesson can stay about the compiler.
 from __future__ import annotations
 
 import ast
+import dis
 import io
+import opcode
 import symtable
 import sys
 import tokenize
@@ -121,6 +123,16 @@ class Stages:
     @property
     def removed_by_optimizer(self) -> int:
         return len(self.codegen) - len(self.optimized)
+
+    @property
+    def pseudo(self) -> list[RawInstruction]:
+        """The instructions the code generator emitted that can never be executed.
+
+        Worth having as its own list rather than as a filter the reader writes, because
+        the point being made is that this list is not empty and the finished code object's
+        equivalent is.
+        """
+        return [instruction for instruction in self.codegen if instruction.pseudo]
 
     def summary(self) -> str:
         """The whole trip in one line of counts, read out loud rather than tabulated.
@@ -347,6 +359,28 @@ def what_the_optimizer_did(result: Stages) -> str:
     lines.append("")
     lines.append(f"{len(before)} instructions in, {len(after)} out")
     return "\n".join(lines)
+
+
+def pseudo_instructions() -> tuple[str, ...]:
+    """Every instruction that exists only inside the compiler, from the opcode table.
+
+    Read rather than written down, for the usual reason. This list gained and lost members
+    in most of the last five releases, and a copy of it in a lesson would be a paragraph
+    that goes quietly wrong.
+    """
+    return tuple(sorted(name for name, number in opcode.opmap.items() if is_pseudo(number)))
+
+
+def folds(expression: str) -> bool:
+    """Did the compiler work this expression out, or did it leave the work for later?
+
+    The test is whether any arithmetic survived into the code object. If the compiler
+    computed the answer there is nothing left to compute, so no BINARY_OP or UNARY_OP is
+    emitted and the result sits in the constants instead.
+    """
+    code = compile(expression, "<pyxray>", "eval")
+    arithmetic = {"BINARY_OP", "UNARY_NEGATIVE", "UNARY_INVERT", "UNARY_NOT"}
+    return not any(step.opname in arithmetic for step in dis.get_instructions(code))
 
 
 def compile_three_ways(*sources: str) -> dict[str, types.CodeType]:
