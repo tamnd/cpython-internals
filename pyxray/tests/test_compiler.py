@@ -149,7 +149,7 @@ def test_the_finished_code_actually_runs(result):
 
 
 def test_assembling_by_hand_refuses_rather_than_aborting_the_process():
-    """See issue 34. The C hook asserts on bad metadata, and an assert kills the kernel.
+    """See issue 35. The C hook asserts on bad metadata, and an assert kills the kernel.
 
     A notebook reader losing everything they had done is the worst failure this material
     can produce, so the hook stays behind a refusal until its inputs can be validated.

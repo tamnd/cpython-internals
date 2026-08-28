@@ -186,7 +186,7 @@ def assemble(*_args, **_kwargs):
     there is no way to build correct metadata from the previous stage's output alone.
 
     Doing this safely means validating every key and its type before the call, which is a
-    piece of work rather than a line, and it is tracked separately.
+    piece of work rather than a line, and it is tracked as issue 35.
     """
     raise NotImplementedError(assemble.__doc__)
 
