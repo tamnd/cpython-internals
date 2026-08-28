@@ -4,7 +4,7 @@
 Each scene is written out twice, as an editable `.excalidraw` and as the `.svg` the lesson
 embeds. Run this file to regenerate them, or `just build-diagrams` for every lesson.
 
-The one carrying the lesson is `one-argument-five-meanings`. Every listing a reader looks
+The one carrying the lesson is `one-argument-six-meanings`. Every listing a reader looks
 at is full of small numbers that all print the same way and none of which mean the same
 thing, and until that is cleared up the rest of the listing is noise.
 """
