@@ -39,6 +39,13 @@ fmt:
 test:
     uv run pytest
 
+# The same suite on the version the browser tier runs. Everything here is written against
+# 3.15, and the reader in a Colab or Pyodide tab is on 3.14, so the tests that encode a
+# version difference have to be exercised from both sides or they only prove one of them.
+test-3-14:
+    uv run --python 3.14 --isolated --with pytest --with ./tools/refcheck --with ./pyxray \
+        pytest pyxray/tests -q -p no:cacheprovider
+
 # Resolve every citation in the project against the pinned tree.
 citations:
     uv run refcheck verify

@@ -40,7 +40,12 @@ jobs:
         with:
           enable-cache: true
           python-version: ${{ matrix.python }}
+      # The checked in .python-version holds the pin, so the matrix has to overwrite it
+      # rather than sit next to it, or both legs of the matrix run the same interpreter
+      # and the job quietly stops testing what it says it tests.
+      - run: uv python pin ${{ matrix.python }}
       - run: uv sync --all-packages
+      - run: uv run python -c "import sys; print(sys.version)"
       - run: uv run pytest
 
   citations:

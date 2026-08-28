@@ -2,7 +2,7 @@
 
 A complete teardown of CPython 3.15, taught from absolute zero, as reactive notebooks, animations and browser playgrounds. The same work produces a second artifact: a specification precise enough that you can rebuild a compatible Python from scratch in Go or Rust, with a conformance suite that tells you how far you got.
 
-**Status: pre M0.** Nothing is built yet. The plan is in the [milestones](https://github.com/tamnd/cpython-internals/milestones) and the decisions that have not been made yet are in the [open questions](https://github.com/tamnd/cpython-internals/issues?q=is%3Aissue+label%3Akind%2Fopen-question).
+**Status: M0, in progress.** The tooling is landing first, because a lesson written before there is anything to check it with is a lesson nobody can trust. No lessons yet. The plan is in the [milestones](https://github.com/tamnd/cpython-internals/milestones) and the decisions that have not been made yet are in the [open questions](https://github.com/tamnd/cpython-internals/issues?q=is%3Aissue+label%3Akind%2Fopen-question).
 
 ## Who this is for
 
@@ -44,6 +44,17 @@ The capstone does not ship "it works". It ships a scorecard with a number, the f
 Pinned to `v3.15.0rc1` today and moving to `v3.15.0` when it ships on 1 October 2026. Every code reference is written as `Python/ceval.c:1213@v3.15.0rc1#_PyEval_EvalFrameDefault` and checked by CI against the pinned tree, so when the pin moves we are told exactly which references broke instead of finding out from a reader. The trailing symbol is what makes that work: a bare line number drifts silently when upstream inserts a function above it, and the citation then points at something plausible and wrong, which is worse than pointing at nothing. A bot diffs every cited region against upstream weekly and files one issue per affected lesson.
 
 3.15 is the right pin and the timing is good. It is the first release with a stable ABI for free threaded builds, it adds explicit lazy imports which drag a new object type through the grammar, the compiler, the import machinery and attribute lookup all at once, and its JIT is reported at 8 to 9 percent on x86-64 and 12 to 13 percent on AArch64 macOS. Pinning to 3.14 would mean rewriting the JIT chapter within a year.
+
+## What is built so far
+
+| | What it is | Where |
+|---|---|---|
+| `refcheck` | Resolves every `Path/File.c:START-END@TAG#symbol` citation in the repository against the pinned CPython tree, and fails CI when one drifts | [tools/refcheck](tools/refcheck) |
+| `pyxray` | The instrumentation every lesson imports: build banner, object headers, reference counts, bytecode as data, and CPython's compiler run one stage at a time | [pyxray](pyxray) |
+
+The lessons come next. Each one will appear in a table here as it lands, with its notebook and the milestone it belongs to.
+
+Three things the tooling has already found, all of which would have gone into prose as fact and been wrong. The small integer cache stops at 1024 on 3.15 rather than 256, so the `257 is 257` example every tutorial uses gives the opposite answer ([#33](https://github.com/tamnd/cpython-internals/issues/33)). `sys.getrefcount` stopped being reliably one too high in 3.14, because `LOAD_FAST_BORROW` passes a local without creating a reference while `LOAD_GLOBAL` still creates one, so the correction every introspection helper applies depends on the call site. And `RESUME` grew an inline cache entry in 3.15, so it is two bytes on 3.14 and four on 3.15, which shifts every offset in a hand counted disassembly.
 
 ## What is planned to be here
 
