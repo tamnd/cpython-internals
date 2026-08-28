@@ -17,6 +17,27 @@ Each lesson is a notebook you can run. There is nothing to install and nothing t
 | [T09. Memory appears and disappears](t09-memory-appears-and-disappears/t09.ipynb) | Watching an object die through a weak reference, building a cycle that outlives every name for it, the three step trick `Python/gc.c` uses to decide what is garbage, the three generations and why integers are not tracked, and the blocks and pools and arenas underneath all of it | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t09-memory-appears-and-disappears/t09.ipynb) |
 | [T10. The napkin](t10-the-napkin/t10.ipynb) | Drawing the machine from memory and checking it, the boundary between compile time and run time and the one thing that crosses it, `answer = 6 * 7` through all eight stages in a single cell, and seven common claims settled by running them | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t10-the-napkin/t10.ipynb) |
 
+## The three programs
+
+Lessons do not invent a fresh example each time. There are three programs, they are fixed, and they live in `pyxray.programs` so that every lesson gets the same text rather than a retyped copy of it.
+
+| | What it is | Why it exists |
+| --- | --- | --- |
+| `L0` | `answer = 6 * 7`, one line | Its bytecode, its tree and its symbol table all fit on the screen at once, so nothing in the program competes with the stage being explained. |
+| `L1` | an iterative Fibonacci, six lines | The smallest program with a loop the interpreter notices. One call is enough to specialize the two instructions inside it, so the interpreter lessons can show that happening without asking you to run anything ten thousand times. |
+| `L2` | a small linked structure, sixty lines | A class, a generator, a closure, a dict, a `try`/`except`/`finally`, and a reference cycle if you ask for one. Each of those is there because a later lesson points at it, and none of them is in there twice. |
+
+The reason to reuse three programs rather than write a good example per lesson is that meeting a new program and a new subsystem at the same time is two jobs, and the one most readers drop is the subsystem. By the time the exception table turns up, you should already know what `L2` does well enough to spend all of your attention on the table.
+
+```python
+from pyxray import programs
+
+print(programs.L1.describe())
+print(programs.L1.run())  # 832040
+nodes = programs.L2.load()  # a fresh namespace every time, nothing cached
+first = nodes.chain(("a", "b", "c"), ring=True)
+```
+
 ## How a lesson is put together
 
 Every code cell has a markdown cell in front of it saying what it is about to show. Every claim about CPython carries a reference to the source that makes it true, written as `Python/ceval.c:1213@v3.15.0rc1#_PyEval_EvalFrameDefault`, which is a file, a line range, a release tag and a function name. Those references are resolved against the pinned source tree on every change, so one that has gone stale fails the build rather than misleading you.
