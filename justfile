@@ -26,7 +26,7 @@ vendor:
     git -C "{{cpython_src}}" rev-parse HEAD
 
 # The full local check, in the order that fails fastest.
-check: lint test citations notebooks
+check: lint test citations lessons notebooks
 
 lint:
     uv run ruff check .
@@ -53,6 +53,16 @@ test-3-14:
 # Resolve every citation in the project against the pinned tree.
 citations:
     uv run refcheck verify
+
+# Confirm every committed notebook still matches the builder that produced it. Notebooks
+# are generated and also committed, because a reader clicking a Colab badge cannot run a
+# build step first, and anything generated and committed drifts unless something checks.
+lessons:
+    uv run nbbuild check
+
+# Regenerate the notebooks after editing a builder.
+build-lessons:
+    uv run nbbuild build
 
 # Check every lesson notebook has the shape a reader needs, then actually run it. The run
 # is the slow half, and it is the half that matters: a lesson whose fourth cell raises is
