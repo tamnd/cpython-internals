@@ -67,6 +67,9 @@ ignore = [
 # paragraph per line so that a sentence is never split across two of them. Wrapping those
 # to satisfy a line length rule would break the thing the rule is there to protect.
 "lessons/**/build.py" = ["E501"]
+# The glossary is the same thing without the notebook around it: definitions written as
+# one paragraph per line, so that a sentence is never split across two of them.
+"pyxray/src/pyxray/glossary.py" = ["E501"]
 "lessons/**/diagrams.py" = ["E501"]
 # The lesson notebooks are the one thing here that runs on an interpreter we do not choose.
 # A reader in Colab is on whatever Google installed, so a version check the linter thinks

@@ -14,7 +14,13 @@ from .scan import Occurrence, scan
 from .tree import PINNED_TAG, TreeNotFound, find_tree, tree_commit
 
 DEFAULT_LOCK = Path("citations.lock.json")
-DEFAULT_ROOTS = [Path("book"), Path("lessons"), Path("blueprints"), Path("README.md")]
+DEFAULT_ROOTS = [
+    Path("book"),
+    Path("lessons"),
+    Path("blueprints"),
+    Path("README.md"),
+    Path("GLOSSARY.md"),
+]
 
 
 def _check_one(occurrence: Occurrence, tree: Path, lock: Lock, update: bool) -> Finding:

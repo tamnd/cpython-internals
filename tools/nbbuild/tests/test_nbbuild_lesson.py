@@ -63,6 +63,23 @@ def test_a_citation_becomes_a_link_labelled_with_the_whole_citation(root):
     assert "github.com/python/cpython" in text
 
 
+def test_a_term_becomes_a_link_into_the_glossary(root):
+    lesson = Lesson("t99-example", "t99", root=root)
+    assert lesson.term("code object").endswith("/GLOSSARY.md#code-object)")
+
+
+def test_a_term_can_be_worded_to_fit_the_sentence(root):
+    lesson = Lesson("t99-example", "t99", root=root)
+    assert lesson.term("oparg", "the argument byte").startswith("[the argument byte](")
+
+
+def test_a_term_nobody_defined_fails_while_the_lesson_is_being_built(root):
+    # Better than shipping a link that lands at the top of the glossary and looks fine.
+    lesson = Lesson("t99-example", "t99", root=root)
+    with pytest.raises(KeyError):
+        lesson.term("monad")
+
+
 @pytest.mark.parametrize("dash", ["\u2014", "\u2013"])
 def test_prose_containing_a_dash_the_project_does_not_use_is_rejected(root, dash):
     """Invisible in a diff, so it is caught here rather than in review, where it never was."""
