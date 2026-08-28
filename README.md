@@ -54,6 +54,7 @@ Pinned to `v3.15.0rc1` today and moving to `v3.15.0` when it ships on 1 October 
 | `nbcheck` | The rules a lesson notebook has to follow, checked before review rather than after: the Colab badge points at itself, the build banner runs before anything it could explain, no code cell appears without a sentence introducing it, and no outputs are committed | [tools/nbcheck](tools/nbcheck) |
 | `nbbuild` | Lessons are written as Python and generated into notebooks, because nobody should have to edit a `.ipynb` by hand or review a diff of one. The generated file is committed as well, and CI fails if it stops matching the code that produced it | [tools/nbbuild](tools/nbbuild) |
 | `nbdiagram` | Every picture in a lesson is an Excalidraw scene drawn from Python, written out as an editable `.excalidraw` and as the `.svg` GitHub and Colab display. Colours, type and spacing come from one shared theme, so the diagrams, the charts and the animations look like one project | [tools/nbdiagram](tools/nbdiagram) |
+| `bpcheck` | The shape a blueprint has to have before somebody can implement from it: the nine sections in order, the header block, the invariant numbering, and no fact deferred to a lesson | [tools/bpcheck](tools/bpcheck) |
 
 ## The lessons
 
@@ -83,6 +84,19 @@ The pictures are generated too. A lesson's `diagrams.py` sits next to its `build
 More are landing in order. [lessons/README.md](lessons/README.md) explains how one is put together and how to run them locally.
 
 Three things the tooling has already found, all of which would have gone into prose as fact and been wrong. The small integer cache stops at 1024 on 3.15 rather than 256, so the `257 is 257` example every tutorial uses gives the opposite answer ([#33](https://github.com/tamnd/cpython-internals/issues/33)). `sys.getrefcount` stopped being reliably one too high in 3.14, because `LOAD_FAST_BORROW` passes a local without creating a reference while `LOAD_GLOBAL` still creates one, so the correction every introspection helper applies depends on the call site. And `RESUME` grew an inline cache entry in 3.15, so it is two bytes on 3.14 and four on 3.15, which shifts every offset in a hand counted disassembly.
+
+## The blueprints
+
+A lesson teaches and a blueprint specifies. Prose good enough for a beginner is too loose to implement from, so each subsystem gets a second document written for somebody who already understands it and is now typing a Python in Go or Rust. A blueprint has no motivation, no analogies, no history and no pictures, and it may not send the reader to a lesson for a fact, even where that means repeating a lesson word for word.
+
+Every one has the same nine sections in the same order, so a reader who has read one knows where to look in all of them: purpose and scope, data structures, algorithms, invariants, observable behaviour, edge cases and error paths, interactions, conformance, port notes. The three that make it more than a rewrite of the header file are observable behaviour, which decides how closely a port has to match, edge cases, which is where the accidents are marked as accidents, and conformance, which names the test behind each claim and says plainly which claims have no test yet.
+
+| | Blueprint | What it fixes |
+|---|---|---|
+| BP-MAP | [The shape of the whole interpreter](blueprints/BP-MAP.md) | The runtime, the interpreter, the thread state and the frame, what contains what, and which source file belongs to which blueprint so that two of them cannot claim the same code |
+| BP-PIPELINE | [Source text to a running frame](blueprints/BP-PIPELINE.md) | The eight artifacts and the seven transitions between them, the arena that holds the middle five, the three depth limits and the three different exceptions they raise, and the exact point where compile time ends |
+
+The pseudocode is one dialect across all of them, defined in [blueprints/NOTATION.md](blueprints/NOTATION.md), with explicit pointers, explicit allocation, explicit refcount operations and no exceptions. Their citations are resolved against the pinned tree along with everything else, and `bpcheck` holds the structure up.
 
 ## What is planned to be here
 

@@ -7,6 +7,7 @@ requires-python = ">=3.14"
 license = "MIT"
 
 dependencies = [
+    "bpcheck",
     "nbbuild",
     "nbcheck",
     "nbdiagram",
@@ -22,9 +23,10 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["pyxray", "tools/nbbuild", "tools/nbcheck", "tools/nbdiagram", "tools/refcheck"]
+members = ["pyxray", "tools/bpcheck", "tools/nbbuild", "tools/nbcheck", "tools/nbdiagram", "tools/refcheck"]
 
 [tool.uv.sources]
+bpcheck = { workspace = true }
 nbbuild = { workspace = true }
 nbcheck = { workspace = true }
 nbdiagram = { workspace = true }
@@ -34,6 +36,7 @@ refcheck = { workspace = true }
 [tool.pytest.ini_options]
 testpaths = [
     "pyxray/tests",
+    "tools/bpcheck/tests",
     "tools/nbbuild/tests",
     "tools/nbcheck/tests",
     "tools/nbdiagram/tests",
@@ -47,7 +50,7 @@ markers = [
 filterwarnings = ["error"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["nbbuild", "nbcheck", "nbdiagram", "pyxray", "refcheck"]
+known-first-party = ["bpcheck", "nbbuild", "nbcheck", "nbdiagram", "pyxray", "refcheck"]
 
 [tool.ruff]
 line-length = 100

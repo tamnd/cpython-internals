@@ -10,15 +10,40 @@
       "first_line": "term[expr_ty]:",
       "lines": 7
     },
+    "Include/cpython/code.h:45-84@v3.15.0rc1": {
+      "digest": "b8093c5db4f33759",
+      "first_line": "#define _PyCode_DEF(SIZE) {                                                    \\",
+      "lines": 40
+    },
     "Include/cpython/listobject.h:5-22@v3.15.0rc1": {
       "digest": "707b180de55e923a",
       "first_line": "typedef struct {",
       "lines": 18
     },
+    "Include/cpython/pystate.h:121-140@v3.15.0rc1": {
+      "digest": "beef1cfb6884fa83",
+      "first_line": "/* Thread state (_Py_THREAD_ATTACHED, _Py_THREAD_DETACHED, _Py_THREAD_SUSPENDED).",
+      "lines": 20
+    },
+    "Include/cpython/pystate.h:196-205@v3.15.0rc1": {
+      "digest": "48fc9a0ac70e001b",
+      "first_line": "/* Unique thread state id. */",
+      "lines": 10
+    },
+    "Include/cpython/pystate.h:66-101@v3.15.0rc1": {
+      "digest": "4c1cb716c3268888",
+      "first_line": "struct _ts {",
+      "lines": 36
+    },
     "Include/internal/pycore_interp_structs.h:271-286@v3.15.0rc1": {
       "digest": "84ddd939ee6f307f",
       "first_line": "#ifndef Py_GIL_DISABLED",
       "lines": 16
+    },
+    "Include/internal/pycore_interp_structs.h:842-880@v3.15.0rc1": {
+      "digest": "35744f6ec72c8dcf",
+      "first_line": "struct _is {",
+      "lines": 39
     },
     "Include/internal/pycore_interpframe_structs.h:29-53@v3.15.0rc1": {
       "digest": "0f12951337d13d71",
@@ -59,6 +84,16 @@
       "digest": "92b707281c47541e",
       "first_line": "/* Values used as the oparg for LOAD_COMMON_CONSTANT */",
       "lines": 14
+    },
+    "Include/internal/pycore_runtime_structs.h:134-170@v3.15.0rc1": {
+      "digest": "ada3da14c486fca9",
+      "first_line": "struct pyruntimestate {",
+      "lines": 37
+    },
+    "Include/internal/pycore_runtime_structs.h:184-205@v3.15.0rc1": {
+      "digest": "9387d7556638fd61",
+      "first_line": "struct pyinterpreters {",
+      "lines": 22
     },
     "Include/internal/pycore_runtime_structs.h:91-94@v3.15.0rc1": {
       "digest": "74ec5c6dd34599e2",
@@ -185,6 +220,11 @@
       "first_line": "def unparse(ast_obj):",
       "lines": 7
     },
+    "Modules/main.c:830-852@v3.15.0rc1": {
+      "digest": "b15e6301c9c95772",
+      "first_line": "int",
+      "lines": 23
+    },
     "Objects/clinic/listobject.c.h:1-3@v3.15.0rc1": {
       "digest": "3e8ec84ffbf9f1e1",
       "first_line": "/*[clinic input]",
@@ -260,6 +300,11 @@
       "first_line": "operator = Add | Sub | Mult | MatMult | Div | Mod | Pow | LShift",
       "lines": 2
     },
+    "Parser/Python.asdl:4-9@v3.15.0rc1": {
+      "digest": "529a8ef072884926",
+      "first_line": "module Python",
+      "lines": 6
+    },
     "Parser/Python.asdl:62-62@v3.15.0rc1": {
       "digest": "13761ffe14f17084",
       "first_line": "| BinOp(expr left, operator op, expr right)",
@@ -279,6 +324,11 @@
       "digest": "9b7b6105c0e01602",
       "first_line": "enum string_kind_t string_kind = FSTRING;",
       "lines": 26
+    },
+    "Parser/lexer/lexer.c:1300-1310@v3.15.0rc1": {
+      "digest": "b822c2d1b8b1e2b0",
+      "first_line": "/* Keep track of parentheses nesting level */",
+      "lines": 11
     },
     "Parser/lexer/lexer.c:1615-1624@v3.15.0rc1": {
       "digest": "362dbbaa0b1d4a60",
@@ -305,6 +355,11 @@
       "first_line": "for (;;) {",
       "lines": 11
     },
+    "Parser/lexer/lexer.c:578-590@v3.15.0rc1": {
+      "digest": "2a58a6061a13e085",
+      "first_line": "}",
+      "lines": 13
+    },
     "Parser/lexer/lexer.c:616-634@v3.15.0rc1": {
       "digest": "5ad16442ff013d3d",
       "first_line": "/* Return pending indents/dedents */",
@@ -319,6 +374,11 @@
       "digest": "f2b84d683b026516",
       "first_line": "",
       "lines": 29
+    },
+    "Parser/lexer/state.h:6-8@v3.15.0rc1": {
+      "digest": "fa6e58129d4aeaea",
+      "first_line": "#define MAXINDENT 100       /* Max indentation level */",
+      "lines": 3
     },
     "Parser/lexer/state.h:88-107@v3.15.0rc1": {
       "digest": "676ce9672b82210d",
@@ -339,6 +399,16 @@
       "digest": "bea02c8afaf79632",
       "first_line": "void *",
       "lines": 4
+    },
+    "Parser/pegen.c:938-971@v3.15.0rc1": {
+      "digest": "9a2610b93343b83a",
+      "first_line": "void *",
+      "lines": 34
+    },
+    "Parser/pegen_errors.c:410-416@v3.15.0rc1": {
+      "digest": "1dbed2685d76205c",
+      "first_line": "void",
+      "lines": 7
     },
     "Parser/tokenizer/helpers.c:90-97@v3.15.0rc1": {
       "digest": "3561ba87204ad709",
@@ -410,6 +480,11 @@
       "first_line": "_PyEval_EvalFrameDefault(PyThreadState *tstate, _PyInterpreterFrame *frame, int throwflag)",
       "lines": 1
     },
+    "Python/ceval.c:661-690@v3.15.0rc1": {
+      "digest": "fc120747f28c3b59",
+      "first_line": "PyObject *",
+      "lines": 30
+    },
     "Python/ceval_macros.h:128-141@v3.15.0rc1": {
       "digest": "b032ce0706e98a42",
       "first_line": "#elif USE_COMPUTED_GOTOS",
@@ -445,10 +520,20 @@
       "first_line": "_PyCompile_ResolveNameop(compiler *c, PyObject *mangled, int scope,",
       "lines": 40
     },
+    "Python/compile.c:1460-1498@v3.15.0rc1": {
+      "digest": "990b8b4f02724435",
+      "first_line": "static PyCodeObject *",
+      "lines": 39
+    },
     "Python/compile.c:1526-1540@v3.15.0rc1": {
       "digest": "50ec4f7c0b2ce56a",
       "first_line": "PyCodeObject *",
       "lines": 15
+    },
+    "Python/compile.c:892-907@v3.15.0rc1": {
+      "digest": "62dbcc2065eaa65b",
+      "first_line": "static PyCodeObject *",
+      "lines": 16
     },
     "Python/flowgraph.c:1008-1044@v3.15.0rc1": {
       "digest": "682b8afdaf039dde",
@@ -530,6 +615,21 @@
       "first_line": "TARGET(BINARY_OP_MULTIPLY_INT) {",
       "lines": 17
     },
+    "Python/pylifecycle.c:1609-1639@v3.15.0rc1": {
+      "digest": "332183fc478125a5",
+      "first_line": "PyStatus",
+      "lines": 31
+    },
+    "Python/pystate.c:3133-3143@v3.15.0rc1": {
+      "digest": "a9bbfecf998bd05a",
+      "first_line": "_PyInterpreterFrame *",
+      "lines": 11
+    },
+    "Python/pythonrun.c:1556-1590@v3.15.0rc1": {
+      "digest": "b3ee366172fc1041",
+      "first_line": "PyObject *",
+      "lines": 35
+    },
     "Python/symtable.c:1139-1150@v3.15.0rc1": {
       "digest": "c7fd0736ea195896",
       "first_line": "analyze_block(PySTEntryObject *ste, PyObject *bound, PyObject *free,",
@@ -539,6 +639,11 @@
       "digest": "e7e89dd474de9717",
       "first_line": "struct symtable *",
       "lines": 4
+    },
+    "Python/symtable.c:415-445@v3.15.0rc1": {
+      "digest": "efff03a3e7ed4c41",
+      "first_line": "struct symtable *",
+      "lines": 31
     },
     "Python/symtable.c:669-708@v3.15.0rc1": {
       "digest": "ad75696a832af002",
