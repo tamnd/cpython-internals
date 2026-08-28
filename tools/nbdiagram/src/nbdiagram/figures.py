@@ -299,6 +299,75 @@ def tree(
     return scene
 
 
+#: Container tone by depth, lightest on the outside. Anything deeper than this reuses the
+#: last one, because a diagram nested five deep has a problem no palette is going to fix.
+NESTING = ("quiet", "input", "intermediate", "focus")
+
+
+def nest(
+    name: str,
+    root: Node,
+    *,
+    title: str = "",
+    caption: str = "",
+    tones: Sequence[str] = NESTING,
+) -> Scene:
+    """Boxes drawn inside boxes, for anything where containment is the point.
+
+    A tree and a nesting diagram carry the same information and they do not say the same
+    thing. A tree says one of these is above the other. Nested boxes say one of these is
+    inside the other, which is what you want for the blocks a symbol table is made of, or
+    for a frame with its locals in it.
+
+    Sizes are measured from the inside out, so a container is exactly as big as it has to be
+    and every child in one container gets the same width. Containers are drawn before their
+    contents so the contents land on top of them.
+    """
+    scene = Scene(name)
+    top = 0.0
+    if title:
+        scene.text(title, 0, top, size=theme.TITLE_SIZE)
+        top += theme.TITLE_SIZE * theme.LINE_HEIGHT + theme.GRID
+
+    size = theme.CAPTION_SIZE
+    pad = 14
+    gap = 10
+    header = size * theme.LINE_HEIGHT + 18
+    leaf = 42
+
+    def measure(node: Node) -> tuple[float, float]:
+        label, children = _parts(node)
+        own = text_width(label, size, mono=True) + 2 * theme.PADDING
+        if not children:
+            return max(own, 150), leaf
+        sizes = [measure(child) for child in children]
+        inside = max(width for width, _ in sizes)
+        tall = sum(height for _, height in sizes) + gap * (len(sizes) - 1)
+        return max(inside + 2 * pad, own), header + tall + pad
+
+    def place(node: Node, x: float, y: float, width: float, depth: int) -> None:
+        label, children = _parts(node)
+        tone = tones[min(depth, len(tones) - 1)]
+        if not children:
+            scene.box(label, x, y, width=width, height=leaf, tone=tone, mono=True, size=size)
+            return
+        _, height = measure(node)
+        scene.panel(label, x, y, width, height, tone=tone, size=size, mono=True)
+        cursor = y + header
+        for child in children:
+            _, child_height = measure(child)
+            place(child, x + pad, cursor, width - 2 * pad, depth + 1)
+            cursor += child_height + gap
+
+    width, _ = measure(root)
+    place(root, 0, top, width, 0)
+
+    if caption:
+        bottom = max(element.box[3] for element in scene.elements)
+        scene.text(caption, 0, bottom + theme.GRID, size=theme.CAPTION_SIZE, colour=theme.MUTED)
+    return scene
+
+
 def beside(
     name: str,
     panels: Sequence[tuple[str, Scene]],
