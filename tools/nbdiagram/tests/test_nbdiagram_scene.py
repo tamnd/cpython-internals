@@ -127,6 +127,23 @@ def test_bounds_cover_every_element():
     assert scene.bounds() == (100, 50, 300, 130)
 
 
+def test_bounds_cover_an_arrow_that_points_the_other_way():
+    # A leftward arrow is stored with a negative width, and reading that back unsorted put
+    # the right edge to the left of the left edge. The viewBox then had the drawing outside
+    # it and the whole scene rendered as a strip of white with one arrow in it.
+    scene = Scene("one")
+    scene.arrow((400, 10), (0, 10))
+    left, _, right, _ = scene.bounds()
+    assert (left, right) == (0, 400)
+
+
+def test_an_upward_arrow_is_measured_the_same_way():
+    scene = Scene("one")
+    scene.arrow((10, 400), (10, 0))
+    _, top, _, bottom = scene.bounds()
+    assert (top, bottom) == (0, 400)
+
+
 def test_ports_sit_on_the_edges():
     scene = Scene("one")
     box = scene.box("a", 0, 0, width=100, height=80)

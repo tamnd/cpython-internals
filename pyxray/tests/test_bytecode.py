@@ -150,3 +150,60 @@ def test_the_line_table_covers_the_whole_code_object():
 
 def test_the_line_table_is_the_decoded_form_of_co_lines():
     assert bytecode.line_table(add) == list(add.__code__.co_lines())
+
+
+LOOP = """
+total = 0
+for n in [1, 2, 3]:
+    total = total + n
+"""
+
+
+def test_the_same_argument_means_different_things_to_different_instructions():
+    """This is the thing that stops a reader cold, so it gets its own function."""
+    assert bytecode.argument_meaning("LOAD_CONST") == "an index into co_consts"
+    assert bytecode.argument_meaning("LOAD_NAME") == "an index into co_names"
+    assert bytecode.argument_meaning("CALL") == "how many arguments are on the stack"
+
+
+def test_an_instruction_with_no_argument_says_so():
+    assert "never read" in bytecode.argument_meaning("POP_TOP")
+
+
+def test_an_instruction_that_does_not_exist_is_an_error_and_not_a_guess():
+    with pytest.raises(KeyError, match="LOAD_NONSENSE"):
+        bytecode.argument_meaning("LOAD_NONSENSE")
+
+
+def test_every_hand_written_note_is_about_an_instruction_that_still_exists():
+    """The one hand written table in this module, so it gets checked against the real one."""
+    missing = [name for name in bytecode.ARGUMENT_NOTES if name not in dis.opmap]
+    assert missing == []
+
+
+def test_a_forward_jump_counts_on_from_after_the_caches():
+    forward = next(jump for jump in bytecode.jumps(LOOP) if not jump.backwards)
+    assert forward.target == forward.resumes_at + 2 * forward.arg
+
+
+def test_a_backward_jump_counts_back_from_the_same_place():
+    backward = next(jump for jump in bytecode.jumps(LOOP) if jump.backwards)
+    assert backward.target == backward.resumes_at - 2 * backward.arg
+
+
+def test_every_jump_lands_where_dis_says_it_does():
+    landings = {
+        item.offset: item.jump_target
+        for item in bytecode.disassemble(LOOP)
+        if item.jump_target is not None
+    }
+    assert {jump.offset: jump.target for jump in bytecode.jumps(LOOP)} == landings
+
+
+def test_the_jump_table_writes_the_arithmetic_out():
+    assert " * 2 = " in bytecode.jump_table(LOOP)
+
+
+def test_a_loop_jumps_both_ways():
+    directions = {jump.backwards for jump in bytecode.jumps(LOOP)}
+    assert directions == {True, False}

@@ -121,11 +121,20 @@ class Element:
 
     @property
     def box(self) -> tuple[float, float, float, float]:
+        """Left, top, right and bottom, in that order, whichever way the element was built.
+
+        An arrow that points leftwards or upwards is stored with a negative width or
+        height, because Excalidraw records where it started and how far it went. Returning
+        that unsorted puts the right edge to the left of the left edge, and then the scene
+        bounds come out wrong and the SVG gets a viewBox with the drawing outside it.
+        """
+        x, y = self.data["x"], self.data["y"]
+        width, height = self.data["width"], self.data["height"]
         return (
-            self.data["x"],
-            self.data["y"],
-            self.data["x"] + self.data["width"],
-            self.data["y"] + self.data["height"],
+            min(x, x + width),
+            min(y, y + height),
+            max(x, x + width),
+            max(y, y + height),
         )
 
     def centre(self) -> tuple[float, float]:
