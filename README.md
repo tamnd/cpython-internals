@@ -52,6 +52,7 @@ Pinned to `v3.15.0rc1` today and moving to `v3.15.0` when it ships on 1 October 
 | `refcheck` | Resolves every `Path/File.c:START-END@TAG#symbol` citation in the repository against the pinned CPython tree, and fails CI when one drifts | [tools/refcheck](tools/refcheck) |
 | `pyxray` | The instrumentation every lesson imports: build banner, object headers, reference counts, bytecode as data, and CPython's compiler run one stage at a time | [pyxray](pyxray) |
 | `nbcheck` | The rules a lesson notebook has to follow, checked before review rather than after: the Colab badge points at itself, the build banner runs before anything it could explain, no code cell appears without a sentence introducing it, and no outputs are committed | [tools/nbcheck](tools/nbcheck) |
+| `nbbuild` | Lessons are written as Python and generated into notebooks, because nobody should have to edit a `.ipynb` by hand or review a diff of one. The generated file is committed as well, and CI fails if it stops matching the code that produced it | [tools/nbbuild](tools/nbbuild) |
 
 ## The lessons
 
