@@ -16,9 +16,11 @@ from __future__ import annotations
 
 import ast
 import io
+import symtable
 import sys
 import tokenize
 import types
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 
 from ._opcodes import is_pseudo, opcode_name
@@ -98,6 +100,10 @@ def _instructions(sequence) -> list[RawInstruction]:
     return rows
 
 
+def _count(number: int, word: str) -> str:
+    return f"{number} {word}" if number == 1 else f"{number} {word}s"
+
+
 @dataclass(frozen=True)
 class Stages:
     """Every intermediate form between source text and a code object."""
@@ -106,6 +112,7 @@ class Stages:
     filename: str
     tokens: list[tokenize.TokenInfo]
     tree: ast.AST
+    scope: Scope
     codegen: list[RawInstruction]
     optimized: list[RawInstruction]
     code: types.CodeType
@@ -116,13 +123,21 @@ class Stages:
         return len(self.codegen) - len(self.optimized)
 
     def summary(self) -> str:
-        return (
-            f"{len(self.source.splitlines())} lines of source, "
-            f"{len(self.tokens)} tokens, "
-            f"{sum(1 for _ in ast.walk(self.tree))} AST nodes, "
-            f"{len(self.codegen)} instructions after code generation, "
-            f"{len(self.optimized)} after the optimizer, "
-            f"{len(self.code.co_code)} bytes of bytecode"
+        """The whole trip in one line of counts, read out loud rather than tabulated.
+
+        A one line source produces "1 line", not "1 lines". It is a small thing and it is
+        the first output of the first lesson, which is not the place to look careless.
+        """
+        return ", ".join(
+            [
+                f"{_count(len(self.source.splitlines()), 'line')} of source",
+                _count(len(self.tokens), "token"),
+                f"{_count(sum(1 for _ in ast.walk(self.tree)), 'node')} in the tree",
+                _count(sum(1 for _ in self.scope.walk()), "scope"),
+                f"{_count(len(self.codegen), 'instruction')} after code generation",
+                f"{len(self.optimized)} after the optimizer",
+                f"{_count(len(self.code.co_code), 'byte')} of bytecode",
+            ]
         )
 
 
@@ -135,6 +150,127 @@ def tokens(source: str) -> list[tokenize.TokenInfo]:
     """
     reader = io.BytesIO(source.encode("utf-8")).readline
     return list(tokenize.tokenize(reader))
+
+
+#: The questions the symbol table can answer about one name, in the order they are worth
+#: asking. The order is the order they print in, so it is part of what a reader sees.
+_QUESTIONS = (
+    ("parameter", "is_parameter"),
+    ("local", "is_local"),
+    ("global", "is_global"),
+    ("free", "is_free"),
+    ("cell", "is_cell"),
+    ("declared global", "is_declared_global"),
+    ("nonlocal", "is_nonlocal"),
+    ("assigned", "is_assigned"),
+    ("referenced", "is_referenced"),
+    ("imported", "is_imported"),
+    ("annotated", "is_annotated"),
+    ("namespace", "is_namespace"),
+)
+
+
+@dataclass(frozen=True)
+class Symbol:
+    """One name, and everything the symbol table decided about it.
+
+    The flags are kept separate rather than collapsed into a single scope word on purpose.
+    A name at module level answers yes to both local and global, which looks like a bug and
+    is not: a module level binding really is stored in the module's own namespace and
+    really is what every function in the file sees as a global. Collapsing that into one
+    word would hide the one fact about scope that beginners get wrong most often.
+    """
+
+    name: str
+    flags: tuple[str, ...]
+
+    def __contains__(self, question: str) -> bool:
+        return question in self.flags
+
+    def __str__(self) -> str:
+        return f"{self.name}: {', '.join(self.flags) if self.flags else 'no flags set'}"
+
+
+@dataclass(frozen=True)
+class Scope:
+    """One symbol table: a module, a function, a class, or a lambda.
+
+    CPython builds one of these per block before it generates a single instruction, and
+    the reason is that it cannot know how to compile `x` until it knows whether `x` is a
+    local, a global, or a closure variable. That decision is made here and nowhere else.
+    """
+
+    name: str
+    kind: str
+    line: int
+    nested: bool
+    symbols: list[Symbol]
+    children: list[Scope]
+
+    def lookup(self, name: str) -> Symbol | None:
+        """The symbol for this name in this scope, or None if this scope never sees it.
+
+        `symtable.SymbolTable.lookup` raises KeyError for a name it does not hold, which
+        makes the common question, does this scope know about this name, awkward to ask.
+        """
+        for symbol in self.symbols:
+            if symbol.name == name:
+                return symbol
+        return None
+
+    def walk(self) -> Iterator[Scope]:
+        """This scope and every scope nested inside it, outermost first."""
+        yield self
+        for child in self.children:
+            yield from child.walk()
+
+    def tree(self, indent: int = 0) -> str:
+        """The whole nest of scopes as text, one name per line."""
+        pad = "  " * indent
+        lines = [f"{pad}{self.kind} {self.name!r} (line {self.line})"]
+        lines.extend(f"{pad}  {symbol}" for symbol in self.symbols)
+        lines.extend(child.tree(indent + 1) for child in self.children)
+        return "\n".join(lines)
+
+    def __str__(self) -> str:
+        return self.tree()
+
+
+def questions() -> tuple[str, ...]:
+    """The questions this interpreter's symbol table can actually answer.
+
+    Not every release exposes the same set. `Symbol.is_cell` arrived in 3.15, so on 3.14
+    there is no public way to tell a cell apart from a plain local: `is_local` answers yes
+    for both. Asking here rather than assuming keeps the older interpreter honest instead
+    of crashing on it.
+    """
+    return tuple(label for label, question in _QUESTIONS if hasattr(symtable.Symbol, question))
+
+
+def _scope_of(table: symtable.SymbolTable) -> Scope:
+    asked = [pair for pair in _QUESTIONS if hasattr(symtable.Symbol, pair[1])]
+    rows = []
+    for symbol in table.get_symbols():
+        flags = tuple(label for label, question in asked if getattr(symbol, question)())
+        rows.append(Symbol(name=symbol.get_name(), flags=flags))
+    return Scope(
+        name=table.get_name(),
+        kind=str(table.get_type()),
+        line=table.get_lineno(),
+        nested=table.is_nested(),
+        symbols=rows,
+        children=[_scope_of(child) for child in table.get_children()],
+    )
+
+
+def symbols(source: str, filename: str = "<pyxray>") -> Scope:
+    """Build the symbol table for this source, the way the compiler does before codegen.
+
+    This is a real stage and not a summary of one. `symtable.symtable` calls the same
+    `_PySymtable_Build` that `compile()` calls, so what comes back here is the table the
+    code generator would have used, not a reconstruction of it.
+    """
+    return _scope_of(symtable.symtable(source, filename, "exec"))
 
 
 def stages(source: str, filename: str = "<pyxray>", *, optimize: int = 0) -> Stages:
@@ -163,6 +299,7 @@ def stages(source: str, filename: str = "<pyxray>", *, optimize: int = 0) -> Sta
         filename=filename,
         tokens=tokens(source),
         tree=tree,
+        scope=symbols(source, filename),
         codegen=generated,
         optimized=optimized,
         code=code,

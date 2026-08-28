@@ -26,7 +26,7 @@ vendor:
     git -C "{{cpython_src}}" rev-parse HEAD
 
 # The full local check, in the order that fails fastest.
-check: lint test citations
+check: lint test citations notebooks
 
 lint:
     uv run ruff check .
@@ -42,13 +42,28 @@ test:
 # The same suite on the version the browser tier runs. Everything here is written against
 # 3.15, and the reader in a Colab or Pyodide tab is on 3.14, so the tests that encode a
 # version difference have to be exercised from both sides or they only prove one of them.
+#
+# The install is editable on purpose. With a plain `--with ./pyxray` uv reuses a wheel it
+# built earlier, so edits made since then are silently not tested, and the run passes for
+# the wrong reason. That is worse than no second interpreter at all.
 test-3-14:
-    uv run --python 3.14 --isolated --with pytest --with ./tools/refcheck --with ./pyxray \
+    uv run --python 3.14 --isolated --with pytest --with ./tools/refcheck --with-editable ./pyxray \
         pytest pyxray/tests -q -p no:cacheprovider
 
 # Resolve every citation in the project against the pinned tree.
 citations:
     uv run refcheck verify
+
+# Check every lesson notebook has the shape a reader needs, then actually run it. The run
+# is the slow half, and it is the half that matters: a lesson whose fourth cell raises is
+# worse than no lesson, because the reader assumes they broke it.
+notebooks:
+    uv run nbcheck lint
+    uv run nbcheck run
+
+# The structural checks on their own, with no kernel, for while you are still writing.
+notebooks-lint:
+    uv run nbcheck lint
 
 # Rewrite the citation lockfile after a human has read the diff. This is deliberately
 # not part of `check`, because a checker that silently repairs itself checks nothing.

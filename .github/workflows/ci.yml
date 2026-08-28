@@ -48,6 +48,29 @@ jobs:
       - run: uv run python -c "import sys; print(sys.version)"
       - run: uv run pytest
 
+  notebooks:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Same reasoning as the test job. The lessons are written on the pin and read on
+        # whatever the browser tier is running, so both have to execute every cell.
+        python: ["3.15.0rc1", "3.14"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python }}
+      - run: uv python pin ${{ matrix.python }}
+      - run: uv sync --all-packages
+      - run: uv run python -c "import sys; print(sys.version)"
+      - run: uv run nbcheck lint
+      # The notebooks install pyxray from this repository when they run in Colab. Here the
+      # workspace copy is already installed, so what gets executed is the working tree and
+      # not whatever is on main, which is the whole point of running them in a pull request.
+      - run: uv run nbcheck run
+
   citations:
     runs-on: ubuntu-latest
     steps:
