@@ -17,7 +17,7 @@ from itertools import pairwise
 
 from pyxray import theme
 
-from .scene import Scene, text_width
+from .scene import Element, Scene, text_width
 
 
 def pipeline(
@@ -198,6 +198,104 @@ def table(
 
     if caption:
         scene.text(caption, 0, y + theme.GRID, size=theme.CAPTION_SIZE, colour=theme.MUTED)
+    return scene
+
+
+#: A node is either a bare string, which is a leaf, or a label and its children. Allowing
+#: both keeps the call sites readable: an AST is mostly leaves, and writing `("Mult", [])`
+#: forty times is noise around the shape you are trying to show.
+Node = str | tuple[str, "Sequence[Node]"]
+
+
+def _parts(node: Node) -> tuple[str, Sequence[Node]]:
+    return (node, ()) if isinstance(node, str) else node
+
+
+def tree(
+    name: str,
+    root: Node,
+    *,
+    title: str = "",
+    caption: str = "",
+    height: float = 52,
+) -> Scene:
+    """A tree drawn downwards, with each parent centred over its children.
+
+    Written for the syntax tree, which is the picture the front end lessons keep needing,
+    and `ast.dump` is a poor substitute: it is correct, and reading the shape of a tree out
+    of nested brackets is work the reader should not have to do.
+
+    Layout is the usual two passes. Measure the width each subtree needs, then place them
+    left to right and put every parent over the middle of its own children. Nothing here
+    tries to be clever about crossing edges, because a syntax tree cannot have any.
+    """
+    scene = Scene(name)
+    top = 0.0
+    if title:
+        scene.text(title, 0, top, size=theme.TITLE_SIZE)
+        top += theme.TITLE_SIZE * theme.LINE_HEIGHT + theme.GRID
+
+    gap_x = 20
+    gap_y = 44
+
+    def own_width(node: Node) -> float:
+        label, _ = _parts(node)
+        return text_width(label, theme.CAPTION_SIZE, mono=True) + 2 * theme.PADDING
+
+    def span(node: Node) -> float:
+        _, children = _parts(node)
+        if not children:
+            return own_width(node)
+        below = sum(span(child) for child in children) + gap_x * (len(children) - 1)
+        return max(own_width(node), below)
+
+    def place(node: Node, left: float, depth: int) -> Element:
+        label, children = _parts(node)
+        width = own_width(node)
+        y = top + depth * (height + gap_y)
+        if not children:
+            tone = "durable"
+            box = scene.box(
+                label,
+                left + (span(node) - width) / 2,
+                y,
+                width=width,
+                height=height,
+                tone=tone,
+                mono=True,
+                size=theme.CAPTION_SIZE,
+                align="center",
+            )
+            return box
+
+        cursor = left
+        placed = []
+        for child in children:
+            placed.append(place(child, cursor, depth + 1))
+            cursor += span(child) + gap_x
+
+        middle = (placed[0].centre()[0] + placed[-1].centre()[0]) / 2
+        tone = "input" if depth == 0 else "intermediate"
+        box = scene.box(
+            label,
+            middle - width / 2,
+            y,
+            width=width,
+            height=height,
+            tone=tone,
+            mono=True,
+            size=theme.CAPTION_SIZE,
+            align="center",
+        )
+        for child in placed:
+            scene.line([box.port("bottom"), child.port("top")], colour=theme.LINE)
+        return box
+
+    place(root, 0, 0)
+
+    if caption:
+        bottom = max(element.box[3] for element in scene.elements)
+        scene.text(caption, 0, bottom + theme.GRID, size=theme.CAPTION_SIZE, colour=theme.MUTED)
     return scene
 
 

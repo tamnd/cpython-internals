@@ -9,29 +9,21 @@ tokenizer changing mode partway through a string are all things you can describe
 sentence and nobody will picture correctly.
 """
 
-from nbdiagram import Gallery, figures
+from nbdiagram import Gallery, figures, stages
 from nbdiagram.scene import Scene, text_width
 from pyxray import theme
 
 gallery = Gallery("t02-text-becomes-tokens")
 
-# The map, with the tokenizer lit up. T01 draws the same seven stages. Reusing the picture
-# with the focus moved is worth much more than drawing a new one, because the reader
-# recognises where they are instead of having to read it again.
+# The same map T01 draws, with the tokenizer lit up. Reusing the picture with the focus
+# moved is worth much more than drawing a new one, because the reader recognises where they
+# are instead of having to read it again.
 gallery.add(
-    figures.pipeline(
+    stages.map(
         "where-we-are",
-        [
-            ("your file", "the text you wrote"),
-            ("tokens", "Parser/lexer/lexer.c"),
-            ("syntax tree", "Parser/parser.c"),
-            ("symbol table", "Python/symtable.c"),
-            ("bytecode", "Python/compile.c"),
-            ("the answer", "Python/ceval.c"),
-        ],
-        highlight=1,
+        highlight=stages.TOKENS,
         title="Where this lesson sits",
-        caption="This lesson is about the second box. Once it is finished, nothing further along reads your file.",
+        caption="This lesson is about the second box. Once it is finished, nothing further along ever reads your file again.",
     )
 )
 

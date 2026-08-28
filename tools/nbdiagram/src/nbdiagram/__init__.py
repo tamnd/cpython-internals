@@ -11,11 +11,21 @@ three.
 
 from __future__ import annotations
 
-from . import figures
+from . import figures, stages
 from .gallery import Gallery
 from .link import RAW, Diagrams
 from .render import to_svg
 from .scene import Element, Scene, text_width
 
-__all__ = ["RAW", "Diagrams", "Element", "Gallery", "Scene", "figures", "text_width", "to_svg"]
+__all__ = [
+    "RAW",
+    "Diagrams",
+    "Element",
+    "Gallery",
+    "Scene",
+    "figures",
+    "stages",
+    "text_width",
+    "to_svg",
+]
 __version__ = "0.1.0"

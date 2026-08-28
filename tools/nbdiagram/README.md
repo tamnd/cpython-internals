@@ -21,15 +21,14 @@ The scenes are drawn in architect mode, which is Excalidraw with the sketchy str
 A lesson has a `diagrams.py` next to its `build.py`:
 
 ```python
-from nbdiagram import Gallery, figures
+from nbdiagram import Gallery, stages
 
 gallery = Gallery("t02-text-becomes-tokens")
 
 gallery.add(
-    figures.pipeline(
+    stages.map(
         "where-we-are",
-        [("your file", "the text you wrote"), ("tokens", "Parser/lexer/lexer.c")],
-        highlight=1,
+        highlight=stages.TOKENS,
         title="Where this lesson sits",
     )
 )
@@ -58,9 +57,23 @@ just diagrams          # fail if a committed diagram no longer matches its scrip
 
 Both run in CI, in the notebooks job.
 
+## The stage map
+
+There is one picture readers see more than any other: the row of boxes from the file you wrote to the answer you got, with the box this lesson is about lit up. It lives in `stages.py` rather than in any one lesson, because a map that quietly gains a box in lesson forty is worse than no map at all. By then the reader has stopped looking at it and will not notice it changed.
+
+A lesson asks for it by name, using the index constants rather than a bare number, since an off by one in a highlight draws a perfectly good picture of the wrong box and no reviewer will catch it:
+
+```python
+gallery.add(stages.map("where-we-are", highlight=stages.SYMBOLS))
+```
+
+The stages are named after the artefact rather than the verb, so "tokens" and not "tokenizing". Each box is a thing you can print, and most lessons are built around printing what is in one box and watching it become the thing in the next. The second line under each box names the CPython file that does the work, which is the main reason the picture earns its place.
+
 ## The figures
 
 `pipeline` is stages left to right with arrows between them, each with an optional second line naming the CPython file that does it. `flow` is the same thing down the page, for a chain too long to fit across one. `stack` draws a stack with the top at the top, which sounds obvious and is wrong in about half the stack diagrams in circulation. `table` is a trace: a few monospaced columns and one row per step, with an optional tint on the row where things go wrong. `compare` is two columns for showing that two things which look alike are not. `spans` is a line of source with its pieces named underneath.
+
+`tree` draws a tree downwards with every parent centred over its own children, for the syntax tree the front end lessons keep needing. `ast.dump` is correct and it makes the reader recover the shape of a tree from nested brackets, which is work they should not have to do.
 
 `spans` is the one with an opinion in it. A token name is nearly always wider than the token it names, so labels parked under their spans either overlap each other or drift away from the thing they point at. Leader lines fix the overlap and then cross. So the labels go in a row of their own, in the same order as the spans, and each one is joined to its span by a filled ribbon. Two sequences in the same order cannot cross, and a shape reads at a glance where a thin line has to be traced.
 
