@@ -67,11 +67,13 @@ A lesson asks for it by name, using the index constants rather than a bare numbe
 gallery.add(stages.map("where-we-are", highlight=stages.SYMBOLS))
 ```
 
+A lesson that genuinely covers more than one box passes a list, `highlight=[stages.INSTRUCTIONS, stages.OPTIMIZED, stages.CODE_OBJECT]`, which is what T05 does because one `compile()` call really does produce all three. Lighting one box there would tell the reader the lesson is smaller than it is. Every index in the list is checked, so a typo is an error and not a picture of the wrong boxes.
+
 The stages are named after the artefact rather than the verb, so "tokens" and not "tokenizing". Each box is a thing you can print, and most lessons are built around printing what is in one box and watching it become the thing in the next. The second line under each box names the CPython file that does the work, which is the main reason the picture earns its place.
 
 ## The figures
 
-`pipeline` is stages left to right with arrows between them, each with an optional second line naming the CPython file that does it. `flow` is the same thing down the page, for a chain too long to fit across one. `stack` draws a stack with the top at the top, which sounds obvious and is wrong in about half the stack diagrams in circulation. `table` is a trace: a few monospaced columns and one row per step, with an optional tint on the row where things go wrong. `compare` is two columns for showing that two things which look alike are not. `spans` is a line of source with its pieces named underneath.
+`pipeline` is stages left to right with arrows between them, each with an optional second line naming the CPython file that does it. `flow` is the same thing down the page, for a chain too long to fit across one. `stack` draws a stack with the top at the top, which sounds obvious and is wrong in about half the stack diagrams in circulation. `table` is a trace: a few monospaced columns and one row per step, with an optional tint on the row where things go wrong. `compare` is two columns for showing that two things which look alike are not, with a verdict line under them saying what the difference was. The verdict is tinted red by default, since most comparisons in these lessons are showing you something that went wrong, but a comparison of the compiler doing its job correctly should pass `verdict_tone="durable"` for green. A red box under a picture of everything working reads as a warning and sends the reader back to look for the mistake. `spans` is a line of source with its pieces named underneath.
 
 `tree` draws a tree downwards with every parent centred over its own children, for the syntax tree the front end lessons keep needing. `ast.dump` is correct and it makes the reader recover the shape of a tree from nested brackets, which is work they should not have to do.
 

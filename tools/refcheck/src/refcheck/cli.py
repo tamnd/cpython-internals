@@ -74,6 +74,12 @@ def command_verify(args: argparse.Namespace) -> int:
         print(finding.render(), file=sys.stderr)
 
     if args.update:
+        # Only citations that actually resolved are worth keeping. A citation that failed
+        # for a reason --update cannot fix, a file that is not in the tree for instance,
+        # has no entry to keep and dropping it here would hide the failure next run.
+        live = {finding.citation.key for finding in findings if finding.ok}
+        for gone in lock.keep_only(live):
+            print(f"dropped {gone}, nothing cites it any more")
         Lock(tag=PINNED_TAG, commit=commit or lock.commit, entries=lock.entries).dump(
             Path(args.lock)
         )

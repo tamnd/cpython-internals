@@ -24,7 +24,7 @@ def pipeline(
     name: str,
     stages: Sequence[tuple[str, str]],
     *,
-    highlight: int | None = None,
+    highlight: int | Sequence[int] | None = None,
     title: str = "",
     caption: str = "",
 ) -> Scene:
@@ -33,7 +33,16 @@ def pipeline(
     Each stage is a label and a second line naming the CPython source that does it, because
     the single most useful thing a diagram here can do is tell the reader where to go and
     look. Passing an empty string as the second line leaves it off.
+
+    `highlight` takes one stage or several. Several matters more than it sounds: a lesson
+    that covers three boxes and lights up one of them tells the reader something false
+    about what they are about to read.
     """
+    lit = set()
+    if isinstance(highlight, int):
+        lit = {highlight}
+    elif highlight is not None:
+        lit = set(highlight)
     scene = Scene(name)
     y = 0.0
     if title:
@@ -47,7 +56,7 @@ def pipeline(
     boxes = []
     x = 0.0
     for index, (label, source) in enumerate(stages):
-        tone = "focus" if index == highlight else ("input" if index == 0 else "intermediate")
+        tone = "focus" if index in lit else ("input" if index == 0 else "intermediate")
         box = scene.box(label, x, y, width=width, height=80, tone=tone)
         boxes.append(box)
         if source:
@@ -487,11 +496,16 @@ def compare(
     *,
     title: str = "",
     verdict: str = "",
+    verdict_tone: str = "warning",
 ) -> Scene:
     """Two columns side by side, for showing that two things which look alike are not.
 
     Written for the tabs and spaces section, where the entire point is that one line
     measures the same under both counts and the other does not.
+
+    The verdict is red by default, because the first two of these were about something
+    going wrong. Not every comparison is, so `verdict_tone` exists: a red box under a
+    picture of something working correctly tells the reader to worry about it.
     """
     scene = Scene(name)
     y = 0.0
@@ -521,6 +535,6 @@ def compare(
             bottom + theme.GRID,
             width=column + width,
             height=60,
-            tone="warning",
+            tone=verdict_tone,
         )
     return scene

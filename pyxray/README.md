@@ -14,7 +14,7 @@ Nothing here needs a debug build, a C compiler or `ctypes`. The reader on a lock
 
 `pyxray.bytecode` presents `dis` as data rather than as printed text, and adds the three things a lesson keeps needing that `dis` does not hand you: the specialized opcode next to the one the compiler actually emitted, the inline cache entries that follow an instruction, and a side by side comparison of two disassemblies.
 
-`pyxray.compiler` runs CPython's front end one stage at a time through `_testinternalcapi`, so a reader can watch the compiler emit an instruction sequence and watch the optimizer rewrite it. This is the best teaching hook in the codebase and almost nobody uses it.
+`pyxray.compiler` runs CPython's front end one stage at a time through `_testinternalcapi`, so a reader can watch the compiler emit an instruction sequence and watch the optimizer rewrite it. This is the best teaching hook in the codebase and almost nobody uses it. Two smaller helpers sit next to it. `pseudo_instructions()` lists the opcodes that exist only inside the compiler and never reach a code object, read out of the opcode table rather than typed into a list that would go stale. `folds(expression)` answers whether the compiler worked an expression out ahead of time, by compiling it and looking for arithmetic in the result, which is how a lesson can find the exact size where folding stops without anyone having to know the limit.
 
 `pyxray.tokens` is the tokenizer as a table you can read, with the column positions lined up under the line they came from, which is the only way indentation errors ever make sense.
 

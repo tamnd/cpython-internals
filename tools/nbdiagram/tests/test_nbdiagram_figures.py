@@ -130,6 +130,29 @@ def test_a_highlighted_box_is_drawn_differently_from_the_others():
     assert plain.data["backgroundColor"] != lit.data["backgroundColor"]
 
 
+def test_a_verdict_is_red_unless_the_caller_says_otherwise():
+    # A red box under a picture of something working correctly tells the reader to worry.
+    red = figures.compare("a", ("l", ["x"]), ("r", ["y"]), verdict="wrong")
+    green = figures.compare("b", ("l", ["x"]), ("r", ["y"]), verdict="fine", verdict_tone="durable")
+    warm = box_named(red, "wrong").data["backgroundColor"]
+    calm = box_named(green, "fine").data["backgroundColor"]
+    assert warm != calm
+
+
+def test_several_boxes_can_be_lit_at_once():
+    # T05 is one call over three stages, and lighting up one of them would tell the reader
+    # something false about what they are about to read.
+    scene = stages.map("a", highlight=[stages.INSTRUCTIONS, stages.OPTIMIZED])
+    plain = box_named(scene, "tokens")
+    for label in ("instructions", "optimized"):
+        assert box_named(scene, label).data["backgroundColor"] != plain.data["backgroundColor"]
+
+
+def test_one_bad_index_in_a_list_of_highlights_is_still_an_error():
+    with pytest.raises(IndexError, match="no stage"):
+        stages.map("a", highlight=[stages.TOKENS, len(stages.STAGES)])
+
+
 def references(scene):
     """Every id one element holds about another, which all have to resolve."""
     found = []

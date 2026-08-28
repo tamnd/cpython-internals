@@ -108,6 +108,24 @@ def test_lock_lookup_ignores_the_symbol(tmp_path):
     assert lock.get(Citation.parse("Include/object.h:127@v3.15.0rc1#ob_refcnt")) is not None
 
 
+def test_an_entry_nothing_cites_any_more_is_dropped():
+    # Narrowing a citation leaves the old range behind, and without this the lockfile only
+    # ever grows until a reviewer cannot tell a live entry from a dead one.
+    lock = Lock()
+    lock.put(_resolved(100))
+    lock.put(_resolved(200))
+    dropped = lock.keep_only(["Include/object.h:100-100@v3.15.0rc1"])
+    assert dropped == ["Include/object.h:200-200@v3.15.0rc1"]
+    assert list(lock.entries) == ["Include/object.h:100-100@v3.15.0rc1"]
+
+
+def test_keeping_everything_drops_nothing():
+    lock = Lock()
+    lock.put(_resolved(100))
+    assert lock.keep_only(["Include/object.h:100-100@v3.15.0rc1"]) == []
+    assert len(lock.entries) == 1
+
+
 def test_missing_lockfile_loads_as_empty(tmp_path):
     assert Lock.load(tmp_path / "nope.json").entries == {}
 

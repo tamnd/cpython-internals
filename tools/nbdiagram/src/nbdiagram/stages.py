@@ -20,6 +20,8 @@ thing in one box and seeing how it became the thing in the next.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 from . import figures
 from .scene import Scene
 
@@ -52,12 +54,21 @@ STAGES: list[tuple[str, str]] = [
 COUNT = len(STAGES) - 1
 
 
-def map(name: str, *, highlight: int | None = None, title: str = "", caption: str = "") -> Scene:
-    """The stage map, optionally with one box lit up.
+def map(
+    name: str,
+    *,
+    highlight: int | Sequence[int] | None = None,
+    title: str = "",
+    caption: str = "",
+) -> Scene:
+    """The stage map, optionally with one box lit up, or several.
 
-    `highlight` takes one of the index constants above. Passing nothing draws the map with
-    no box emphasised, which is what T01 wants, since T01 is about all of them.
+    `highlight` takes the index constants above, one of them or a list of them. Passing
+    nothing draws the map with no box emphasised, which is what T01 wants, since T01 is
+    about all of them. T05 passes three, because `compile()` is one call over three boxes.
     """
-    if highlight is not None and not 0 <= highlight < len(STAGES):
-        raise IndexError(f"there is no stage {highlight}; the map has {len(STAGES)} boxes")
+    wanted = [highlight] if isinstance(highlight, int) else list(highlight or ())
+    for index in wanted:
+        if not 0 <= index < len(STAGES):
+            raise IndexError(f"there is no stage {index}; the map has {len(STAGES)} boxes")
     return figures.pipeline(name, STAGES, highlight=highlight, title=title, caption=caption)
