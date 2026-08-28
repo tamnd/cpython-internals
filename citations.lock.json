@@ -1,9 +1,54 @@
 {
   "citations": {
+    "Objects/codeobject.c:715-718@v3.15.0rc1": {
+      "digest": "ee92b881958452aa",
+      "first_line": "PyCodeObject *",
+      "lines": 4
+    },
+    "Parser/lexer/lexer.c:1626-1635@v3.15.0rc1": {
+      "digest": "c0ff4cce5d8d021d",
+      "first_line": "int",
+      "lines": 10
+    },
+    "Parser/pegen.c:938-941@v3.15.0rc1": {
+      "digest": "bea02c8afaf79632",
+      "first_line": "void *",
+      "lines": 4
+    },
+    "Python/ast_preprocess.c:370-383@v3.15.0rc1": {
+      "digest": "ad12c7f3b5ca677d",
+      "first_line": "static int",
+      "lines": 14
+    },
     "Python/ceval.c:1213-1213@v3.15.0rc1": {
       "digest": "f816c4c48d43b078",
       "first_line": "_PyEval_EvalFrameDefault(PyThreadState *tstate, _PyInterpreterFrame *frame, int throwflag)",
       "lines": 1
+    },
+    "Python/codegen.c:894-897@v3.15.0rc1": {
+      "digest": "8b917b6660187af0",
+      "first_line": "int",
+      "lines": 4
+    },
+    "Python/compile.c:1526-1540@v3.15.0rc1": {
+      "digest": "50ec4f7c0b2ce56a",
+      "first_line": "PyCodeObject *",
+      "lines": 15
+    },
+    "Python/flowgraph.c:1860-1866@v3.15.0rc1": {
+      "digest": "647bda66f68b30db",
+      "first_line": "static PyObject *",
+      "lines": 7
+    },
+    "Python/flowgraph.c:3753-3757@v3.15.0rc1": {
+      "digest": "a39b1dba71eee757",
+      "first_line": "int",
+      "lines": 5
+    },
+    "Python/symtable.c:415-418@v3.15.0rc1": {
+      "digest": "e7e89dd474de9717",
+      "first_line": "struct symtable *",
+      "lines": 4
     }
   },
   "commit": "37e98da7c19a9e5892ee756d6dee08225422cd49",

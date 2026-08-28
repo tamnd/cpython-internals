@@ -103,6 +103,14 @@ def test_the_summary_counts_the_things_it_says_it_counts(result):
     assert "\n" not in text
 
 
+def test_the_summary_counts_one_of_something_as_one(result):
+    """It is the first output of the first lesson, which is not the place to look careless."""
+    text = compiler.stages("answer = 6 * 7\n").summary()
+    assert "1 line of source" in text
+    assert "1 scope," in text
+    assert "lines of source" not in text
+
+
 def test_the_optimizer_report_shows_both_columns_and_the_two_counts(result):
     text = compiler.what_the_optimizer_did(result)
     assert "after code generation" in text

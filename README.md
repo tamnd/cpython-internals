@@ -2,7 +2,7 @@
 
 A complete teardown of CPython 3.15, taught from absolute zero, as reactive notebooks, animations and browser playgrounds. The same work produces a second artifact: a specification precise enough that you can rebuild a compatible Python from scratch in Go or Rust, with a conformance suite that tells you how far you got.
 
-**Status: M0, in progress.** The tooling is landing first, because a lesson written before there is anything to check it with is a lesson nobody can trust. No lessons yet. The plan is in the [milestones](https://github.com/tamnd/cpython-internals/milestones) and the decisions that have not been made yet are in the [open questions](https://github.com/tamnd/cpython-internals/issues?q=is%3Aissue+label%3Akind%2Fopen-question).
+**Status: M0, in progress.** The tooling landed first, because a lesson written before there is anything to check it with is a lesson nobody can trust. The first lesson is now up and you can [run it in Colab](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t01-one-line-seven-stages/t01.ipynb) without installing anything. The plan is in the [milestones](https://github.com/tamnd/cpython-internals/milestones) and the decisions that have not been made yet are in the [open questions](https://github.com/tamnd/cpython-internals/issues?q=is%3Aissue+label%3Akind%2Fopen-question).
 
 ## Who this is for
 
@@ -51,8 +51,17 @@ Pinned to `v3.15.0rc1` today and moving to `v3.15.0` when it ships on 1 October 
 |---|---|---|
 | `refcheck` | Resolves every `Path/File.c:START-END@TAG#symbol` citation in the repository against the pinned CPython tree, and fails CI when one drifts | [tools/refcheck](tools/refcheck) |
 | `pyxray` | The instrumentation every lesson imports: build banner, object headers, reference counts, bytecode as data, and CPython's compiler run one stage at a time | [pyxray](pyxray) |
+| `nbcheck` | The rules a lesson notebook has to follow, checked before review rather than after: the Colab badge points at itself, the build banner runs before anything it could explain, no code cell appears without a sentence introducing it, and no outputs are committed | [tools/nbcheck](tools/nbcheck) |
 
-The lessons come next. Each one will appear in a table here as it lands, with its notebook and the milestone it belongs to.
+## The lessons
+
+Every lesson is a notebook with a Colab badge on it, so there is nothing to install and nothing to build. Each one is executed end to end in CI on 3.15.0rc1 and on 3.14 before it merges, and every claim it makes about CPython carries a file, a line range and a symbol that `refcheck` resolves against the pinned tree.
+
+| | Lesson | What you come away with | Milestone | Run it |
+|---|---|---|---|---|
+| T01 | [One line, seven stages](lessons/t01-one-line-seven-stages/t01.ipynb) | Where `answer = 6 * 7` goes between the file and the answer, which CPython source file does each step, and why the multiplication never happens while your program is running | M1 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t01-one-line-seven-stages/t01.ipynb) |
+
+More are landing in order. [lessons/README.md](lessons/README.md) explains how one is put together and how to run them locally.
 
 Three things the tooling has already found, all of which would have gone into prose as fact and been wrong. The small integer cache stops at 1024 on 3.15 rather than 256, so the `257 is 257` example every tutorial uses gives the opposite answer ([#33](https://github.com/tamnd/cpython-internals/issues/33)). `sys.getrefcount` stopped being reliably one too high in 3.14, because `LOAD_FAST_BORROW` passes a local without creating a reference while `LOAD_GLOBAL` still creates one, so the correction every introspection helper applies depends on the call site. And `RESUME` grew an inline cache entry in 3.15, so it is two bytes on 3.14 and four on 3.15, which shifts every offset in a hand counted disassembly.
 
@@ -60,7 +69,7 @@ Three things the tooling has already found, all of which would have gone into pr
 
 ```
 book/           the prose site, one directory per part
-lessons/        marimo notebooks, the source of truth for every runnable cell
+lessons/        the notebooks, the source of truth for every runnable cell
 blueprints/     the normative specification, mechanical sections generated
 anim/           manim scenes, built from one shared mobject library
 apps/           the Gradio playgrounds
