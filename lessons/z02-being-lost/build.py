@@ -25,6 +25,7 @@ from nbdiagram import Diagrams
 lesson = Lesson("z02-being-lost", "z02")
 badge = lesson.badge
 cite = lesson.cite
+term = lesson.term
 figure = Diagrams("z02-being-lost").figure
 
 lesson.md(f"""
@@ -36,9 +37,9 @@ CPython is about two million lines. You are never going to read them, and nobody
 
 {figure("where-we-are", "the eight stages of the pipeline with none of them highlighted")}
 
-That is the whole skill, and it is four smaller ones. Knowing roughly what is in each directory. Recognising the files that a script wrote, so you can close them again. Knowing where the code stops explaining itself and the history takes over. And being willing to guess wrong twice before you guess right.
+That is the whole skill, and it breaks into four smaller ones: knowing roughly what is in each directory, recognising the files that a script wrote so you can close them again, knowing where the code stops explaining itself and the history takes over, and being willing to guess wrong twice before you guess right.
 
-By the end you will have a map that fits on one screen, a rule for spotting generated files that works every time, and a worked example of tracing one strange line of C back to the argument that put it there.
+By the end you will have a map that fits on one screen, a rule for spotting {term("generated file", "generated files")} that works every time, and a worked example of tracing one strange line of C back to the argument that put it there.
 """)
 
 
@@ -95,11 +96,11 @@ Here is the tree, biggest first, with the count of how much of each directory wa
 
 Three things are worth noticing.
 
-`Modules` is bigger than `Python` and `Objects` put together, and almost none of it is about how Python works. It is zlib, sqlite, ssl, the curses bindings, the ssl certificate tables. One file per standard library module that needed C. You will visit it when you want to know how `json` is fast, and otherwise never.
+`Modules` is bigger than `Python` and `Objects` put together, and almost none of it is about how Python works. It is zlib, sqlite, ssl, the curses bindings and the ssl certificate tables, one file per standard library module that needed C. You will visit it when you want to know how `json` is fast, and otherwise never.
 
 `Lib` is bigger than all the C put together, and more than half of that is tests. Tests are worth reading, by the way, because `Lib/test/test_dis.py` and friends are the closest thing to a specification of the parts of CPython nobody documented.
 
-`Python`, `Objects` and `Include` are where this course lives. About 425,000 lines between them, which is still far too many, which is why the rest of this lesson exists.
+`Python`, `Objects` and `Include` are where this course lives. About 425,000 lines between them, which is still far too many, and that is why the rest of this lesson exists.
 
 Your own machine has the `Lib` half of that tree sitting on disk right now. The next cell finds it and measures it.
 """)
@@ -194,11 +195,11 @@ else:
 
 
 lesson.md(f"""
-So the file on your laptop and `Python/generated_cases.c.h` in the source tree are two outputs of one program, reading one input: `Python/bytecodes.c`. That file is the source of truth for what every instruction does, and it is the one you should read.
+So the file on your laptop and `Python/generated_cases.c.h` in the source tree are two outputs of one program, reading one input: `Python/bytecodes.c`. That file is the source of truth for what every {term("instruction")} does, and it is the one you should read.
 
 {figure("where-not-to-look", "a table of seven generated files and the files to read instead")}
 
-The last row is worth a second. In Z01 you read `list_append_impl` and may have wondered where its arguments get parsed, since the function takes a `PyListObject *` and a `PyObject *` and Python calls do not arrive looking like that. The answer is a tool called Argument Clinic, and the input it works from is a comment sitting directly above the function {cite("Objects/listobject.c:1221-1233@v3.15.0rc1#list_append_impl")}.
+The last row is worth a moment. In Z01 you read `list_append_impl` and may have wondered where its arguments get parsed, since the function takes a `PyListObject *` and a `PyObject *` and Python calls do not arrive looking like that. The answer is a tool called {term("Argument Clinic")}, and the input it works from is a comment sitting directly above the function {cite("Objects/listobject.c:1221-1233@v3.15.0rc1#list_append_impl")}.
 
 ```c
 /*[clinic input]
@@ -246,7 +247,7 @@ pure op(_BINARY_OP_MULTIPLY_INT, (left, right -- res, l, r)) {{
 }}
 ```
 
-Fourteen lines, and only two of them do anything: take the two operands off the stack, multiply them. The rest is assertions and bookkeeping. Note that this is not quite C. `pure op(...)` is not a C construct, `(left, right -- res, l, r)` is a stack effect written in a small language of CPython's own, and `INPUTS_DEAD()` is an instruction to the code generator rather than to the compiler.
+Fourteen lines, and only two of them do anything: take the two operands off the stack, multiply them. The rest is assertions and bookkeeping. Note that this is not quite C. `pure op(...)` is not a C construct, `(left, right -- res, l, r)` is a {term("stack effect")} written in a small language of CPython's own, and `INPUTS_DEAD()` is an instruction to the code generator rather than to the compiler.
 
 Here is the beginning of what comes out the other end {cite("Python/generated_cases.c.h:556-572@v3.15.0rc1#BINARY_OP_MULTIPLY_INT")}.
 
@@ -279,7 +280,7 @@ Most questions about CPython are one of about seven questions wearing a hat.
 
 That is small enough to keep in your head, and the next cell turns it into something you can ask.
 
-It is a keyword lookup and nothing cleverer, so it will miss. The point is not the code, it is that a map this small covers most of what you will want, and the last row is the escape hatch for everything else.
+It is a keyword lookup and nothing cleverer, so it will miss. The point is that a map this small covers most of what you will want, and the last row is the escape hatch for everything else.
 """)
 
 
@@ -411,12 +412,12 @@ else:
 ''')
 
 
-lesson.md("""
+lesson.md(f"""
 ## Six questions
 
 Every one of these is answerable in under a minute with grep and the map. Try them yourself before you run the cell, either in the clone above or on GitHub, which lets you search a repository without cloning it.
 
-1. What number does the small integer cache stop at, and which file writes it down?
+1. What number does the {term("small integer cache")} stop at, and which file writes it down?
 2. Which file says what `BINARY_OP_MULTIPLY_INT` does?
 3. Which line gives the `int` type its name?
 4. Which two files is `Parser/parser.c` generated from?
@@ -498,7 +499,7 @@ lesson.md(f"""
 
 Sooner or later you will find a line that is correct, that you understand, and that makes no sense. A cast that should not be needed. A branch for a case that cannot happen. A constant with no explanation.
 
-The code will not tell you why it is there. The history will.
+The code will not tell you why it is there, but the history will.
 
 {figure("the-trail", "the chain from a line of C to the issue that explains it")}
 
@@ -558,7 +559,7 @@ There is a directory in the tree called `InternalDocs` that almost nobody outsid
 
 It is the best thing in the tree, and it is also incomplete on purpose. It gets written when somebody doing the work decides an explanation would have saved them a week. So the coverage tracks which parts have been rewritten recently rather than which parts are hardest for a newcomer.
 
-That is why there is a page on the JIT, which is two years old, and no page on the tokenizer, which has been there since the beginning. Start with `InternalDocs/README.md` and be ready for the answer to be that nobody wrote it down.
+That is why there is a page on the {term("JIT")}, which is two years old, and no page on the {term("tokenizer")}, which has been there since the beginning. Start with `InternalDocs/README.md` and be ready for the answer to be that nobody wrote it down.
 """)
 
 
@@ -571,7 +572,7 @@ Here is a real one. If you read almost any instruction in `Python/bytecodes.c`, 
 PyObject *left_o = PyStackRef_AsPyObjectBorrow(left);
 ```
 
-The values on the evaluation stack are not `PyObject *` any more. They are `_PyStackRef`, and you have to convert to get at the object. That is a big change to the most performance sensitive code in the interpreter, and the definition tells you almost nothing about why {cite("Include/internal/pycore_structs.h:66-72@v3.15.0rc1#_PyStackRef")}.
+The values on the {term("value stack", "evaluation stack")} are not `PyObject *` any more. They are `_PyStackRef`, and you have to convert to get at the object. That is a big change to the most performance sensitive code in the interpreter, and the definition tells you almost nothing about why {cite("Include/internal/pycore_structs.h:66-72@v3.15.0rc1#_PyStackRef")}.
 
 ```c
 typedef union _PyStackRef {{
@@ -583,9 +584,9 @@ typedef union _PyStackRef {{
 }} _PyStackRef;
 ```
 
-A union with one member in it. That is not a type, it is a wrapper, which is a hint that the point is what you are not allowed to do with it rather than what it holds.
+A union with one member in it. That is a wrapper rather than a type, which is a hint that the point is what you are not allowed to do with it rather than what it holds.
 
-So run the trail. `git log -S'_PyStackRef' --oneline --reverse` gives `22b0de2755ee` from June 2024, subject "gh-117139: Convert the evaluation stack to stack refs (#118450)". Note that this is not where the file came from: `Include/internal/pycore_stackref.h` was added two months earlier by `dc6b12d1b2ea`, "gh-117139: Add header for tagged pointers (GH-118330)", 200 lines and nothing using them yet. That is normal. A `-S` search finds where a string first appears, which is often the commit that switched something on rather than the commit that built it, and both of these carry the same issue number anyway.
+So run the trail on it. `git log -S'_PyStackRef' --oneline --reverse` gives `22b0de2755ee` from June 2024, subject "gh-117139: Convert the evaluation stack to stack refs (#118450)". Note that this is not where the file came from: `Include/internal/pycore_stackref.h` was added two months earlier by `dc6b12d1b2ea`, "gh-117139: Add header for tagged pointers (GH-118330)", 200 lines and nothing using them yet. That is normal, because a `-S` search finds where a string first appears, which is often the commit that switched something on rather than the commit that built it, and both of these carry the same issue number anyway.
 
 Open [python/cpython#117139](https://github.com/python/cpython/issues/117139), "Set up tagged pointers in the evaluation stack", opened March 2024 by Ken Jin, labelled `topic-free-threading`. Three sentences, which is what the exercise asked for:
 
@@ -613,15 +614,15 @@ So the map is smaller than the tree suggests, and getting good at this is mostly
 lesson.md("""
 ## Try it yourself
 
-1. Run the generated file detector over your own `Lib` directory and pick one of the results that is not an encoding table. Find the tool named in its header. Is that tool in your installation, or only in the source tree?
+**One.** Run the generated file detector over your own `Lib` directory and pick one of the results that is not an encoding table. Find the tool named in its header. Is that tool in your installation, or only in the source tree?
 
-2. Pick any three modules from the forty seven accelerator pairs. For each one, write down the path of the C file you expect, using only the naming rule. Then check them.
+**Two.** Pick any three modules from the forty seven accelerator pairs. For each one, write down the path of the C file you expect, using only the naming rule. Then check them.
 
-3. `sys.builtin_module_names` on this machine gave you some number. Find another Python on the same machine, or another Colab runtime, and compare. If they differ, the difference is a build decision, and `Modules/Setup` and `configure.ac` are where it was made.
+**Three.** `sys.builtin_module_names` on this machine gave you some number. Find another Python on the same machine, or another Colab runtime, and compare. If they differ, the difference is a build decision, and `Modules/Setup` and `configure.ac` are where it was made.
 
-4. Take the `where()` map and add three rows for questions you have actually had. If you cannot name the file, that is the useful outcome, and searching for it is the exercise.
+**Four.** Take the `where()` map and add three rows for questions you have actually had. If you cannot name the file, that is the useful outcome, and searching for it is the exercise.
 
-5. Fetch the tree, then find a line in `Objects/listobject.c` you do not understand. Run `git log -S` on it. You will need the full history for that, so clone without `--depth`, and expect it to be slow. Follow the chain to the issue and see whether it was worth it.
+**Five.** Fetch the tree, then find a line in `Objects/listobject.c` you do not understand. Run `git log -S` on it. You will need the full history for that, so clone without `--depth`, and expect it to be slow. Follow the chain to the issue and see whether it was worth it.
 """)
 
 
@@ -643,7 +644,7 @@ And when a line makes no sense, the reason is in the history rather than the cod
 lesson.md("""
 ## Where this goes next
 
-That is the ramp finished. Z01 got you reading C, this one got you finding it, and between them you should be able to click any source reference in this material and get something out of it.
+That is the ramp finished. Z01 got you reading C, Z02 got you finding it, and between them you should be able to click any source reference in this material and get something out of it.
 
 Everything from here on is a lesson about one box on the napkin from T10, and every one of them will point at the tree you now know how to search.
 """)

@@ -19,6 +19,7 @@ from nbdiagram import Diagrams
 lesson = Lesson("t10-the-napkin", "t10")
 badge = lesson.badge
 cite = lesson.cite
+term = lesson.term
 figure = Diagrams("t10-the-napkin").figure
 
 lesson.md(f"""
@@ -83,11 +84,11 @@ pyxray.show()
 lesson.md("""
 ## Draw it first
 
-This is the part that does the work, and it is the part that is easiest to skip. Please do not skip it.
+This is the part that does the work, and it is also the part that is easiest to skip, so please do not skip it.
 
-Stop scrolling. Get a piece of paper, or open whatever you draw in. Give yourself ten minutes and draw the machine from memory. Do not look anything up and do not scroll down, because the reference picture is a few paragraphs below and seeing it first turns this from a test into a copying exercise.
+Get a piece of paper, or open whatever you draw in, and give yourself ten minutes to draw the machine from memory. Do not look anything up and do not scroll down, because the reference picture is a few paragraphs below and seeing it first turns this from a test into a copying exercise.
 
-Here are the questions to answer with your drawing. No answers underneath them, on purpose.
+Here are the questions to answer with your drawing. There are no answers underneath them, on purpose.
 
 What happens between you saving a file and the first line of it running? Put the stages in order and give each one a shape.
 
@@ -101,14 +102,14 @@ Underneath all of it, what does every single value in the program have in front 
 
 When is a value's memory given back, and what is the one shape where that never happens on its own?
 
-Ten minutes. Then come back.
+Take the ten minutes, then come back.
 """)
 
 
 lesson.md(f"""
 ## The reference
 
-Here is the same machine drawn by someone who has been staring at it for nine lessons.
+This is the same machine drawn by someone who has been staring at it for nine lessons.
 
 {figure("the-napkin", "the whole machine on one page, in three bands: compile time, run time, and the object model underneath both")}
 
@@ -116,9 +117,9 @@ Three bands, and it is worth being precise about what each one is.
 
 The top band runs once per source file. Text goes in on the left, a code object comes out on the right, and the six steps between are the six lessons T02 through T07. The tokenizer is at {cite("Parser/lexer/lexer.c:1626-1635@v3.15.0rc1#_PyTokenizer_Get")}, the parser at {cite("Parser/pegen.c:938-941@v3.15.0rc1#_PyPegen_run_parser")}, the symbol table at {cite("Python/symtable.c:415-418@v3.15.0rc1#_PySymtable_Build")}, code generation at {cite("Python/codegen.c:894-897@v3.15.0rc1#_PyCodegen_Expression")}, the optimizer at {cite("Python/flowgraph.c:3753-3757@v3.15.0rc1#_PyCfg_OptimizeCodeUnit")}, and the code object gets built at {cite("Objects/codeobject.c:715-718@v3.15.0rc1#_PyCode_New")}. If you want to see the whole top band as one function, it is {cite("Python/compile.c:1526-1540@v3.15.0rc1#_PyAST_Compile")}, which is about fifteen lines long and calls each stage in turn.
 
-The middle band runs once per instruction, which in a real program means millions of times. It reads two bytes, works out which handler that opcode maps to, runs it, and moves on. That is the whole loop, and it lives in one enormous function at {cite("Python/ceval.c:1212-1218@v3.15.0rc1#_PyEval_EvalFrameDefault")}.
+The middle band runs once per instruction, which in a real program means millions of times. It reads two bytes, works out which handler that {term("opcode")} maps to, runs it, and moves on. That is the whole {term("eval loop")}, and it lives in one enormous function at {cite("Python/ceval.c:1212-1218@v3.15.0rc1#_PyEval_EvalFrameDefault")}.
 
-The bottom band is not a stage at all. It is what every value in both other bands is made of: a header with a reference count and a type pointer, at {cite("Include/object.h:127-150@v3.15.0rc1#_object")}. When the count reaches zero the object is freed on the spot, at {cite("Include/refcount.h:417-429@v3.15.0rc1#Py_DECREF")}. When objects hold each other in a loop the count never reaches zero, and the cycle collector deals with that separately, using the subtraction trick at {cite("Python/gc.c:485-501@v3.15.0rc1#subtract_refs")}.
+The bottom band is not a stage at all, it is what every value in both other bands is made of: an {term("object header")} with a {term("reference count")} and a type pointer, at {cite("Include/object.h:127-150@v3.15.0rc1#_object")}. When the count reaches zero the object is freed on the spot, at {cite("Include/refcount.h:417-429@v3.15.0rc1#Py_DECREF")}. When objects hold each other in a loop the count never reaches zero, and the {term("cycle collector")} deals with that separately, using the subtraction trick at {cite("Python/gc.c:485-501@v3.15.0rc1#subtract_refs")}.
 
 Now compare that against what you drew. The next section is a checklist for exactly that.
 """)
@@ -131,7 +132,7 @@ lesson.md(f"""
 
 Nine rows, one per lesson. Go down them and tick the ones your drawing already had.
 
-A gap is not a failure. It is a pointer. The material is short and rereading one lesson takes twenty minutes, which is a much better use of your time than pushing on and building the next six parts on a foundation with a hole in it.
+A gap points at a lesson rather than counting as a failure. The material is short and rereading one lesson takes twenty minutes, which is a much better use of your time than pushing on and building the next six parts on a foundation with a hole in it.
 
 If you ticked all nine, you are done with the first part.
 """)
@@ -146,7 +147,7 @@ Of everything on the napkin, one line does more work than the rest: the one betw
 
 Almost every confusing thing about Python is a question that got asked on the wrong side of this line. Why can I not use a variable before assigning it, even in a branch that never runs? Compile time. Why is this attribute lookup slow? Run time. Why does the same expression give a different answer in a function than at the module level? Compile time, and specifically the symbol table.
 
-The important part is what crosses. A code object crosses. Nothing else does. The tokens, the tree, the symbol table and the flow graph are all built, used, and thrown away before your program runs a single instruction. Whatever the compiler worked out that did not get written into the code object is simply gone.
+The important part is what crosses, and the answer is a {term("code object")} and nothing else. The tokens, the tree, the {term("symbol table")} and the {term("control flow graph")} are all built, used, and thrown away before your program runs a single instruction. Whatever the compiler worked out that did not get written into the code object is simply gone.
 
 You can watch that happen. The next cell compiles a function, throws away the source text entirely, and runs what is left.
 """)
@@ -185,8 +186,8 @@ crossing()
 """)
 
 
-lesson.md("""
-`co_stacksize` is a good example of the general rule. The compiler walked the flow graph, worked out the deepest the value stack could ever get in this function, wrote the number down, and threw the graph away. At run time nobody recomputes it. The frame is allocated that big and the loop trusts the number.
+lesson.md(f"""
+`co_stacksize` is a good example of the general rule. The compiler walked the flow graph, worked out the deepest the {term("value stack")} could ever get in this function, wrote the number down, and threw the graph away. At run time nobody recomputes it. The {term("frame")} is allocated that big and the loop trusts the number.
 
 That is the shape of almost everything the compiler does: work it out once, write down the answer, throw away the working.
 """)
@@ -255,7 +256,7 @@ Two things in that output are worth stopping on.
 
 Step five has a `BINARY_OP` in it and step six does not. The multiplication was done by the compiler, and the running program never multiplies anything. That is the shortest available proof that the compiler is doing real work rather than just translating.
 
-Step seven still has a `6` sitting in `co_consts`, and nothing ever loads it. Codegen put it there when it was still planning to emit `LOAD_CONST 6`, then the optimizer folded the expression into a single `42` and left the constant table alone. Nobody goes back to tidy up. It is a small piece of dead weight in every code object that contains a folded constant, and it is the kind of thing you only ever find by looking.
+Step seven still has a `6` sitting in `co_consts`, and nothing ever loads it. Codegen put it there when it was still planning to emit `LOAD_CONST 6`, then the optimizer folded the expression into a single `42` and left the constant table alone. Nobody goes back to tidy up. It is a small piece of dead weight in every code object that contains a folded constant.
 
 If you are on 3.14 the last instruction differs slightly, because 3.15 moved `None` out of the constant table and into `LOAD_COMMON_CONSTANT`. Everything else is the same on both.
 """)
@@ -321,10 +322,10 @@ settle()
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 Read those four in order.
 
-There is no file on disk anywhere in the first one, and bytecode came out of it. The `.pyc` file is a cache of that result so the work can be skipped next time. Deleting your `__pycache__` directory changes nothing except how long the next import takes.
+There is no file on disk anywhere in the first one, and {term("bytecode")} came out of it. The `.pyc` file is a cache of that result so the work can be skipped next time. Deleting your `__pycache__` directory changes nothing except how long the next import takes.
 
 The local in the second one is `STORE_FAST` and `LOAD_FAST_BORROW`, both of which take a slot number, not a name. The name `thing` is in `co_varnames` purely so a debugger and a traceback have something to print. There is no dictionary anywhere near it.
 
@@ -350,12 +351,12 @@ print("built one at a time:      ", built is again)
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 The first line is `True` on every version, and the small integer cache has nothing to do with it. Both `257` literals are in the same code object, and the compiler stores each distinct constant once, so both names point at the same entry in `co_consts`. That would be true for `257000000` as well.
 
 The second line is where the cache actually shows up, and this is the version difference. Building the integers one at a time from a string keeps the compiler out of it. On 3.14 you get `False`, because the cache stops at 256. On 3.15 you get `True`, because it now goes to 1024. Every tutorial that hard coded 256 stopped being correct without its author being told, which is the whole reason this project measures things instead of quoting them.
 
-The last claim on the table, that freeing memory shrinks the process, is T09's territory. Short version: the block goes back to a pool, the pool goes back to an arena, and the arena goes back to the operating system only when every pool inside it is empty. That last condition is rarely met.
+The last claim on the table, that freeing memory shrinks the process, is T09's territory. Short version: the {term("block")} goes back to a {term("pool")}, the pool goes back to an {term("arena")}, and the arena goes back to the operating system only when every pool inside it is empty. That last condition is rarely met.
 """)
 
 
@@ -366,11 +367,11 @@ lesson.md(f"""
 
 This table is the argument the whole project rests on, so it is worth saying out loud.
 
-Every stage of CPython's front end is inspectable from Python, at run time, with the standard library. No debug build. No C compiler. No patched interpreter. No `gdb`. You can print the tokens, the tree, the scopes, the instructions before optimization, the instructions after, and the finished code object, from a browser tab on a laptop you do not have admin on.
+Every stage of CPython's front end is inspectable from Python, at run time, with the standard library. There is no debug build, no C compiler, no patched interpreter and no `gdb` anywhere in it. You can print the tokens, the tree, the scopes, the instructions before optimization, the instructions after, and the finished code object, from a browser tab on a laptop you do not have admin on.
 
 The two rows that use `pyxray` are conveniences, not requirements. `compiler.stages` wraps `_testinternalcapi`, which ships in a normal CPython build and is how the compiler's own test suite drives it. `stepper.run` wraps `sys.monitoring`, which has been public since 3.12.
 
-If you take one thing from this part, take that. The machine is not hidden. Most people just have never been shown where the handles are.
+If you take one thing from this part, take that one. The machine is not hidden, and most people have simply never been shown where the handles are.
 """)
 
 
@@ -383,9 +384,9 @@ Six parts left, and every one of them opens a single box on the napkin.
 
 The front end part goes back to T02 and T03 and does them properly: the real PEG parser with its backtracking and its memo table, how the error messages get generated, and what an f-string actually parses into.
 
-The compiler part opens the box between codegen and the code object. The flow graph, what the optimizer will and will not do for you, and why it will fold `6 * 7` but not `x * 1`.
+The compiler part opens the box between codegen and the code object. The flow graph, what the optimizer will and will not do for you, and why it will {term("constant folding", "fold")} `6 * 7` but not `x * 1`.
 
-The interpreter part is the biggest, because the middle band of the napkin is where all the performance work of the last five years has gone. Specialization, the tier two optimizer, and the JIT.
+The interpreter part is the biggest, because the middle band of the napkin is where all the performance work of the last five years has gone. {term("specialization", "Specialization")}, the {term("tier two")} optimizer, and the {term("JIT")}.
 
 The objects part opens the bottom band. Types and slots, how a dict is actually laid out, and what really happens on an attribute lookup.
 
@@ -393,7 +394,7 @@ The runtime part covers the things that happen around your program rather than i
 
 The concurrency part is the GIL, free threading, and subinterpreters.
 
-Nothing after this introduces a stage that the napkin does not already have a box for. That is what makes it useful: a new question is not a new topic, it is a box, and knowing the box is most of the work.
+Nothing after this introduces a stage that the napkin does not already have a box for. That is what makes it useful: a new question is a box rather than a new topic, and knowing the box is most of the work.
 """)
 
 
@@ -421,7 +422,7 @@ The machine is three bands. The top one runs once per file and turns text into a
 
 One thing crosses from the top band to the middle one, and that is the code object. Everything else the compiler built is thrown away, so anything it worked out that did not get written down is unrecoverable at run time.
 
-Several things you have read about Python are nearly right. Python compiles. Locals are slots, not dictionary keys. Reference counting does almost all the freeing, and the collector handles cycles and nothing else. `del` removes a name.
+Several things you have read about Python are nearly right. Python compiles, locals are slots rather than dictionary keys, reference counting does almost all the freeing while the collector handles cycles and nothing else, and `del` removes a name.
 
 And all of it is printable from an ordinary Python prompt with the standard library, which is why this material can be a notebook rather than a build environment.
 
