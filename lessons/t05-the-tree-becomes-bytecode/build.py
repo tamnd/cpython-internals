@@ -26,6 +26,7 @@ from nbdiagram import Diagrams
 lesson = Lesson("t05-the-tree-becomes-bytecode", "t05")
 badge = lesson.badge
 cite = lesson.cite
+term = lesson.term
 figure = Diagrams("t05-the-tree-becomes-bytecode").figure
 
 lesson.md(f"""
@@ -39,17 +40,15 @@ T01 disassembled one line of Python and pointed out something odd. Here is that 
 answer = 6 * 7
 ```
 
-There is no multiply instruction in the result. The number 42 is simply there, and nothing in the finished program ever works it out. T01 said the multiplication had already happened and moved on.
-
-This lesson is where it happened.
+There is no multiply instruction in the result. The number 42 is simply there, and nothing in the finished program ever works it out. T01 said the multiplication had already happened and moved on. This lesson is where it happened.
 
 {figure("where-we-are", "the eight stages of running Python, with the last three of the compiler highlighted")}
 
-Three boxes are lit up because `compile()` is three separate pieces of work in a trench coat. You can run each piece on its own, from an ordinary Python, and that is what most of the cells below do.
+Three boxes are lit up because `compile()` is three separate pieces of work behind one name. You can run each piece on its own, from an ordinary Python, and that is what most of the cells below do.
 
 By the end you will have watched the compiler do the multiplication, seen the exact function that did it, found the four numbers that decide when it gives up and leaves the work for later, and watched an entire `if` block disappear from a file.
 
-No C required. Everything here runs on a normal Python.
+No C required, and everything here runs on a normal Python.
 """)
 
 
@@ -105,15 +104,15 @@ pyxray.show()
 lesson.md(f"""
 ## compile() is three things
 
-`compile()` takes source and gives back a code object, and it looks like one operation. It is not. The comment at the top of CPython's own compiler file lists the passes, and it is worth reading because it is the whole plan of the front end in twelve lines: {cite("Python/compile.c:1-15@v3.15.0rc1#_PyAST_Compile")}.
+`compile()` takes source and gives back a {term("code object")}, and it looks like one operation while being three. The comment at the top of CPython's own compiler file lists the passes, and it is worth reading because it is the whole plan of the front end in twelve lines: {cite("Python/compile.c:1-15@v3.15.0rc1#_PyAST_Compile")}.
 
 The first two are behind us. T02 was the tokenizer, T03 was the parser, T04 was the symbol table. This lesson is the last three, and here they are with the file each one lives in.
 
 {figure("three-stages-in-one-call", "the code generator, the optimizer and the assembler, with their source files")}
 
-The code generator walks the tree and emits instructions. It does not think about them at all, it just writes down what each node means. The optimizer takes that list, rearranges it into a graph, and improves it. The assembler turns the improved graph into the bytes and the tables that make up a code object.
+{term("code generation", "The code generator")} walks the tree and emits {term("instruction", "instructions")}. It does not think about them at all, it just writes down what each node means. The optimizer takes that list, rearranges it into a graph, and improves it. The {term("assembler")} turns the improved graph into the bytes and the tables that make up a code object.
 
-The reason this lesson can exist is that a stock CPython exports the first two as callable functions, in a module called `_testinternalcapi` that ships with the interpreter and exists so CPython can test itself. Nobody uses it for teaching, and it is the best teaching hook in the codebase.
+The reason this lesson can exist is that a stock CPython exports the first two as callable functions, in a module called `_testinternalcapi` that ships with the interpreter so CPython can test itself. Almost nobody uses it for teaching, and it is the best teaching hook in the codebase.
 """)
 
 
@@ -125,11 +124,11 @@ print("stage by stage compiling available:", compiler.available())
 
 
 lesson.md("""
-If that said False you are on a build without `_testinternalcapi`, which happens on some slimmed down distributions. Most cells below still work. The two that run the stages separately will raise a clear error rather than a confusing one.
+If that said False you are on a build without `_testinternalcapi`, which happens on some slimmed down distributions. Most cells below still work, and the two that run the stages separately will raise a clear error rather than a confusing one.
 
 ## The whole trip, counted
 
-Start with the summary. This runs every stage on one line of source and counts what came out of each one.
+The next cell runs every stage on one line of source and counts what came out of each one.
 """)
 
 
@@ -141,13 +140,11 @@ print(result.summary())
 
 
 lesson.md("""
-Read the last three numbers again. Eight instructions came out of the code generator, five survived the optimizer, and the finished code object is a handful of bytes.
-
-Three instructions went missing. One of them was the multiplication.
+Read the last three numbers again. Eight instructions came out of the code generator, five survived the optimizer, and the finished code object is a handful of bytes. Three instructions went missing, and one of them was the multiplication.
 
 ## Where the multiplication went
 
-Here are both lists side by side. The left column is what the code generator wrote down, the right column is what was left after the optimizer had a look at it.
+The next cell puts both lists side by side. The left column is what the code generator wrote down, the right column is what was left after the optimizer had a look at it.
 """)
 
 
@@ -159,9 +156,7 @@ print(compiler.what_the_optimizer_did(result))
 lesson.md(f"""
 {figure("before-and-after", "the eight instructions the code generator produced and the five that survived")}
 
-Look at rows three, four and five on the left. Load a constant, load another constant, multiply them. That is the multiplication, written down exactly as you would expect, and it exists for a moment during compilation.
-
-Then it does not.
+Look at rows three, four and five on the left. Load a constant, load another constant, multiply them. That is the multiplication, written down exactly as you would expect, and it exists for a moment during compilation and then stops existing.
 
 {figure("where-the-multiplication-went", "three instructions collapsing into one that already holds the answer")}
 
@@ -169,14 +164,14 @@ The function that does it is {cite("Python/flowgraph.c:1916-1948@v3.15.0rc1#fold
 
 The arithmetic itself is in {cite("Python/flowgraph.c:1860-1880@v3.15.0rc1#eval_const_binop")}, and it is a `switch` over the operators calling the same `PyNumber_Multiply` and `PyNumber_Add` your program would have called. The compiler is not simulating the multiplication. It is doing it, with the same code, on the same objects, just earlier.
 
-This has a name people use without explaining it: constant folding. The name is accurate and unhelpful. What is happening is that the compiler notices it already has everything it needs to work out an answer, so it works it out and writes the answer down instead of the recipe.
+This has a name people use without explaining it, {term("constant folding")}, which is accurate and not much help. What is happening is that the compiler notices it already has everything it needs to work out an answer, so it works it out and writes the answer down instead of the recipe.
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## Where 42 actually ended up
 
-The finished instruction is `LOAD_SMALL_INT 42`, and that is worth a moment because the 42 is not stored anywhere. It is the argument byte of the instruction itself.
+The finished instruction is `LOAD_SMALL_INT 42`, and that is worth a moment because the 42 is not stored anywhere. It is the {term("oparg", "argument byte")} of the instruction itself.
 """)
 
 
@@ -190,9 +185,9 @@ print("co_consts:", code.co_consts)
 lesson.md(f"""
 That is not a typo, and it is two surprises at once.
 
-42 is not in there, because an instruction argument is one byte and 42 fits in one byte, so it rides along inside the instruction. {cite("Python/bytecodes.c:317-322@v3.15.0rc1#LOAD_SMALL_INT")} is the whole implementation: index into an array of preallocated small integers. No lookup, no table.
+42 is not in there, because an instruction argument is one byte and 42 fits in one byte, so it rides along inside the instruction. {cite("Python/bytecodes.c:317-322@v3.15.0rc1#LOAD_SMALL_INT")} is the whole implementation, which is one index into an array of preallocated small integers, with no lookup and no table.
 
-And 6 is still in there. Nothing loads it. The optimizer removed the instruction that used it and left the constant sitting in the table, because the constants are collected while the code is being generated and nobody goes back afterwards to sweep up. It costs eight bytes in the file and nothing at runtime, so it has never been worth fixing.
+And 6 is still in there with nothing loading it. The optimizer removed the instruction that used it and left the constant sitting in the table, because the constants are collected while the code is being generated and nobody goes back afterwards to sweep up. It costs eight bytes in the file and nothing at runtime, so it has never been worth fixing.
 
 You can check that claim rather than believing it.
 """)
@@ -207,12 +202,12 @@ print("constants actually loaded:", used)
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## Instructions that cannot run
 
-There is a second thing in the left column worth noticing: `ANNOTATIONS_PLACEHOLDER`. There is no such instruction. You will never see it in a disassembly and the interpreter has no idea what it means.
+There is a second thing in the left column worth noticing, `ANNOTATIONS_PLACEHOLDER`, and there is no such instruction. You will never see it in a disassembly and the interpreter has no idea what it means.
 
-The code generator uses a handful of these. They are called pseudo instructions, and they exist to carry information between the compiler's own stages. Some of them mark a spot that a later pass will fill in. Some of them describe control flow in a form that is easier to rearrange than a jump to a byte offset.
+The code generator uses a handful of these. They are called {term("pseudo instruction", "pseudo instructions")}, and they carry information between the compiler's own stages. Some mark a spot that a later pass will fill in, and some describe control flow in a form that is easier to rearrange than a jump to a byte offset.
 """)
 
 
@@ -241,16 +236,16 @@ print(compiler.what_the_optimizer_did(compiler.stages(guarded)))
 ''')
 
 
-lesson.md("""
-`SETUP_FINALLY` and `SETUP_CLEANUP` survive the optimizer, so they are still there in the right column, and then they are not in the finished code object. The assembler reads them, works out which range of bytes each one protects and where the handler is, writes that down as a table, and drops the instructions.
+lesson.md(f"""
+`SETUP_FINALLY` and `SETUP_CLEANUP` survive the optimizer, so they are still there in the right column, and then they are gone from the finished code object. The assembler reads them, works out which range of bytes each one protects and where the handler is, writes that down as an {term("exception table")}, and drops the instructions.
 
-That table is why `try` is free in Python when nothing goes wrong. There is no instruction at the top of the block doing bookkeeping. There is a lookup table that is only consulted when an exception is actually raised.
+That table is why `try` is free in Python when nothing goes wrong. There is no instruction at the top of the block doing bookkeeping, there is a lookup table that is only consulted when an exception is actually raised.
 
 Also worth noticing in that output: `1 / 0` was not folded. The optimizer tried, got a `ZeroDivisionError`, and put the instructions back exactly as they were so your program can raise the error itself at the moment it runs.
 
 ## The optimizer works on a graph
 
-Calling it a list of instructions has been a small lie for the last few cells. The optimizer's first move is to cut the list into basic blocks, which are runs of instructions with no jumps in and no jumps out except at the end, and to join those blocks with edges wherever a jump goes.
+Calling it a list of instructions has been a simplification for the last few cells. The optimizer's first move is to cut the list into {term("basic block", "basic blocks")}, which are runs of instructions with no jumps in and no jumps out except at the end, and to join those blocks with edges wherever a jump goes. The result is a {term("control flow graph")}.
 
 Doing that makes a question askable that a flat list cannot answer: can this code be reached at all.
 """)
@@ -284,9 +279,9 @@ print(compile(never, "lesson.py", "exec").co_consts)
 
 
 lesson.md("""
-`'this never runs'` is not in the file. Not skipped at runtime, not stored and ignored: not written down in the first place.
+`'this never runs'` is not in the file. It is not skipped at runtime and not stored and ignored, it was never written down.
 
-`False` is still there, which is the same leftover constant from earlier. The compiler is a compiler and not a tidying service.
+`False` is still there, which is the same kind of leftover constant as before. Removing it is nobody's job.
 
 ## What else disappears
 
@@ -317,13 +312,13 @@ Every function that falls off the end returns `None`, which is most functions, s
 lesson.md(f"""
 ## When the compiler decides not to
 
-Folding trades file size for speed. The answer to `6 * 7` is smaller than the recipe for it, so writing down the answer wins twice. That stops being true quickly.
+Folding trades file size for speed. The answer to `6 * 7` is smaller than the recipe for it, so writing down the answer wins twice, and that stops being true quickly.
 
 Somewhere there has to be a line, and in CPython it is four numbers: {cite("Python/flowgraph.c:1760-1763@v3.15.0rc1#MAX_INT_SIZE")}.
 
 {figure("four-limits", "the four size limits that stop constant folding, with an example either side of each")}
 
-These are not vague guidelines. They are exact, and you can find the boundary yourself.
+They are exact rather than rules of thumb, so you can find the boundary yourself.
 """)
 
 
@@ -385,13 +380,13 @@ print(compile("answer = 6 * 7", "lesson.py", "exec").co_code.hex(" "))
 
 
 lesson.md(f"""
-Twelve bytes, in pairs. Every instruction is one byte of opcode and one byte of argument, and if you look at the third pair you can read `2a` on the right hand side, which is 42. The answer to the multiplication, in the file, in hexadecimal.
+Twelve bytes in pairs. Every instruction is one byte of {term("opcode")} and one byte of {term("oparg", "argument")}, and if you look at the third pair you can read `2a` on the right hand side, which is 42. That is the answer to the multiplication, sitting in the file in hexadecimal.
 
 Five instructions is ten bytes, so one pair is unaccounted for, and it is the `00 00` in second place.
 
 {figure("one-instruction", "two bytes per instruction, and the blank cache slots between them")}
 
-Some instructions are followed by blank slots that the interpreter writes into while your program runs, remembering what it saw last time so it can guess faster next time. Those slots are real bytes in `co_code`, and they are why offsets in a disassembly jump by four or by twenty rather than always by two. T06 is about reading that fluently.
+Some instructions are followed by blank slots that the interpreter writes into while your program runs, remembering what it saw last time so it can guess faster next time. Those are {term("inline cache", "inline caches")}. They are real bytes in `co_code`, and they are why offsets in a disassembly jump by four or by twenty rather than always by two. T06 is about reading that fluently.
 
 {cite("Python/assemble.c:779-802@v3.15.0rc1#_PyAssemble_MakeCodeObject")} is the whole third stage in one function. Apply the label map, turn the jump pseudo instructions into real jumps, work out the byte offsets, emit, and build the code object.
 
@@ -409,8 +404,8 @@ for start, end, line in bytecode.line_table("answer = 6 * 7"):
 """)
 
 
-lesson.md("""
-That is `co_linetable`. It is how a traceback knows which line to print, and it is a lookup table rather than anything stored with the instructions. Since 3.11 it holds column numbers too, which is where those carets under the failing part of a line come from, and those columns came all the way from the tree in T03.
+lesson.md(f"""
+That is `co_linetable`, the {term("line table")}. It is how a traceback knows which line to print, and it is a lookup table rather than anything stored with the instructions. Since 3.11 it holds column numbers too, which is where the carets under the failing part of a line come from, and those columns came all the way from the tree in T03.
 """)
 
 
@@ -429,17 +424,17 @@ print(table.hex(" "))
 
 
 lesson.md("""
-That is the whole cost of the `try` block. A few bytes in a table nobody reads unless something goes wrong.
+That is the whole cost of the `try` block: a few bytes in a table nobody reads unless something goes wrong.
 
-This is worth sitting with for a second, because it is the reason for a piece of Python advice that otherwise sounds like folklore. Asking forgiveness rather than permission is faster than checking first, and the reason is that the check costs an instruction every single time while the `try` costs nothing until it fires.
+It is also the reason for a piece of Python advice that otherwise sounds like folklore. Asking forgiveness rather than permission is faster than checking first, because the check costs an instruction every single time while the `try` costs nothing until it fires.
 
 ## Try it yourself
 
-One. Find your own folding boundary. `MAX_COLLECTION_SIZE` is 256 items. Work out which repeated tuple is the last one the compiler will build for you, and check with `compiler.folds`.
+**One.** Find your own folding boundary. `MAX_COLLECTION_SIZE` is 256 items. Work out which repeated tuple is the last one the compiler will build for you, and check with `compiler.folds`.
 
-Two. Take a `while True:` loop with a `break` in it and run it through `what_the_optimizer_did`. `True` is a constant, so the test at the top of the loop is decided at compile time and the three instructions that did the testing are gone. Look for the `TO_BOOL` that also disappears in front of the `if`, and work out why it was safe to remove that one too.
+**Two.** Take a `while True:` loop with a `break` in it and run it through `what_the_optimizer_did`. `True` is a constant, so the test at the top of the loop is decided at compile time and the three instructions that did the testing are gone. Look for the `TO_BOOL` that also disappears in front of the `if`, and work out why it was safe to remove that one too.
 
-Three. Compare `x = 1; y = 2; z = x + y` with `z = 1 + 2`. Both look like they should give the same code. Predict which one has an addition in it, then check.
+**Three.** Compare `x = 1; y = 2; z = x + y` with `z = 1 + 2`. Both look like they should give the same code. Predict which one has an addition in it, then check.
 """)
 
 
@@ -455,7 +450,7 @@ print(compiler.what_the_optimizer_did(compiler.stages(experiment)))
 
 
 lesson.md("""
-The addition is still there. The compiler knows what `x` and `y` were assigned two lines earlier, and it does not use that, because at module level another module could have changed either of them between the assignment and the addition. The optimizer only ever looks at instructions sitting next to each other in the same block.
+The addition is still there. The compiler can see what `x` and `y` were assigned two lines earlier and does not use it, because at module level another module could have changed either of them in between. The optimizer only ever looks at instructions sitting next to each other in the same block.
 
 ## What just happened
 
