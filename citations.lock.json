@@ -5,15 +5,70 @@
       "first_line": "PyCodeObject *",
       "lines": 4
     },
+    "Parser/lexer/lexer.c:1103-1128@v3.15.0rc1": {
+      "digest": "9b7b6105c0e01602",
+      "first_line": "enum string_kind_t string_kind = FSTRING;",
+      "lines": 26
+    },
+    "Parser/lexer/lexer.c:1615-1624@v3.15.0rc1": {
+      "digest": "362dbbaa0b1d4a60",
+      "first_line": "static int",
+      "lines": 10
+    },
     "Parser/lexer/lexer.c:1626-1635@v3.15.0rc1": {
       "digest": "c0ff4cce5d8d021d",
       "first_line": "int",
       "lines": 10
     },
+    "Parser/lexer/lexer.c:434-443@v3.15.0rc1": {
+      "digest": "6a1fb45708aba4db",
+      "first_line": "static inline int",
+      "lines": 10
+    },
+    "Parser/lexer/lexer.c:500-530@v3.15.0rc1": {
+      "digest": "57e89d65630b30c0",
+      "first_line": "static int",
+      "lines": 31
+    },
+    "Parser/lexer/lexer.c:520-530@v3.15.0rc1": {
+      "digest": "1c98e65f5dc10177",
+      "first_line": "for (;;) {",
+      "lines": 11
+    },
+    "Parser/lexer/lexer.c:616-634@v3.15.0rc1": {
+      "digest": "5ad16442ff013d3d",
+      "first_line": "/* Return pending indents/dedents */",
+      "lines": 19
+    },
+    "Parser/lexer/lexer.c:804-827@v3.15.0rc1": {
+      "digest": "b4bde6938b1312ae",
+      "first_line": "",
+      "lines": 24
+    },
+    "Parser/lexer/state.c:5-33@v3.15.0rc1": {
+      "digest": "f2b84d683b026516",
+      "first_line": "",
+      "lines": 29
+    },
+    "Parser/lexer/state.h:88-107@v3.15.0rc1": {
+      "digest": "676ce9672b82210d",
+      "first_line": "int tabsize;        /* Tab spacing */",
+      "lines": 20
+    },
+    "Parser/pegen.c:162-179@v3.15.0rc1": {
+      "digest": "a59eafb39816891f",
+      "first_line": "static int",
+      "lines": 18
+    },
     "Parser/pegen.c:938-941@v3.15.0rc1": {
       "digest": "bea02c8afaf79632",
       "first_line": "void *",
       "lines": 4
+    },
+    "Parser/tokenizer/helpers.c:90-97@v3.15.0rc1": {
+      "digest": "3561ba87204ad709",
+      "first_line": "int",
+      "lines": 8
     },
     "Python/ast_preprocess.c:370-383@v3.15.0rc1": {
       "digest": "ad12c7f3b5ca677d",

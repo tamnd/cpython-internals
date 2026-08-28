@@ -2,7 +2,7 @@
 
 A complete teardown of CPython 3.15, taught from absolute zero, as reactive notebooks, animations and browser playgrounds. The same work produces a second artifact: a specification precise enough that you can rebuild a compatible Python from scratch in Go or Rust, with a conformance suite that tells you how far you got.
 
-**Status: M0, in progress.** The tooling landed first, because a lesson written before there is anything to check it with is a lesson nobody can trust. The first lesson is now up and you can [run it in Colab](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t01-one-line-seven-stages/t01.ipynb) without installing anything. The plan is in the [milestones](https://github.com/tamnd/cpython-internals/milestones) and the decisions that have not been made yet are in the [open questions](https://github.com/tamnd/cpython-internals/issues?q=is%3Aissue+label%3Akind%2Fopen-question).
+**Status: M0, in progress.** The tooling landed first, because a lesson written before there is anything to check it with is a lesson nobody can trust. The first lessons are up and you can [run them in Colab](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t01-one-line-seven-stages/t01.ipynb) without installing anything. The plan is in the [milestones](https://github.com/tamnd/cpython-internals/milestones) and the decisions that have not been made yet are in the [open questions](https://github.com/tamnd/cpython-internals/issues?q=is%3Aissue+label%3Akind%2Fopen-question).
 
 ## Who this is for
 
@@ -60,6 +60,7 @@ Every lesson is a notebook with a Colab badge on it, so there is nothing to inst
 | | Lesson | What you come away with | Milestone | Run it |
 |---|---|---|---|---|
 | T01 | [One line, seven stages](lessons/t01-one-line-seven-stages/t01.ipynb) | Where `answer = 6 * 7` goes between the file and the answer, which CPython source file does each step, and why the multiplication never happens while your program is running | M1 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t01-one-line-seven-stages/t01.ipynb) |
+| T02 | [Text becomes tokens](lessons/t02-text-becomes-tokens/t02.ipynb) | How indentation actually works, why the tokenizer has never heard of a keyword, what mixed tabs and spaces really means, and what an f-string turns into | M1 | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t02-text-becomes-tokens/t02.ipynb) |
 
 More are landing in order. [lessons/README.md](lessons/README.md) explains how one is put together and how to run them locally.
 
