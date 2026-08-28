@@ -25,6 +25,16 @@
       "first_line": "/* Values used as the oparg for LOAD_COMMON_CONSTANT */",
       "lines": 14
     },
+    "Include/internal/pycore_runtime_structs.h:91-94@v3.15.0rc1": {
+      "digest": "74ec5c6dd34599e2",
+      "first_line": "struct _Py_cached_objects {",
+      "lines": 4
+    },
+    "Include/internal/pycore_runtime_structs.h:96-98@v3.15.0rc1": {
+      "digest": "d1fded49261136ef",
+      "first_line": "// These would be in pycore_long.h if it weren't for an include cycle.",
+      "lines": 3
+    },
     "Include/internal/pycore_structs.h:17-32@v3.15.0rc1": {
       "digest": "efbb83aabdcb7853",
       "first_line": "/* Each instruction in a code object is a fixed-width value,",
@@ -40,10 +50,25 @@
       "first_line": "#define LOCAL 1",
       "lines": 6
     },
+    "Include/object.h:127-150@v3.15.0rc1": {
+      "digest": "355a45f89904b83a",
+      "first_line": "struct _object {",
+      "lines": 24
+    },
+    "Include/object.h:156-170@v3.15.0rc1": {
+      "digest": "3721c9256c01c28f",
+      "first_line": "struct _object {",
+      "lines": 15
+    },
     "Include/opcode_ids.h:247-257@v3.15.0rc1": {
       "digest": "9aed78be51b439f4",
       "first_line": "#define ANNOTATIONS_PLACEHOLDER                256",
       "lines": 11
+    },
+    "Include/refcount.h:125-136@v3.15.0rc1": {
+      "digest": "8cfc823933b20d75",
+      "first_line": "#ifndef _Py_OPAQUE_PYOBJECT",
+      "lines": 12
     },
     "InternalDocs/exception_handling.md:108-118@v3.15.0rc1": {
       "digest": "e46da0c84e413233",
@@ -90,6 +115,11 @@
       "first_line": "def unparse(ast_obj):",
       "lines": 7
     },
+    "Objects/codeobject.c:116-137@v3.15.0rc1": {
+      "digest": "c109b796d3aee235",
+      "first_line": "static int",
+      "lines": 22
+    },
     "Objects/codeobject.c:510-519@v3.15.0rc1": {
       "digest": "da2de0ce00cbfa54",
       "first_line": "static int",
@@ -99,6 +129,11 @@
       "digest": "ee92b881958452aa",
       "first_line": "PyCodeObject *",
       "lines": 4
+    },
+    "Objects/longobject.c:60-65@v3.15.0rc1": {
+      "digest": "cbd279b0c7890bfe",
+      "first_line": "static PyObject *",
+      "lines": 6
     },
     "Parser/Python.asdl:104-105@v3.15.0rc1": {
       "digest": "8781db4c9c043822",
@@ -214,6 +249,11 @@
       "digest": "fc494d84a0cfe3fd",
       "first_line": "replicate(4) inst(LOAD_SMALL_INT, (-- value)) {",
       "lines": 6
+    },
+    "Python/bytecodes.c:3363-3370@v3.15.0rc1": {
+      "digest": "835e172bfb0bda5b",
+      "first_line": "op(_IS_OP, (left, right -- b, l, r)) {",
+      "lines": 8
     },
     "Python/bytecodes.c:393-400@v3.15.0rc1": {
       "digest": "ec8128ae72b4a19e",
@@ -339,6 +379,11 @@
       "digest": "ad75696a832af002",
       "first_line": "analyze_name(PySTEntryObject *ste, PyObject *scopes, PyObject *name, long flags,",
       "lines": 40
+    },
+    "Python/sysmodule.c:1931-1946@v3.15.0rc1": {
+      "digest": "8780fbda3fa7cd5f",
+      "first_line": "size_t",
+      "lines": 16
     }
   },
   "commit": "37e98da7c19a9e5892ee756d6dee08225422cd49",

@@ -219,8 +219,12 @@ def is_interned(text: str) -> bool:
     changes the thing it measures.
     """
     copy = "".join([text, ""])
-    if copy is text:  # pragma: no cover - only if a future release changes str.join
-        raise RuntimeError("could not build a distinct copy, so the answer would be a lie")
+    if copy is text:
+        # The empty string is the only one that lands here, because the interpreter keeps
+        # a single static copy of it and hands that back rather than building a new one.
+        # Failing to make a second equal object is not the probe breaking, it is the
+        # answer: there is one of these in the process and it is the one in the table.
+        return True
     return sys.intern(copy) is text
 
 

@@ -205,6 +205,15 @@ def test_interning_a_built_string_makes_the_original_the_interned_one():
     assert obj.is_interned(built)
 
 
+def test_the_empty_string_answers_rather_than_raising():
+    # There is exactly one empty string in the process, so the usual trick of building an
+    # equal copy and seeing which object comes back has nothing to compare against. That
+    # is the answer rather than a failure, and it used to raise instead. See #51.
+    empty = ""
+    assert obj.is_interned(empty)
+    assert "".join([empty, empty]) is empty
+
+
 def test_referrers_finds_a_container_and_skips_the_frame():
     value = Plain()
     holder = {"key": value}
