@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from copy import deepcopy
 from dataclasses import dataclass, field
 
 from pyxray import theme
@@ -421,6 +422,38 @@ class Scene:
             "files": {},
         }
         return json.dumps(scene, indent=1) + "\n"
+
+    def absorb(self, other: Scene, dx: float = 0, dy: float = 0) -> None:
+        """Copy another scene's elements into this one, moved by `dx` and `dy`.
+
+        This is what lets two panels drawn by the same figure sit beside each other. The
+        alternative was an offset argument threaded through every figure, and figures are
+        much easier to write when they can all start at the origin.
+
+        Two things have to happen for the copy to be a valid document. Every id is remade
+        from this scene's name, because ids are derived from position and index and two
+        panels drawn from the same call would otherwise collide exactly. And every id one
+        element holds about another has to be remapped alongside, or the labels come loose
+        from their boxes and the arrows stop following what they point at.
+        """
+        mapping = {
+            element.id: _identifier(self.name, "absorbed", element.id, len(self.elements) + index)
+            for index, element in enumerate(other.elements)
+        }
+        for element in other.elements:
+            data = deepcopy(element.data)
+            data["id"] = mapping[element.id]
+            data["x"] += dx
+            data["y"] += dy
+            if data.get("containerId"):
+                data["containerId"] = mapping[data["containerId"]]
+            data["boundElements"] = [
+                {**bound, "id": mapping[bound["id"]]} for bound in data.get("boundElements") or []
+            ]
+            for key in ("startBinding", "endBinding"):
+                if data.get(key):
+                    data[key] = {**data[key], "elementId": mapping[data[key]["elementId"]]}
+            self._add(data)
 
     def bounds(self) -> tuple[float, float, float, float]:
         """The box that contains everything, used to size the rendered SVG."""

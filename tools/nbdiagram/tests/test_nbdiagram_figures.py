@@ -15,6 +15,7 @@ from itertools import pairwise
 import pytest
 
 from nbdiagram import figures, stages
+from nbdiagram.scene import Scene
 
 
 def labels(scene):
@@ -127,3 +128,85 @@ def test_a_highlighted_box_is_drawn_differently_from_the_others():
     plain = box_named(stages.map("a"), "tokens")
     lit = box_named(stages.map("b", highlight=stages.TOKENS), "tokens")
     assert plain.data["backgroundColor"] != lit.data["backgroundColor"]
+
+
+def references(scene):
+    """Every id one element holds about another, which all have to resolve."""
+    found = []
+    for element in scene.elements:
+        if element.data.get("containerId"):
+            found.append(element.data["containerId"])
+        found += [bound["id"] for bound in element.data.get("boundElements") or []]
+        for key in ("startBinding", "endBinding"):
+            if element.data.get(key):
+                found.append(element.data[key]["elementId"])
+    return found
+
+
+def test_absorbing_a_scene_brings_all_of_its_elements():
+    panel = figures.tree("p", ("BinOp", ["Constant 1", "Add", "Constant 2"]))
+    scene = Scene("merged")
+    scene.absorb(panel)
+    assert labels(scene) == labels(panel)
+
+
+def test_absorbing_a_scene_twice_does_not_reuse_a_single_id():
+    # Ids are derived from position and index, so two panels drawn by the same call would
+    # collide exactly, and Excalidraw would silently drop half the picture.
+    panel = figures.tree("p", ("BinOp", ["Constant 1", "Add", "Constant 2"]))
+    scene = Scene("merged")
+    scene.absorb(panel)
+    scene.absorb(panel, dx=400)
+    ids = [element.id for element in scene.elements]
+    assert len(ids) == len(set(ids))
+
+
+def test_every_reference_still_resolves_after_a_merge():
+    # A label whose containerId was not remapped comes loose from its box, which renders
+    # as a picture with the words in the wrong places rather than as an error.
+    panel = figures.pipeline("p", [("a", ""), ("b", "")])
+    scene = Scene("merged")
+    scene.absorb(panel)
+    scene.absorb(panel, dy=300)
+    known = {element.id for element in scene.elements}
+    assert references(scene)
+    assert set(references(scene)) <= known
+
+
+def test_absorbing_moves_everything_by_the_same_offset():
+    panel = figures.tree("p", ("BinOp", ["Constant 1", "Add", "Constant 2"]))
+    scene = Scene("merged")
+    scene.absorb(panel, dx=100, dy=50)
+    left, top, right, bottom = panel.bounds()
+    assert scene.bounds() == (left + 100, top + 50, right + 100, bottom + 50)
+
+
+def test_absorbing_leaves_the_original_untouched():
+    panel = figures.tree("p", "Constant 1")
+    before = panel.bounds()
+    Scene("merged").absorb(panel, dx=100, dy=50)
+    assert panel.bounds() == before
+
+
+def test_panels_are_laid_out_left_to_right_without_overlapping():
+    left = figures.tree("a", ("BinOp", ["Constant 1", "Add", "Constant 2"]))
+    right = figures.tree("b", "Constant 3")
+    scene = figures.beside("t", [("first", left), ("second", right)])
+    first = box_named(scene, "Constant 2")
+    second = box_named(scene, "Constant 3")
+    assert first.box[2] < second.box[0]
+
+
+def test_each_panel_gets_its_own_heading():
+    scene = figures.beside(
+        "t",
+        [("first", figures.tree("a", "Constant 1")), ("second", figures.tree("b", "Constant 2"))],
+    )
+    assert {"first", "second"} <= set(labels(scene))
+
+
+def test_panels_start_at_the_same_height_however_tall_they_are():
+    short = figures.tree("a", "Constant 1")
+    tall = figures.tree("b", ("Assign", [("BinOp", ["Constant 2", "Add", "Constant 3"])]))
+    scene = figures.beside("t", [("short", short), ("tall", tall)])
+    assert box_named(scene, "Constant 1").box[1] == box_named(scene, "Assign").box[1]

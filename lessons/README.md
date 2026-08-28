@@ -6,6 +6,7 @@ Each lesson is a notebook you can run. There is nothing to install and nothing t
 | --- | --- | --- |
 | [T01. One line, seven stages](t01-one-line-seven-stages/t01.ipynb) | Where `answer = 6 * 7` goes between the file and the answer, and which CPython source file does each step | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t01-one-line-seven-stages/t01.ipynb) |
 | [T02. Text becomes tokens](t02-text-becomes-tokens/t02.ipynb) | How indentation actually works, why the tokenizer has never heard of keywords, and what an f-string really is | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t02-text-becomes-tokens/t02.ipynb) |
+| [T03. Tokens become a tree](t03-tokens-become-a-tree/t03.ipynb) | What the tree keeps about your file and what it throws away, why every node class knows its own declaration, and a round trip checked against your whole standard library | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/tamnd/cpython-internals/blob/main/lessons/t03-tokens-become-a-tree/t03.ipynb) |
 
 ## How a lesson is put together
 

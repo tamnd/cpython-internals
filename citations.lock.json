@@ -1,9 +1,59 @@
 {
   "citations": {
+    "Grammar/python.gram:841-844@v3.15.0rc1": {
+      "digest": "d04d38072031544a",
+      "first_line": "sum[expr_ty]:",
+      "lines": 4
+    },
+    "Grammar/python.gram:846-852@v3.15.0rc1": {
+      "digest": "fdb19cd6cb607453",
+      "first_line": "term[expr_ty]:",
+      "lines": 7
+    },
+    "Lib/ast.py:117-121@v3.15.0rc1": {
+      "digest": "e9ce78ffb705c8f3",
+      "first_line": "def dump(",
+      "lines": 5
+    },
+    "Lib/ast.py:26-30@v3.15.0rc1": {
+      "digest": "a8682298dc4c158d",
+      "first_line": "def parse(source, filename='<unknown>', mode='exec', *,",
+      "lines": 5
+    },
+    "Lib/ast.py:385-390@v3.15.0rc1": {
+      "digest": "ee62a49030cb4b25",
+      "first_line": "def get_source_segment(source, node, *, padded=False):",
+      "lines": 6
+    },
+    "Lib/ast.py:653-659@v3.15.0rc1": {
+      "digest": "2088d3d9b914a128",
+      "first_line": "def unparse(ast_obj):",
+      "lines": 7
+    },
     "Objects/codeobject.c:715-718@v3.15.0rc1": {
       "digest": "ee92b881958452aa",
       "first_line": "PyCodeObject *",
       "lines": 4
+    },
+    "Parser/Python.asdl:104-105@v3.15.0rc1": {
+      "digest": "8781db4c9c043822",
+      "first_line": "operator = Add | Sub | Mult | MatMult | Div | Mod | Pow | LShift",
+      "lines": 2
+    },
+    "Parser/Python.asdl:62-62@v3.15.0rc1": {
+      "digest": "13761ffe14f17084",
+      "first_line": "| BinOp(expr left, operator op, expr right)",
+      "lines": 1
+    },
+    "Parser/asdl_c.py:1617-1619@v3.15.0rc1": {
+      "digest": "6b8e76f86a28cf3b",
+      "first_line": "static PyObject *",
+      "lines": 3
+    },
+    "Parser/asdl_c.py:95-109@v3.15.0rc1": {
+      "digest": "988550fc04a61be8",
+      "first_line": "def asdl_of(name, obj):",
+      "lines": 15
     },
     "Parser/lexer/lexer.c:1103-1128@v3.15.0rc1": {
       "digest": "9b7b6105c0e01602",
@@ -69,6 +119,11 @@
       "digest": "3561ba87204ad709",
       "first_line": "int",
       "lines": 8
+    },
+    "Python/Python-ast.c:7767-7770@v3.15.0rc1": {
+      "digest": "204a0cb5240c7286",
+      "first_line": "_PyAST_BinOp(expr_ty left, operator_ty op, expr_ty right, int lineno, int",
+      "lines": 4
     },
     "Python/ast_preprocess.c:370-383@v3.15.0rc1": {
       "digest": "ad12c7f3b5ca677d",
