@@ -27,3 +27,17 @@ Or open one in Jupyter, VS Code, or anything else that reads `.ipynb`. The first
 You do not edit the `.ipynb`. Each lesson is defined by the `build.py` next to it, which is ordinary Python with the prose in triple quoted strings, and the notebook is generated from that by [nbbuild](../tools/nbbuild). Run the builder to regenerate one, or `just build-lessons` for all of them. The generated notebook is committed too, because a reader clicking a Colab badge cannot run a build step first, and `just lessons` fails if the two have drifted apart.
 
 The rules a lesson notebook has to follow are enforced by [nbcheck](../tools/nbcheck), and its README explains each of them and why it is there. The short version is that the Colab badge has to point at this notebook rather than the one it was copied from, the build banner has to run before anything it could explain, and no code cell appears without a sentence introducing it.
+
+## The pictures
+
+A lesson that needs diagrams has a `diagrams.py` next to its `build.py`. It builds Excalidraw scenes from Python using [nbdiagram](../tools/nbdiagram) and writes each one out twice, as an `.excalidraw` you can open and edit and as the `.svg` the notebook points at. `just build-diagrams` redraws them and `just diagrams` fails when a committed file no longer matches the script.
+
+The `build.py` then embeds one by name:
+
+```python
+figure = Diagrams("t02-text-becomes-tokens").figure
+
+lesson.md(f"...{figure('where-a-tab-lands', 'a tab landing on a tab stop')}...")
+```
+
+The URL that produces is absolute rather than relative, because Colab has no idea which repository the notebook came from and a relative path would be a broken image for every reader who arrived through the badge. Asking for a diagram that has not been drawn yet is an error at build time rather than a broken image in the notebook.

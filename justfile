@@ -26,7 +26,7 @@ vendor:
     git -C "{{cpython_src}}" rev-parse HEAD
 
 # The full local check, in the order that fails fastest.
-check: lint test citations lessons notebooks
+check: lint test citations diagrams lessons notebooks
 
 lint:
     uv run ruff check .
@@ -53,6 +53,16 @@ test-3-14:
 # Resolve every citation in the project against the pinned tree.
 citations:
     uv run refcheck verify
+
+# Confirm every committed diagram still matches the script that draws it. Same deal as the
+# notebooks below: the `.excalidraw` and the `.svg` are both generated and both committed,
+# because GitHub and Colab render an image from the repository and cannot run a build first.
+diagrams:
+    uv run nbdiagram check
+
+# Redraw the diagrams after editing a lesson's diagrams.py.
+build-diagrams:
+    uv run nbdiagram build
 
 # Confirm every committed notebook still matches the builder that produced it. Notebooks
 # are generated and also committed, because a reader clicking a Colab badge cannot run a

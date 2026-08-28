@@ -9,6 +9,7 @@ license = "MIT"
 dependencies = [
     "nbbuild",
     "nbcheck",
+    "nbdiagram",
     "pyxray",
     "refcheck",
 ]
@@ -21,16 +22,23 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["pyxray", "tools/nbbuild", "tools/nbcheck", "tools/refcheck"]
+members = ["pyxray", "tools/nbbuild", "tools/nbcheck", "tools/nbdiagram", "tools/refcheck"]
 
 [tool.uv.sources]
 nbbuild = { workspace = true }
 nbcheck = { workspace = true }
+nbdiagram = { workspace = true }
 pyxray = { workspace = true }
 refcheck = { workspace = true }
 
 [tool.pytest.ini_options]
-testpaths = ["pyxray/tests", "tools/nbbuild/tests", "tools/nbcheck/tests", "tools/refcheck/tests"]
+testpaths = [
+    "pyxray/tests",
+    "tools/nbbuild/tests",
+    "tools/nbcheck/tests",
+    "tools/nbdiagram/tests",
+    "tools/refcheck/tests",
+]
 addopts = "-q --strict-markers --strict-config"
 markers = [
     "pinned: needs the pinned CPython source tree",
@@ -39,7 +47,7 @@ markers = [
 filterwarnings = ["error"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["nbbuild", "nbcheck", "pyxray", "refcheck"]
+known-first-party = ["nbbuild", "nbcheck", "nbdiagram", "pyxray", "refcheck"]
 
 [tool.ruff]
 line-length = 100
@@ -59,6 +67,7 @@ ignore = [
 # paragraph per line so that a sentence is never split across two of them. Wrapping those
 # to satisfy a line length rule would break the thing the rule is there to protect.
 "lessons/**/build.py" = ["E501"]
+"lessons/**/diagrams.py" = ["E501"]
 # The lesson notebooks are the one thing here that runs on an interpreter we do not choose.
 # A reader in Colab is on whatever Google installed, so a version check the linter thinks
 # is dead code is the cell that tells them why nothing below works.
