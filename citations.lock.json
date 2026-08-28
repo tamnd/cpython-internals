@@ -10,6 +10,11 @@
       "first_line": "term[expr_ty]:",
       "lines": 7
     },
+    "Include/cpython/listobject.h:5-22@v3.15.0rc1": {
+      "digest": "707b180de55e923a",
+      "first_line": "typedef struct {",
+      "lines": 18
+    },
     "Include/internal/pycore_interp_structs.h:271-286@v3.15.0rc1": {
       "digest": "84ddd939ee6f307f",
       "first_line": "#ifndef Py_GIL_DISABLED",
@@ -19,6 +24,11 @@
       "digest": "0f12951337d13d71",
       "first_line": "struct _PyInterpreterFrame {",
       "lines": 25
+    },
+    "Include/internal/pycore_list.h:36-54@v3.15.0rc1": {
+      "digest": "2bd7a09b0ff20224",
+      "first_line": "static inline int",
+      "lines": 19
     },
     "Include/internal/pycore_obmalloc.h:128-146@v3.15.0rc1": {
       "digest": "2b3a0f329f4a22fe",
@@ -85,6 +95,11 @@
       "first_line": "struct _object {",
       "lines": 15
     },
+    "Include/object.h:623-629@v3.15.0rc1": {
+      "digest": "cd6bd3f1f3e26b0c",
+      "first_line": "/* Macro for returning Py_None from a function.",
+      "lines": 7
+    },
     "Include/opcode_ids.h:247-257@v3.15.0rc1": {
       "digest": "9aed78be51b439f4",
       "first_line": "#define ANNOTATIONS_PLACEHOLDER                256",
@@ -99,6 +114,11 @@
       "digest": "a2af4e3c17465fe0",
       "first_line": "static inline Py_ALWAYS_INLINE void Py_DECREF(PyObject *op)",
       "lines": 13
+    },
+    "Include/refcount.h:527-538@v3.15.0rc1": {
+      "digest": "4b12e8e078a88f82",
+      "first_line": "// Create a new strong reference to an object:",
+      "lines": 12
     },
     "InternalDocs/exception_handling.md:108-118@v3.15.0rc1": {
       "digest": "e46da0c84e413233",
@@ -159,6 +179,26 @@
       "digest": "ee92b881958452aa",
       "first_line": "PyCodeObject *",
       "lines": 4
+    },
+    "Objects/listobject.c:103-134@v3.15.0rc1": {
+      "digest": "779a7953df231c11",
+      "first_line": "static int",
+      "lines": 32
+    },
+    "Objects/listobject.c:1231-1239@v3.15.0rc1": {
+      "digest": "f730dc5836a3bb60",
+      "first_line": "static PyObject *",
+      "lines": 9
+    },
+    "Objects/listobject.c:1585-1617@v3.15.0rc1": {
+      "digest": "1f7fb7d5acfb9a80",
+      "first_line": "static PyObject *",
+      "lines": 33
+    },
+    "Objects/listobject.c:580-599@v3.15.0rc1": {
+      "digest": "4bbde8dbb78397f0",
+      "first_line": "static PyObject *",
+      "lines": 20
     },
     "Objects/longobject.c:60-65@v3.15.0rc1": {
       "digest": "cbd279b0c7890bfe",
