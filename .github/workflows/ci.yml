@@ -1,0 +1,79 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PINNED_TAG: v3.15.0rc1
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The pinned version is what every citation and every claim is written against,
+        # so it is the version that must pass. 3.14 runs too because Pyodide is a release
+        # behind, and a lesson that only works on the pin is a lesson the browser tier
+        # cannot run.
+        python: ["3.15.0rc1", "3.14"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python }}
+      - run: uv sync --all-packages
+      - run: uv run pytest
+
+  citations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      # A blobless shallow clone is a few hundred megabytes rather than several
+      # gigabytes, and it is enough to resolve every citation.
+      - name: Cache the pinned CPython tree
+        id: cpython-cache
+        uses: actions/cache@v4
+        with:
+          path: vendor/cpython
+          key: cpython-${{ env.PINNED_TAG }}-v1
+      - name: Fetch the pinned CPython tree
+        if: steps.cpython-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 --branch "$PINNED_TAG" --filter=blob:none \
+            https://github.com/python/cpython.git vendor/cpython
+
+      - name: Confirm the tree is the commit we pinned
+        run: |
+          expected=$(uv run python -c "import sys; sys.path.insert(0, 'tools/refcheck/src'); from refcheck.tree import PINNED_COMMIT; print(PINNED_COMMIT)")
+          actual=$(git -C vendor/cpython rev-parse HEAD)
+          if [ "$expected" != "$actual" ]; then
+            echo "pinned tree is $actual but refcheck expects $expected"
+            exit 1
+          fi
+
+      - run: uv sync --all-packages
+      - run: uv run pytest tools/refcheck/tests
+      - run: uv run refcheck verify

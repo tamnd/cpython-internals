@@ -1,0 +1,12 @@
+{
+  "citations": {
+    "Python/ceval.c:1213-1213@v3.15.0rc1": {
+      "digest": "f816c4c48d43b078",
+      "first_line": "_PyEval_EvalFrameDefault(PyThreadState *tstate, _PyInterpreterFrame *frame, int throwflag)",
+      "lines": 1
+    }
+  },
+  "commit": "37e98da7c19a9e5892ee756d6dee08225422cd49",
+  "tag": "v3.15.0rc1",
+  "version": 1
+}

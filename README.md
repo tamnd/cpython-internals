@@ -41,7 +41,7 @@ The capstone does not ship "it works". It ships a scorecard with a number, the f
 
 ## Which CPython
 
-Pinned to `v3.15.0rc1` today and moving to `v3.15.0` when it ships on 1 October 2026. Every code reference is written as `Python/ceval.c:1234@v3.15.0` and checked by CI against the pinned tree, so when the pin moves we are told exactly which references broke instead of finding out from a reader. A bot diffs every cited region against upstream weekly and files one issue per affected lesson.
+Pinned to `v3.15.0rc1` today and moving to `v3.15.0` when it ships on 1 October 2026. Every code reference is written as `Python/ceval.c:1213@v3.15.0rc1#_PyEval_EvalFrameDefault` and checked by CI against the pinned tree, so when the pin moves we are told exactly which references broke instead of finding out from a reader. The trailing symbol is what makes that work: a bare line number drifts silently when upstream inserts a function above it, and the citation then points at something plausible and wrong, which is worse than pointing at nothing. A bot diffs every cited region against upstream weekly and files one issue per affected lesson.
 
 3.15 is the right pin and the timing is good. It is the first release with a stable ABI for free threaded builds, it adds explicit lazy imports which drag a new object type through the grammar, the compiler, the import machinery and attribute lookup all at once, and its JIT is reported at 8 to 9 percent on x86-64 and 12 to 13 percent on AArch64 macOS. Pinning to 3.14 would mean rewriting the JIT chapter within a year.
 
