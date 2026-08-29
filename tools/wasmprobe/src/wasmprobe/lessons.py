@@ -221,13 +221,7 @@ def run(root: Path, only: list[str] | None = None, timeout: int = 1800) -> Ran:
 #: one. A cell in here is reported and does not fail the build. A cell not in here that fails
 #: does, which is the whole arrangement: a gap stays visible in the report instead of being
 #: deleted, and a new one stops the build.
-ACCEPTED = {
-    "t07-14": (
-        "Recursing through `sorted` overflows the WebAssembly call stack, and that is not a "
-        "Python exception, it kills the runtime. The cell is meant to print a RecursionError "
-        "and in a browser it takes the tab with it instead. Issue 105."
-    ),
-}
+ACCEPTED: dict[str, str] = {}
 
 #: How each status reads in the report, so the two tables agree on their words.
 WORDS = {
