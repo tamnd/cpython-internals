@@ -23,7 +23,7 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from nbversion.declare import KEY, NAMESPACE
+from nbversion.declare import DIFFERS, NAMESPACE, VARIES
 from pyxray.cite import markdown as cite_markdown
 from pyxray.glossary import link as glossary_link
 
@@ -140,7 +140,7 @@ class Lesson:
         self._forbid(text)
         self._add("markdown", text, {})
 
-    def code(self, text: str, *, differs: str = "", quiet: bool = False) -> None:
+    def code(self, text: str, *, differs: str = "", varies: str = "", quiet: bool = False) -> None:
         """A code cell, with no outputs and no execution count.
 
         Outputs are never committed. The only proof a cell works is CI executing it, and a
@@ -154,22 +154,32 @@ class Lesson:
         compare` checks it against what the two interpreters actually printed, and it comes
         out underneath the cell as a note the reader can see.
 
-        `quiet` turns off that second half, for the lessons where one paragraph near the top
+        `varies` is the other kind of note, for a cell whose output depends on the reader's
+        machine rather than on the version: how their interpreter was configured, how many
+        files their standard library has, how deep the C stack goes before it runs out. It
+        reads the same to a reader and is treated differently by the check, which reports it
+        and never fails on it, because two recordings cannot tell you whether a machine
+        difference is real.
+
+        `quiet` turns off the visible cell, for the lessons where one paragraph near the top
         already explains a difference that then shows up in a dozen cells. Repeating it
         under every one of them would train the reader to skip the notes, which is the
         opposite of what they are for.
         """
+        if differs and varies:
+            raise Malformed(f"cell {len(self.cells) + 1} is both differs and varies")
         extra = {"execution_count": None, "outputs": []}
-        if not differs:
+        note = differs or varies
+        if not note:
             self._add("code", text, extra)
             return
         # Checked before either cell is added, so a rejected note does not leave half of
         # itself behind in a lesson somebody is building interactively.
-        self._forbid(differs)
-        extra["metadata"] = {NAMESPACE: {KEY: differs}}
+        self._forbid(note)
+        extra["metadata"] = {NAMESPACE: {DIFFERS if differs else VARIES: note}}
         self._add("code", text, extra)
         if not quiet:
-            self.md(VERSION_NOTE.format(text=differs))
+            self.md(VERSION_NOTE.format(text=note))
 
     def document(self) -> str:
         """The finished notebook as the exact text that belongs on disk."""

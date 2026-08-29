@@ -28,6 +28,6 @@ OFFSETS = "On 3.14 RESUME and GET_ITER have no inline cache, so every offset bel
 SMALL_INTS = "On 3.14 the shared range of small integers stops at 256 rather than 1024, so anything above 256 is a fresh object there and this prints False where the text says True."
 
 #: Counts taken from the installation the reader happens to have. These differ between two
-#: machines running the same version, so they are not really a version note at all, and a
-#: reader comparing their screen against the page still needs to be told.
+#: machines running the same version, so this one goes on a cell with `varies=` rather than
+#: `differs=`. A reader comparing their screen against the page still needs to be told.
 YOUR_INSTALL = "These numbers describe the Python you are running rather than the language, so they will not match the text exactly. A framework install, a source build and a Colab image all count different files."

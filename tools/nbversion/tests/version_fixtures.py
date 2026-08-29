@@ -11,15 +11,21 @@ import itertools
 import json
 from pathlib import Path
 
-from nbversion.declare import KEY, NAMESPACE
+from nbversion.declare import DIFFERS, NAMESPACE, VARIES
 from nbversion.record import Recording
 from nbversion.record import write as write_recording
 
 _ids = itertools.count()
 
 
-def code(source: str, *, differs: str = "", identifier: str | None = None) -> dict:
-    metadata = {NAMESPACE: {KEY: differs}} if differs else {}
+def code(
+    source: str, *, differs: str = "", varies: str = "", identifier: str | None = None
+) -> dict:
+    metadata = {}
+    if differs:
+        metadata = {NAMESPACE: {DIFFERS: differs}}
+    elif varies:
+        metadata = {NAMESPACE: {VARIES: varies}}
     return {
         "cell_type": "code",
         "id": identifier or f"cell-{next(_ids)}",

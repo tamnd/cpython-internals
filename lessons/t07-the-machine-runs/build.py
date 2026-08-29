@@ -143,7 +143,7 @@ for argument in arguments.replace("'", "").split():
     if argument.startswith("--with") or argument.startswith("--enable"):
         print("   ", argument)
 """,
-    differs="This lists the flags your CPython was configured with, which says more about who built it than about the version.",
+    varies="This lists the flags your CPython was configured with, which says more about who built it than about the version.",
 )
 
 
@@ -227,7 +227,7 @@ except RecursionError as problem:
     print(f"through sorted, gave up somewhere under {depth} deep")
     print("   ", problem)
 """,
-    differs="How deep you get before the C stack runs out depends on the build and on the machine, so this number is different everywhere. That it stops far earlier than the pure Python version is the part to read.",
+    varies="How deep you get before the C stack runs out depends on the build and on the machine, so this number is different everywhere. That it stops far earlier than the pure Python version is the part to read.",
 )
 
 
@@ -698,7 +698,7 @@ def first():
 
 first()
 """,
-    differs="The frames above yours belong to whatever is running the notebook, so those names and line numbers come from Jupyter and asyncio rather than from anything the lesson did. The bottom of the list is your three functions, and that is the part to read.",
+    varies="The frames above yours belong to whatever is running the notebook, so those names and line numbers come from Jupyter and asyncio rather than from anything the lesson did. The bottom of the list is your three functions, and that is the part to read.",
 )
 
 

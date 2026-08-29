@@ -11,13 +11,14 @@ Neither half is worth much without the other.
 """
 
 from .compare import Finding, cells, notebooks, summary
-from .declare import KEY, NAMESPACE, note, notes
+from .declare import DIFFERS, NAMESPACE, VARIES, note, notes
 from .normalise import outputs, text
 from .record import Recording, run, version
 
 __all__ = [
-    "KEY",
+    "DIFFERS",
     "NAMESPACE",
+    "VARIES",
     "Finding",
     "Recording",
     "cells",

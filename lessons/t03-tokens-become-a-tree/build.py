@@ -298,7 +298,7 @@ report = trees.survey(trees.stdlib())
 print("standard library at", trees.stdlib())
 print(report)
 """,
-    differs=YOUR_INSTALL,
+    varies=YOUR_INSTALL,
 )
 
 

@@ -442,7 +442,7 @@ for path in files:
 
 print(f"{len(files)} files, {checked} code objects, {disagreed} disagreements")
 """,
-    differs=YOUR_INSTALL,
+    varies=YOUR_INSTALL,
 )
 
 

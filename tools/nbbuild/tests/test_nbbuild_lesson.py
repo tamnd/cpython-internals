@@ -5,7 +5,7 @@ import json
 import pytest
 
 from nbbuild import Lesson, Malformed
-from nbversion.declare import KEY, NAMESPACE
+from nbversion.declare import DIFFERS, NAMESPACE, VARIES
 
 
 @pytest.fixture
@@ -55,7 +55,7 @@ def test_a_version_note_goes_in_the_cells_own_metadata(root):
     lesson = Lesson("t99-example", "t99", root=root)
     lesson.code("print(1)", differs="On 3.14 this prints nothing.")
     cell = json.loads(lesson.document())["cells"][0]
-    assert cell["metadata"] == {NAMESPACE: {KEY: "On 3.14 this prints nothing."}}
+    assert cell["metadata"] == {NAMESPACE: {DIFFERS: "On 3.14 this prints nothing."}}
 
 
 def test_a_version_note_also_comes_out_as_something_the_reader_can_see(root):
@@ -73,13 +73,45 @@ def test_a_quiet_version_note_is_declared_without_a_cell_under_it(root):
     lesson.code("print(1)", differs="Offsets are 2 lower on 3.14.", quiet=True)
     cells = json.loads(lesson.document())["cells"]
     assert [cell["cell_type"] for cell in cells] == ["code"]
-    assert cells[0]["metadata"] == {NAMESPACE: {KEY: "Offsets are 2 lower on 3.14."}}
+    assert cells[0]["metadata"] == {NAMESPACE: {DIFFERS: "Offsets are 2 lower on 3.14."}}
 
 
 def test_a_version_note_goes_through_the_same_punctuation_check_as_the_prose(root):
     lesson = Lesson("t99-example", "t99", root=root)
     with pytest.raises(Malformed, match="em dash"):
         lesson.code("print(1)", differs="On 3.14 \u2014 nothing.")
+
+
+def test_a_machine_note_goes_under_the_other_key(root):
+    """Same sentence to a reader, different question to the checker."""
+    lesson = Lesson("t99-example", "t99", root=root)
+    lesson.code("print(1)", varies="How many files your standard library has.")
+    cells = json.loads(lesson.document())["cells"]
+    assert cells[0]["metadata"] == {
+        NAMESPACE: {VARIES: "How many files your standard library has."}
+    }
+    assert cells[1]["source"] == ["> **Version note.** How many files your standard library has."]
+
+
+def test_a_machine_note_can_be_quiet_too(root):
+    lesson = Lesson("t99-example", "t99", root=root)
+    lesson.code("print(1)", varies="Depends on the build.", quiet=True)
+    cells = json.loads(lesson.document())["cells"]
+    assert [cell["cell_type"] for cell in cells] == ["code"]
+
+
+def test_a_machine_note_goes_through_the_punctuation_check_as_well(root):
+    lesson = Lesson("t99-example", "t99", root=root)
+    with pytest.raises(Malformed, match="em dash"):
+        lesson.code("print(1)", varies="Your build \u2014 not the version.")
+
+
+def test_a_cell_cannot_be_both_kinds_of_note(root):
+    """One of the two is wrong, and guessing which would put the wrong thing in metadata."""
+    lesson = Lesson("t99-example", "t99", root=root)
+    with pytest.raises(Malformed, match="both differs and varies"):
+        lesson.code("print(1)", differs="version", varies="machine")
+    assert json.loads(lesson.document())["cells"] == []
 
 
 def test_source_keeps_its_newlines_the_way_the_format_wants_them(root):

@@ -309,7 +309,7 @@ def compare():
 
 compare()
 """,
-    differs="On 3.14 the collector reports freeing 8 objects rather than 6. The count includes whatever else the interpreter had waiting, so it is not stable across versions. Which of the three nodes survive is.",
+    varies="The number of objects the collector reports freeing counts whatever else the interpreter had waiting as well as the cycle, so it depends on the version and on what has already run. Which of the three nodes survive does not.",
 )
 
 
@@ -542,7 +542,7 @@ print("blocks in use at the start ", before)
 print("after building 10000       ", after)
 print("after dropping them        ", freed)
 """,
-    differs="These are counts of blocks in your own process, so the two outer numbers depend on what the interpreter has already done. The 10000 that appear and then go away again is the part to read.",
+    varies="These are counts of blocks in your own process, so the two outer numbers depend on what the interpreter has already done. The 10000 that appear and then go away again is the part to read.",
 )
 
 

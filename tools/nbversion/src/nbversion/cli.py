@@ -20,7 +20,7 @@ from pathlib import Path
 from nbcheck.notebook import find
 
 from .compare import notebooks, summary
-from .declare import all_notes
+from .declare import VARIES, all_notes
 from .record import DEFAULT_ROOT, load_all, run, version, write
 
 DEFAULT_ROOTS = ["lessons"]
@@ -57,8 +57,8 @@ def command_compare(args) -> int:
         print("there are no recordings to compare", file=sys.stderr)
         return 2
 
-    declared = all_notes(find(_roots(args)))
-    findings = notebooks(left, right, declared)
+    books = find(_roots(args))
+    findings = notebooks(left, right, all_notes(books), all_notes(books, VARIES))
     for one in findings:
         stream = sys.stderr if one.failed else sys.stdout
         print(one.line(), file=stream)
@@ -68,7 +68,8 @@ def command_compare(args) -> int:
     if failures:
         print(
             "a cell whose output depends on the version needs a `differs=` note on it, "
-            "and a note whose cell no longer differs needs removing",
+            "a cell whose output depends on the machine needs a `varies=` note, "
+            "and a `differs=` note whose cell no longer differs needs removing",
             file=sys.stderr,
         )
     return 1 if failures else 0

@@ -122,7 +122,7 @@ print("your standard library is at:", stdlib)
 print("files of Python:", len(sources))
 print("lines of Python:", sum(len(path.read_bytes().splitlines()) for path in sources))
 """,
-    differs=YOUR_INSTALL,
+    varies=YOUR_INSTALL,
     quiet=True,
 )
 
@@ -182,7 +182,7 @@ print("of your", len(sources), "files,", len(generated), "were written by a scri
 for path in generated[:6]:
     print("   ", path.relative_to(stdlib))
 ''',
-    differs=YOUR_INSTALL,
+    varies=YOUR_INSTALL,
     quiet=True,
 )
 
@@ -364,7 +364,7 @@ print("Python outside, C inside:       ", len(pairs))
 print()
 print(pairs)
 """,
-    differs="How many modules are compiled into the binary is a build choice rather than a version. A framework install has far fewer than a source build, so the middle number moves a lot.",
+    varies="How many modules are compiled into the binary is a build choice rather than a version. A framework install has far fewer than a source build, so the middle number moves a lot.",
 )
 
 
@@ -386,7 +386,7 @@ for module in (json, _json, sys):
     location = getattr(module, "__file__", "no file, it is inside the binary")
     print(f"{module.__name__:6} {location}")
 """,
-    differs="Whether _json is a separate file or lives inside the binary is that same build choice, so this line differs between two installs of the same version.",
+    varies="Whether _json is a separate file or lives inside the binary is that same build choice, so this line differs between two installs of the same version.",
 )
 
 
