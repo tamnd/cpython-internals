@@ -508,9 +508,36 @@ Now watch a list fill up.
 lesson.md(f"""
 {figure("sizes-grow", "a bar chart of an empty list against lists of ten, a hundred and a thousand items")}
 
-Eight bytes per slot, which is one pointer on a 64 bit machine. The list is storing pointers rather than values, which is why a thousand integers cost the list eight thousand bytes no matter how big those integers are.
+One word per slot. A list stores pointers rather than values, so a thousand integers cost it a thousand pointers no matter how big those integers are.
 
-That last part is the trap in the fourth question. `sys.getsizeof` reports the object's own bytes and nothing it points at.
+How big a word is depends on the machine and not on Python, so the next cell measures it rather than telling you.
+""")
+
+
+lesson.code(
+    """
+import ctypes
+import sys
+
+word = ctypes.sizeof(ctypes.c_void_p)
+empty = sys.getsizeof([])
+ten = sys.getsizeof([0] * 10)
+
+print("one pointer here: ", word, "bytes")
+print("an empty list:    ", empty, "bytes")
+print("a list of ten:    ", ten, "bytes")
+print("so one slot costs:", (ten - empty) // 10, "bytes")
+""",
+    varies="A pointer is 8 bytes on an ordinary 64 bit machine and 4 in a browser, where Python is compiled to WebAssembly as a 32 bit build. Every number in this cell moves with it.",
+)
+
+
+lesson.md("""
+On a laptop or a desktop that last line says eight, because the addresses are 64 bit. In a browser it says four, because the Python running there was compiled to WebAssembly as a 32 bit build, and the sizes in this whole section shrink with it.
+
+Neither number is a fact about Python. The fact about Python is one pointer per slot. This is one of the few places in the course where what you measure is the machine rather than the language, and it is worth knowing which one you are looking at.
+
+That is also the trap in the fourth question. `sys.getsizeof` reports the object's own bytes and nothing it points at.
 """)
 
 
@@ -537,7 +564,7 @@ The two lists are the same size, because they are the same three pointers. Every
 
 **One.** Find the exact integer where sharing stops on your interpreter without using `small_int_range`. Then explain why writing the literal twice in one cell gives you the wrong boundary.
 
-**Two.** `sys.getsizeof([])` is 56 and `sys.getsizeof([1])` is not 64. Find out what it actually is, then append items one at a time and print the size whenever it changes. The pattern you get is the list's growth strategy, and it is in `Objects/listobject.c` if you want to check your reading.
+**Two.** `sys.getsizeof([1])` is not `sys.getsizeof([])` plus one slot. Find out what both actually are on your machine, then append items one at a time and print the size whenever it changes. The pattern you get is the list's growth strategy, and it is in `Objects/listobject.c` if you want to check your reading.
 
 **Three.** Build two equal strings that are not the same object, then intern both and check what `is` says. Then do it again with strings containing a space, and explain the difference.
 
