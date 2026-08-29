@@ -139,7 +139,7 @@ Every value in a running Python has the same thing sitting in front of it.
 lesson.md(f"""
 {figure("the-header", "the object header as three stacked fields: refcount, type pointer, then the type specific data")}
 
-Two fields, then whatever the specific type needs. That is the {term("object header")}, and the C for it is {cite("Include/object.h:127-150@v3.15.0rc1#_object")}, which is shorter than most people expect for the most important {term("struct")} in the codebase.
+{lesson.claim("every object in a running Python starts with the same two fields, a reference count and a pointer to its type", unobservable="the two fields are members of a C struct, and Python only ever gets handed the object on the far side of them")}, and then whatever the specific type needs. Those two fields are the {term("object header")}, and the C for it is {cite("Include/object.h:127-150@v3.15.0rc1#_object")}, which is shorter than most people expect for the most important {term("struct")} in the codebase.
 
 That shape is what makes the rest of it work. The {term("eval loop")} from T07 pushes and pops `PyObject *`, which is a {term("pointer")} to those two fields, so it never needs to know whether the thing on the end of the pointer is a dictionary or a socket. When it needs behaviour it follows `ob_type` and asks the type, and when it is done with a value it decrements `ob_refcnt`.
 
@@ -156,7 +156,7 @@ There are exactly four things Python will tell you about the header, and each on
 
 The last column is the one worth memorising, because every popular confusion about identity, memory and lifetime lives in it.
 
-`pyxray.obj.header` asks all four at once and prints them as a sentence.
+{lesson.claim("an integer, a string, a dictionary and a plain function all answer the same four questions, because all four are objects")}. `pyxray.obj.header` asks all four at once and prints them as a sentence.
 """)
 
 
@@ -186,7 +186,7 @@ lesson.md(f"""
 
 `is` compares two addresses. The {term("instruction")} is {cite("Python/bytecodes.c:3363-3370@v3.15.0rc1#_IS_OP")}, and the whole implementation is one call to `Py_Is`, which is a pointer comparison. No type is consulted and no method is called, which is why you cannot override it and why it is fast.
 
-So `a is b` is asking "are these two names pointing at the same object", and `a == b` is asking "do these two objects agree that they are equal". They are different questions and they can give different answers.
+So `a is b` is asking "are these two names pointing at the same object", and `a == b` is asking "do these two objects agree that they are equal". They are different questions and they can give different answers, and {lesson.claim("two lists built from the same three numbers are equal and are not the same object")}.
 """)
 
 
@@ -221,11 +221,11 @@ lesson.md(f"""
 
 CPython builds a block of integer objects while it is starting up, before your code runs, and hands out pointers into that block whenever an arithmetic result lands in range. That block is the {term("small integer cache")}, and the handing out is one line: {cite("Objects/longobject.c:60-65@v3.15.0rc1#get_small_int")}, which indexes an array rather than allocating anything.
 
-The size of the array is a number in a {term("header file")}: {cite("Include/internal/pycore_runtime_structs.h:96-98@v3.15.0rc1#_PY_NSMALLPOSINTS")}. That is where the famous 256 came from, and it is also why the famous 256 is now wrong, because on 3.15 it is 1025.
+The size of the array is a number in a {term("header file")}: {cite("Include/internal/pycore_runtime_structs.h:96-98@v3.15.0rc1#_PY_NSMALLPOSINTS")}. That is where the famous 256 came from, and {lesson.claim("the top of the small integer cache moved in 3.15, so the 256 that every tutorial quotes is the old number")}.
 
 It exists because small integers are everywhere. Loop counters, list lengths, indexes, flags. Allocating a fresh object for every `i + 1` in a program would be a lot of allocation for a handful of distinct values.
 
-Rather than trusting either number, ask your own interpreter. `pyxray.obj.small_int_range` walks outward from zero until the sharing stops.
+Rather than trusting either number, ask your own interpreter: {lesson.claim("where the sharing stops can be measured from Python, by walking outward from zero until two equal integers stop being the same object")}. That is all `pyxray.obj.small_int_range` does.
 """)
 
 
@@ -257,7 +257,7 @@ The famous `257 is 257` example gets one thing wrong, and it is worth being exac
 lesson.md(f"""
 {figure("two-reasons-to-say-true", "a = 257 answered by the compiler, a = int('257') answered by the cache")}
 
-When you write `a = 257` and `b = 257` in the same cell, both lines compile into one code object, and the compiler stores each distinct constant once. Both `LOAD_CONST` instructions then point at the same object. That happens no matter how big the number is, and it has nothing to do with the cache.
+When you write `a = 257` and `b = 257` in the same cell, both lines compile into one code object, and the compiler stores each distinct constant once. Both `LOAD_CONST` instructions then point at the same object, so {lesson.claim("two identical integer literals in one piece of source become one object however big the number is, which is the compiler keeping each distinct constant once and has nothing to do with the small integer cache")}.
 
 You can see it directly in `co_consts`.
 """)
@@ -278,10 +278,10 @@ print("a is b ->", scope["a"] is scope["b"], "  because there is one constant, n
 )
 
 
-lesson.md("""
+lesson.md(f"""
 One 257 in the tuple and two instructions loading it, so the cache never came into it.
 
-Now the same question asked in a way the compiler cannot answer ahead of time.
+Now the same question asked in a way the compiler cannot answer ahead of time. {lesson.claim("building the same integer twice through int() rather than writing it as a literal does show the cache, and the sharing stops once the value is past the top of it")}.
 """)
 
 
@@ -318,7 +318,7 @@ lesson.md(f"""
 
 The check is fifteen lines and it is what you would guess if you knew what interning was for: {cite("Objects/codeobject.c:116-137@v3.15.0rc1#should_intern_string")}. The string has to be ASCII with every character alphanumeric or an underscore, which is another way of saying strings shaped like identifiers.
 
-That is what the table is for. Attribute lookups, variable names, keyword arguments and dictionary keys are compared constantly while your program runs, and comparing two pointers is faster than comparing two sets of characters. Strings shaped like names get pooled because those are the ones the interpreter compares. A sentence with a space in it is not worth the table entry.
+That is what the table is for. Attribute lookups, variable names, keyword arguments and dictionary keys are compared constantly while your program runs, and comparing two pointers is faster than comparing two sets of characters. Strings shaped like names get pooled because those are the ones the interpreter compares. A sentence with a space in it is not worth the table entry, so {lesson.claim("a string is interned only when it is ASCII and shaped like an identifier, which puts append and _private in the table and leaves hello world out of it")}.
 
 `pyxray.obj.is_interned` asks the question without changing the answer, which takes a little care: interning the string you were handed would put it in the table, and every call after the first would say True regardless of the truth.
 """)
@@ -332,10 +332,10 @@ for text in ["", "a", "append", "_private", "x1", "hello world", "a-b"]:
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 That is the same list as the table above, measured on your interpreter rather than quoted from the prose.
 
-Two things worth knowing. Strings you build at runtime are not interned, even when they are identifier shaped, because the interning happens when a code object is created and a string built by `join` was never a constant in one. And `sys.intern` lets you put one in yourself, which is worth doing if you are about to compare the same string a few million times and worth ignoring otherwise.
+Two things worth knowing, and the cell below shows both. {lesson.claim("a string built at runtime is not interned even when it is shaped like an identifier, and sys.intern puts it in the table and hands back the object that is in there")}. The first half is because interning happens when a code object is created, and a string built by `join` was never a constant in one. The second half is worth doing if you are about to compare the same string a few million times and worth ignoring otherwise.
 """)
 
 
@@ -369,7 +369,7 @@ lesson.md(f"""
 
 In 3.14 that stopped being reliable. `LOAD_FAST_BORROW` arrived, and loading a local variable now hands the interpreter a {term("borrowed reference")} rather than a counted one, since the frame is already holding the object and cannot stop holding it during the call. Loading a global still takes a real reference, because nothing guarantees the global survives.
 
-So the correction depends on the instruction that pushed the argument, and the same code gives a different number depending on whether the name was local or global.
+So the correction depends on the instruction that pushed the argument, and {lesson.claim("sys.getrefcount gives a different answer for a local and a global that each hold one list, because loading a local borrows the reference and loading a global takes one")}.
 """)
 
 
@@ -392,12 +392,12 @@ compare()
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 Both lists are held in exactly one place. The raw numbers disagree and the corrected ones do not.
 
 `pyxray.obj.refcount` gets there by disassembling the caller, looking at the instruction immediately before the call, and subtracting one only if that instruction took a real reference. That sounds like a lot of work for one number, and it is, but a lesson that shows a beginner 0 references for a variable they just bound is teaching them to distrust the number instead of understand it.
 
-Here is the count moving as containers pick the object up and put it down again.
+Here is the count moving as containers pick the object up and put it down again. {lesson.claim("every container holding an object holds a reference of its own, so putting one list inside another list twice raises its count by two and clearing that list drops it back")}.
 """)
 
 
@@ -430,12 +430,12 @@ watch()
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 One, three, four, two, one. Each container that holds the object holds a reference, and dropping the container drops the reference.
 
 The whole thing is wrapped in a function on purpose. At the top level of a notebook, a name lives in the module dictionary, and that dictionary holds a reference too, so every number above would be one higher and the first one would read 2 for a thing you just made. That is a good example of the trap in the third column of the table: the count is real, and working out which places it is counting is on you.
 
-You can also ask the other direction: what is holding this thing right now.
+You can also ask the other direction, which is what is holding this thing right now. {lesson.claim("Python can be asked which objects are holding a value, and at the top level of a notebook one of the answers is always the module's own namespace")}.
 """)
 
 
@@ -462,7 +462,7 @@ Some objects have their reference count parked at a value the interpreter never 
 
 The reason is threading. Incrementing a shared counter means writing to a cache line, and every core touching `None` a million times a second means those cores fighting over one cache line. Freezing the count for objects that will never be freed anyway makes the write unnecessary. This landed in 3.12 and it is what made the free threaded build plausible.
 
-It also means `sys.getrefcount(None)` returns an enormous number that is not a count of anything, which is why `pyxray` reports nothing for those rather than printing it next to a paragraph about reference counting.
+It also means {lesson.claim("None, True, the small integers and the type objects have their reference count parked, so sys.getrefcount reports an enormous number for them that is not counting anything")}, which is why `pyxray` reports nothing for those rather than printing it next to a paragraph about reference counting.
 """)
 
 
@@ -508,7 +508,7 @@ Now watch a list fill up.
 lesson.md(f"""
 {figure("sizes-grow", "a bar chart of an empty list against lists of ten, a hundred and a thousand items")}
 
-One word per slot. A list stores pointers rather than values, so a thousand integers cost it a thousand pointers no matter how big those integers are.
+{lesson.claim("a list costs one pointer per slot, so what an extra item adds is the size of an address on your machine and not the size of the thing you put in")}. A list stores pointers rather than values, so a thousand integers cost it a thousand pointers no matter how big those integers are.
 
 How big a word is depends on the machine and not on Python, so the next cell measures it rather than telling you.
 """)
@@ -532,12 +532,12 @@ print("so one slot costs:", (ten - empty) // 10, "bytes")
 )
 
 
-lesson.md("""
+lesson.md(f"""
 On a laptop or a desktop that last line says eight, because the addresses are 64 bit. In a browser it says four, because the Python running there was compiled to WebAssembly as a 32 bit build, and the sizes in this whole section shrink with it.
 
 Neither number is a fact about Python. The fact about Python is one pointer per slot. This is one of the few places in the course where what you measure is the machine rather than the language, and it is worth knowing which one you are looking at.
 
-That is also the trap in the fourth question. `sys.getsizeof` reports the object's own bytes and nothing it points at.
+That is also the trap in the fourth question: {lesson.claim("sys.getsizeof reports an object's own bytes and nothing it points at, so a list of three tiny integers and a list of three enormous ones come out the same size")}.
 """)
 
 

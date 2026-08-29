@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-102 claims across 12 lessons, 7 of them not observable from Python.
+131 claims across 12 lessons, 9 of them not observable from Python.
 
 ## T01. One line, seven stages
 
@@ -153,11 +153,42 @@ Without it the exception becomes the rule and this goes back to being a book.
 
 ## T08. Everything is an object
 
-Not marked up yet.
+| Claim | Proved by |
+| --- | --- |
+| every object in a running Python starts with the same two fields, a reference count and a pointer to its type | not observable from Python: the two fields are members of a C struct, and Python only ever gets handed the object on the far side of them |
+| an integer, a string, a dictionary and a plain function all answer the same four questions, because all four are objects | [`t08-11`](t08-everything-is-an-object/t08.ipynb) |
+| two lists built from the same three numbers are equal and are not the same object | [`t08-14`](t08-everything-is-an-object/t08.ipynb) |
+| the top of the small integer cache moved in 3.15, so the 256 that every tutorial quotes is the old number | [`t08-17`](t08-everything-is-an-object/t08.ipynb) |
+| where the sharing stops can be measured from Python, by walking outward from zero until two equal integers stop being the same object | [`t08-17`](t08-everything-is-an-object/t08.ipynb) |
+| two identical integer literals in one piece of source become one object however big the number is, which is the compiler keeping each distinct constant once and has nothing to do with the small integer cache | [`t08-20`](t08-everything-is-an-object/t08.ipynb) |
+| building the same integer twice through int() rather than writing it as a literal does show the cache, and the sharing stops once the value is past the top of it | [`t08-23`](t08-everything-is-an-object/t08.ipynb) |
+| a string is interned only when it is ASCII and shaped like an identifier, which puts append and _private in the table and leaves hello world out of it | [`t08-26`](t08-everything-is-an-object/t08.ipynb) |
+| a string built at runtime is not interned even when it is shaped like an identifier, and sys.intern puts it in the table and hands back the object that is in there | [`t08-28`](t08-everything-is-an-object/t08.ipynb) |
+| sys.getrefcount gives a different answer for a local and a global that each hold one list, because loading a local borrows the reference and loading a global takes one | [`t08-31`](t08-everything-is-an-object/t08.ipynb) |
+| every container holding an object holds a reference of its own, so putting one list inside another list twice raises its count by two and clearing that list drops it back | [`t08-33`](t08-everything-is-an-object/t08.ipynb) |
+| Python can be asked which objects are holding a value, and at the top level of a notebook one of the answers is always the module's own namespace | [`t08-35`](t08-everything-is-an-object/t08.ipynb) |
+| None, True, the small integers and the type objects have their reference count parked, so sys.getrefcount reports an enormous number for them that is not counting anything | [`t08-37`](t08-everything-is-an-object/t08.ipynb) |
+| a list costs one pointer per slot, so what an extra item adds is the size of an address on your machine and not the size of the thing you put in | [`t08-41`](t08-everything-is-an-object/t08.ipynb) |
+| sys.getsizeof reports an object's own bytes and nothing it points at, so a list of three tiny integers and a list of three enormous ones come out the same size | [`t08-44`](t08-everything-is-an-object/t08.ipynb) |
 
 ## T09. Memory appears and disappears
 
-Not marked up yet.
+| Claim | Proved by |
+| --- | --- |
+| binding an object to a name adds one to its count and putting it in a container adds another, and dropping either takes one away again | [`t09-10`](t09-memory-appears-and-disappears/t09.ipynb) |
+| a weak reference lets you watch an object go without keeping it alive, because it is the one kind of reference that does not add to the count | [`t09-12`](t09-memory-appears-and-disappears/t09.ipynb) |
+| a finalizer runs at the del itself, so its output lands in the middle of the surrounding prints rather than at the end of the function or the end of the program | [`t09-14`](t09-memory-appears-and-disappears/t09.ipynb) |
+| two objects that hold each other keep each other's count above zero after every name to them has gone, and counting alone never frees either one | [`t09-17`](t09-memory-appears-and-disappears/t09.ipynb) |
+| running gc.collect() by hand frees a pair that dropping their names did not | [`t09-17`](t09-memory-appears-and-disappears/t09.ipynb) |
+| gc.get_referents plus a search for strongly connected components finds the same groups of objects that can all reach each other, which is what heap.cycles does | [`t09-21`](t09-memory-appears-and-disappears/t09.ipynb) |
+| a cycle whose members define __del__ is collected like any other, with every finalizer run and gc.garbage left empty | [`t09-23`](t09-memory-appears-and-disappears/t09.ipynb) |
+| the collector sorts objects into three groups by how long they have survived, and Python can be asked which group any object is in | [`t09-26`](t09-memory-appears-and-disappears/t09.ipynb) |
+| an object starts in the youngest group and moves up one place each time it survives a sweep | [`t09-26`](t09-memory-appears-and-disappears/t09.ipynb) |
+| the collector does not track an object that cannot hold a reference to another object, so an integer or a string is in no generation at all | [`t09-28`](t09-memory-appears-and-disappears/t09.ipynb) |
+| requests over 512 bytes go to the system allocator, and everything under that is rounded up to one of a fixed set of sizes | [`t09-31`](t09-memory-appears-and-disappears/t09.ipynb) |
+| one surviving object anywhere in an arena keeps the whole arena, which is why a process that peaked at two gigabytes usually still looks like it is using two gigabytes afterwards | not observable from Python: an arena is not an object and Python has no way to name one, and how much memory the operating system thinks the process holds is not a number the standard library reports |
+| building ten thousand objects and then dropping them brings the count of blocks in use back to roughly where it started | [`t09-34`](t09-memory-appears-and-disappears/t09.ipynb) |
+| freeing an object and immediately building another of the same size usually puts the new one at the address the old one had | [`t09-37`](t09-memory-appears-and-disappears/t09.ipynb) |
 
 ## T10. The napkin
 
