@@ -68,6 +68,24 @@ Only the `debug` image carries the CPython source tree and gdb, with a `.gdbinit
 
 Both stages run the interpreter before the build is allowed to finish, and the workflow runs it a third time out of the published image. The third one catches what the first two cannot: a path that is only wrong once the image has been pushed and pulled again.
 
+## Proving an image is the build it claims to be
+
+All three of those only establish that something compiled and runs. A configure flag that was accepted and then ignored also compiles and runs, and what you get is the release build under another tag: published, written into the lockfile, and pulled by a lesson that goes on to draw a conclusion from it.
+
+So every configuration carries an expression that is true in that build and false in a plain one, and `cpybuild proof debug` turns it into a program the workflow pipes into the image.
+
+| Build | How it proves itself |
+|---|---|
+| `debug` | `sys.gettotalrefcount` exists, which is a `Py_DEBUG` only function |
+| `release` | not a debug build, not free threaded, and the JIT is not available |
+| `freethreaded` | `sysconfig.get_config_var("Py_GIL_DISABLED")`, which is what CPython's own test suite asks |
+| `jit` | `sys._jit.is_available()`, true only when `_Py_TIER2` was defined at compile time |
+| `tailcall` | the flag is in `CONFIG_ARGS` |
+
+The last one is weaker than the other four and it is worth saying so rather than dressing it up. A tail calling interpreter is not visible from Python: `_Py_TAIL_CALL_INTERP` is a C macro and nothing exposes it. Reading the flag back is still worth doing, because configure refuses that flag outright when the compiler has no `musttail`, so finding it in the installed interpreter means it was accepted rather than warned about and dropped.
+
+`sys._jit` is a trap worth knowing about. The module is present in every build, so asking whether it exists answers nothing at all, and only `is_available()` tells you the truth. The first version of the release proof got this wrong.
+
 ## Patches
 
 `patches/` at the top of the repository is deliberately empty. Anything in it is applied to the pinned checkout in sorted order, and it exists for the case where a lesson needs an instrumented interpreter that upstream would not want. A patch here means every image is running something that is not CPython, so the bar is high and the README in that directory says what it is.
