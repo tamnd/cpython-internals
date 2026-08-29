@@ -4,6 +4,7 @@ requires-python = ">=3.14"
 
 [manifest]
 members = [
+    "bpc",
     "bpcheck",
     "cpython-internals",
     "nbbuild",
@@ -134,6 +135,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/43/65/318323f98dbee45d4
 wheels = [
     { url = "https://files.pythonhosted.org/packages/88/c6/92fcd42f1ba33e1184263f25bfabf3d27c383410470f169e4b8163bf9c17/beautifulsoup4-4.15.0-py3-none-any.whl", hash = "sha256:d6f88de62e1d4e38ecb1077eb9724cd0eff29d2a08ca16a401e9b9e93f117cf9", size = 109924, upload-time = "2026-06-07T16:44:21.566Z" },
 ]
+
+[[package]]
+name = "bpc"
+version = "0.1.0"
+source = { editable = "tools/bpc" }
+dependencies = [
+    { name = "refcheck" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "refcheck", editable = "tools/refcheck" }]
 
 [[package]]
 name = "bpcheck"
@@ -312,6 +324,7 @@ name = "cpython-internals"
 version = "0.0.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "bpc" },
     { name = "bpcheck" },
     { name = "nbbuild" },
     { name = "nbcheck" },
@@ -339,6 +352,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "bpc", editable = "tools/bpc" },
     { name = "bpcheck", editable = "tools/bpcheck" },
     { name = "nbbuild", editable = "tools/nbbuild" },
     { name = "nbcheck", editable = "tools/nbcheck" },

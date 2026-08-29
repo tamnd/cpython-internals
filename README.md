@@ -55,6 +55,7 @@ Pinned to `v3.15.0rc1` today and moving to `v3.15.0` when it ships on 1 October 
 | `nbbuild` | Lessons are written as Python and generated into notebooks, because nobody should have to edit a `.ipynb` by hand or review a diff of one. The generated file is committed as well, and CI fails if it stops matching the code that produced it | [tools/nbbuild](tools/nbbuild) |
 | `nbdiagram` | Every picture in a lesson is an Excalidraw scene drawn from Python, written out as an editable `.excalidraw` and as the `.svg` GitHub and Colab display. Colours, type and spacing come from one shared theme, so the diagrams, the charts and the animations look like one project | [tools/nbdiagram](tools/nbdiagram) |
 | `bpcheck` | The shape a blueprint has to have before somebody can implement from it: the nine sections in order, the header block, the invariant numbering, and no fact deferred to a lesson | [tools/bpcheck](tools/bpcheck) |
+| `bpc` | The blueprint compiler. Where upstream ships the material in a form a program can read, the specification is generated from it rather than typed. It reads `Parser/Python.asdl` with CPython's own parser and writes the three sections of BP-AST that list all 113 node kinds, each one citing the line it is declared on | [tools/bpc](tools/bpc) |
 | `xraymanim` | The animations, and the fifteen shapes they are allowed to be made of. Each one is planned as a storyboard that is checked in milliseconds, so a mistake is caught before anybody pays for a render | [xraymanim](xraymanim) |
 | `xraywidgets` | The parts of a lesson you can click: a disassembler that shows what `dis` hides, a pipeline explorer with six panes from source to code object, and a prediction gate that asks before it tells. Each one renders twice from one piece of code: plain HTML with nothing installed, and the same picture with working buttons when anywidget is there | [xraywidgets](xraywidgets) |
 
@@ -113,15 +114,19 @@ Every one has the same nine sections in the same order, so a reader who has read
 |---|---|---|
 | BP-MAP | [The shape of the whole interpreter](blueprints/BP-MAP.md) | The runtime, the interpreter, the thread state and the frame, what contains what, and which source file belongs to which blueprint so that two of them cannot claim the same code |
 | BP-PIPELINE | [Source text to a running frame](blueprints/BP-PIPELINE.md) | The eight artifacts and the seven transitions between them, the arena that holds the middle five, the three depth limits and the three different exceptions they raise, and the exact point where compile time ends |
+| BP-AST | [The node types and their fields](blueprints/BP-AST.md) | Every one of the 19 types, the 113 node kinds and the 198 fields, what each field holds and what happens when you leave it out, the arena the whole tree lives in, and the validation pass that rejects trees the grammar allows |
 
 The pseudocode is one dialect across all of them, defined in [blueprints/NOTATION.md](blueprints/NOTATION.md), with explicit pointers, explicit allocation, explicit refcount operations and no exceptions. Their citations are resolved against the pinned tree along with everything else, and `bpcheck` holds the structure up.
+
+Sections 1, 2 and 5 of BP-AST are not typed by anybody. They are compiled out of `Parser/Python.asdl` by [bpc](tools/bpc), using CPython's own ASDL parser, so the table of node kinds is right by construction and every row cites the line it came from. The prose lives in [blueprints/sources/BP-AST.md](blueprints/sources/BP-AST.md) and the finished document is committed next to the hand written ones, with markers showing where the generated parts start and stop.
 
 ## What is planned to be here
 
 ```
 book/           the prose site, one directory per part
 lessons/        the notebooks, the source of truth for every runnable cell
-blueprints/     the normative specification, mechanical sections generated
+blueprints/     the normative specification, with sources/ holding the prose half
+                of the ones whose mechanical sections are generated
 anim/           manim scenes, built from one shared mobject library
 apps/           the Gradio playgrounds
 pyxray/         the instrumentation toolkit every lesson imports
