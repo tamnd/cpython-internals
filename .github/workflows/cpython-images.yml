@@ -1,0 +1,242 @@
+name: cpython-images
+
+# Five CPython builds on two architectures, compiled once here and pulled everywhere else.
+#
+# The reason this is a separate workflow from `ci` is cost. Compiling CPython is fifteen to
+# twenty five minutes and it does not change when somebody edits a lesson, so it runs on a
+# schedule, on a change to the things that actually affect the output, and on a button.
+#
+# Nothing else in this repository ever compiles CPython. If a job needs a debug build it pulls
+# one by digest out of `images/cpython.lock.json`, and if a reader needs one they pull the same
+# image the CI job did rather than spending an evening on a toolchain.
+
+on:
+  schedule:
+    # Weekly, early on a Monday. Not because CPython moves, the pin is a fixed commit, but
+    # because Debian does: a base image with a patched OpenSSL is worth having without
+    # somebody remembering to ask for it.
+    - cron: "17 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      only:
+        description: "One configuration to build, or empty for all five"
+        required: false
+        default: ""
+  push:
+    branches: [main]
+    paths:
+      - "images/cpython/Dockerfile"
+      - "patches/**"
+      - "tools/cpybuild/**"
+      - ".github/workflows/cpython-images.yml"
+
+concurrency:
+  group: cpython-images
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE: ${{ github.repository }}/cpython
+
+jobs:
+  # The matrix comes out of cpybuild rather than being typed here, so adding a sixth build is
+  # a change to one Python file and the workflow picks it up without being edited.
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - id: plan
+        run: |
+          if [ -n "${{ inputs.only }}" ]; then
+            uv run python -c "
+          import json, sys
+          from cpybuild.configs import matrix
+          wanted = [one for one in matrix() if one['config'] == '${{ inputs.only }}']
+          if not wanted:
+              sys.exit('no configuration called ${{ inputs.only }}')
+          print('matrix=' + json.dumps(wanted))
+          " >> "$GITHUB_OUTPUT"
+          else
+            echo "matrix=$(uv run cpybuild matrix)" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs: plan
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      # One build failing should not cancel the other nine. They take twenty minutes each and
+      # knowing that four of five configurations are fine is most of the information.
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+
+      # Every build argument the Dockerfile takes, worked out in Python and handed over as
+      # one block. Doing it here rather than in the step below keeps the argument list in one
+      # place, which is the same place `just build-image` reads it from.
+      - id: args
+        run: |
+          {
+            echo "build<<ARGS"
+            uv run cpybuild buildargs ${{ matrix.config }}
+            echo "ARGS"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: images/cpython/Dockerfile
+          # One architecture per job, both published under one tag by the manifest job below.
+          # Building both in one job would mean emulating one of them, which turns twenty
+          # minutes into something over two hours.
+          platforms: linux/${{ matrix.arch }}
+          push: true
+          # An architecture specific tag, so the two halves can be pushed independently and
+          # joined afterwards. Nothing outside this workflow should ever refer to these.
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ matrix.config }}-${{ matrix.arch }}
+          build-args: ${{ steps.args.outputs.build }}
+          # The ccache directory inside the build is a buildkit cache mount, and this is what
+          # gives it somewhere to live between runs. Keyed per configuration and architecture,
+          # because a debug build's objects are no use to a release build.
+          cache-from: type=gha,scope=${{ matrix.config }}-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.config }}-${{ matrix.arch }}
+
+      # The interpreter is exercised inside the Dockerfile as well. This runs it through
+      # `docker run` on the published image, which is the way a reader will meet it, and it
+      # catches the thing the in image check cannot: an entrypoint or a path that is wrong
+      # only once the image has been pushed and pulled again.
+      - name: Run the interpreter out of the published image
+        run: |
+          docker run --rm --platform linux/${{ matrix.arch }} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ matrix.config }}-${{ matrix.arch }} \
+            python3 -c "import sys, sysconfig; print(sys.version); print(sysconfig.get_platform())"
+
+  # The two architecture specific tags become one tag anybody can pull, and the digest of that
+  # manifest is what goes in the lockfile.
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Join the architectures and record the digests
+        run: |
+          set -euo pipefail
+          for config in $(uv run cpybuild list | awk 'NF && $1 !~ /^configure$/ {print $1}'); do
+            name="${{ env.REGISTRY }}/${{ env.IMAGE }}"
+            docker buildx imagetools create -t "${name}:${config}" \
+              "${name}:${config}-amd64" "${name}:${config}-arm64"
+            for arch in amd64 arm64; do
+              digest=$(docker buildx imagetools inspect --format '{{json .Manifest}}' \
+                "${name}:${config}-${arch}" | uv run python -c "import json,sys; print(json.load(sys.stdin)['digest'])")
+              uv run cpybuild record "${config}" "${arch}" "${digest}"
+            done
+          done
+          uv run cpybuild check
+
+      # The lockfile is a generated file that has to be committed, the same way the citation
+      # lockfile and the probe recordings are. A pull request rather than a push to main,
+      # because a bot moving a digest under a protected branch is not a thing anybody wants to
+      # find out about afterwards.
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: cpython-images-lockfile
+          title: "Move the CPython image lockfile to the images built today"
+          commit-message: |
+            Move the CPython image lockfile to the images built today
+
+            Generated by the cpython-images workflow. The digests are what
+            `docker buildx imagetools inspect` reported for each architecture
+            after the two halves were joined.
+          body: |
+            The weekly image rebuild finished and these are the digests it produced. The
+            CPython commit has not moved, so any change in here is the Debian base image
+            underneath: a patched OpenSSL, a new libc, that sort of thing.
+
+            Worth a look at the run before merging. If a configuration failed, its digest in
+            here is the old one and the run is red rather than this pull request.
+          labels: |
+            kind/tooling
+            area/build
+
+  # Old images cost storage and make the package page unreadable. Two rules, and the second
+  # is why this is a script rather than the retention action: keep the last four weekly builds,
+  # which is a month, and keep anything a released version of the site points at, however old.
+  # A reader who checks out v0.2.0 and runs the experiments has to get the interpreter that
+  # version was written against, and that cannot be expressed as a number of weeks.
+  tidy:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # Every tag, because the protected set is read out of the lockfile as it stood at
+          # each release, and a shallow clone has none of them.
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+
+      - name: Delete images nothing points at any more
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Ten images a week, four weeks, and the architecture specific halves that the
+          # manifest job leaves behind. Generous on purpose: storage is cheap and an image
+          # deleted a week early is somebody's afternoon.
+          KEEP: "120"
+        run: |
+          set -euo pipefail
+          uv run cpybuild protected > /tmp/protected.txt
+          wc -l < /tmp/protected.txt | xargs echo "digests a release or the lockfile points at:"
+          gh api --paginate \
+            "/users/${{ github.repository_owner }}/packages/container/cpython-internals%2Fcpython/versions" \
+            > /tmp/versions.json
+          uv run cpybuild prune \
+            --versions /tmp/versions.json \
+            --protected /tmp/protected.txt \
+            --keep "$KEEP" \
+            > /tmp/doomed.txt
+          while read -r one; do
+            [ -n "$one" ] || continue
+            echo "deleting version $one"
+            gh api --method DELETE \
+              "/users/${{ github.repository_owner }}/packages/container/cpython-internals%2Fcpython/versions/$one"
+          done < /tmp/doomed.txt

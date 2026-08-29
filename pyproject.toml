@@ -9,13 +9,14 @@ license = "MIT"
 dependencies = [
     "bpc",
     "bpcheck",
+    "cpybuild",
+    "distprobe",
     "nbbuild",
     "nbcheck",
     "nbdiagram",
     "nbversion",
     "pyxray",
     "refcheck",
-    "distprobe",
     "wasmprobe",
     "xraymanim",
     "xraywidgets",
@@ -42,12 +43,13 @@ members = [
     "pyxray",
     "tools/bpc",
     "tools/bpcheck",
+    "tools/cpybuild",
+    "tools/distprobe",
     "tools/nbbuild",
     "tools/nbcheck",
     "tools/nbdiagram",
     "tools/nbversion",
     "tools/refcheck",
-    "tools/distprobe",
     "tools/wasmprobe",
     "xraymanim",
     "xraywidgets",
@@ -56,13 +58,14 @@ members = [
 [tool.uv.sources]
 bpc = { workspace = true }
 bpcheck = { workspace = true }
+cpybuild = { workspace = true }
+distprobe = { workspace = true }
 nbbuild = { workspace = true }
 nbcheck = { workspace = true }
 nbdiagram = { workspace = true }
 nbversion = { workspace = true }
 pyxray = { workspace = true }
 refcheck = { workspace = true }
-distprobe = { workspace = true }
 wasmprobe = { workspace = true }
 xraymanim = { workspace = true }
 xraywidgets = { workspace = true }
@@ -72,12 +75,13 @@ testpaths = [
     "pyxray/tests",
     "tools/bpc/tests",
     "tools/bpcheck/tests",
+    "tools/cpybuild/tests",
+    "tools/distprobe/tests",
     "tools/nbbuild/tests",
     "tools/nbcheck/tests",
     "tools/nbdiagram/tests",
     "tools/nbversion/tests",
     "tools/refcheck/tests",
-    "tools/distprobe/tests",
     "tools/wasmprobe/tests",
     "xraymanim/tests",
     "xraywidgets/tests",
