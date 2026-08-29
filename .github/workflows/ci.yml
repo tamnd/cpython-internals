@@ -98,6 +98,10 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
+      # There are no manimpango or pycairo wheels for 3.15 yet, so both build from source
+      # here and need the Pango and Cairo headers to do it. On a developer machine Homebrew
+      # or the distribution has already put them there, which is why this only shows up in CI.
+      - run: sudo apt-get update && sudo apt-get install -y libcairo2-dev libpango1.0-dev pkg-config
       # manim is about thirty packages and a Cairo build, so it lives behind an extra and
       # only this job pays for it. Every other job still runs `xraymanim check`, because the
       # cheap half of the library deliberately does not import manim.
