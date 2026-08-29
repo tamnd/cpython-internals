@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from xraymanim import catalogue
+from xraymanim import catalogue, grammar
 
 
 @pytest.mark.parametrize("storyboard", catalogue.ANIMATIONS, ids=lambda item: item.slug)
@@ -42,3 +42,16 @@ def test_the_file_and_the_class_are_derived_from_the_slug():
 def test_the_whole_set_is_a_sitting_worth_of_watching():
     """Not a correctness rule, a design one. If this ever gets large the set needs splitting."""
     assert catalogue.seconds() == sum(item.seconds for item in catalogue.ANIMATIONS)
+
+
+def test_the_set_so_far_draws_every_shape_there_is():
+    """A shape nothing draws is a shape nobody has had to make readable yet.
+
+    The nine primitives and the six named objects are the whole visual grammar, and the
+    grammar earns its keep by being used. One that no animation reaches is a description in
+    a document rather than a drawing anybody has looked at, and it will be wrong the first
+    time somebody needs it. This is not a rule the project can keep forever, but while there
+    are fifteen shapes and five animations it is worth holding.
+    """
+    drawn = {shape for storyboard in catalogue.ANIMATIONS for shape in storyboard.shapes}
+    assert sorted(set(grammar.SHAPES) - drawn) == []

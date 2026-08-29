@@ -22,6 +22,7 @@ from manim import (
     RIGHT,
     UP,
     Arrow,
+    CurvedArrow,
     Line,
     Rectangle,
     RoundedRectangle,
@@ -102,6 +103,7 @@ def arrow(
     tone: str = "quiet",
     text: str = "",
     direction: object = RIGHT,
+    bend: float = 0.0,
 ) -> VGroup:
     """Primitive 2, the arrow: a reference from one thing to another.
 
@@ -109,31 +111,59 @@ def arrow(
     and is counted in the refcount. A thin one is borrowed and is not. That single
     distinction is most of what goes wrong when somebody writes C against CPython, so it
     gets a visual difference rather than a footnote.
+
+    `bend` is an angle in radians, and it is for the one case a straight line cannot draw:
+    two objects that point at each other. Straight, the two arrows are one line drawn twice.
+    Bent by the same angle they come out as the lens everybody draws a cycle as, because the
+    two arrows have their ends swapped, so the same angle curves them apart.
     """
     ink = pen(tone)
     tail = start.get_edge_center(direction) if hasattr(start, "get_edge_center") else start
     head = end.get_edge_center(-direction) if hasattr(end, "get_edge_center") else end
-    line = Arrow(
-        tail,
-        head,
-        buff=UNIT / 2,
-        color=ink.stroke,
-        stroke_width=OWNED_STROKE if owned else BORROWED_STROKE,
-        max_tip_length_to_length_ratio=0.18,
-    )
+    tail = np.asarray(tail, dtype=float)
+    head = np.asarray(head, dtype=float)
+    stroke = OWNED_STROKE if owned else BORROWED_STROKE
+    if bend:
+        # An arc has no `buff` of its own, so the gap between the arrow and the boxes it
+        # runs between is taken off the ends here, to keep it the same gap a straight arrow
+        # leaves.
+        along = head - tail
+        span = float(np.linalg.norm(along))
+        if span:
+            step = along / span * (UNIT / 2)
+            tail, head = tail + step, head - step
+        line = CurvedArrow(
+            tail, head, angle=bend, color=ink.stroke, stroke_width=stroke, tip_length=0.2
+        )
+    else:
+        line = Arrow(
+            tail,
+            head,
+            buff=UNIT / 2,
+            color=ink.stroke,
+            stroke_width=stroke,
+            max_tip_length_to_length_ratio=0.18,
+        )
     group = VGroup(line)
     if text:
         # The label goes beside the middle of the arrow, offset at a right angle to it,
         # rather than above its bounding box. For a diagonal arrow those are not the same
         # place, and the bounding box answer puts the words on top of the line.
-        along = line.get_end() - line.get_start()
-        sideways = np.array([-along[1], along[0], 0.0])
+        if bend:
+            # For an arc, beside means outside the curve, so the offset is measured from
+            # the straight line between the ends out to the middle of the arc itself.
+            anchor = line.point_from_proportion(0.5)
+            sideways = anchor - (tail + head) / 2
+        else:
+            anchor = line.get_center()
+            along = line.get_end() - line.get_start()
+            sideways = np.array([-along[1], along[0], 0.0])
         length = float(np.linalg.norm(sideways))
         sideways = np.array([0.0, 1.0, 0.0]) if length == 0 else sideways / length
-        if sideways[1] < 0:
+        if not bend and sideways[1] < 0:
             sideways = -sideways
         caption = label(text, size=CAPTION_SIZE, colour=MUTED)
-        caption.move_to(line.get_center() + sideways * (caption.height / 2 + UNIT))
+        caption.move_to(anchor + sideways * (caption.height / 2 + UNIT))
         group.add(caption)
     group.line = line
     return group
@@ -276,22 +306,49 @@ def graph(
     *,
     tone: str = "durable",
     width: float = 1.6,
+    bend: float = 0.0,
 ) -> VGroup:
     """Primitive 7, the graph: the control flow graph, the object graph, anything cyclic.
 
     Positions are given, never computed. A control flow graph laid out automatically is a
     control flow graph nobody can read, and the graphs here are small enough that placing
     them by hand takes a minute and is worth it every time.
+
+    What is computed is which side of a box each edge leaves from, because that follows from
+    the positions and there is only one sensible answer. `bend` is passed on to every arrow,
+    and is what a graph with a two node cycle in it needs.
     """
     drawn = {name: box(name, tone=tone, width=width, height=0.7, size=LABEL_SIZE) for name in nodes}
     for name, position in nodes.items():
         drawn[name].move_to([position[0], position[1], 0])
     group = VGroup()
     for source, target in edges:
-        group.add(arrow(drawn[source], drawn[target], owned=False, tone=tone, direction=DOWN))
+        group.add(
+            arrow(
+                drawn[source],
+                drawn[target],
+                owned=False,
+                tone=tone,
+                direction=_facing(drawn[source], drawn[target]),
+                bend=bend,
+            )
+        )
     group.add(*drawn.values())
     group.nodes = drawn
     return group
+
+
+def _facing(source: object, target: object) -> object:
+    """Which side of `source` an edge to `target` should leave from.
+
+    The axis the target mostly lies along, so a box below is left from the bottom and a box
+    to the right is left from the right hand side. Always leaving from the bottom is fine
+    for a tree and wrong for everything else.
+    """
+    along = target.get_center() - source.get_center()
+    if abs(along[0]) >= abs(along[1]):
+        return RIGHT if along[0] >= 0 else LEFT
+    return UP if along[1] >= 0 else DOWN
 
 
 def counter(value: int, *, name: str = "refcount", tone: str = "focus") -> VGroup:

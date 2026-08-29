@@ -112,9 +112,12 @@ class RefArrow(VGroup):
         text: str = "",
         tone: str = "input",
         direction: object = RIGHT,
+        bend: float = 0.0,
     ) -> None:
         super().__init__()
-        self.body = arrow(source, target, owned=owned, tone=tone, text=text, direction=direction)
+        self.body = arrow(
+            source, target, owned=owned, tone=tone, text=text, direction=direction, bend=bend
+        )
         self.owned = owned
         self.add(self.body)
 
@@ -165,13 +168,24 @@ class Frame(VGroup):
         self.locals.next_to(rule, DOWN, buff=UNIT).align_to(self.shell, LEFT).shift(RIGHT * GAP)
         self.add(self.locals)
 
+        # The stack sits on the floor of the frame and grows upward, which is the rule for
+        # every stack in the project. Hanging it from the rule instead makes it grow
+        # downward as values are pushed, and a reader who sees that once reads every later
+        # picture wrong. An empty stack is the floor with nothing on it, because the stack
+        # is still there between two instructions.
         self.stack = column(list(stack) or [""], tone="focus", width=1.9)
-        self.stack.next_to(rule, DOWN, buff=UNIT * 2).align_to(self.shell, RIGHT).shift(LEFT * GAP)
+        if not stack:
+            self.stack.submobjects[0].set_opacity(0.0)
+        self.stack.align_to(self.shell, RIGHT).shift(LEFT * GAP)
+        self.stack.align_to(self.shell, DOWN).shift(UP * (UNIT + 0.2))
         self.add(self.stack)
         self.add(
-            label("value stack", size=CAPTION_SIZE, colour=MUTED).next_to(
-                self.stack, DOWN, buff=UNIT / 2
-            )
+            label("locals", size=CAPTION_SIZE, colour=MUTED)
+            .next_to(self.shell, DOWN, buff=UNIT / 2)
+            .align_to(self.locals, LEFT),
+            label("value stack", size=CAPTION_SIZE, colour=MUTED)
+            .next_to(self.shell, DOWN, buff=UNIT / 2)
+            .align_to(self.stack, RIGHT),
         )
 
 
@@ -239,8 +253,24 @@ class DictTable(VGroup):
             height=0.62,
             columns=1,
         )
-        self.entries.next_to(self.index, RIGHT, buff=GAP).align_to(self.index, UP)
-        self.add(self.index, self.entries)
+        # A wide gap between the two arrays, not a hairline. They are two separate pieces
+        # of memory, and every picture in this animation draws an arrow from one to the
+        # other, which needs somewhere to be drawn.
+        self.entries.next_to(self.index, RIGHT, buff=GAP * 3).align_to(self.index, UP)
+
+        # The slot numbers, outside the array rather than in it. Without them a reader can
+        # count cells to work out which one is slot 6, and a picture that has to be counted
+        # is a picture that gets read wrong. They sit outside because a slot number is not
+        # stored anywhere: it is the position, in the same way a list index is.
+        self.numbers = VGroup(
+            *(
+                label(str(number), size=CAPTION_SIZE, colour=MUTED).next_to(
+                    cell, LEFT, buff=GAP / 2
+                )
+                for number, cell in enumerate(self.index.submobjects)
+            )
+        )
+        self.add(self.index, self.entries, self.numbers)
         self.add(
             label("indices", size=CAPTION_SIZE, colour=MUTED).next_to(self.index, UP, buff=UNIT),
             label("entries", size=CAPTION_SIZE, colour=MUTED).next_to(self.entries, UP, buff=UNIT),
