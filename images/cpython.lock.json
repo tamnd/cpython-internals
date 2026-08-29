@@ -1,0 +1,67 @@
+{
+  "tag": "v3.15.0rc1",
+  "commit": "37e98da7c19a9e5892ee756d6dee08225422cd49",
+  "registry": "ghcr.io/tamnd/cpython-internals/cpython",
+  "images": {
+    "debug": {
+      "amd64": {
+        "digest": "sha256:0e236979b04521af787a651c85ab9399288c9165131d34a22cc2fa00373a3450",
+        "built": "2026-08-29",
+        "size": 0
+      },
+      "arm64": {
+        "digest": "sha256:65c35e5d1f57832a0c6f8eff493faf9295ae8d4a85510148fbfd7383fc12803f",
+        "built": "2026-08-29",
+        "size": 0
+      }
+    },
+    "freethreaded": {
+      "amd64": {
+        "digest": "sha256:9e57fbe29a94e9b8282d5d020332be3143b32e36fe5c4dcaacc4cc8415e2255c",
+        "built": "2026-08-29",
+        "size": 0
+      },
+      "arm64": {
+        "digest": "sha256:b01791e6021654449ab801d6b49465b8a0b8e647660831e6a52eab8437b44376",
+        "built": "2026-08-29",
+        "size": 0
+      }
+    },
+    "jit": {
+      "amd64": {
+        "digest": "sha256:3d6caa0fc6652edc62ec83aea2dec94791998d203a61a635ba91e98fac753659",
+        "built": "2026-08-29",
+        "size": 0
+      },
+      "arm64": {
+        "digest": "sha256:80d4729ce38a40c02080d6f971d9eb4494b89eb5d6dbb7519cd0c0912a05ab33",
+        "built": "2026-08-29",
+        "size": 0
+      }
+    },
+    "release": {
+      "amd64": {
+        "digest": "sha256:0e616b99a8f96f5fe2c4028d820f10d94641eecb669147f7203b2f84ff7e5a1c",
+        "built": "2026-08-29",
+        "size": 0
+      },
+      "arm64": {
+        "digest": "sha256:fd608bb2cf8a68a7163f086007582b2492235dd1a00f8e2b69360f2549c7f063",
+        "built": "2026-08-29",
+        "size": 0
+      }
+    },
+    "tailcall": {
+      "amd64": {
+        "digest": "sha256:3593c99df7995854f0ffa1ff6e632d2dfc4836c355ebcfadb37d7040ff642a03",
+        "built": "2026-08-29",
+        "size": 0
+      },
+      "arm64": {
+        "digest": "sha256:42a49c731089087e7386842b5dc9df6ddf0046779f5baa49c377c60b35cdd3e2",
+        "built": "2026-08-29",
+        "size": 0
+      }
+    }
+  }
+}
