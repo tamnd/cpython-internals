@@ -57,14 +57,24 @@ The tier says how closely a reimplementation has to match this subsystem for a p
 
 | Blueprint | Covers | Lesson | Status |
 |---|---|---|---|
+| [BP-AST](BP-AST.md) | the node types, and every field of every one of them | T03 | partial |
 | [BP-MAP](BP-MAP.md) | the architecture every other blueprint hangs off | T10 | complete |
 | [BP-PIPELINE](BP-PIPELINE.md) | source text to a running frame, as a contract | T01 | complete |
 
-Thirty more are planned, one per subsystem, listed in the milestone issues. The two here are the ones the rest depend on: `BP-MAP` names the boundaries so that two blueprints cannot both claim the same code, and `BP-PIPELINE` fixes the stage list and what crosses between the stages.
+Thirty more are planned, one per subsystem, listed in the milestone issues. `BP-MAP` and `BP-PIPELINE` are the two the rest depend on: `BP-MAP` names the boundaries so that two blueprints cannot both claim the same code, and `BP-PIPELINE` fixes the stage list and what crosses between the stages.
+
+## The generated ones
+
+`BP-AST` is half written and half compiled. Its sections 1, 2 and 5 are a table of 19 types, 113 node kinds and 198 fields, which is transcription, and transcription is right the day it is typed and wrong the first time upstream adds a field. So those sections are generated from `Parser/Python.asdl` by [bpc](../tools/bpc), and the file that gets edited is [sources/BP-AST.md](sources/BP-AST.md), which holds the prose with a one line directive where each generated block goes.
+
+Both files are committed. `blueprints/BP-AST.md` is what people read and what the checks lint, with `<!-- bpc:begin nodes -->` and `<!-- bpc:end nodes -->` around each generated part so the boundary is visible. Editing between those markers is pointless: `just blueprints` fails on the next run and `just build-blueprints` throws the edit away.
+
+A blueprint with no source document under `sources/` is entirely hand written, which is most of them and will stay that way. Generating a section is worth it only where upstream ships the material in a form a program can read, and `Parser/Python.asdl` is the clearest case of that in CPython.
 
 ## Checking them
 
 ```
-just blueprints    # the nine sections, the header block, the invariant IDs
-just citations     # every citation resolves against the pinned tree
+just blueprints        # the nine sections, the header block, the invariant IDs
+just citations         # every citation resolves against the pinned tree
+just build-blueprints  # regenerate the compiled sections after the pin moves
 ```

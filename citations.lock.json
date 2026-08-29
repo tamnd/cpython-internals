@@ -35,6 +35,26 @@
       "first_line": "struct _ts {",
       "lines": 36
     },
+    "Include/internal/pycore_asdl.h:24-26@v3.15.0rc1": {
+      "digest": "4ddf5b195dc099ab",
+      "first_line": "#define _ASDL_SEQ_HEAD \\",
+      "lines": 3
+    },
+    "Include/internal/pycore_asdl.h:52-74@v3.15.0rc1": {
+      "digest": "c2a1fc8439ab8ce8",
+      "first_line": "#define GENERATE_ASDL_SEQ_CONSTRUCTOR(NAME, TYPE) \\",
+      "lines": 23
+    },
+    "Include/internal/pycore_asdl.h:83-83@v3.15.0rc1": {
+      "digest": "2e827a581aa9b590",
+      "first_line": "#define asdl_seq_LEN(S) _Py_RVALUE(((S) == NULL ? 0 : (S)->size))",
+      "lines": 1
+    },
+    "Include/internal/pycore_ast.h:196-207@v3.15.0rc1": {
+      "digest": "a282830350595a4f",
+      "first_line": "struct _stmt {",
+      "lines": 12
+    },
     "Include/internal/pycore_interp_structs.h:271-286@v3.15.0rc1": {
       "digest": "84ddd939ee6f307f",
       "first_line": "#ifndef Py_GIL_DISABLED",
@@ -84,6 +104,11 @@
       "digest": "92b707281c47541e",
       "first_line": "/* Values used as the oparg for LOAD_COMMON_CONSTANT */",
       "lines": 14
+    },
+    "Include/internal/pycore_pyarena.h:56-56@v3.15.0rc1": {
+      "digest": "c6671958ae6c8ac8",
+      "first_line": "PyAPI_FUNC(void*) _PyArena_Malloc(PyArena *, size_t size);",
+      "lines": 1
     },
     "Include/internal/pycore_runtime_structs.h:134-170@v3.15.0rc1": {
       "digest": "ada3da14c486fca9",
@@ -220,6 +245,11 @@
       "first_line": "def unparse(ast_obj):",
       "lines": 7
     },
+    "Makefile.pre.in:2056-2072@v3.15.0rc1": {
+      "digest": "38e8e503bef0fb6b",
+      "first_line": ".PHONY: regen-ast",
+      "lines": 17
+    },
     "Modules/main.c:830-852@v3.15.0rc1": {
       "digest": "b15e6301c9c95772",
       "first_line": "int",
@@ -295,20 +325,455 @@
       "first_line": "/* This function is called by the tp_dealloc handler to clear weak references.",
       "lines": 24
     },
+    "Parser/Python.asdl:100-100@v3.15.0rc1": {
+      "digest": "ea36297e42edfc56",
+      "first_line": "expr_context = Load | Store | Del",
+      "lines": 1
+    },
+    "Parser/Python.asdl:102-102@v3.15.0rc1": {
+      "digest": "2df541e4a0acabb8",
+      "first_line": "boolop = And | Or",
+      "lines": 1
+    },
+    "Parser/Python.asdl:104-104@v3.15.0rc1": {
+      "digest": "1947b9e3e6f9b81c",
+      "first_line": "operator = Add | Sub | Mult | MatMult | Div | Mod | Pow | LShift",
+      "lines": 1
+    },
     "Parser/Python.asdl:104-105@v3.15.0rc1": {
       "digest": "8781db4c9c043822",
       "first_line": "operator = Add | Sub | Mult | MatMult | Div | Mod | Pow | LShift",
       "lines": 2
+    },
+    "Parser/Python.asdl:105-105@v3.15.0rc1": {
+      "digest": "b3974786c24b0395",
+      "first_line": "| RShift | BitOr | BitXor | BitAnd | FloorDiv",
+      "lines": 1
+    },
+    "Parser/Python.asdl:107-107@v3.15.0rc1": {
+      "digest": "55374a939b510d53",
+      "first_line": "unaryop = Invert | Not | UAdd | USub",
+      "lines": 1
+    },
+    "Parser/Python.asdl:109-109@v3.15.0rc1": {
+      "digest": "f7677769589757c1",
+      "first_line": "cmpop = Eq | NotEq | Lt | LtE | Gt | GtE | Is | IsNot | In | NotIn",
+      "lines": 1
+    },
+    "Parser/Python.asdl:11-11@v3.15.0rc1": {
+      "digest": "2d2e1d84a1745db2",
+      "first_line": "stmt = FunctionDef(identifier name, arguments args,",
+      "lines": 1
+    },
+    "Parser/Python.asdl:111-111@v3.15.0rc1": {
+      "digest": "1c99246b3ea22eab",
+      "first_line": "comprehension = (expr target, expr iter, expr* ifs, int is_async)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:113-113@v3.15.0rc1": {
+      "digest": "89bee9dfc89a347d",
+      "first_line": "excepthandler = ExceptHandler(expr? type, identifier? name, stmt* body)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:116-116@v3.15.0rc1": {
+      "digest": "668a6d0337da6389",
+      "first_line": "arguments = (arg* posonlyargs, arg* args, arg? vararg, arg* kwonlyargs,",
+      "lines": 1
+    },
+    "Parser/Python.asdl:117-117@v3.15.0rc1": {
+      "digest": "574fc9c3b4c86106",
+      "first_line": "expr?* kw_defaults, arg? kwarg, expr* defaults)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:119-119@v3.15.0rc1": {
+      "digest": "831486eb155f0f0d",
+      "first_line": "arg = (identifier arg, expr? annotation, string? type_comment)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:123-123@v3.15.0rc1": {
+      "digest": "8e64105c2171a91b",
+      "first_line": "keyword = (identifier? arg, expr value)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:127-127@v3.15.0rc1": {
+      "digest": "b1f77cf154ae3eca",
+      "first_line": "alias = (identifier name, identifier? asname)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:130-130@v3.15.0rc1": {
+      "digest": "30f2a9dd2e71d243",
+      "first_line": "withitem = (expr context_expr, expr? optional_vars)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:132-132@v3.15.0rc1": {
+      "digest": "89e74eaad33d9a34",
+      "first_line": "match_case = (pattern pattern, expr? guard, stmt* body)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:134-134@v3.15.0rc1": {
+      "digest": "54dbc77feb5bb876",
+      "first_line": "pattern = MatchValue(expr value)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:135-135@v3.15.0rc1": {
+      "digest": "280547049a21693c",
+      "first_line": "| MatchSingleton(constant value)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:136-136@v3.15.0rc1": {
+      "digest": "ba84db8d159b75f3",
+      "first_line": "| MatchSequence(pattern* patterns)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:137-137@v3.15.0rc1": {
+      "digest": "a471132c4c2a8187",
+      "first_line": "| MatchMapping(expr* keys, pattern* patterns, identifier? rest)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:138-138@v3.15.0rc1": {
+      "digest": "023657bafb32a20b",
+      "first_line": "| MatchClass(expr cls, pattern* patterns, identifier* kwd_attrs, pattern* kwd_patterns)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:14-14@v3.15.0rc1": {
+      "digest": "42169b3620851bc2",
+      "first_line": "| AsyncFunctionDef(identifier name, arguments args,",
+      "lines": 1
+    },
+    "Parser/Python.asdl:140-140@v3.15.0rc1": {
+      "digest": "bbb62caf097c0c18",
+      "first_line": "| MatchStar(identifier? name)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:143-143@v3.15.0rc1": {
+      "digest": "8df0454f7c695351",
+      "first_line": "| MatchAs(pattern? pattern, identifier? name)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:144-144@v3.15.0rc1": {
+      "digest": "8f909c91d0aad1ed",
+      "first_line": "| MatchOr(pattern* patterns)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:148-148@v3.15.0rc1": {
+      "digest": "26d348017dcb0f6e",
+      "first_line": "type_ignore = TypeIgnore(int lineno, string tag)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:150-150@v3.15.0rc1": {
+      "digest": "fe4e6835b5d4861e",
+      "first_line": "type_param = TypeVar(identifier name, expr? bound, expr? default_value)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:151-151@v3.15.0rc1": {
+      "digest": "30a492aded8c0b71",
+      "first_line": "| ParamSpec(identifier name, expr? default_value)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:152-152@v3.15.0rc1": {
+      "digest": "9ef13d5018b37948",
+      "first_line": "| TypeVarTuple(identifier name, expr? default_value)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:18-18@v3.15.0rc1": {
+      "digest": "e08f7fa7d0a27d89",
+      "first_line": "| ClassDef(identifier name,",
+      "lines": 1
+    },
+    "Parser/Python.asdl:24-24@v3.15.0rc1": {
+      "digest": "3287588d5cd6bd44",
+      "first_line": "| Return(expr? value)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:26-26@v3.15.0rc1": {
+      "digest": "982f4a4a4bd10382",
+      "first_line": "| Delete(expr* targets)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:27-27@v3.15.0rc1": {
+      "digest": "9d2ab37ea4c84079",
+      "first_line": "| Assign(expr* targets, expr value, string? type_comment)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:28-28@v3.15.0rc1": {
+      "digest": "86fbbbd15373ee4b",
+      "first_line": "| TypeAlias(expr name, type_param* type_params, expr value)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:29-29@v3.15.0rc1": {
+      "digest": "fe694497f9da7e1e",
+      "first_line": "| AugAssign(expr target, operator op, expr value)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:31-31@v3.15.0rc1": {
+      "digest": "a2a07393d3a8a650",
+      "first_line": "| AnnAssign(expr target, expr annotation, expr? value, int simple)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:34-34@v3.15.0rc1": {
+      "digest": "4667ab9c45375f02",
+      "first_line": "| For(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:35-35@v3.15.0rc1": {
+      "digest": "ca53764ab36c71cf",
+      "first_line": "| AsyncFor(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:36-36@v3.15.0rc1": {
+      "digest": "b0ed5bb3be3034b1",
+      "first_line": "| While(expr test, stmt* body, stmt* orelse)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:37-37@v3.15.0rc1": {
+      "digest": "ccafd52ef652f5e9",
+      "first_line": "| If(expr test, stmt* body, stmt* orelse)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:38-38@v3.15.0rc1": {
+      "digest": "43ff1688f7b94c15",
+      "first_line": "| With(withitem* items, stmt* body, string? type_comment)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:39-39@v3.15.0rc1": {
+      "digest": "7b783047fe244938",
+      "first_line": "| AsyncWith(withitem* items, stmt* body, string? type_comment)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:4-4@v3.15.0rc1": {
+      "digest": "b7d54fbd86358123",
+      "first_line": "module Python",
+      "lines": 1
     },
     "Parser/Python.asdl:4-9@v3.15.0rc1": {
       "digest": "529a8ef072884926",
       "first_line": "module Python",
       "lines": 6
     },
+    "Parser/Python.asdl:41-41@v3.15.0rc1": {
+      "digest": "81a1e1fd6bf10cb0",
+      "first_line": "| Match(expr subject, match_case* cases)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:43-43@v3.15.0rc1": {
+      "digest": "8f5eaa15a92f8387",
+      "first_line": "| Raise(expr? exc, expr? cause)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:44-44@v3.15.0rc1": {
+      "digest": "ff752e0851f65bdf",
+      "first_line": "| Try(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:45-45@v3.15.0rc1": {
+      "digest": "e68bf1b036cd1bcc",
+      "first_line": "| TryStar(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:46-46@v3.15.0rc1": {
+      "digest": "2aa1a4a958c4a32b",
+      "first_line": "| Assert(expr test, expr? msg)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:48-48@v3.15.0rc1": {
+      "digest": "c2cffda96af4d1c7",
+      "first_line": "| Import(alias* names, int? is_lazy)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:49-49@v3.15.0rc1": {
+      "digest": "0f9c384abc1dac26",
+      "first_line": "| ImportFrom(identifier? module, alias* names, int? level, int? is_lazy)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:51-51@v3.15.0rc1": {
+      "digest": "f8203827607389c5",
+      "first_line": "| Global(identifier* names)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:52-52@v3.15.0rc1": {
+      "digest": "d9528e84d3609905",
+      "first_line": "| Nonlocal(identifier* names)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:53-53@v3.15.0rc1": {
+      "digest": "5cda2b48284ff1ec",
+      "first_line": "| Expr(expr value)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:54-54@v3.15.0rc1": {
+      "digest": "ff300189369537d5",
+      "first_line": "| Pass | Break | Continue",
+      "lines": 1
+    },
+    "Parser/Python.asdl:6-6@v3.15.0rc1": {
+      "digest": "6c5d3333f7fe832e",
+      "first_line": "mod = Module(stmt* body, type_ignore* type_ignores)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:60-60@v3.15.0rc1": {
+      "digest": "2271e626a233d13d",
+      "first_line": "expr = BoolOp(boolop op, expr* values)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:61-61@v3.15.0rc1": {
+      "digest": "5c3742565893966e",
+      "first_line": "| NamedExpr(expr target, expr value)",
+      "lines": 1
+    },
     "Parser/Python.asdl:62-62@v3.15.0rc1": {
       "digest": "13761ffe14f17084",
       "first_line": "| BinOp(expr left, operator op, expr right)",
       "lines": 1
+    },
+    "Parser/Python.asdl:63-63@v3.15.0rc1": {
+      "digest": "0a94f4bd9da76ecb",
+      "first_line": "| UnaryOp(unaryop op, expr operand)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:64-64@v3.15.0rc1": {
+      "digest": "497bb313234023c3",
+      "first_line": "| Lambda(arguments args, expr body)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:65-65@v3.15.0rc1": {
+      "digest": "e85b11582667fdc8",
+      "first_line": "| IfExp(expr test, expr body, expr orelse)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:66-66@v3.15.0rc1": {
+      "digest": "c4b8db3c4c0a26e1",
+      "first_line": "| Dict(expr?* keys, expr* values)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:67-67@v3.15.0rc1": {
+      "digest": "f2bca3fa6926ec06",
+      "first_line": "| Set(expr* elts)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:68-68@v3.15.0rc1": {
+      "digest": "e88481ea02381378",
+      "first_line": "| ListComp(expr elt, comprehension* generators)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:69-69@v3.15.0rc1": {
+      "digest": "641b1d175fe6140a",
+      "first_line": "| SetComp(expr elt, comprehension* generators)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:7-7@v3.15.0rc1": {
+      "digest": "a064c313c80b32f6",
+      "first_line": "| Interactive(stmt* body)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:70-70@v3.15.0rc1": {
+      "digest": "41fa3cd5ed06f902",
+      "first_line": "| DictComp(expr key, expr? value, comprehension* generators)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:71-71@v3.15.0rc1": {
+      "digest": "e2e448cab22be8b7",
+      "first_line": "| GeneratorExp(expr elt, comprehension* generators)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:73-73@v3.15.0rc1": {
+      "digest": "b3455621cf61e482",
+      "first_line": "| Await(expr value)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:74-74@v3.15.0rc1": {
+      "digest": "93cdd16da1689ab2",
+      "first_line": "| Yield(expr? value)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:75-75@v3.15.0rc1": {
+      "digest": "0edd97658820d1c8",
+      "first_line": "| YieldFrom(expr value)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:78-78@v3.15.0rc1": {
+      "digest": "393b9635a9eaa010",
+      "first_line": "| Compare(expr left, cmpop* ops, expr* comparators)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:79-79@v3.15.0rc1": {
+      "digest": "7155b89886432191",
+      "first_line": "| Call(expr func, expr* args, keyword* keywords)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:8-8@v3.15.0rc1": {
+      "digest": "05c4ca24ca535903",
+      "first_line": "| Expression(expr body)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:80-80@v3.15.0rc1": {
+      "digest": "8505708806e72363",
+      "first_line": "| FormattedValue(expr value, int conversion, expr? format_spec)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:81-81@v3.15.0rc1": {
+      "digest": "b207cc8e617caea7",
+      "first_line": "| Interpolation(expr value, constant str, int conversion, expr? format_spec)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:82-82@v3.15.0rc1": {
+      "digest": "55e045248abeec74",
+      "first_line": "| JoinedStr(expr* values)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:83-83@v3.15.0rc1": {
+      "digest": "d76bbdfddf879aab",
+      "first_line": "| TemplateStr(expr* values)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:84-84@v3.15.0rc1": {
+      "digest": "c3e89c5a09c40e72",
+      "first_line": "| Constant(constant value, string? kind)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:87-87@v3.15.0rc1": {
+      "digest": "6312c89d2edeeab0",
+      "first_line": "| Attribute(expr value, identifier attr, expr_context ctx)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:88-88@v3.15.0rc1": {
+      "digest": "0eb83fc54aa0b958",
+      "first_line": "| Subscript(expr value, expr slice, expr_context ctx)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:89-89@v3.15.0rc1": {
+      "digest": "ca58b46f31d8e655",
+      "first_line": "| Starred(expr value, expr_context ctx)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:9-9@v3.15.0rc1": {
+      "digest": "88c7638923b29a61",
+      "first_line": "| FunctionType(expr* argtypes, expr returns)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:90-90@v3.15.0rc1": {
+      "digest": "4dc7b53a6599bd0d",
+      "first_line": "| Name(identifier id, expr_context ctx)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:91-91@v3.15.0rc1": {
+      "digest": "69e705cad286efe9",
+      "first_line": "| List(expr* elts, expr_context ctx)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:92-92@v3.15.0rc1": {
+      "digest": "ca7d19d164137f8f",
+      "first_line": "| Tuple(expr* elts, expr_context ctx)",
+      "lines": 1
+    },
+    "Parser/Python.asdl:95-95@v3.15.0rc1": {
+      "digest": "1fa6e8e8abc36141",
+      "first_line": "| Slice(expr? lower, expr? upper, expr? step)",
+      "lines": 1
+    },
+    "Parser/asdl_c.py:1-2@v3.15.0rc1": {
+      "digest": "47980500884e7b9d",
+      "first_line": "#! /usr/bin/env python",
+      "lines": 2
     },
     "Parser/asdl_c.py:1617-1619@v3.15.0rc1": {
       "digest": "6b8e76f86a28cf3b",
@@ -420,6 +885,31 @@
       "first_line": "// File automatically generated by Parser/asdl_c.py.",
       "lines": 3
     },
+    "Python/Python-ast.c:18493-18499@v3.15.0rc1": {
+      "digest": "9b96334b5275d96a",
+      "first_line": "mod_ty PyAST_obj2mod(PyObject* ast, PyArena* arena, int mode)",
+      "lines": 7
+    },
+    "Python/Python-ast.c:5266-5266@v3.15.0rc1": {
+      "digest": "ebf6045b3e8e4621",
+      "first_line": "ast_type_init(PyObject *self, PyObject *args, PyObject *kw)",
+      "lines": 1
+    },
+    "Python/Python-ast.c:5417-5446@v3.15.0rc1": {
+      "digest": "2f7d1ae8fa4ec594",
+      "first_line": "else if (_PyUnion_Check(type)) {",
+      "lines": 30
+    },
+    "Python/Python-ast.c:5448-5459@v3.15.0rc1": {
+      "digest": "a6069c402df403f2",
+      "first_line": "Py_ssize_t num_missing = PySet_GET_SIZE(missing_names);",
+      "lines": 12
+    },
+    "Python/Python-ast.c:7057-7089@v3.15.0rc1": {
+      "digest": "51259d0141d860cc",
+      "first_line": "_PyAST_FunctionDef(identifier name, arguments_ty args, asdl_stmt_seq * body,",
+      "lines": 33
+    },
     "Python/Python-ast.c:7767-7770@v3.15.0rc1": {
       "digest": "204a0cb5240c7286",
       "first_line": "_PyAST_BinOp(expr_ty left, operator_ty op, expr_ty right, int lineno, int",
@@ -429,6 +919,26 @@
       "digest": "1d1f376d310651cf",
       "first_line": "PyCodeObject *",
       "lines": 24
+    },
+    "Python/ast.c:1049-1076@v3.15.0rc1": {
+      "digest": "a7d09b27fb03a92e",
+      "first_line": "_PyAST_Validate(mod_ty mod)",
+      "lines": 28
+    },
+    "Python/ast.c:13-18@v3.15.0rc1": {
+      "digest": "a4d9358c5bee15e5",
+      "first_line": "#define ENTER_RECURSIVE() \\",
+      "lines": 6
+    },
+    "Python/ast.c:704-711@v3.15.0rc1": {
+      "digest": "d8cd0372909c6fc3",
+      "first_line": "_validate_nonempty_seq(asdl_seq *seq, const char *what, const char *owner)",
+      "lines": 8
+    },
+    "Python/ast.c:722-726@v3.15.0rc1": {
+      "digest": "df067fd04b5b9e22",
+      "first_line": "validate_body(asdl_stmt_seq *body, const char *owner)",
+      "lines": 5
     },
     "Python/ast_preprocess.c:370-383@v3.15.0rc1": {
       "digest": "ad12c7f3b5ca677d",

@@ -55,9 +55,18 @@ citations:
     uv run refcheck verify
 
 # Check the blueprints have the shape somebody can implement from: the nine sections in
-# order, the header block, the invariant numbering, and no fact deferred to a lesson.
+# order, the header block, the invariant numbering, and no fact deferred to a lesson. The
+# second line covers the ones with a source document under blueprints/sources: their
+# generated sections have to still match what the grammar says today.
 blueprints:
     uv run bpcheck lint
+    uv run bpc check
+
+# Regenerate the compiled sections of a blueprint after editing its source document or
+# moving the pin, then read the diff. Same deal as the diagrams and the notebooks: the
+# output is committed because that is what GitHub renders, so something has to check it.
+build-blueprints:
+    uv run bpc build
 
 # Confirm every committed diagram still matches the script that draws it. Same deal as the
 # notebooks below: the `.excalidraw` and the `.svg` are both generated and both committed,

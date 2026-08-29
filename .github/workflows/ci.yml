@@ -94,6 +94,9 @@ jobs:
       # below, which already treats blueprints/ as one of its roots.
       - run: uv run pytest tools/bpcheck/tests
       - run: uv run bpcheck lint
+      # bpc has tests that need a CPython checkout and tests that do not. The ones that do
+      # skip here and run in the citations job, which is the one with the tree.
+      - run: uv run pytest tools/bpc/tests
 
   animations:
     runs-on: ubuntu-latest
@@ -157,3 +160,9 @@ jobs:
       - run: uv sync --all-packages
       - run: uv run pytest tools/refcheck/tests
       - run: uv run refcheck verify
+      # The generated sections of a blueprint are read out of Parser/Python.asdl, so this
+      # is the job with the tree to read them from. It fails if the committed blueprint no
+      # longer matches what the grammar says, which is what happens when the pin moves and
+      # nobody reran `just build-blueprints`.
+      - run: uv run bpc check
+      - run: uv run pytest tools/bpc/tests

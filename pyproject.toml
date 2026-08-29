@@ -7,6 +7,7 @@ requires-python = ">=3.14"
 license = "MIT"
 
 dependencies = [
+    "bpc",
     "bpcheck",
     "nbbuild",
     "nbcheck",
@@ -36,6 +37,7 @@ dev = [
 [tool.uv.workspace]
 members = [
     "pyxray",
+    "tools/bpc",
     "tools/bpcheck",
     "tools/nbbuild",
     "tools/nbcheck",
@@ -46,6 +48,7 @@ members = [
 ]
 
 [tool.uv.sources]
+bpc = { workspace = true }
 bpcheck = { workspace = true }
 nbbuild = { workspace = true }
 nbcheck = { workspace = true }
@@ -58,6 +61,7 @@ xraywidgets = { workspace = true }
 [tool.pytest.ini_options]
 testpaths = [
     "pyxray/tests",
+    "tools/bpc/tests",
     "tools/bpcheck/tests",
     "tools/nbbuild/tests",
     "tools/nbcheck/tests",
@@ -88,6 +92,7 @@ filterwarnings = [
 
 [tool.ruff.lint.isort]
 known-first-party = [
+    "bpc",
     "bpcheck",
     "nbbuild",
     "nbcheck",
