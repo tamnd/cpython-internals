@@ -20,6 +20,7 @@ STRINGS: dict[str, str] = {
     "common.python": "Python {version}",
     "common.static_notice": "This is the static picture. Install the live extra and call .live() to click on it.",
     "common.nothing": "Nothing to show yet.",
+    "common.toggles": "What to show",
     "common.error": "That did not compile: {reason}",
     # The disassembler.
     "disassembler.title": "Bytecode",
@@ -40,6 +41,8 @@ STRINGS: dict[str, str] = {
     "disassembler.exception_range": "offsets {start} to {end} jump to {target}, depth {depth}{lasti}",
     "disassembler.lasti": ", and the instruction that raised is pushed",
     "disassembler.count": "{count} instruction{s}",
+    "disassembler.table_label": "Bytecode, one row per instruction",
+    "disassembler.toggles_label": "Extra columns",
     # The pipeline explorer.
     "pipeline.title": "From source to a code object",
     "pipeline.tokens": "Tokens",
@@ -67,6 +70,7 @@ STRINGS: dict[str, str] = {
     "predict.answer": "the answer",
     "predict.yours": "what you picked",
     "predict.check": "Run this if you want to see it for yourself:",
+    "predict.options_label": "Answers, pick one",
 }
 
 

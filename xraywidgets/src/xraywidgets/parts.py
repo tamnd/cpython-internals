@@ -16,6 +16,7 @@ from collections.abc import Sequence
 from pyxray import theme
 
 from .html import Raw, element, join
+from .strings import text
 from .style import PREFIX
 
 
@@ -65,7 +66,9 @@ def error(message: str) -> Raw:
     return element("div", message, class_=f"{PREFIX}-error")
 
 
-def toggles(options: Sequence[tuple[str, str, bool]], *, live: bool = False) -> Raw:
+def toggles(
+    options: Sequence[tuple[str, str, bool]], *, live: bool = False, label: str = ""
+) -> Raw:
     """The row of on and off buttons above a widget.
 
     Real `<button>` elements with `aria-pressed`, not styled `<div>`s. That is what makes
@@ -73,30 +76,41 @@ def toggles(options: Sequence[tuple[str, str, bool]], *, live: bool = False) -> 
     what a screen reader needs in order to say whether one is on. The static rendering
     disables them, because a button that looks live and does nothing is worse than one that
     says it is not.
+
+    The row is a `role="group"` with a name on it. A group without a name is announced as
+    the word group and nothing else, which is worse than no group at all, because it spends
+    the reader's attention and tells them nothing.
     """
     return element(
         "div",
         join(
             element(
                 "button",
-                label,
+                words,
                 type="button",
                 class_=f"{PREFIX}-toggle",
-                data_flag=name,
+                data_flag=flag,
                 aria_pressed="true" if on else "false",
                 disabled=not live,
             )
-            for name, label, on in options
+            for flag, words, on in options
         ),
         class_=f"{PREFIX}-toggles",
         role="group",
+        aria_label=label or text("common.toggles"),
     )
 
 
-def table(headings: Sequence[str], rows: Sequence[Raw]) -> Raw:
-    """A table with a real header row, so the columns are announced with the cells."""
+def table(headings: Sequence[str], rows: Sequence[Raw], *, label: str = "") -> Raw:
+    """A table with a real header row, so the columns are announced with the cells.
+
+    The name matters as much as the header row does. A screen reader can list the tables on
+    a page and jump between them, and an unnamed one comes out as table, which is no use in
+    a notebook that has several.
+    """
     return element(
         "table",
         element("thead", element("tr", join(element("th", one, scope="col") for one in headings))),
         element("tbody", join(rows)),
+        aria_label=label or None,
     )

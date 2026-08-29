@@ -25,7 +25,25 @@ INK = "#1e1e1e"
 MUTED = "#5c5f66"
 #: Rules, gridlines, box borders that are not carrying meaning.
 LINE = "#ced4da"
+#: The boundary of a control: the edge of a button, the edge of a box you can type in.
+#: A separate value from LINE because the two have different jobs. A rule under a column
+#: heading is decoration and can be faint. The edge of a button is the only thing telling
+#: somebody there is a button there, and WCAG asks for 3:1 against whatever is behind it.
+#: LINE is 1.5:1 against white, which is right for a rule and not enough for a button.
+#: This one is 3.3:1 against white and 5.2:1 against the dark page, so it does both themes
+#: without a second value.
+EDGE = "#868e96"
 PAPER = "#ffffff"
+
+#: The same four neutrals for a dark page. Only the neutrals move between themes. The six
+#: tones below keep their colours, because they are pale fills with dark text on them and a
+#: chip carries its own background wherever it is put. Giving them a second set of values
+#: would mean a second palette to keep in step with the diagrams, and an SVG committed to a
+#: repository has one set of colours in it.
+DARK_INK = "#e9ecef"
+DARK_MUTED = "#adb5bd"
+DARK_LINE = "#495057"
+DARK_PAPER = "#1a1b1e"
 
 
 @dataclass(frozen=True)
@@ -45,6 +63,24 @@ class Tone:
     def matplotlib(self) -> dict[str, str]:
         """The same tone as matplotlib keyword arguments, so a chart matches a diagram."""
         return {"edgecolor": self.stroke, "facecolor": self.fill}
+
+    @property
+    def text(self) -> str:
+        """The colour to put words in when they sit on this tone's fill.
+
+        It is INK for every tone, and it is a method rather than a constant because the
+        answer is not obvious and the reason is worth having somewhere. The tempting choice
+        is the stroke, since that is the tone's dark colour and it looks tidy. Measured, it
+        is between 2.7:1 and 3.8:1 against its own fill on five of the six tones, where
+        readable text needs 4.5:1. Getting there would mean strokes close to black, which
+        would leave the diagrams drawing six lines you cannot tell apart.
+
+        So the tone carries meaning through the fill and the border, and the words on top
+        of it are INK, which is 10:1 or better on all six. The Excalidraw diagrams have
+        always done this, because bound text in a box takes the default stroke colour. This
+        makes the widgets agree with them instead of quietly disagreeing.
+        """
+        return INK
 
 
 TONES: dict[str, Tone] = {
@@ -97,3 +133,41 @@ GAP = 60
 
 STROKE_WIDTH = 2
 CORNER_RADIUS = 12
+
+
+#: What WCAG AA asks for. Ordinary text needs the first number against whatever is behind
+#: it. Large text, and the boundary of a control, need the second. These are here rather
+#: than in the test so the numbers and the palette live in the same file, and so anything
+#: else that wants to check a colour is checking against the same bar.
+BODY_TEXT = 4.5
+LARGE_TEXT = 3.0
+
+
+def luminance(colour: str) -> float:
+    """How bright a hex colour is, on the scale WCAG measures contrast on.
+
+    Not the same as how bright it looks on a monitor. The channel values coming out of a
+    hex string are gamma encoded, so each one gets straightened out first, and then the
+    three are weighted, because the eye gets most of its brightness from green and very
+    little from blue.
+    """
+    text = colour.lstrip("#")
+    if len(text) != 6:
+        raise ValueError(f"expected a six digit hex colour, got {colour!r}")
+    channels = []
+    for start in (0, 2, 4):
+        value = int(text[start : start + 2], 16) / 255
+        channels.append(value / 12.92 if value <= 0.04045 else ((value + 0.055) / 1.055) ** 2.4)
+    red, green, blue = channels
+    return 0.2126 * red + 0.7152 * green + 0.0722 * blue
+
+
+def contrast(one: str, other: str) -> float:
+    """The contrast ratio between two colours, between 1 and 21.
+
+    Order does not matter. Black on white and white on black are the same number, which is
+    why this sorts the two brightnesses rather than trusting the caller to pass a
+    foreground first.
+    """
+    bright, dim = sorted((luminance(one), luminance(other)), reverse=True)
+    return (bright + 0.05) / (dim + 0.05)

@@ -89,11 +89,19 @@ Every coloured thing in a widget is a chip, and `parts.chip` will not build one 
 
 The toggles are real `<button>` elements with `aria-pressed`, not styled `<div>`s, so they are reachable by tab and operable by space bar without a line of JavaScript, and a screen reader can say whether one is on. The static rendering marks them disabled, because a button that looks live and does nothing is worse than one that admits it.
 
+`tests/test_xraywidgets_access.py` reads the rendered markup back and checks the pieces are still there: no styled div where a button should be, `aria-pressed` on everything pressable, a name on every group, `scope="col"` on every heading, a focus outline on every control and nothing anywhere that removes one. It also checks the front end still puts focus back after it redraws, because replacing the markup throws focus away and a widget that drops you to the top of the page every time you press a button is unusable without a mouse.
+
+That file is deliberately clear about what it does not cover. Reading the markup cannot tell you whether tabbing through the widget in a real browser lands somewhere sensible, or whether a screen reader announces a toggle flipping. Those need somebody at a machine with the software running, and they are tracked separately rather than being counted as done because the markup looked right.
+
 ## The palette comes from one place
 
 There is no hex colour written in this package. `style.py` reads `pyxray.theme`, the same module the Excalidraw diagrams, the matplotlib charts and the manim animations read, and writes it out as CSS custom properties. A test greps the stylesheet for hand written colours and fails if it finds one, so a widget cannot quietly fork away from the diagrams next to it.
 
-Dark mode swaps the neutrals and leaves the tones alone. The tones are pale fills with dark strokes and they read as chips sitting on the page rather than as page colour, so they work against either background. Giving them a second set of values would mean a second palette to keep in step with the diagrams, and an SVG committed to a repository has one set of colours in it.
+Dark mode swaps the neutrals and leaves the tones alone. The tones are pale fills with dark text and they read as chips sitting on the page rather than as page colour, so they work against either background. Giving them a second set of values would mean a second palette to keep in step with the diagrams, and an SVG committed to a repository has one set of colours in it.
+
+That choice was checked rather than assumed. `pyxray/tests/test_theme.py` computes the WCAG contrast ratio from the hex values and asserts every pair a reader actually looks at, which found two things. Words on a chip are `theme.INK` and not the tone's own stroke, because a stroke on its own fill measures between 2.7:1 and 3.8:1 on five of the six tones and readable text needs 4.5:1. And the edge of a button is `--xw-edge` rather than `--xw-line`, because the rule colour is 1.5:1 against white, which is right for a line under a column heading and invisible as the boundary of a control.
+
+Anything sitting on a tone fill is written into the sheet as a literal colour rather than as a variable. The fills do not move between themes and the variables do, so a variable there would put pale grey text on a pale blue chip the moment somebody's system went dark, which is the sort of thing a screenshot taken on a light machine never shows you.
 
 ## Layout
 

@@ -52,6 +52,8 @@ Six tones, defined once in [pyxray/theme.py](../pyxray/src/pyxray/theme.py) and 
 
 Colour never carries meaning on its own. A tone always arrives with a label, a position or a shape that says the same thing, so a reader who cannot tell the green from the orange loses nothing.
 
+The contrast is measured rather than eyeballed. `pyxray/tests/test_theme.py` works the WCAG ratios out from the hex values and fails when a pair drops under the bar, which is 4.5:1 for words and 3:1 for a line or the edge of a control. Two of those assertions are worth knowing about when you draw something. Each tone's stroke clears 3:1 against white, so it is a line you can see. Words that sit on a tone's fill are `INK`, never the tone's own stroke, because the stroke is only about 3:1 against its own fill and text needs more. Excalidraw's bound text already defaults to `INK`, so a `box` gets this right without asking, and a label you place yourself on top of a filled shape should do the same.
+
 ## Type, spacing and timing
 
 Three type sizes and no more: title, body, caption. Two families, one sans and one monospace, and anything that is source code or an opcode name is monospace without exception.
