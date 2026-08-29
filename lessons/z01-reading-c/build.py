@@ -130,7 +130,7 @@ typedef struct {{
 }} PyListObject;
 ```
 
-Two fields, plus whatever `PyObject_VAR_HEAD` brings. That macro expands to three more fields, which T08 covered: the {term("reference count")}, the type pointer, and the size. So a list is five fields and nothing else.
+Two fields, plus whatever `PyObject_VAR_HEAD` brings. That macro expands to three more fields, which T08 covered: the {term("reference count")}, the type pointer, and the size. So {lesson.claim("a Python list is five fields and nothing else: a reference count, a type pointer, a size, an arrow to the slot array, and a count of how many slots exist", unobservable="the five fields are a C struct, and Python is only ever handed the list rather than its layout")}.
 
 {figure("the-struct", "a table of the five fields of a list, their C types, and what each one is for")}
 
@@ -202,9 +202,9 @@ A **new reference** means the count was increased on your behalf, and you owe a 
 
 A **borrowed reference** means you got the pointer with no count increase. It is valid only as long as whatever you got it from keeps holding it. `PyList_GET_ITEM` is borrowed, which is why C code that reads an item out of a list and then calls back into Python has to take its own reference first, because the callback could clear the list from under it.
 
-A **stolen reference** means the function took over a reference you were holding. `PyList_SET_ITEM` steals, which is why `list_append_impl` calls `Py_NewRef` before handing the object over: it is creating a reference specifically so there is one to give away.
+A **stolen reference** means the function took over a reference you were holding, and {lesson.claim("PyList_SET_ITEM steals, which is why list_append_impl creates a reference with Py_NewRef before handing the object over rather than passing it straight through", unobservable="who owns a reference is a contract between two C functions, and Python sees only the count that comes out of the other end")}.
 
-You can watch the whole handover from Python. `list.pop` in C returns a new reference by giving you the one the list was holding, rather than by making a fresh one.
+You can watch the handover from Python, even though you cannot see the contract. {lesson.claim("appending an object to a list adds one to its reference count, because the list takes a reference of its own")}, and {lesson.claim("popping it back out hands over the reference the list was holding rather than making a fresh one, so the count does not go up again")}.
 """)
 
 
@@ -343,7 +343,7 @@ When the list is full, it calls `list_resize`, at {cite("Objects/listobject.c:10
 
 {figure("growing", "a bar chart of how many slots a list has after each of its first ten resizes")}
 
-That is a claim about behaviour, so let us check it rather than believe it. The next cell transcribes `list_resize` into Python, line for line, and runs it against a real list two thousand times.
+That is a claim about behaviour, so let us check it rather than believe it. {lesson.claim("a list that runs out of room asks for one eighth more than it needs plus six, rounded down to a multiple of four, which gives the sequence 4, 8, 16, 24, 32, 40, 52, 64, 76, 92")}, and {lesson.claim("that line of C can be transcribed into Python and it then agrees with a real list on every one of two thousand appends")}. The next cell does exactly that.
 """)
 
 

@@ -121,7 +121,7 @@ Three bands, and it is worth being precise about what each one is.
 
 The top band runs once per source file. Text goes in on the left, a code object comes out on the right, and the six steps between are the six lessons T02 through T07. The tokenizer is at {cite("Parser/lexer/lexer.c:1626-1635@v3.15.0rc1#_PyTokenizer_Get")}, the parser at {cite("Parser/pegen.c:938-941@v3.15.0rc1#_PyPegen_run_parser")}, the symbol table at {cite("Python/symtable.c:415-418@v3.15.0rc1#_PySymtable_Build")}, code generation at {cite("Python/codegen.c:894-897@v3.15.0rc1#_PyCodegen_Expression")}, the optimizer at {cite("Python/flowgraph.c:3753-3757@v3.15.0rc1#_PyCfg_OptimizeCodeUnit")}, and the code object gets built at {cite("Objects/codeobject.c:715-718@v3.15.0rc1#_PyCode_New")}. If you want to see the whole top band as one function, it is {cite("Python/compile.c:1526-1540@v3.15.0rc1#_PyAST_Compile")}, which is about fifteen lines long and calls each stage in turn.
 
-The middle band runs once per instruction, which in a real program means millions of times. It reads two bytes, works out which handler that {term("opcode")} maps to, runs it, and moves on. That is the whole {term("eval loop")}, and it lives in one enormous function at {cite("Python/ceval.c:1212-1218@v3.15.0rc1#_PyEval_EvalFrameDefault")}.
+The middle band runs once per instruction, which in a real program means millions of times. It reads two bytes, works out which handler that {term("opcode")} maps to, runs it, and moves on. That is the whole {term("eval loop")}, and {lesson.claim("the entire middle band is one enormous C function, which is why there is a single place to point at for it", unobservable="it is a C function, and the only thing that reaches Python from it is the result of running the instruction")}: {cite("Python/ceval.c:1212-1218@v3.15.0rc1#_PyEval_EvalFrameDefault")}.
 
 The bottom band is not a stage at all, it is what every value in both other bands is made of: an {term("object header")} with a {term("reference count")} and a type pointer, at {cite("Include/object.h:127-150@v3.15.0rc1#_object")}. When the count reaches zero the object is freed on the spot, at {cite("Include/refcount.h:417-429@v3.15.0rc1#Py_DECREF")}. When objects hold each other in a loop the count never reaches zero, and the {term("cycle collector")} deals with that separately, using the subtraction trick at {cite("Python/gc.c:485-501@v3.15.0rc1#subtract_refs")}.
 
@@ -151,9 +151,9 @@ Of everything on the napkin, one line does more work than the rest: the one betw
 
 Almost every confusing thing about Python is a question that got asked on the wrong side of this line. Why can I not use a variable before assigning it, even in a branch that never runs? Compile time. Why is this attribute lookup slow? Run time. Why does the same expression give a different answer in a function than at the module level? Compile time, and specifically the symbol table.
 
-The important part is what crosses, and the answer is a {term("code object")} and nothing else. The tokens, the tree, the {term("symbol table")} and the {term("control flow graph")} are all built, used, and thrown away before your program runs a single instruction. Whatever the compiler worked out that did not get written into the code object is simply gone.
+The important part is what crosses, and the answer is a {term("code object")} and nothing else. The tokens, the tree, the {term("symbol table")} and the {term("control flow graph")} are all built, used, and thrown away before your program runs a single instruction, so {lesson.claim("a function still runs after its source text has been destroyed, because the code object is the only thing that crosses from compile time to run time")}.
 
-You can watch that happen. The next cell compiles a function, throws away the source text entirely, and runs what is left.
+You can watch that happen. The next cell compiles a function, throws away the source text entirely, and runs what is left. Look at `co_stacksize` while it goes past, because {lesson.claim("the compiler works out the deepest the value stack can ever get and writes the number into the code object, and nothing recomputes it later")}.
 """)
 
 
@@ -204,7 +204,7 @@ That is the shape of almost everything the compiler does: work it out once, writ
 lesson.md(f"""
 ## One line, all the way through
 
-Here is `answer = 6 * 7` at every stage, in a single cell. It is the same eight boxes as the top row of the napkin plus the run, printed one after another.
+Here is `answer = 6 * 7` at every stage, in a single cell. It is the same eight boxes as the top row of the napkin plus the run, printed one after another, and {lesson.claim("every stage from the token stream to the finished code object can be printed with the standard library, with no debug build and no C compiler anywhere")}.
 
 {figure("one-line-all-the-way", "the eight stages for answer = 6 * 7, with the real artefact and its size at each box")}
 """)
@@ -279,7 +279,9 @@ lesson.md(f"""
 
 {figure("wrong-models", "seven common claims about Python, each with what is actually true beside it")}
 
-Every one of these is a sentence you will have read somewhere, probably more than once. Each is wrong in a way that changes what you would predict. The next two cells settle four of them by running them.
+Every one of these is a sentence you will have read somewhere, probably more than once. Each is wrong in a way that changes what you would predict, and the next cell settles four of them by running them.
+
+{lesson.claim("compile() with no file on disk anywhere still produces bytecode, so a pyc file is a cache of that work rather than the compilation itself")}. {lesson.claim("a local name is stored and loaded by slot number rather than looked up in a dictionary, and the name survives only so a traceback has something to print")}. {lesson.claim("an object is still freed with the cycle collector switched off, because reference counting is what frees almost everything")}. {lesson.claim("del removes one name rather than the object, so a second name holding the same object keeps it alive")}.
 """)
 
 
@@ -351,8 +353,8 @@ The fourth one shows `del` doing what it actually does, which is remove one name
 """)
 
 
-lesson.md("""
-The `257 is 257` one deserves its own cell, because the usual explanation of it is wrong in an interesting way.
+lesson.md(f"""
+The `257 is 257` one deserves its own cell, because the usual explanation of it is wrong in an interesting way. {lesson.claim("two 257 literals in one source file are the same object because of the compiler, and building them one at a time from a string is what actually shows the small integer cache")}.
 """)
 
 
