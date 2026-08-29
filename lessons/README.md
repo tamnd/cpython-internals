@@ -38,6 +38,22 @@ nodes = programs.L2.load()  # a fresh namespace every time, nothing cached
 first = nodes.chain(("a", "b", "c"), ring=True)
 ```
 
+## The claim ledger
+
+[CLAIMS.md](CLAIMS.md) lists every behavioural claim the lessons make and the cell that proves it. It is generated, and `just claims` fails when a claim has lost its evidence.
+
+An author marks a claim where they make it, and the sentence comes back unchanged, so the prose reads the same and the reader sees nothing:
+
+```python
+lesson.md(f"""
+{lesson.claim("the 42 is not in the constants table")}. It is the argument byte of the instruction itself.
+""")
+```
+
+The evidence is the next code cell, and it has to come before the next section heading. That second half is the part that makes it mean something: without it every claim in a lesson would find some cell further down and the check would pass on a lesson that proves nothing.
+
+A few true things cannot be shown from Python at all, like the shape of the graph the optimizer builds, which is made and thrown away inside the compiler. Those are marked with the reason they cannot be shown, and a lesson gets at most three.
+
 ## The glossary
 
 There is one definition per term and it lives in [GLOSSARY.md](../GLOSSARY.md). A lesson uses a word and links to it rather than stopping to explain it, which means you can follow a link when you need one and ignore it when you do not.

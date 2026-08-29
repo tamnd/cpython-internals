@@ -27,7 +27,7 @@ vendor:
     git -C "{{cpython_src}}" rev-parse HEAD
 
 # The full local check, in the order that fails fastest.
-check: lint test citations blueprints diagrams lessons notebooks probe dist animations
+check: lint test citations claims blueprints diagrams lessons notebooks probe dist animations
 
 lint:
     uv run ruff check .
@@ -84,6 +84,17 @@ build-diagrams:
 # build step first, and anything generated and committed drifts unless something checks.
 lessons:
     uv run nbbuild check
+
+# Every behavioural claim in the lessons has a runnable cell behind it, and the committed
+# ledger still matches. Fast, no kernel: it re-runs each builder and asks it for its claims,
+# and a claim whose evidence has moved out from under it fails in the builder rather than
+# here. Deliberately before the slow half of the checks for that reason.
+claims:
+    uv run nbbuild claims --check
+
+# Rewrite lessons/CLAIMS.md after marking up a claim.
+build-claims:
+    uv run nbbuild claims
 
 # Rewrite GLOSSARY.md after editing the terms. There is no separate checker recipe for it,
 # because the test suite already compares the committed file against the module, and one

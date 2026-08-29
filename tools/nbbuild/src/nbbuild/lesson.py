@@ -27,6 +27,8 @@ from nbversion.declare import DIFFERS, NAMESPACE, VARIES
 from pyxray.cite import markdown as cite_markdown
 from pyxray.glossary import link as glossary_link
 
+from .claims import Claim, as_json, resolve
+
 #: Colab reads notebooks straight out of GitHub, so the badge has to name the branch as
 #: well as the path. Anything else opens an older copy of the lesson without saying so.
 COLAB = "https://colab.research.google.com/github/tamnd/cpython-internals/blob/main"
@@ -72,6 +74,7 @@ class Lesson:
     stem: str
     root: Path = field(default_factory=repository_root)
     cells: list[dict] = field(default_factory=list)
+    claims: list[Claim] = field(default_factory=list)
 
     @property
     def path(self) -> Path:
@@ -99,6 +102,25 @@ class Lesson:
         skimming for the file and line should not have to hover over anything.
         """
         return cite_markdown(citation, citation)
+
+    def claim(self, text: str, *, unobservable: str = "") -> str:
+        """Mark a sentence as a behavioural claim, and get the sentence back unchanged.
+
+        Returning the text is what keeps this out of the reader's way. The prose reads the
+        same either way and nothing appears in the notebook, so marking a claim costs the
+        author nothing at the point of writing and buys the build the ability to check it.
+
+        The claim is registered against the cell that is about to be added, which is why this
+        works inside an f-string: by the time `md` runs, the claim already knows where it is.
+        Its evidence is the next code cell, and `resolve` refuses a claim whose next code
+        cell is on the far side of a section heading.
+
+        `unobservable` is for the claims that are true and cannot be shown from Python, and
+        it takes the reason rather than a flag, because "why not" is the part a reader and a
+        later author both want. There is a cap on how many a lesson may have.
+        """
+        self.claims.append(Claim(text.strip(), len(self.cells), unobservable))
+        return text
 
     def term(self, name: str, text: str = "") -> str:
         """A word linked into the glossary, so a lesson can use it without defining it.
@@ -206,6 +228,12 @@ class Lesson:
         time.
         """
         arguments = sys.argv[1:] if argv is None else argv
+        # Resolved before anything else, including in `--check`, so a claim that lost its
+        # evidence fails the build rather than waiting for somebody to run `--claims`.
+        found = resolve(self.claims, self.cells)
+        if "--claims" in arguments:
+            print(json.dumps(as_json(found, self.cells, self.relative), indent=1))
+            return 0
         text = self.document()
         if "--check" in arguments:
             if not self.path.exists():
