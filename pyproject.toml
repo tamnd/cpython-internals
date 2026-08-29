@@ -15,6 +15,7 @@ dependencies = [
     "nbversion",
     "pyxray",
     "refcheck",
+    "distprobe",
     "wasmprobe",
     "xraymanim",
     "xraywidgets",
@@ -46,6 +47,7 @@ members = [
     "tools/nbdiagram",
     "tools/nbversion",
     "tools/refcheck",
+    "tools/distprobe",
     "tools/wasmprobe",
     "xraymanim",
     "xraywidgets",
@@ -60,6 +62,7 @@ nbdiagram = { workspace = true }
 nbversion = { workspace = true }
 pyxray = { workspace = true }
 refcheck = { workspace = true }
+distprobe = { workspace = true }
 wasmprobe = { workspace = true }
 xraymanim = { workspace = true }
 xraywidgets = { workspace = true }
@@ -74,6 +77,7 @@ testpaths = [
     "tools/nbdiagram/tests",
     "tools/nbversion/tests",
     "tools/refcheck/tests",
+    "tools/distprobe/tests",
     "tools/wasmprobe/tests",
     "xraymanim/tests",
     "xraywidgets/tests",

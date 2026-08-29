@@ -67,6 +67,12 @@ Read `decision.md` before writing an experiment that pokes at the interpreter. T
 
 If you need a surface nobody has measured, add a check to `tools/wasmprobe/src/wasmprobe/checks.py` and run `just build-probe`. A check is a string of Python that leaves its answer in `result`, and it has to import everything it uses, because the check before it may have taken the runtime down. Mark it `TIER0` if a lesson would depend on it, and `just probe` will fail the build the day it stops working. If it already fails and you have decided what to do instead, write that decision in the check's `accepted` field rather than deleting the check, so the gap stays in the report and the next regression is still visible.
 
+## What the reader's own Python can and cannot do
+
+The browser is one place a lesson runs. The other is whatever Python the reader already has, and that is not one thing either. `_testinternalcapi` is a private test module, distributions are free not to ship it, and the compiler lessons stop working where it is missing. Twelve ways of getting a Python were asked, and the answers are in [probes/distributions](probes/distributions) with the same shape as the browser probe: a table, the raw answers, and a written decision.
+
+The short version is that most channels ship it and Fedora's `python3` does not. If you are writing a lesson that imports it, import it through `pyxray.compiler` and let that raise the message that names the package to install, rather than writing your own `try` around the import. If you are adding a channel, put it in `tools/distprobe/src/distprobe/channels.py` and run `just build-dist`. A channel that this machine cannot reach still belongs on the list, with a note saying what would answer it, because a table that quietly leaves out the hard rows looks finished when it is not.
+
 ## Definition of done for a lesson
 
 No partial credit on any of these.
