@@ -7,6 +7,7 @@ requires-python = ">=3.14"
 license = "MIT"
 
 dependencies = [
+    "boss",
     "bpc",
     "bpcheck",
     "cpybuild",
@@ -42,6 +43,7 @@ dev = [
 [tool.uv.workspace]
 members = [
     "pyxray",
+    "tools/boss",
     "tools/bpc",
     "tools/bpcheck",
     "tools/cpybuild",
@@ -58,6 +60,7 @@ members = [
 ]
 
 [tool.uv.sources]
+boss = { workspace = true }
 bpc = { workspace = true }
 bpcheck = { workspace = true }
 cpybuild = { workspace = true }
@@ -76,6 +79,7 @@ xraywidgets = { workspace = true }
 [tool.pytest.ini_options]
 testpaths = [
     "pyxray/tests",
+    "tools/boss/tests",
     "tools/bpc/tests",
     "tools/bpcheck/tests",
     "tools/cpybuild/tests",
@@ -113,6 +117,7 @@ filterwarnings = [
 
 [tool.ruff.lint.isort]
 known-first-party = [
+    "boss",
     "bpc",
     "bpcheck",
     "cpybuild",

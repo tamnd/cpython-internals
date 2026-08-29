@@ -1,0 +1,2 @@
+Your predict() disagrees with CPython on 'the-value-is-looked-at-before-the-target'.
+first difference at slot 0: CPython has 'part', you have 'total'

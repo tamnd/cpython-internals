@@ -27,7 +27,7 @@ vendor:
     git -C "{{cpython_src}}" rev-parse HEAD
 
 # The full local check, in the order that fails fastest.
-check: lint test citations claims blueprints diagrams lessons notebooks probe dist images animations tier1
+check: lint test citations claims blueprints diagrams lessons notebooks probe dist images animations tier1 boss
 
 lint:
     uv run ruff check .
@@ -223,6 +223,18 @@ build-tier1:
 # the same image, and a check that goes red for that is a check somebody deletes.
 verify-tier1:
     uv run tier1 verify
+
+# Check every boss fight is still assembled, then run each grader against the submission that
+# should pass and the one that should fail. Both halves matter. A grader nobody has watched
+# fail is a grader that might be waving everything through, and that goes wrong silently.
+boss:
+    uv run boss check
+    uv run boss verify
+
+# The same, over twenty different generated corpora rather than one. Slower, and worth running
+# after touching a grader, because a fight can be right on seed zero and wrong on seed eleven.
+boss-wide:
+    uv run boss verify --seeds 20
 
 # Rewrite the citation lockfile after a human has read the diff. This is deliberately
 # not part of `check`, because a checker that silently repairs itself checks nothing.

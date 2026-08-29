@@ -554,6 +554,23 @@ Two tables come out of the assembler that are not instructions. One turns a byte
 
 
 lesson.md("""
+## Boss fight
+
+Everything above you could follow along with. This part you cannot, and that is the point of it.
+
+`co_varnames` is in the diagram above, described as the frame slots. It is a tuple of names in a fixed order, built by the compiler, and the order is not the order you wrote them in. Here is the fight: work that order out from the source text, for a function you have not seen, without compiling it.
+
+```
+cp lessons/t05-the-tree-becomes-bytecode/boss/starter.py answer.py
+python lessons/t05-the-tree-becomes-bytecode/grade.py answer.py
+```
+
+The starter has a `predict(source)` in it that handles the easy half of the parameters and nothing else. Fill in the rest. The grader hands your function sixteen functions written by hand and forty generated at random, compiles each one itself, and compares. When you are wrong it prints the function, both orderings, and the first slot you disagree about.
+
+You are allowed `ast` and you are not allowed `compile`, `eval`, `exec` or `symtable`, because all four of those answer the question instead of you. That fence is knee high and the grader says so. Getting over it is easy and the only person you would be fooling is you.
+
+Two things worth knowing before you start. There is no answer written down anywhere in this lesson, which is deliberate. And the way to find the rules is to experiment rather than to read: you have a Python in front of you, `compile(source, "<t>", "exec").co_varnames` tells you the truth about any function you can think of, so guess a rule, write the function that would break it, and see who was right. That loop is the whole exercise. Expect about an hour, expect the try block to surprise you, and expect at least one rule you would never have guessed from reading the source.
+
 ## Where this goes next
 
 There is now a code object, and everything about it has been described from the outside. T06 is about reading one fluently: what the argument to each instruction actually indexes, how the stack rises and falls as you read down a listing, and how to look at a disassembly and know what the interpreter is about to do without running it.

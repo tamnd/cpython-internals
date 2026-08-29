@@ -87,6 +87,18 @@ Before you add one, answer the field that asks why a stock interpreter cannot do
 
 Mark every line whose value is a measurement with a leading `~` and give it a label. Those lines are compared by their label and not their value, because taking a measurement is itself Python and the same count taken twice does not come back the same. Put the assertion that would catch a real regression inside the program, where it runs against a live interpreter every time CI does, rather than leaning on the committed numbers to catch it.
 
+## Boss fights
+
+A boss fight is a problem the lesson does not solve for you, with a grader that says where you and CPython stopped agreeing. Not every lesson has one. The ones that do are where a part ends, and the fight is the thing that tells a reader whether they have the model or have only been nodding along.
+
+A fight is four files. The grader at `lessons/<lesson>/grade.py`, one file, standard library only, run as `python grade.py answer.py` by somebody who has installed nothing and built nothing. The starter at `lessons/<lesson>/boss/starter.py`, which is what the reader copies, and which should do the easy tenth of the job so the first run says something useful instead of everything at once. Then a submission that passes and a submission that fails, under `tools/boss/submissions/<code>/`, along with `expected.txt` holding the lines the grader has to print when it turns the failing one down.
+
+The two submissions live away from the lesson on purpose. The good one is the answer, and an answer sitting in the directory a reader was just told to copy the starter from is an answer they read by accident.
+
+Three rules that are easy to get wrong. Compute the answer key rather than writing it down, by compiling each case in the grader, so the fight cannot drift away from the interpreter underneath it and so memorising answers is useless. Generate half the cases from a seed, random by default, for the same reason. And make the failing submission a near miss rather than a scarecrow, because a grader that only catches nonsense is a grader that passes every real attempt.
+
+Add the fight to the table in `tools/boss/src/boss/fights.py` and `just boss` picks it up: it checks the four files are there, that the grader still needs nothing installed, that the lesson points at it, and then runs both submissions. Run `just boss-wide` after touching a grader, which does the same over twenty seeds, because a rule that is nearly right passes on seed zero and fails a few thousand functions later.
+
 ## Definition of done for a lesson
 
 No partial credit on any of these.
