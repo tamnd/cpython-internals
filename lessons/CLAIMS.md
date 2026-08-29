@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-131 claims across 12 lessons, 9 of them not observable from Python.
+154 claims across 12 lessons, 13 of them not observable from Python.
 
 ## T01. One line, seven stages
 
@@ -192,12 +192,38 @@ Without it the exception becomes the rule and this goes back to being a book.
 
 ## T10. The napkin
 
-Not marked up yet.
+| Claim | Proved by |
+| --- | --- |
+| the entire middle band is one enormous C function, which is why there is a single place to point at for it | not observable from Python: it is a C function, and the only thing that reaches Python from it is the result of running the instruction |
+| a function still runs after its source text has been destroyed, because the code object is the only thing that crosses from compile time to run time | [`t10-10`](t10-the-napkin/t10.ipynb) |
+| the compiler works out the deepest the value stack can ever get and writes the number into the code object, and nothing recomputes it later | [`t10-10`](t10-the-napkin/t10.ipynb) |
+| every stage from the token stream to the finished code object can be printed with the standard library, with no debug build and no C compiler anywhere | [`t10-13`](t10-the-napkin/t10.ipynb) |
+| compile() with no file on disk anywhere still produces bytecode, so a pyc file is a cache of that work rather than the compilation itself | [`t10-16`](t10-the-napkin/t10.ipynb) |
+| a local name is stored and loaded by slot number rather than looked up in a dictionary, and the name survives only so a traceback has something to print | [`t10-16`](t10-the-napkin/t10.ipynb) |
+| an object is still freed with the cycle collector switched off, because reference counting is what frees almost everything | [`t10-16`](t10-the-napkin/t10.ipynb) |
+| del removes one name rather than the object, so a second name holding the same object keeps it alive | [`t10-16`](t10-the-napkin/t10.ipynb) |
+| two 257 literals in one source file are the same object because of the compiler, and building them one at a time from a string is what actually shows the small integer cache | [`t10-19`](t10-the-napkin/t10.ipynb) |
 
 ## Z01. C for people who will only ever read C
 
-Not marked up yet.
+| Claim | Proved by |
+| --- | --- |
+| a Python list is five fields and nothing else: a reference count, a type pointer, a size, an arrow to the slot array, and a count of how many slots exist | not observable from Python: the five fields are a C struct, and Python is only ever handed the list rather than its layout |
+| PyList_SET_ITEM steals, which is why list_append_impl creates a reference with Py_NewRef before handing the object over rather than passing it straight through | not observable from Python: who owns a reference is a contract between two C functions, and Python sees only the count that comes out of the other end |
+| appending an object to a list adds one to its reference count, because the list takes a reference of its own | [`z01-11`](z01-reading-c/z01.ipynb) |
+| popping it back out hands over the reference the list was holding rather than making a fresh one, so the count does not go up again | [`z01-11`](z01-reading-c/z01.ipynb) |
+| a list that runs out of room asks for one eighth more than it needs plus six, rounded down to a multiple of four, which gives the sequence 4, 8, 16, 24, 32, 40, 52, 64, 76, 92 | [`z01-16`](z01-reading-c/z01.ipynb) |
+| that line of C can be transcribed into Python and it then agrees with a real list on every one of two thousand appends | [`z01-16`](z01-reading-c/z01.ipynb) |
 
 ## Z02. How to be lost productively
 
-Not marked up yet.
+| Claim | Proved by |
+| --- | --- |
+| your own machine already has the Lib half of that tree on disk, a few hundred thousand lines of it, and you can find and count it without downloading anything | [`z02-07`](z02-being-lost/z02.ipynb) |
+| about a third of the C in the tree, 371,643 lines of it across 206 files, is produced by a script when CPython is built | not observable from Python: the count is over a checkout of CPython, and this lesson deliberately does not download one |
+| a generated file says so in its own first three lines, and usually names both the script that wrote it and the file it was written from, which is enough to find every one of them in your own standard library | [`z02-09`](z02-being-lost/z02.ipynb) |
+| _opcode_metadata.py in your own standard library is generated from Python/bytecodes.c, the same input as the biggest generated C file in the tree | [`z02-11`](z02-being-lost/z02.ipynb) |
+| a map of about ten keyword rules is enough to answer most questions about where in CPython to look, with one row left over for the ones it misses | [`z02-16`](z02-being-lost/z02.ipynb) |
+| a standard library module written in Python with a C accelerator behind it is called thing with the accelerator called _thing, and the running interpreter names both halves of every pair | [`z02-18`](z02-being-lost/z02.ipynb) |
+| whether a module written in C is linked into the interpreter or loaded from a file beside it is a build choice rather than a fact about Python, so the same module can have a file on one install and none on another | [`z02-21`](z02-being-lost/z02.ipynb) |
+| each entry carries the issue number in its metadata, which is the link from a line of code to the argument about why the line is there | [`z02-28`](z02-being-lost/z02.ipynb) |
