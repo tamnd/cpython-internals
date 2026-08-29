@@ -56,6 +56,16 @@ The issue asks how long a cold boot takes on a mid range phone. This probe canno
 
 What it can measure is the part that dominates on a phone: 13.5 MB has to arrive before the first cell runs, which is the WebAssembly binary, the JavaScript glue, the standard library zip and the lock file. On a slow connection that is the wait, not the boot. Anything about tab memory, a service worker cache, or a real device is not answered here and is worth its own issue when the site actually exists.
 
+## Running the lessons themselves
+
+Everything above asks whether a surface exists. That is a proxy, and a good one, but the promise on the front page is that a chapter runs in a browser tab, and the only way to know that is to run the chapter. So there is a second run next to this one: `lessons.json` and `lessons.md`, made by `wasmprobe lessons`, which takes every lesson notebook, boots a fresh Pyodide runtime for it, and runs its code cells in order in one namespace.
+
+pyxray is not installed there. It is mounted off the disk and put on `sys.path`, so the run needs no network and tests the source in this checkout rather than whatever is published today. The one thing changed is the `%pip` line in the install cell, which becomes `pass`. The rest of that cell still runs, because it also imports `sys` and prints the version banner and half the lesson below it depends on that.
+
+Twelve lessons, 180 code cells, and eleven of the twelve run start to finish. The one that does not is T07, and it is worth reading before writing any more Tier 0 material. The cell recursing through `sorted` is meant to print a `RecursionError`, and in WebAssembly it overflows the interpreter's own call stack instead. That is not a Python exception and there is nothing to catch: the runtime does not come back, and in a notebook the reader loses the tab. The eleven cells after it never ran, and they are not retried in a fresh runtime, because a cell that ran in a different interpreter than the cells above it has not been tested, it has been let off. Issue 105 is the fix.
+
+A cell that fails there is not automatically a bug in this repository, so failures are not all treated the same. A decision written in `ACCEPTED` in `lessons.py` keeps the failure in the report and out of the build's way. A failure nobody has written a decision about stops the build. CI runs this on every pull request, which means a lesson that stops working in a browser is caught the day it stops rather than whenever somebody next opens a tab.
+
 ## What this changes
 
 Nothing moves from Tier 0 to Tier 1.

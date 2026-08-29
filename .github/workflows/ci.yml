@@ -151,6 +151,10 @@ jobs:
           # the browser run below finds a 3.14 interpreter it did not ask for.
           UV_PROJECT_ENVIRONMENT: ${{ runner.temp }}/venv-314
       - run: uv run wasmprobe browser --into build/probe
+      # The lessons themselves, which is the question the checks above are a proxy for. A
+      # fresh runtime per lesson, every code cell in order, and it fails when a cell stops
+      # running in the browser and nobody has written down why.
+      - run: uv run wasmprobe lessons --into build/probe
       - run: uv run wasmprobe report build/probe --into build/probe/report.md
       - run: uv run wasmprobe notebook --into build/probe/probe.ipynb
       - run: uv run wasmprobe check build/probe
