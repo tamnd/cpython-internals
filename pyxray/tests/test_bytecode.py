@@ -207,3 +207,57 @@ def test_the_jump_table_writes_the_arithmetic_out():
 def test_a_loop_jumps_both_ways():
     directions = {jump.backwards for jump in bytecode.jumps(LOOP)}
     assert directions == {True, False}
+
+
+#: A `try` with both an `except` and a `finally`, which is the smallest piece of Python that
+#: produces more than one handler row. The `finally` body is compiled twice, once for the
+#: path where nothing went wrong and once for the path where something did.
+GUARDED = """
+try:
+    risky()
+except ValueError:
+    handled()
+finally:
+    always()
+"""
+
+
+def test_code_that_cannot_raise_has_no_exception_table():
+    assert bytecode.exception_table("x = 1") == []
+
+
+def test_a_try_produces_handlers():
+    assert bytecode.exception_table(GUARDED)
+
+
+def test_the_handlers_are_the_ones_dis_parses():
+    parsed = dis._parse_exception_table(bytecode.code_of(GUARDED))
+    ours = bytecode.exception_table(GUARDED)
+    assert [(one.start, one.end, one.target) for one in ours] == [
+        (one.start, one.end, one.target) for one in parsed
+    ]
+
+
+def test_a_handler_covers_the_offsets_between_its_ends():
+    first = bytecode.exception_table(GUARDED)[0]
+    assert first.covers(first.start)
+    assert first.covers(first.end - 1)
+    assert not first.covers(first.end)
+    assert not first.covers(first.start - 1)
+
+
+def test_the_protected_range_holds_the_call_that_can_raise():
+    first = bytecode.exception_table(GUARDED)[0]
+    inside = [item.opname for item in bytecode.disassemble(GUARDED) if first.covers(item.offset)]
+    assert "CALL" in inside
+
+
+def test_a_handler_target_is_a_real_offset_in_the_code():
+    offsets = {item.offset for item in bytecode.disassemble(GUARDED)}
+    for handler in bytecode.exception_table(GUARDED):
+        assert handler.target in offsets
+
+
+def test_the_handlers_come_back_in_offset_order():
+    starts = [one.start for one in bytecode.exception_table(GUARDED)]
+    assert starts == sorted(starts)
