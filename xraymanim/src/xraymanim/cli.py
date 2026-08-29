@@ -13,7 +13,7 @@ from pathlib import Path
 
 from .catalogue import ANIMATIONS, find, seconds
 from .checks import check
-from .render import RenderError, render
+from .render import RenderError, markdown, render
 
 
 def command_list(args: argparse.Namespace) -> int:
@@ -23,6 +23,18 @@ def command_list(args: argparse.Namespace) -> int:
             f"{storyboard.lesson:<4} {storyboard.title}"
         )
     print(f"{len(ANIMATIONS)} animation(s), {seconds() / 60:.1f} minutes to watch")
+    return 0
+
+
+def command_alt(args: argparse.Namespace) -> int:
+    """Print the line that shows an animation, alt text and all.
+
+    Here so that a page never has alt text typed into it by hand. The checker compares the
+    two, so typing it is a slow way of finding out you should have copied it.
+    """
+    wanted = [find(slug) for slug in args.slugs] if args.slugs else list(ANIMATIONS)
+    for storyboard in wanted:
+        print(markdown(storyboard.slug, storyboard.alt))
     return 0
 
 
@@ -61,6 +73,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     listing = sub.add_parser("list", help="every animation, in course order, with its length")
     listing.set_defaults(func=command_list)
+
+    alt = sub.add_parser("alt", help="the markdown line for showing one, with its alt text")
+    alt.add_argument("slugs", nargs="*", help="which ones, or all of them")
+    alt.set_defaults(func=command_alt)
 
     checking = sub.add_parser("check", help="the storyboards, the scene files and the GIFs")
     checking.add_argument("--root", default=".", help="the repository root")

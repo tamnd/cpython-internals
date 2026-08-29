@@ -25,6 +25,17 @@ from pathlib import Path
 #: Where the committed GIFs live, relative to the repository root.
 RENDERED = Path("anim") / "rendered"
 
+#: Where a GIF is when the page showing it is not on GitHub. A relative path works in the
+#: repository and breaks in a notebook opened from Colab, which fetches the notebook and
+#: nothing else, so pages link the raw file instead.
+RAW = "https://raw.githubusercontent.com/tamnd/cpython-internals/main/anim/rendered/{slug}.gif"
+
+
+def markdown(slug: str, alt: str) -> str:
+    """The line a page uses to show an animation, so nobody has to type it twice."""
+    return f"![{alt}]({RAW.format(slug=slug)})"
+
+
 #: Manim's quality flags. Medium is 1280 by 720 at 30 frames a second, which is more than
 #: the GIF keeps, and rendering above what you keep is how you get sharp text after the
 #: downscale instead of soft text.

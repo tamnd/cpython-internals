@@ -4,6 +4,8 @@ Short explanations of things that are hard to see in a still picture, because th
 
 Each one is under ninety seconds, has no sound, and says everything it needs to say in captions burned into the picture, so it works in a page, in a notebook and on a phone with the volume off.
 
+Every one also has alt text describing what is on screen, written by hand and kept in the catalogue rather than typed into this page. Alt text is the half of a page nobody proofreads, because everybody reviewing it can see the picture, so `uv run xraymanim check` compares what is written here against what the animation says about itself and fails if somebody edited one and not the other.
+
 Everything in them is real. The tokens are what `tokenize` returns, the instruction listings are what CPython 3.15.0rc1 actually emits, and where an animation shows a number it was printed by an interpreter rather than typed from memory.
 
 | | Animation | Lesson | Length |
@@ -50,6 +52,7 @@ Each `aNN_*.py` here is a manim scene built out of the shared library in [xrayma
 
 ```
 uv run xraymanim list                          # what exists, and how long it runs
+uv run xraymanim alt                           # the markdown for showing one, copy it
 uv run xraymanim check                         # the cheap checks, no renderer needed
 uv sync --extra anim                           # install manim
 uv run xraymanim render a01-seven-stages       # about a minute

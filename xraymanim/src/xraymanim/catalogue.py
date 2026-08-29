@@ -9,6 +9,11 @@ has a renderer.
 
 A scene is free to disagree with its storyboard by accident, so it does not get to: the
 base scene counts the beats it played and fails the render if the number is wrong.
+
+The alt text is here too rather than in the page that shows the GIF. It is the one piece
+of writing about an animation that nobody proofreads, because everybody who reviews the
+page can see the picture, so it is the piece most worth keeping next to the plan it
+describes and checking on every run.
 """
 
 from __future__ import annotations
@@ -19,6 +24,7 @@ SEVEN_STAGES = Storyboard(
     slug="a01-seven-stages",
     title="One line of Python, seven stages",
     lesson="T01",
+    alt="the eight artifacts of the compile pipeline, from source text to the number 42",
     shapes=("box", "arrow", "stream", "tree", "slots", "highlight", "CodeStrip"),
     beats=(
         Beat("This is one line of Python. Watch what CPython turns it into.", 4.0),
@@ -36,6 +42,10 @@ A_NAME_IS_A_LABEL = Storyboard(
     slug="a02-a-name-is-a-label",
     title="A name is a label, not a box",
     lesson="T08",
+    alt=(
+        "a list object with two names pointing at it, and its reference count going from one to "
+        "two to zero"
+    ),
     shapes=("box", "arrow", "counter", "highlight", "PyObjectBox", "RefArrow"),
     beats=(
         Beat("a = [] makes one list object, and one name pointing at it.", 5.0),
@@ -52,6 +62,10 @@ THE_STACK_MACHINE = Storyboard(
     slug="a03-the-stack-machine",
     title="The stack machine",
     lesson="T07",
+    alt=(
+        "one call to a small function, run one instruction at a time, with the value stack drawn "
+        "beside it"
+    ),
     shapes=("box", "column", "slots", "highlight", "Frame", "CodeStrip"),
     beats=(
         Beat("Calling area(6) makes a frame. The argument goes in a slot.", 5.0),
@@ -69,6 +83,10 @@ HOW_A_DICT_FINDS_A_KEY = Storyboard(
     slug="a04-how-a-dict-finds-a-key",
     title="How a dict finds a key",
     lesson="T08",
+    alt=(
+        "a dict drawn as an eight slot index array beside three entries, with a lookup that "
+        "collides and probes again"
+    ),
     shapes=("box", "arrow", "slots", "highlight", "DictTable"),
     beats=(
         Beat("Three keys. CPython keeps this as two pieces rather than one table.", 5.0),
@@ -86,6 +104,10 @@ A_CYCLE_AND_THE_COLLECTOR = Storyboard(
     slug="a05-a-cycle-and-the-collector",
     title="A cycle, and what frees it",
     lesson="T09",
+    alt=(
+        "two objects pointing at each other, their counts falling to one and staying there, and "
+        "the collector taking them"
+    ),
     shapes=(
         "box",
         "arrow",

@@ -18,6 +18,7 @@ DEMO = Storyboard(
     title="A demo that only exists in the tests",
     lesson="T99",
     shapes=("box",),
+    alt="a box that appears, changes colour, and then goes away again",
     beats=(Beat("One.", 4.0), Beat("Two.", 4.0), Beat("Three.", 4.0)),
 )
 
@@ -33,7 +34,9 @@ def fake(tmp_path, monkeypatch):
     monkeypatch.setattr(checks, "ANIMATIONS", (DEMO,))
     (tmp_path / "anim").mkdir()
     (tmp_path / "anim" / "a99_a_demo.py").write_text("class A99ADemo(Explainer):\n    pass\n")
-    (tmp_path / "anim" / "README.md").write_text("# The animations\n\na99-a-demo is here.\n")
+    (tmp_path / "anim" / "README.md").write_text(
+        f"# The animations\n\na99-a-demo is here.\n\n![{DEMO.alt}](rendered/a99-a-demo.gif)\n"
+    )
     (tmp_path / "anim" / "rendered").mkdir()
     (tmp_path / "anim" / "rendered" / "a99-a-demo.gif").write_bytes(b"GIF89a")
     (tmp_path / "xraymanim").mkdir()
@@ -101,3 +104,33 @@ def test_the_shipped_animations_are_the_ones_the_index_lists():
         if line.startswith("| a"):
             slug = line.split("(rendered/")[1].split(".gif")[0]
             assert any(item.slug == slug for item in ANIMATIONS), slug
+
+
+def test_a_page_showing_the_gif_with_alt_text_nobody_updated(fake):
+    """The failure this is for: the animation was redrawn and the description was not."""
+    page = fake / "anim" / "README.md"
+    page.write_text(page.read_text().replace(DEMO.alt, "a box, an arrow, and a second box"))
+    assert "different alt text than" in checks.check(fake)[0]
+
+
+def test_a_page_showing_the_gif_with_no_alt_text_at_all(fake):
+    page = fake / "anim" / "README.md"
+    page.write_text(page.read_text().replace(f"![{DEMO.alt}]", "![]"))
+    assert len(checks.check(fake)) == 2
+
+
+def test_an_image_left_with_empty_brackets_somewhere_else_on_the_page(fake):
+    page = fake / "anim" / "README.md"
+    page.write_text(page.read_text() + "\n![](../some/other/picture.png)\n")
+    assert "empty alt text" in checks.check(fake)[0]
+
+
+def test_an_animation_missing_from_the_page_is_not_also_reported_for_its_alt_text(fake):
+    """One problem, not two. The second is noise until the first is fixed."""
+    (fake / "anim" / "README.md").write_text("# The animations\n\nnothing here yet.\n")
+    assert len(checks.check(fake)) == 1
+
+
+def test_every_shipped_animation_describes_itself():
+    """Belt and braces: the alt text rules are enforced against the real catalogue too."""
+    assert [storyboard.slug for storyboard in ANIMATIONS if not storyboard.alt] == []
