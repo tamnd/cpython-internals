@@ -33,11 +33,18 @@ ENV DEBIAN_FRONTEND=noninteractive
 # JIT. CPython's JIT wants one exact LLVM major version and Debian trixie is two behind it, so
 # installing the `llvm` package gets the wrong one and the build fails several minutes in with
 # a message about a tool it could not find. Every other build uses what Debian has.
-RUN apt-get -qq update \
+#
+# The retry line is the first thing written, before anything is fetched. apt gives up on the
+# first failed download by default, and the first run of this on main died twenty seconds in
+# with `Could not resolve 'apt.llvm.org'` on both architectures at once, after the index for
+# that same host had already been fetched. A twenty minute matrix should not be lost to one
+# unlucky DNS lookup.
+RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries \
+    && apt-get -qq update \
     && apt-get -qq install -y --no-install-recommends ca-certificates ccache git \
     && if [ -n "${LLVM}" ]; then \
         apt-get -qq install -y --no-install-recommends curl gnupg; \
-        curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key \
+        curl -fsSL --retry 5 --retry-connrefused https://apt.llvm.org/llvm-snapshot.gpg.key \
             -o /etc/apt/trusted.gpg.d/apt.llvm.org.asc; \
         . /etc/os-release; \
         echo "deb http://apt.llvm.org/${VERSION_CODENAME}/ llvm-toolchain-${VERSION_CODENAME}-${LLVM} main" \
@@ -125,7 +132,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 # The runtime halves of the -dev packages the build stage installed. Kept explicit rather than
 # copied wholesale, because a slim image that quietly grew a compiler is how a five hundred
 # megabyte base image happens.
-RUN apt-get -qq update \
+RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries \
+    && apt-get -qq update \
     && apt-get -qq install -y --no-install-recommends \
         ca-certificates \
         libbz2-1.0 \
