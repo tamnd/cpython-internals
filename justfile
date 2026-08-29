@@ -167,6 +167,33 @@ build-dist:
     uv run distprobe survey --into probes/distributions
     uv run distprobe report probes/distributions --into probes/distributions/report.md
 
+# Read the committed image lockfile and say whether it still describes this project. Offline
+# and instant: it never reaches for the registry, because a check that needs the network is a
+# check that fails on a train, and what is worth catching here is a lockfile that has fallen
+# behind the pin or is missing a build somebody added.
+#
+# Not in `check` yet. There is no lockfile until the cpython-images workflow has run once and
+# its pull request has been merged, and a recipe in `check` that passes because the file it
+# reads does not exist is worse than no recipe.
+images:
+    uv run cpybuild check
+
+# Build one configuration locally, for when you are changing the Dockerfile. Fifteen to twenty
+# five minutes cold and a couple of minutes warm, and it pushes nothing. The published images
+# come from the cpython-images workflow, which is the only thing that compiles CPython on a
+# schedule. Run `just images-list` to see the five names.
+build-image config="debug":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    args=()
+    while IFS= read -r one; do args+=(--build-arg "$one"); done < <(uv run cpybuild buildargs {{config}})
+    docker build -f images/cpython/Dockerfile "${args[@]}" \
+        -t cpython-internals/cpython:{{config}} .
+
+# The five builds and what each one is for.
+images-list:
+    uv run cpybuild list
+
 # Rewrite the citation lockfile after a human has read the diff. This is deliberately
 # not part of `check`, because a checker that silently repairs itself checks nothing.
 recheck:
