@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-74 claims across 12 lessons, 5 of them not observable from Python.
+102 claims across 12 lessons, 7 of them not observable from Python.
 
 ## T01. One line, seven stages
 
@@ -115,11 +115,41 @@ Without it the exception becomes the rule and this goes back to being a book.
 
 ## T06. Reading bytecode fluently
 
-Not marked up yet.
+| Claim | Proved by |
+| --- | --- |
+| a line like total = total + 1 pushes two values, replaces them with one, and leaves the stack as empty as it found it | [`t06-07`](t06-reading-bytecode-fluently/t06.ipynb) |
+| every offset in a listing is even: the bytes of a code object come in pairs and there is nothing else in there | [`t06-10`](t06-reading-bytecode-fluently/t06.ipynb) |
+| the same argument byte means a different thing for every instruction, and which thing is published by the opcode module rather than worked out from the number | [`t06-12`](t06-reading-bytecode-fluently/t06.ipynb) |
+| a packed load carries two slot numbers in one byte, four bits each, so the argument 18 means slots 1 and 2 | [`t06-16`](t06-reading-bytecode-fluently/t06.ipynb) |
+| an argument bigger than 255 is carried by an EXTENDED_ARG in front of the instruction, which shifts what it holds left by eight and adds the next argument on | [`t06-18`](t06-reading-bytecode-fluently/t06.ipynb) |
+| inline caches are real bytes in co_code that the offsets step over, and dis leaves them out of a listing unless you ask for them | [`t06-21`](t06-reading-bytecode-fluently/t06.ipynb) |
+| a jump argument counts instructions rather than bytes, and it counts from after the jump including the jump's own cache slot | [`t06-23`](t06-reading-bytecode-fluently/t06.ipynb) |
+| the interpreter never multiplies a jump by two, because next_instr points at a two byte unit and C's pointer arithmetic does the doubling | not observable from Python: the doubling is in the type of a C pointer, and the only thing that reaches Python is the finished offset |
+| there are no absolute jumps left at all, and every jump instruction is relative | [`t06-25`](t06-reading-bytecode-fluently/t06.ipynb) |
+| how many values an instruction pops and pushes is written down for every one of them, and dis.stack_effect hands back the net of the two | [`t06-27`](t06-reading-bytecode-fluently/t06.ipynb) |
+| a handler starts at a stack height the instruction above it did not leave behind, because nothing falls into a handler from the line above | [`t06-30`](t06-reading-bytecode-fluently/t06.ipynb) |
+| the Python version of the stack depth rule in this lesson agrees with CPython's own co_stacksize on every code object it is run over | [`t06-32`](t06-reading-bytecode-fluently/t06.ipynb) |
+| a function that never pushes anything still reports a stack size of one, because a computed zero is bumped up to one | [`t06-35`](t06-reading-bytecode-fluently/t06.ipynb) |
+| a listing on its own is enough to work out what a function does, and the source it was compiled from agrees | [`t06-39`](t06-reading-bytecode-fluently/t06.ipynb) |
 
 ## T07. The machine runs
 
-Not marked up yet.
+| Claim | Proved by |
+| --- | --- |
+| a build records which dispatch strategy it was compiled with, so you can ask your own interpreter rather than guess | [`t07-08`](t07-the-machine-runs/t07.ipynb) |
+| Python calling Python only grows the interpreter's own frame stack, so ninety thousand deep is fine, while going out through a C function and back in runs out of the real C stack after a few thousand | [`t07-14`](t07-the-machine-runs/t07.ipynb) |
+| the events a tool can ask for are a fixed published list on sys.monitoring.events, and four of the six tool ids are already spoken for | [`t07-18`](t07-the-machine-runs/t07.ipynb) |
+| a frame that leaves because of an exception is reported by a different event than one that returns, so an unwinding stack can be watched one frame at a time | [`t07-20`](t07-the-machine-runs/t07.ipynb) |
+| not every monitoring event can be turned on for a single code object, and which ones can changed between 3.14 and 3.15 | [`t07-22`](t07-the-machine-runs/t07.ipynb) |
+| nothing in the standard library can read the values sitting on the value stack | not observable from Python: what would show it is the absence of a door, and the cells below demonstrate the way around it rather than the missing thing |
+| the deepest the stack gets on a real run is exactly the co_stacksize the compiler wrote down | [`t07-25`](t07-the-machine-runs/t07.ipynb) |
+| END_FOR is compiled into the loop and never reported to instrumentation, so an instruction that certainly ran is missing from the recording | [`t07-29`](t07-the-machine-runs/t07.ipynb) |
+| the branch events report only the places control could have gone two ways, and say which way it went, so a two item loop is five reports rather than twenty seven | [`t07-31`](t07-the-machine-runs/t07.ipynb) |
+| returning DISABLE turns an event off at one code location rather than everywhere, so a five pass loop reports each instruction once instead of five times | [`t07-34`](t07-the-machine-runs/t07.ipynb) |
+| sys.settrace has no way to be switched off at one place, so every line of every pass through a loop costs a callback | [`t07-36`](t07-the-machine-runs/t07.ipynb) |
+| asking for the frame twice gives back the same object, and that object is still usable after the call it belonged to has returned | [`t07-38`](t07-the-machine-runs/t07.ipynb) |
+| writing through f_locals changes the actual local variable and writing to the dictionary locals() hands back changes nothing | [`t07-40`](t07-the-machine-runs/t07.ipynb) |
+| every frame keeps a pointer to the one that called it, and walking that chain from the inside out is all a traceback is | [`t07-42`](t07-the-machine-runs/t07.ipynb) |
 
 ## T08. Everything is an object
 

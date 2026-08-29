@@ -124,7 +124,7 @@ The plain version is a `switch` on the opcode inside a `while` loop, which every
 
 The newest version replaces the jump table with a table of functions, and each handler ends by tail calling the next one. Written as a normal call it would grow the C stack forever, so it relies on the compiler turning a tail call into a jump. All three live in the same header: {cite("Python/ceval_macros.h:128-141@v3.15.0rc1#DISPATCH_GOTO")}.
 
-Your own build made this choice when it was compiled, and it left a note.
+{lesson.claim("a build records which dispatch strategy it was compiled with, so you can ask your own interpreter rather than guess")}, because the choice was made when it was compiled and it left a note.
 """)
 
 
@@ -191,7 +191,7 @@ There are two stacks in play and they are easy to confuse, so the picture below 
 
 The data stack is the per thread thing frames live on. It grows as needed and it is cheap. The C stack is the one your operating system handed the thread when it started, usually eight megabytes, and it does not grow.
 
-Python calling Python only touches the first one. Python calling something written in C that calls back into Python touches both, because the C function has a real C stack frame that has to stay put while the callback runs. `sorted` with a `key` is the classic example.
+{lesson.claim("Python calling Python only grows the interpreter's own frame stack, so ninety thousand deep is fine, while going out through a C function and back in runs out of the real C stack after a few thousand")}. The C function has a real C stack frame that has to stay put while the callback runs, and `sorted` with a `key` is the classic example.
 
 The next cell shows the difference. It takes a few seconds and prints a `RecursionError`, which is the point.
 """)
@@ -251,7 +251,7 @@ Since 3.12 there is a supported way to ask the interpreter to tell you what it i
 
 The full list is on `sys.monitoring.events`. Two of the twenty names are not really events: `NO_EVENTS` is zero, and `BRANCH` is the old single event that got split into `BRANCH_LEFT` and `BRANCH_RIGHT`.
 
-Tool ids 0, 1, 2 and 5 are reserved for debuggers, coverage, profilers and the optimizer. 3 and 4 belong to nobody, which is where anything you write should live.
+{lesson.claim("the events a tool can ask for are a fixed published list on sys.monitoring.events, and four of the six tool ids are already spoken for")}. Those four are debuggers, coverage, profilers and the optimizer, and 3 and 4 belong to nobody, which is where anything you write should live.
 """)
 
 
@@ -271,10 +271,10 @@ print("   ", ", ".join(events))
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## Frames appearing and disappearing
 
-Three events are enough to draw a call tree: a function started, a function returned, a function left because of an exception. Nothing here parses or guesses, and every line is the interpreter reporting a frame being pushed or popped.
+Three events are enough to draw a call tree: a function started, a function returned, a function left because of an exception. Nothing here parses or guesses, and every line is the interpreter reporting a frame being pushed or popped. {lesson.claim("a frame that leaves because of an exception is reported by a different event than one that returns, so an unwinding stack can be watched one frame at a time")}.
 """)
 
 
@@ -340,12 +340,12 @@ finally:
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 Three `leaf` frames go on, the innermost one raises, and all three come off through `PY_UNWIND` rather than `PY_RETURN`. Then `top` catches it and returns normally. That is the frame stack unwinding, one frame per line, as it happens.
 
 That cell uses `set_events`, which turns the events on for the whole process, and the callbacks throw away anything that is not one of our two functions. The cheaper call is `set_local_events`, which turns events on for one code object and leaves everything else in the process paying nothing. It is used further down for exactly that reason.
 
-Not every event can be local. An event has to happen at a known instruction for the interpreter to be able to instrument that one spot, and on 3.14 the exception events did not qualify. On 3.15 they do. The next cell asks your own build which is which rather than taking either version's word for it.
+{lesson.claim("not every monitoring event can be turned on for a single code object, and which ones can changed between 3.14 and 3.15")}. An event has to happen at a known instruction for the interpreter to be able to instrument that one spot, and the exception events did not qualify on 3.14. The next cell asks your own build which is which rather than taking either version's word for it.
 """)
 
 
@@ -395,11 +395,11 @@ lesson.md("""
 lesson.md(f"""
 {figure("where-the-numbers-come-from", "static heights and observed order joined into one listing")}
 
-Nothing in the standard library can read the values sitting on the value stack. Not `sys.monitoring`, not `sys.settrace`, not the frame object. Those values live in the frame's memory and there is no Python level door to them.
+{lesson.claim("nothing in the standard library can read the values sitting on the value stack", unobservable="what would show it is the absence of a door, and the cells below demonstrate the way around it rather than the missing thing")}. Not `sys.monitoring`, not `sys.settrace`, not the frame object. Those values live in the frame's memory and there is no Python level door to them.
 
 What we can do is join two things. The order instructions ran in is a real observation from `sys.monitoring`. The stack height at each offset is what `pyxray.stack` computed in T06 by walking the code object. Look up the second by the first and you get the height at every step of a real run, which is genuinely useful as long as nobody pretends it was measured.
 
-`pyxray.stepper` does exactly that and its docstring says so. Here it is on a loop.
+`pyxray.stepper` does exactly that and its docstring says so. Here it is on a loop, where {lesson.claim("the deepest the stack gets on a real run is exactly the co_stacksize the compiler wrote down")}.
 """)
 
 
@@ -444,7 +444,7 @@ Count rows against a disassembly of `total_of` and one instruction is missing. T
 
 That is deliberate and it is written into the instruction's declaration: {cite("Python/bytecodes.c:393-400@v3.15.0rc1#END_FOR")}. The `no_save_ip` marker means this instruction does not update the recorded instruction pointer, so as far as instrumentation is concerned it never becomes the current instruction. The comment explains why: `POP_ITER` needs to see the `FOR_ITER` as the instruction before it.
 
-It is the kind of thing that would cost you an afternoon if you hit it without warning, so `pyxray` has a test pinning it rather than leaving it as a surprise.
+{lesson.claim("END_FOR is compiled into the loop and never reported to instrumentation, so an instruction that certainly ran is missing from the recording")}. It is the kind of thing that would cost you an afternoon if you hit it without warning, so `pyxray` has a test pinning it rather than leaving it as a surprise.
 """)
 
 
@@ -465,10 +465,10 @@ for offset, opname in compiled.items():
 )
 
 
-lesson.md("""
+lesson.md(f"""
 ## Which way did the branch go
 
-`INSTRUCTION` is the heaviest event there is, and most of the time you want less. `JUMP`, `BRANCH_LEFT` and `BRANCH_RIGHT` report only the moments where control could have gone two ways, and they say which way it went.
+`INSTRUCTION` is the heaviest event there is, and most of the time you want less. {lesson.claim("the branch events report only the places control could have gone two ways, and say which way it went, so a two item loop is five reports rather than twenty seven")}.
 """)
 
 
@@ -524,7 +524,7 @@ One design decision makes `sys.monitoring` different from everything before it.
 lesson.md(f"""
 {figure("turning-an-event-off", "returning None keeps firing, returning DISABLE stops at that location")}
 
-A callback can return `sys.monitoring.DISABLE`. That does not turn the event off everywhere, it turns it off at that one code location, permanently, until somebody calls `restart_events`. A loop that runs a million times fires the callback once per instruction in the body and then goes quiet.
+{lesson.claim("returning DISABLE turns an event off at one code location rather than everywhere, so a five pass loop reports each instruction once instead of five times")}. It stays off until somebody calls `restart_events`, which is why a loop that runs a million times fires the callback once per instruction in the body and then goes quiet.
 
 The next cell counts the calls both ways on the same five pass loop.
 """)
@@ -573,7 +573,7 @@ Forty calls against fifteen: the loop body ran five times and the callback saw i
 
 The old way is `sys.settrace`, which is what `pdb` and the original `coverage` are built on. It has one hook for the whole process, it fires on every line of every function once it is on, and there is no way to say "stop telling me about this one". Turning it on also switches the interpreter into a slower dispatch mode for everything, because instrumentation has to be checked between instructions: {cite("Python/ceval_macros.h:128-141@v3.15.0rc1#DISPATCH_GOTO")} is where the tracing and non tracing tables diverge.
 
-For comparison, here is `settrace` on a three pass loop.
+For comparison, here is `settrace` on a three pass loop, where {lesson.claim("sys.settrace has no way to be switched off at one place, so every line of every pass through a loop costs a callback")}.
 """)
 
 
@@ -610,7 +610,7 @@ for kind, number in seen.most_common():
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 Thirty nine calls, with no way to reduce them except by turning the whole thing off. `sys.monitoring` was added because debuggers and coverage tools were paying that price on every line of every program they touched.
 
 `settrace` still works and is not going anywhere. For anything new, reach for the newer one.
@@ -619,7 +619,7 @@ Thirty nine calls, with no way to reduce them except by turning the whole thing 
 
 The frame the interpreter uses is not a Python object, it is the block of memory from the diagram earlier. `PyFrameObject`, the thing you get from `sys._getframe()`, is built on demand and cached in the `frame_obj` field of that block, which you can see in the struct listing above.
 
-The caching is visible from Python.
+The caching is visible from Python: {lesson.claim("asking for the frame twice gives back the same object, and that object is still usable after the call it belonged to has returned")}.
 """)
 
 
@@ -640,10 +640,10 @@ print("its name:", escaped.f_code.co_name)
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 The frame object outliving the call is the whole reason frames are not on the C stack. A traceback holds onto frames, a generator is a frame that got paused, and a closure can keep one alive indefinitely. None of that would work if the frame went away when the C function returned.
 
-Locals are worth one more cell, because there are two things that look the same and are not.
+Locals are worth one more cell, because {lesson.claim("writing through f_locals changes the actual local variable and writing to the dictionary locals() hands back changes nothing")}, and the two look the same from the outside.
 """)
 
 
@@ -669,12 +669,12 @@ show()
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 `f_locals` is a live view onto the frame's slots, so writing through it changes the actual local. `locals()` inside a function is a plain dictionary copied out of those slots, so writing to it changes nothing. This used to be much more confusing than it is now, and the current behaviour was pinned down deliberately.
 
 ## The frame chain
 
-Every frame has a pointer to the one that called it, which is `previous` in the struct. Walking that chain is what a traceback is.
+{lesson.claim("every frame keeps a pointer to the one that called it, and walking that chain from the inside out is all a traceback is")}. The pointer is `previous` in the struct.
 """)
 
 
