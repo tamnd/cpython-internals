@@ -48,10 +48,72 @@ A_NAME_IS_A_LABEL = Storyboard(
     ),
 )
 
+THE_STACK_MACHINE = Storyboard(
+    slug="a03-the-stack-machine",
+    title="The stack machine",
+    lesson="T07",
+    shapes=("box", "column", "slots", "highlight", "Frame", "CodeStrip"),
+    beats=(
+        Beat("Calling area(6) makes a frame. The argument goes in a slot.", 5.0),
+        Beat("RESUME is where the interpreter checks whether anything wants a turn.", 4.5),
+        Beat("Now w goes on the stack. Nothing is copied, only pointed at.", 5.0),
+        Beat("A 2 goes on top of it. That 2 was written down when the code compiled.", 5.0),
+        Beat("BINARY_OP takes two off, multiplies them, and puts one back.", 5.0),
+        Beat("Another small integer, and the stack is two deep again.", 4.5),
+        Beat("The second BINARY_OP adds them, and one value is left.", 4.5),
+        Beat("RETURN_VALUE hands it back, and the frame is gone.", 4.5),
+    ),
+)
+
+HOW_A_DICT_FINDS_A_KEY = Storyboard(
+    slug="a04-how-a-dict-finds-a-key",
+    title="How a dict finds a key",
+    lesson="T08",
+    shapes=("box", "arrow", "slots", "highlight", "DictTable"),
+    beats=(
+        Beat("Three keys. CPython keeps this as two pieces rather than one table.", 5.0),
+        Beat("On the right, the entries, in the order you wrote them.", 4.5),
+        Beat("On the left, eight slots. Each one names an entry, or nothing.", 5.0),
+        Beat("To find key 9, take its hash and keep the last three bits. Slot 1.", 5.5),
+        Beat("Slot 1 points at entry 0, whose key is 1. Not the key we asked for.", 5.5),
+        Beat("So it tries again, by a rule that reaches every slot eventually.", 5.0),
+        Beat("Slot 6 points at entry 2, and that key is 9. Found, in two looks.", 5.5),
+        Beat("Two keys wanted slot 1 and both still fit. That is all a collision is.", 5.0),
+    ),
+)
+
+A_CYCLE_AND_THE_COLLECTOR = Storyboard(
+    slug="a05-a-cycle-and-the-collector",
+    title="A cycle, and what frees it",
+    lesson="T09",
+    shapes=(
+        "box",
+        "arrow",
+        "graph",
+        "counter",
+        "highlight",
+        "PyObjectBox",
+        "RefArrow",
+        "ArenaMap",
+    ),
+    beats=(
+        Beat("Two objects, and each one is pointing at the other.", 4.5),
+        Beat("Each count is two: one from the name, one from the other object.", 5.0),
+        Beat("del a and del b take the names away. The objects still point at each other.", 5.5),
+        Beat("Both counts drop to one. One is not zero, so neither gets freed.", 5.0),
+        Beat("The collector copies the counts, then looks at every arrow inside.", 5.0),
+        Beat("It subtracts one per arrow. Both copies reach zero.", 5.0),
+        Beat("Zero means nothing outside is pointing in, so the whole group goes.", 5.5),
+    ),
+)
+
 #: In course order, which is also render order and the order they are listed in anim/README.
 ANIMATIONS: tuple[Storyboard, ...] = (
     SEVEN_STAGES,
     A_NAME_IS_A_LABEL,
+    THE_STACK_MACHINE,
+    HOW_A_DICT_FINDS_A_KEY,
+    A_CYCLE_AND_THE_COLLECTOR,
 )
 
 

@@ -17,12 +17,12 @@ If a scene needs something the system has no name for, that is worth stopping ov
 | Shape | What it means | When it is wrong |
 |---|---|---|
 | `box` | Something with a memory address. If it is drawn as a box you could take a pointer to it | A count, an index or a flag. Those are text, not boxes, and the difference is the point |
-| `arrow` | A reference from one thing to another. Thick is owned and counted, thin is borrowed and not | Anything that is not a pointer. Time, data flow and causation get other treatments |
+| `arrow` | A reference from one thing to another. Thick is owned and counted, thin is borrowed and not. It may be curved, which is for the one case a straight line cannot draw: two objects pointing at each other | Anything that is not a pointer. Time, data flow and causation get other treatments |
 | `slots` | An array or a table, indexed by number. The cells touch, because they are next to each other in memory | A list of unrelated things that happen to be near each other on the page |
 | `column` | A stack, growing upward, in every lesson without exception | Anything that does not push and pop |
 | `stream` | Tokens, instructions, bytes: things consumed in order, one at a time, by something with a position | A collection that is looked at all at once. That is `slots` |
 | `tree` | The syntax tree, the type hierarchy, anything where a node has one parent | A graph that happens to look like a tree in this example |
-| `graph` | The control flow graph, the object graph, anything with cycles. Positions are always given by hand | Nothing, but the layout is never automatic. An automatically placed control flow graph is unreadable |
+| `graph` | The control flow graph, the object graph, anything with cycles. Positions are always given by hand, and which side of a box an edge leaves from follows from them | Nothing, but the layout is never automatic. An automatically placed control flow graph is unreadable |
 | `counter` | A reference count, a version tag, anything that goes up and down and is worth watching | A number that never changes. That is a label |
 | `highlight` | The thing happening right now. One at a time | Two at once. Two highlights tell the reader to look in two places, which tells them nothing |
 
@@ -34,7 +34,7 @@ If a scene needs something the system has no name for, that is worth stopping ov
 | `RefArrow` | One reference, with the owning or borrowing weight and a label saying what is doing the pointing |
 | `Frame` | One `_PyInterpreterFrame`: a name, the locals as slots, and the value stack on the right growing upward |
 | `CodeStrip` | A run of bytecode as a stream, with the instruction pointer as a separate mobject that moves along it |
-| `DictTable` | A dict as CPython stores one: a small index array on the left, the entries in insertion order on the right |
+| `DictTable` | A dict as CPython stores one: a small index array on the left, the entries in insertion order on the right. The slot numbers are written outside the array, because a slot number is a position and not something CPython stores |
 | `ArenaMap` | The allocator's memory, one cell per block. Free is an outline with nothing in it, used is filled |
 
 ## Colour

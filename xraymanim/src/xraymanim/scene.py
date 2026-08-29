@@ -11,6 +11,8 @@ planned is free to ignore is a comment. This one fails the render.
 
 from __future__ import annotations
 
+import math
+
 from manim import DOWN, UP, FadeIn, FadeOut, Scene, VGroup, config
 
 from .grammar import CAPTION_SIZE, FADE, INK, MUTED, PAPER, TITLE_SIZE, UNIT
@@ -66,9 +68,7 @@ class Explainer(Scene):
         return max(self.storyboard.beats[wanted].seconds - FADE, FADE)
 
     def tear_down(self) -> None:
-        if config.from_animation_number > 0 or config.upto_animation_number >= 0:
-            # Somebody is rendering a slice of the scene to look at one moment of it, so
-            # manim stopped `construct` early on purpose and the tally means nothing.
+        if self.rendering_a_slice():
             return
         expected = len(self.storyboard.beats)
         if self.played != expected:
@@ -76,3 +76,15 @@ class Explainer(Scene):
                 f"{self.storyboard.slug} played {self.played} beat(s) but its storyboard "
                 f"has {expected}; the plan and the picture have come apart"
             )
+
+    @staticmethod
+    def rendering_a_slice() -> bool:
+        """Whether manim was asked for part of the scene rather than all of it.
+
+        `manim render -n 4,4` stops `construct` early on purpose, to look at one moment of
+        the animation, so the beat tally would be wrong every time and would fail every
+        probe render. Note what "all of it" looks like: the default upper bound is infinity
+        and not -1, which is worth spelling out because reading it as a sentinel is how the
+        tally ends up switched off in every render including the real ones.
+        """
+        return config.from_animation_number > 0 or config.upto_animation_number != math.inf

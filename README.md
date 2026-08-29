@@ -96,6 +96,9 @@ Everything in them is real. The tokens are what `tokenize` returns and the instr
 |---|---|---|
 | a01 | [One line of Python, seven stages](anim/rendered/a01-seven-stages.gif) | T01 |
 | a02 | [A name is a label, not a box](anim/rendered/a02-a-name-is-a-label.gif) | T08 |
+| a03 | [The stack machine](anim/rendered/a03-the-stack-machine.gif) | T07 |
+| a04 | [How a dict finds a key](anim/rendered/a04-how-a-dict-finds-a-key.gif) | T08 |
+| a05 | [A cycle, and what frees it](anim/rendered/a05-a-cycle-and-the-collector.gif) | T09 |
 
 They are all drawn from the same fifteen shapes, listed with what each one means in [xraymanim/VISUAL-SYSTEM.md](xraymanim/VISUAL-SYSTEM.md), and adding a sixteenth needs an amendment to that document first. That rule is not a convention somebody has to remember: the shape list is code, a storyboard that names a shape outside it fails, and a shape that is drawable but undescribed fails too. [anim/README.md](anim/README.md) has the index and how to render them.
 
