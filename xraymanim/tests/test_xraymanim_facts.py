@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import ast
 import ctypes
+import dis
 import gc
 import sys
 from pathlib import Path
@@ -159,3 +160,73 @@ def test_a05_needs_the_collector_to_free_the_pair():
 def test_this_is_the_interpreter_the_animations_are_about():
     """A guard on the struct layouts above, which are read from a particular source tree."""
     assert sys.version_info[:2] >= (3, 14)
+
+
+# a06 puts two instruction listings on screen and says one is eleven long and the other is
+# six. Both of those are what CPython emits for this source and neither is a summary of it,
+# so both are checked here instruction by instruction.
+
+A06 = "a06_the_block_nothing_points_at"
+
+#: The three line version the lesson writes, and the one line version the animation draws,
+#: which has to fit in a box four units wide.
+INDENTED = "if False:\n    x = 1\ny = 2\n"
+ONE_LINE = "if False: x = 1\ny = 2\n"
+
+
+def opnames(instructions):
+    """Just the instruction names, which is the half a06 puts on screen."""
+    return [one.opname for one in instructions]
+
+
+def drawn(name):
+    """A listing from the scene file, with the arguments stripped back off again."""
+    return [line.split(" ")[0] for line in constant(A06, name)]
+
+
+def test_a06_draws_the_same_program_the_lesson_writes():
+    """The animation saves a line by putting the body on the if. It has to be the same code."""
+    assert compile(INDENTED, "x", "exec").co_code == compile(ONE_LINE, "x", "exec").co_code
+
+
+def test_the_eleven_instructions_a06_starts_with_are_what_the_code_generator_emits():
+    compiler = pytest.importorskip("pyxray.compiler")
+    assert drawn("GENERATED") == opnames(compiler.stages(ONE_LINE).codegen)
+
+
+def test_the_six_instructions_a06_ends_with_are_what_the_optimizer_leaves():
+    compiler = pytest.importorskip("pyxray.compiler")
+    assert drawn("FINAL") == opnames(compiler.stages(ONE_LINE).optimized)
+
+
+def test_the_three_blocks_a06_cuts_are_the_eleven_instructions_and_nothing_else():
+    """Cut, not rewritten. Every instruction on screen after the cut was on screen before it."""
+    blocks = drawn("ENTRY") + drawn("BODY") + drawn("AFTER")
+    assert blocks == drawn("GENERATED")
+
+
+def test_the_block_a06_deletes_is_the_body_of_the_if():
+    assert drawn("BODY") == ["LOAD_CONST", "STORE_NAME"]
+
+
+def test_the_folding_a06_shows_only_ever_removes_instructions():
+    """Each redraw of the entry block is the one before it with something taken out or swapped."""
+    assert len(drawn("FOLDED")) == len(drawn("ENTRY")) - 1
+    assert len(drawn("JUMPING")) == len(drawn("FOLDED"))
+
+
+def test_nothing_a06_ends_with_can_store_into_x():
+    """The last caption's claim, which is about the instructions and not about the name."""
+    code = compile(ONE_LINE, "x", "exec")
+    stores = {one.argval for one in dis.get_instructions(code) if one.opname.startswith("STORE")}
+    assert stores == {"y"}
+
+
+def test_the_name_a06_deletes_is_still_in_the_names_table():
+    """Why the caption is worded the way it is.
+
+    `x` survives in `co_names` even though every instruction that mentioned it is gone.
+    Names are collected while the code is generated and nothing goes back to tidy the table
+    up afterwards, so a caption saying x never reached the file would be wrong.
+    """
+    assert compile(ONE_LINE, "x", "exec").co_names == ("x", "y")
