@@ -207,3 +207,25 @@ def test_record_leaves_the_other_builds_alone(lockfile):
 def test_record_keeps_the_size_so_the_readme_table_can_say_how_big_they_are(lockfile):
     main(["--lockfile", str(lockfile), "record", "debug", "amd64", ONE, "--size", "412000000"])
     assert Lock.load(lockfile).get("debug", "amd64").size == 412000000
+
+
+def test_proof_prints_a_program_and_nothing_else(capsys):
+    """The workflow pipes this straight into `python3 -` inside the image."""
+    assert main(["proof", "jit"]) == 0
+    said = capsys.readouterr().out
+    compile(said, "proof", "exec")
+    assert "sys._jit.is_available()" in said
+
+
+def test_the_proof_program_exits_non_zero_when_the_build_is_wrong(capsys):
+    """Running a build's own proof against this interpreter is the only way to find out that
+    the program says no by exiting rather than by printing a word nobody reads."""
+    main(["proof", "freethreaded"])
+    program = capsys.readouterr().out
+    namespace: dict = {}
+    try:
+        exec(program, namespace)
+    except SystemExit as leaving:
+        assert leaving.code == 1
+    else:  # pragma: no cover
+        raise AssertionError("a GIL enabled interpreter passed the free threaded proof")

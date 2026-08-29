@@ -63,6 +63,13 @@ class Configuration:
     #: Only the JIT does, and only because Debian is two releases behind what CPython asks for.
     llvm: str = ""
 
+    #: A Python expression that is true in this build and false in a plain one, run inside the
+    #: published image. Without it the only thing the workflow proves is that something
+    #: compiled, and a configure flag that was quietly ignored still compiles. That is the
+    #: failure worth catching, because the image would then be published, tagged, written into
+    #: the lockfile and pulled by a lesson that goes on to draw a conclusion from it.
+    proof: str = ""
+
     #: Why this configuration is on the list, and what a reader would get wrong without it.
     note: str = ""
 
@@ -78,6 +85,7 @@ CONFIGURATIONS: list[Configuration] = [
         summary="assertions on, refcount totals available, the interpreter checking itself",
         flags=("--with-pydebug", "--with-assertions"),
         debugger=True,
+        proof='hasattr(sys, "gettotalrefcount")',
         note=(
             "The one the Tier 1 experiments run on. `sys.gettotalrefcount` exists here and "
             "nowhere else, the allocator fills freed memory with a recognisable byte "
@@ -90,6 +98,13 @@ CONFIGURATIONS: list[Configuration] = [
         key="release",
         summary="CPython's own defaults, which is what almost every reader is running",
         flags=(),
+        # The one build whose proof is that nothing is switched on. Asserting the absence of
+        # the other four is what makes this the control rather than a build nobody looked at.
+        proof=(
+            'not sysconfig.get_config_var("Py_DEBUG") '
+            'and not sysconfig.get_config_var("Py_GIL_DISABLED") '
+            "and not sys._jit.is_available()"
+        ),
         note=(
             "The control. Whenever a debug build would mislead, the number comes from here. "
             "No flags at all, because the point is to be what you get by typing "
@@ -103,6 +118,9 @@ CONFIGURATIONS: list[Configuration] = [
         key="freethreaded",
         summary="built without the GIL, so the object header and the collector both change",
         flags=("--disable-gil",),
+        # What CPython's own test suite uses to answer the same question, at
+        # `Lib/test/support/__init__.py:1014@v3.15.0rc1`.
+        proof='bool(sysconfig.get_config_var("Py_GIL_DISABLED"))',
         note=(
             "Not a flag on a normal interpreter, a different interpreter. The object header "
             "has extra fields, reference counting is split into a local and a shared count, "
@@ -121,6 +139,12 @@ CONFIGURATIONS: list[Configuration] = [
         # is here rather than in the common list.
         packages=("python3",),
         llvm=LLVM_VERSION,
+        # `Python/sysmodule.c:4291@v3.15.0rc1#_jit_is_available_impl`. It returns true only
+        # when `_Py_TIER2` was defined at compile time, and `sys._jit` itself is there in every
+        # build, so asking whether the module exists answers nothing. This is the proof that
+        # mattered most: the first two attempts at this build failed, and a third that fell
+        # back to no JIT and published anyway would have been worse than either of them.
+        proof="sys._jit.is_available()",
         note=(
             "Needs LLVM at build time because the JIT is copy and patch: the build compiles "
             "each micro operation into an object file and the templates are cut out of it. "
@@ -137,6 +161,13 @@ CONFIGURATIONS: list[Configuration] = [
         flags=("--with-tail-call-interp",),
         environment={"CC": "clang"},
         packages=("clang",),
+        # The weak one, and worth being straight about it. The other four ask the interpreter
+        # about itself. This reads back the flag configure was given, because a tail calling
+        # build is not visible from Python at all: `_Py_TAIL_CALL_INTERP` is a C macro and
+        # nothing exposes it. It is still worth having, because configure refuses the flag
+        # outright when the compiler has no `musttail`, so the flag surviving into the
+        # installed interpreter means it was accepted rather than warned about and dropped.
+        proof=('"--with-tail-call-interp" in sysconfig.get_config_var("CONFIG_ARGS")'),
         note=(
             "Needs Clang 19 or newer, because it leans on `musttail`, which GCC does not "
             "have. The same bytecode runs through a chain of tail calls instead of a switch "

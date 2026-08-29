@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import ast
+import builtins
 import re
 
 import pytest
@@ -69,6 +71,29 @@ def test_the_jit_asks_for_the_llvm_cpython_actually_wants(tree):
     wanted = re.search(r'_LLVM_VERSION\s*=\s*"(\d+)"', said)
     assert wanted, "CPython stopped spelling _LLVM_VERSION the way this test reads it"
     assert wanted.group(1) == LLVM_VERSION
+
+
+def test_every_build_can_prove_it_is_the_build_it_says_it_is():
+    """A configuration with no proof is one that could be the release build under another tag,
+    and nothing downstream would notice until a lesson drew a conclusion from it."""
+    for one in CONFIGURATIONS:
+        assert one.proof, one.key
+
+
+@pytest.mark.parametrize("one", CONFIGURATIONS, ids=lambda one: one.key)
+def test_a_proof_only_asks_the_interpreter_about_itself(one):
+    """It runs inside a slim image with nothing installed but CPython and no pip, so the two
+    modules the generated program imports are the only two a proof can reach for. Builtins are
+    fine. Anything else is a name that would be undefined at the moment it mattered."""
+    tree = ast.parse(one.proof, mode="eval")
+    used = {node.id for node in ast.walk(tree) if isinstance(node, ast.Name)}
+    assert used - set(dir(builtins)) <= {"sys", "sysconfig"}, one.key
+
+
+def test_no_two_builds_share_a_proof():
+    """Two builds proving the same thing means one of them is not being checked."""
+    said = [one.proof for one in CONFIGURATIONS]
+    assert len(set(said)) == len(said)
 
 
 def test_only_the_jit_adds_a_package_repository():

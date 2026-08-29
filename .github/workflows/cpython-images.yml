@@ -152,6 +152,20 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ matrix.config }}-${{ matrix.arch }} \
             python3 -c "import sys, sysconfig; print(sys.version); print(sysconfig.get_platform())"
 
+      # And then the question the step above does not ask: is this the build we wanted. A
+      # configure flag that was accepted and then ignored still compiles, still runs, and is
+      # quietly the release build under another tag. That image would be published, written
+      # into the lockfile and pulled by a lesson that goes on to draw a conclusion from it,
+      # so it is worth one more second here. The expression comes from cpybuild.configs, so
+      # a sixth build cannot be added without saying how anybody would know it worked.
+      - name: Prove the image is the build it says it is
+        run: |
+          uv run cpybuild proof ${{ matrix.config }} > /tmp/proof.py
+          cat /tmp/proof.py
+          docker run --rm --platform linux/${{ matrix.arch }} -i \
+            ${{ env.REGISTRY }}/${{ env.IMAGE }}:${{ matrix.config }}-${{ matrix.arch }} \
+            python3 - < /tmp/proof.py
+
   # The two architecture specific tags become one tag anybody can pull, and the digest of that
   # manifest is what goes in the lockfile.
   publish:
@@ -160,6 +174,11 @@ jobs:
     permissions:
       contents: write
       packages: write
+      # Needed to open the lockfile pull request, and easy to miss: naming any permission at
+      # all sets every one that is not named to none, so a job with `contents: write` still
+      # cannot open a pull request. The first run got as far as pushing the branch and then
+      # failed with `Resource not accessible by integration`.
+      pull-requests: write
     steps:
       - uses: actions/checkout@v5
       - uses: astral-sh/setup-uv@v6

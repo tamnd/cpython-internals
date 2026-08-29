@@ -10,6 +10,7 @@ thing and nothing else.
     cpybuild packages debug             the apt line for one build
     cpybuild flags debug                the configure line for one build
     cpybuild buildargs debug            every --build-arg the Dockerfile wants, one per line
+    cpybuild proof debug                a program that fails unless the image is that build
     cpybuild check                      is the committed lockfile complete and on the pin
     cpybuild reference debug --arch amd64
     cpybuild record debug amd64 sha256:...
@@ -51,6 +52,30 @@ def _packages(args: argparse.Namespace) -> int:
 
 def _flags(args: argparse.Namespace) -> int:
     print(" ".join(BY_KEY[args.config].flags))
+    return 0
+
+
+PROOF = """import sys, sysconfig
+ok = bool({expression})
+print("{key}: " + ("yes" if ok else "NO"))
+sys.exit(0 if ok else 1)"""
+
+
+def _proof(args: argparse.Namespace) -> int:
+    """Print a program that exits non zero unless the image really is that build.
+
+    Run inside the published image, which is the only place the question can honestly be
+    asked. Everything before this point checks that a build succeeded, and a build succeeding
+    is not the same as a build being the one that was asked for: a configure flag that was
+    accepted and then ignored produces a perfectly working interpreter that is quietly the
+    release build wearing another name. That image would still be tagged, still be written
+    into the lockfile, and still be pulled by a lesson that draws a conclusion from it.
+
+    A program rather than an expression so the message and the exit code are decided here
+    instead of in a shell fragment inside a YAML string.
+    """
+    one = BY_KEY[args.config]
+    print(PROOF.format(expression=one.proof, key=one.key))
     return 0
 
 
@@ -181,6 +206,10 @@ def build() -> argparse.ArgumentParser:
     args_for = subs.add_parser("buildargs", help="every --build-arg for one build")
     args_for.add_argument("config", choices=sorted(BY_KEY))
     args_for.set_defaults(handler=_buildargs)
+
+    shown = subs.add_parser("proof", help="a program that fails unless the image is that build")
+    shown.add_argument("config", choices=sorted(BY_KEY))
+    shown.set_defaults(handler=_proof)
 
     gate = subs.add_parser("check", help="is the lockfile complete and on the pin")
     gate.set_defaults(handler=_check)
