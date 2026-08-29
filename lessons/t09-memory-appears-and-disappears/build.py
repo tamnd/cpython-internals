@@ -137,7 +137,7 @@ print("still there now                        ->", seen() is not None)
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 True, then 2, then False.
 
 The two objects outlived every name that could reach them, and stayed in memory until something else came along and swept them up. If you had written this in a loop you would have a program whose memory use climbs and never comes back down until the collector decides to run.
@@ -146,7 +146,7 @@ That is the shape of this lesson. Most of the time Python frees things the insta
 
 ## The count that decides everything
 
-Every object carries a count of how many places are currently holding it. Assigning it to a name adds one, putting it in a list adds one, and the name going out of scope takes one away. When the count reaches zero the object is freed, right then, before the next line of your program runs.
+Every object carries a count of how many places are currently holding it, and {lesson.claim("binding an object to a name adds one to its count and putting it in a container adds another, and dropping either takes one away again")}. When the count reaches zero the object is freed, right then, before the next line of your program runs.
 """)
 
 
@@ -201,7 +201,7 @@ The comment above it is worth reading. Freeing a list frees everything in it, wh
 
 ## Watching the moment it dies
 
-You cannot observe a free with an ordinary variable, because holding the object is exactly what stops it happening. What you need is a reference that does not count, which is what a {term("weak reference")} is for.
+You cannot observe a free with an ordinary variable, because holding the object is exactly what stops it happening. What you need is a reference that does not count, which is what a {term("weak reference")} is for, and {lesson.claim("a weak reference lets you watch an object go without keeping it alive, because it is the one kind of reference that does not add to the count")}.
 """)
 
 
@@ -240,7 +240,7 @@ Not everything can be watched this way. `int`, `str` and `tuple` have no room fo
 
 ## When `__del__` runs
 
-If a class defines `__del__`, that method is its {term("finalizer")}, and it runs during the free. Because the free is immediate, so is `__del__`, and this is the property that makes people say Python has deterministic destruction.
+If a class defines `__del__`, that method is its {term("finalizer")}, and it runs during the free. Because the free is immediate, so is `__del__`: {lesson.claim("a finalizer runs at the del itself, so its output lands in the middle of the surrounding prints rather than at the end of the function or the end of the program")}. This is the property that makes people say Python has deterministic destruction.
 """)
 
 
@@ -278,7 +278,7 @@ It is worth being clear about how much you should lean on this. It is real, and 
 lesson.md(f"""
 {figure("a-cycle", "two objects holding each other, before and after their names go away")}
 
-Both counts start at 2, one for the name and one for the other object. Dropping both names takes each count to 1 and stops there. Neither one ever reaches zero, so `Py_DECREF` never calls the deallocator, and the two objects sit in memory with nothing in the program able to reach them.
+Both counts start at 2, one for the name and one for the other object. Dropping both names takes each count to 1 and stops there, so {lesson.claim("two objects that hold each other keep each other's count above zero after every name to them has gone, and counting alone never frees either one")}. What does free them is the collector: {lesson.claim("running gc.collect() by hand frees a pair that dropping their names did not")}.
 
 None of this is exotic. A doubly linked list is full of {term("reference cycle", "reference cycles")}, and so is a tree whose nodes carry a parent pointer. An exception traceback holds the {term("frame")} and the frame holds the exception. A {term("closure")} that refers to the function it lives in is a cycle. Any real program makes these constantly.
 """)
@@ -341,7 +341,7 @@ The arithmetic is what pays off here. A scratch count of zero means every refere
 
 {cite("Python/gc.c:566-583@v3.15.0rc1#move_unreachable")}
 
-You can run the same idea from Python. `heap.cycles` walks the graph with `gc.get_referents` and finds the strongly connected components, which is the formal name for a group of objects that can all reach each other.
+You can run the same idea from Python: {lesson.claim("gc.get_referents plus a search for strongly connected components finds the same groups of objects that can all reach each other, which is what heap.cycles does")}.
 """)
 
 
@@ -363,7 +363,7 @@ gc.collect()
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 One cycle with three members, closed into a ring. The order the names print in is the order the search finished them in rather than the direction the references run, so read it as a membership list rather than a route.
 
 `heap.cycles` hands back names rather than objects, which is a small decision worth explaining. Returning the objects would give you a fresh reference to each of them, and a tool for finding things that outlive their references should not be one of the reasons they are still here.
@@ -372,7 +372,7 @@ One cycle with three members, closed into a ring. The order the names print in i
 
 There used to be a nasty corner here. Before Python 3.4, a cycle whose members defined `__del__` could not be collected at all, because the collector had no safe order to run the finalizers in. Those objects went on a list called `gc.garbage` and stayed there for the life of the process.
 
-PEP 442 fixed it. Finalizers now run before anything is freed, each one exactly once, and then the collection proceeds.
+PEP 442 fixed it. Finalizers now run before anything is freed, each one exactly once, and then the collection proceeds, so {lesson.claim("a cycle whose members define __del__ is collected like any other, with every finalizer run and gc.garbage left empty")}.
 """)
 
 
@@ -404,14 +404,14 @@ The `_PyGC_SET_FINALIZED` flag is what guarantees "exactly once". A finalizer is
 
 ## Generations
 
-Running the whole subtract trick over every object in the process would be far too slow to do often. So the collector splits objects into three {term("generation", "generations")} by how long they have survived, and looks at the young group far more often than the old one.
+Running the whole subtract trick over every object in the process would be far too slow to do often. So {lesson.claim("the collector sorts objects into three groups by how long they have survived, and Python can be asked which group any object is in")}, and it looks at the young group far more often than the old one.
 """)
 
 
 lesson.md(f"""
 {figure("generations", "the three collector generations and how often each is examined")}
 
-The bet is that most objects die young, which is true of nearly every Python program. The temporary list inside a loop is gone before the loop turns over. Anything still here after two collections is probably going to stay, so it gets looked at rarely.
+The bet is that most objects die young, which is true of nearly every Python program. The temporary list inside a loop is gone before the loop turns over. Anything still here after two collections is probably going to stay, so it gets looked at rarely, and {lesson.claim("an object starts in the youngest group and moves up one place each time it survives a sweep")}.
 """)
 
 
@@ -446,7 +446,7 @@ Read the thresholds as three different kinds of number. The first one is a count
 
 The first number was 700 for many years and became 2000 in 3.13. If you have read a blog post quoting 700, that is why.
 
-The `None` at the end is the other half of the story. The collector does not track integers, and it does not track most strings either, because an object that cannot hold a reference to another object cannot possibly be part of a cycle. Not tracking them is the single largest thing the collector does for performance, since it removes most of the objects in a typical program from consideration entirely.
+The `None` at the end is the other half of the story. {lesson.claim("the collector does not track an object that cannot hold a reference to another object, so an integer or a string is in no generation at all")}, because a thing that cannot point at anything can never be part of a cycle. Not tracking them is the single largest thing the collector does for performance, since it removes most of the objects in a typical program from consideration entirely.
 """)
 
 
@@ -478,7 +478,7 @@ Your object sits in a {term("block")}. Blocks of the same size share a {term("po
 
 {cite("Include/internal/pycore_obmalloc.h:232-241@v3.15.0rc1#POOL_BITS")}
 
-There is a size limit on all of this. Ask for more than 512 bytes and the small object allocator steps aside and hands you to the system allocator instead.
+There is a size limit on all of this: {lesson.claim("requests over 512 bytes go to the system allocator, and everything under that is rounded up to one of a fixed set of sizes")}.
 
 {cite("Include/internal/pycore_obmalloc.h:156-164@v3.15.0rc1#SMALL_REQUEST_THRESHOLD")}
 
@@ -539,9 +539,9 @@ The pool stays in its arena. The arena goes back to the operating system only wh
 
 {cite("Objects/obmalloc.c:681-700@v3.15.0rc1#_PyMem_ArenaFree")}
 
-One surviving object anywhere in an arena keeps the whole arena. This is why a process that peaked at two gigabytes usually still looks like it is using two gigabytes afterwards, and why the next allocation is fast. It is also why "Python has a memory leak" is usually "Python is holding onto arenas that are mostly empty".
+{lesson.claim("one surviving object anywhere in an arena keeps the whole arena, which is why a process that peaked at two gigabytes usually still looks like it is using two gigabytes afterwards", unobservable="an arena is not an object and Python has no way to name one, and how much memory the operating system thinks the process holds is not a number the standard library reports")}. It is also why "Python has a memory leak" is usually "Python is holding onto arenas that are mostly empty", and why the next allocation is fast.
 
-You can watch the counts move with `sys.getallocatedblocks`, which counts blocks handed out rather than bytes.
+You can watch the counts move with `sys.getallocatedblocks`, which counts blocks handed out rather than bytes, and {lesson.claim("building ten thousand objects and then dropping them brings the count of blocks in use back to roughly where it started")}.
 """)
 
 
@@ -563,10 +563,10 @@ print("after dropping them        ", freed)
 )
 
 
-lesson.md("""
+lesson.md(f"""
 The middle number is about ten thousand higher and the last one is back where it started, so the blocks came back. Whether the operating system ever hears about it is a separate question, and the answer is usually no.
 
-The clearest way to see that the memory really is reused is to watch an address come back.
+The clearest way to see that the memory really is reused is to watch an address come back: {lesson.claim("freeing an object and immediately building another of the same size usually puts the new one at the address the old one had")}.
 """)
 
 
