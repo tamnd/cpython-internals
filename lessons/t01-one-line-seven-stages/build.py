@@ -113,7 +113,7 @@ CPython reads your file as bytes and cuts it into {term("token", "tokens")}: a n
 
 {figure("tokens-of-one-line", "the five tokens in answer = 6 * 7, each joined to the characters it came from")}
 
-The standard library exposes this same tokenizer through the `tokenize` module, so what you are about to see is the real thing and not an imitation of it.
+The standard library exposes this same tokenizer through the `tokenize` module, so what you are about to see is the real thing and not an imitation of it. {lesson.claim("every token comes back with the line and the column range it was cut from, which is how a syntax error knows which characters to point at")}.
 """)
 
 
@@ -129,10 +129,10 @@ for item in compiler.tokens(SOURCE):
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 Two of those tokens are not in your file. `ENCODING` comes first, and it carries the tokenizer's answer to a question it has to settle before it can read a single character of Python: how are these bytes meant to be decoded. `ENDMARKER` comes last and marks the end of the input. You wrote neither one.
 
-Indentation is invented the same way, and it is easier to see with a line that has some.
+Indentation is invented the same way: {lesson.claim("INDENT and DEDENT are tokens the tokenizer works out from column numbers rather than characters it found")}, and that is easier to see with a line that has some.
 """)
 
 
@@ -154,7 +154,7 @@ lesson.md(f"""
 
 The parser reads the token stream and builds an {term("abstract syntax tree", "abstract syntax tree")}. CPython has used a {term("PEG parser")} since 3.9, generated from a {term("grammar")} file into `Parser/parser.c`, and the function that drives it is {cite("Parser/pegen.c:938-941@v3.15.0rc1#_PyPegen_run_parser")}.
 
-The tree for a single assignment is small enough to look at whole.
+The tree for a single assignment is small enough to look at whole, and in it {lesson.claim("the multiplication is still a multiplication, with 6 and 7 sitting underneath it as two separate constants")}.
 
 {figure("the-tree", "the syntax tree for answer = 6 * 7, with Assign at the top")}
 """)
@@ -169,12 +169,12 @@ print(ast.dump(tree, indent=4))
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 Read it from the inside out. Two `Constant` nodes hold 6 and 7. A `BinOp` holds those two with a `Mult` between them. An `Assign` puts the result into a `Name` whose context is `Store`, which means the name is being written to rather than read from.
 
 Nothing has been worked out yet, and `6 * 7` is still a multiplication of two constants sitting in a tree.
 
-The tree is an ordinary Python object, so you can change it and compile the result.
+{lesson.claim("the tree is an ordinary Python object, so you can change a node and compile the result")}, which is what the next cell does to turn the 7 into an 8.
 """)
 
 
@@ -192,7 +192,7 @@ print(namespace["answer"])
 lesson.md(f"""
 ## Stage 3. The tree gets a symbol table
 
-Before generating a single {term("instruction")}, CPython walks the tree and works out what every name in it is. Is `answer` a local, a global, or something borrowed from an enclosing function? The compiler cannot pick an instruction until it knows, because a local is a numbered slot in a {term("frame")} and a global is a dictionary lookup by name. Those are different {term("opcode", "opcodes")} with very different costs. The pass that decides builds the {term("symbol table")}, and it is {cite("Python/symtable.c:415-418@v3.15.0rc1#_PySymtable_Build")}.
+Before generating a single {term("instruction")}, CPython walks the tree and works out what every name in it is. Is `answer` a local, a global, or something borrowed from an enclosing function? The compiler cannot pick an instruction until it knows, because a local is a numbered slot in a {term("frame")} and a global is a dictionary lookup by name. Those are different {term("opcode", "opcodes")} with very different costs. The pass that decides builds the {term("symbol table")}, and it is {cite("Python/symtable.c:415-418@v3.15.0rc1#_PySymtable_Build")}. {lesson.claim("the symbol table is not private to the compiler, you can ask a stock interpreter for it and print the whole thing")}.
 """)
 
 
@@ -204,7 +204,7 @@ print(compiler.symbols(SOURCE).tree())
 lesson.md(f"""
 `answer` comes back as both local and global, which looks like a contradiction and is not one. At module level the name really is stored in this module's own namespace, so it is local to this scope. It really is also the thing every function in the file will find when it reads that name, so it is a global. Both are true at the same time.
 
-Inside a function the two roles come apart, and they land on different names.
+Inside a function the two roles come apart: {lesson.claim("a parameter is a local and nothing else, and a name that comes from the module is a global the function only ever reads")}.
 
 {figure("one-name-two-answers", "answer is local and global at module level, but the two roles split inside a function")}
 """)
@@ -228,6 +228,8 @@ lesson.md(f"""
 Now the compiler walks the tree a second time and emits instructions, a small pile of them per node. That pass is {term("code generation")}, and the case that handles an expression is {cite("Python/codegen.c:894-897@v3.15.0rc1#_PyCodegen_Expression")}.
 
 This is usually the point where you can no longer see what a stock interpreter is doing. CPython ships a module called `_testinternalcapi` that exposes the compiler's stages one at a time, and that is what lets you read the instruction sequence before the optimizer has touched it. If the next cell raises, read the message: it means your interpreter was built without those hooks, and it will tell you what still works.
+
+What comes back is the list before anything has tidied it up, and {lesson.claim("before the optimizer runs, `6 * 7` is still three instructions: load one constant, load the other, multiply them")}.
 """)
 
 
@@ -249,7 +251,7 @@ lesson.md(f"""
 lesson.md(f"""
 ## Stage 5. The optimizer rewrites the instructions
 
-The instruction sequence is turned into a {term("control flow graph")}, and then the graph is optimized. The entry point is {cite("Python/flowgraph.c:3753-3757@v3.15.0rc1#_PyCfg_OptimizeCodeUnit")}. The next cell prints what it did, with the two sequences side by side.
+The instruction sequence is turned into a {term("control flow graph")}, and then the graph is optimized. The entry point is {cite("Python/flowgraph.c:3753-3757@v3.15.0rc1#_PyCfg_OptimizeCodeUnit")}. The next cell prints what it did, with the two sequences side by side, and {lesson.claim("the optimizer replaces those three instructions with a single one that loads 42")}.
 """)
 
 
@@ -267,7 +269,7 @@ Look at the right hand column. `LOAD_CONST`, `LOAD_CONST`, `BINARY_OP` has turne
 
 {figure("the-multiplication-disappears", "three instructions on the left becoming one on the right")}
 
-That is {term("constant folding")}, and CPython does it twice, in two places, on two different data structures.
+That is {term("constant folding")}, and {lesson.claim("CPython folds constants twice, in two places, on two different data structures", unobservable="the first pass runs on the tree inside a real compile() call, and the stage hook this lesson uses is handed a tree that has already skipped it, so nothing here can catch that one in the act")}.
 
 {figure("two-constant-folders", "the tree folder and the graph folder, one after the other")}
 
@@ -293,6 +295,8 @@ lesson.md(f"""
 ## Stage 6. The instructions become a code object
 
 The {term("assembler")} turns the optimized graph into the {term("code object")}, which is the object CPython actually executes and cannot be changed once built. It is built by {cite("Objects/codeobject.c:715-718@v3.15.0rc1#_PyCode_New")}. The whole front end, every stage above, is driven from {cite("Python/compile.c:1526-1540@v3.15.0rc1#_PyAST_Compile")}.
+
+{lesson.claim("the code object holds everything the compiler worked out: the instructions, the table of constants, and how deep the value stack has to be for them")}, and all of it is readable from Python.
 """)
 
 
@@ -315,9 +319,9 @@ dis.dis(result.code)
 lesson.md(f"""
 Two details in there are worth a second look, and the next cell makes both of them concrete.
 
-The constant table still contains 6, and nothing loads it. The table was built while the multiplication still existed, and nobody pruned it afterwards, so a number your program has no use for gets carried around inside the code object for as long as the code object lives.
+{lesson.claim("the constant table still contains the 6, and no instruction in the finished code ever loads it")}. The table was built while the multiplication still existed, and nobody pruned it afterwards, so a number your program has no use for gets carried around inside the code object for as long as the code object lives.
 
-The 42 is not in the constant table at all. It is the {term("oparg", "argument")} of `LOAD_SMALL_INT`, sitting inside the instruction itself. A small integer does not need a table entry, because CPython keeps a shared copy of it alive permanently, which is the {term("small integer cache")} and gets a lesson of its own later on.
+{lesson.claim("the 42 never reaches the constant table, it rides inside the instruction as its argument")}. That argument belongs to `LOAD_SMALL_INT`, and it is the {term("oparg", "argument")} the interpreter reads straight out of the instruction stream. A small integer does not need a table entry, because CPython keeps a shared copy of it alive permanently, which is the {term("small integer cache")} and gets a lesson of its own later on.
 
 {figure("where-the-42-lives", "6 sitting unused in co_consts, and 42 sitting inside the instruction")}
 """)
@@ -340,7 +344,7 @@ print("where the 42 actually lives:      ", inline)
 lesson.md(f"""
 The last two instructions are the module's implicit `return None`, and they are spelled differently depending on which build you are on. From 3.15 there is a `LOAD_COMMON_CONSTANT`, which pulls `None` out of a fixed table shared by every code object, so `None` no longer needs an entry of its own. On 3.14 it is still an ordinary `LOAD_CONST`. The bytecode is a couple of bytes longer on 3.15 for an unrelated reason: `RESUME` grew an {term("inline cache")} entry.
 
-Rather than take either version's word for it, print what your build did.
+{lesson.claim("from 3.15 the implicit return None needs no entry in the constant table, because LOAD_COMMON_CONSTANT reads it from a table every code object shares")}, so rather than take either version's word for it, print what your build did.
 """)
 
 
@@ -360,7 +364,7 @@ print("None is a constant", None in result.code.co_consts)
 lesson.md(f"""
 ## Stage 7. The code object runs
 
-Finally the {term("eval loop", "evaluation loop")} executes the code object one instruction at a time, in {cite("Python/ceval.c:1213@v3.15.0rc1#_PyEval_EvalFrameDefault")}. It is one very large switch statement, and lessons later in the series take it apart properly.
+Finally the {term("eval loop", "evaluation loop")} executes the code object one instruction at a time, in {cite("Python/ceval.c:1213@v3.15.0rc1#_PyEval_EvalFrameDefault")}. It is one very large switch statement, and lessons later in the series take it apart properly. Run it and {lesson.claim("42 lands in the namespace without your program multiplying anything")}.
 """)
 
 

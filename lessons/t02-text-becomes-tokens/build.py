@@ -110,7 +110,7 @@ CPython's tokenizer is hand written C rather than a generated table or a pile of
 
 The standard library has a `tokenize` module, and for most of Python's life that module was a separate reimplementation written in Python. It drifted away from the C over the years, and it disagreed with it in small ways, which made it a poor thing to learn from.
 
-That changed in 3.12, and `tokenize` now calls into the C tokenizer through a small module called `_tokenize`. So when you tokenize something in a moment, the code doing the work is the code cited above rather than a copy of it.
+That changed in 3.12. {lesson.claim("the tokenize module now calls into the C tokenizer through a small module called _tokenize, rather than reimplementing it in Python")}, so when you tokenize something in a moment, the code doing the work is the code cited above rather than a copy of it.
 """)
 
 
@@ -157,10 +157,10 @@ The same idea on a different line, as a picture. Notice that `INDENT` covers the
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## Four of those tokens are not in your file
 
-Go back and compare the tokens against what you typed. `ENCODING`, `INDENT`, `DEDENT` and `ENDMARKER` were all added by the tokenizer.
+Go back and compare the tokens against what you typed. {lesson.claim("ENCODING, INDENT, DEDENT and ENDMARKER are all added by the tokenizer and appear nowhere in the text you wrote")}.
 
 `ENCODING` comes first. It is the tokenizer reporting what it decided your bytes meant. That is a real decision rather than a formality, because a Python file is allowed to declare its own encoding in a comment on line 1 or line 2, and until that is settled the tokenizer cannot read a single character.
 
@@ -177,12 +177,12 @@ for item in tokens.stream(SOURCE):
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## The tokenizer has never heard of keywords
 
 This one explains several later things, so it is worth a minute.
 
-Look at the table again. `if` came back as a `NAME`, not as a keyword and not as an `IF` token. To the tokenizer it is a run of letters, the same kind of thing as `answer` or `print` or `banana`.
+Look at the table again. {lesson.claim("`if` comes back as a NAME rather than as a keyword, the same kind of token as `answer` or `print` or `banana`")}. To the tokenizer it is a run of letters and nothing more.
 """)
 
 
@@ -202,7 +202,7 @@ When the parser pulls a token off the tokenizer, it checks whether a `NAME` happ
 
 {figure("name-or-keyword", "two words that both start as NAME and end up as different token types")}
 
-This split is why Python can have soft keywords. `match` and `case` are keywords in one place in the grammar and ordinary variable names everywhere else. The tokenizer never committed to either, so the parser gets to decide from context. That is how code using `match` as a variable name in 3.9 kept working in 3.10.
+This split is why Python can have soft keywords. {lesson.claim("`match` is an ordinary NAME to the tokenizer, which is what lets it be a keyword in one place in the grammar and a variable name everywhere else")}. The tokenizer never committed to either, so the parser gets to decide from context, and that is how code using `match` as a variable name in 3.9 kept working in 3.10.
 """)
 
 
@@ -211,10 +211,10 @@ print(tokens.table("match = 1\n"))
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## Operators are all one token type
 
-Every operator and every piece of punctuation comes back as `OP`. Which operator it was is recorded separately, as the exact type.
+{lesson.claim("every operator and every piece of punctuation comes back as the same token type, OP, with which operator it was recorded separately")}.
 
 `pyxray.tokens` keeps both and prints them as `OP/PLUSEQUAL` when they differ.
 """)
@@ -225,12 +225,12 @@ print(tokens.table("a += b[0]\n"))
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## Indentation, one piece at a time
 
 Now the part most people come here for.
 
-`INDENT` and `DEDENT` are the tokens that stand in for the braces other languages make you type. The thing to hang on to is that they are not symmetric.
+`INDENT` and `DEDENT` are the tokens that stand in for the braces other languages make you type. The thing to hang on to is that {lesson.claim("the two are not symmetric: INDENT carries the spaces it covers and DEDENT is zero characters wide")}.
 """)
 
 
@@ -252,7 +252,7 @@ lesson.md(f"""
 
 The second half of the asymmetry is arithmetic, and it catches people out.
 
-Going right produces exactly one `INDENT`, however far right you went. Going left produces one `DEDENT` for every level you closed, so a single line can produce three of them.
+{lesson.claim("going right produces exactly one INDENT however far right you went, and going left produces one DEDENT for every level you closed")}, so a single line can produce three of them.
 """)
 
 
@@ -290,6 +290,8 @@ It comes to about thirty lines of C in {cite("Parser/lexer/lexer.c:500-530@v3.15
 One detail matters if you ever write one of these yourself. The dedents are not handed out immediately. The tokenizer counts them into a field called `pendin` and then returns them one per call until the count reaches zero, at {cite("Parser/lexer/lexer.c:616-634@v3.15.0rc1#pendin")}. The function can only return one token, so a line that closes three blocks has to be remembered across three calls.
 
 `pyxray.tokens.indent_trace` is that algorithm transcribed into Python, rather than a summary of it or pseudocode for it. The test suite runs it and the real CPython tokenizer over the same set of programs and requires the same answer from both, so if the C ever changes, this lesson fails its tests instead of quietly going wrong.
+
+Two things to watch for in the trace below. {lesson.claim("the whole of Python's indentation is a stack of column numbers and three comparisons, and the stack column is enough to follow every one of them")}. And {lesson.claim("a line that closes three blocks is remembered across three calls, in a counter the tokenizer decrements one dedent at a time", unobservable="pendin is a field on the C tokenizer state, and all the token stream shows is three dedents arriving in a row with nothing to say how they were held")}.
 """)
 
 
@@ -312,8 +314,8 @@ print(tokens.staircase(DEEP))
 """)
 
 
-lesson.md("""
-Notice that blank lines and comment only lines never show up in that trace. They are thrown out before any comparison happens, which is why you can indent a comment to a ridiculous column and nothing breaks.
+lesson.md(f"""
+Notice what is missing from that trace. {lesson.claim("blank lines and comment only lines are thrown out before any indentation comparison happens, so a comment indented to a ridiculous column breaks nothing")}.
 """)
 
 
@@ -325,7 +327,7 @@ print(tokens.indent_report("x = 1\n            # what am I even doing here\n\ny 
 lesson.md(f"""
 ## A tab is not worth a fixed number of spaces
 
-Ask around and people will tell you a tab is four columns, or eight, or that it depends on your editor. For the tokenizer it is none of those. A tab moves to the next multiple of eight, so what a tab is worth depends on what came before it.
+Ask around and people will tell you a tab is four columns, or eight, or that it depends on your editor. For the tokenizer it is none of those. {lesson.claim("a tab moves to the next multiple of eight, so what a tab is worth depends on what came before it")}.
 
 {figure("where-a-tab-lands", "the same tab character landing on a tab stop from three different starting columns")}
 
@@ -358,7 +360,7 @@ Measuring twice catches that case. If two lines agree on the real count but disa
 
 {figure("two-counts-of-one-line", "one line measured with a tab stop of 8 and again with a tab stop of 1")}
 
-Lines indented only with spaces produce the same number twice, so a file that never uses a tab cannot trip this.
+{lesson.claim("every line is measured twice, once with a tab stop of 8 and once with a tab stop of 1, and only a line with a tab in it gets two different answers")}, so a file that never uses a tab cannot trip this.
 """)
 
 
@@ -375,7 +377,7 @@ lesson.md(f"""
 
 `pyxray.tokens.failure` runs the tokenizer and hands the error back as an object instead of raising it, so you can read the message without a traceback in the way.
 
-First, the case from the last section. Line 2 is indented with one tab and line 3 with eight spaces. Under a tab stop of 8 those are the same column, so it looks fine. Under a tab stop of 1 they are not, so the tokenizer knows the match was an accident. The check is {cite("Parser/tokenizer/helpers.c:90-97@v3.15.0rc1#_PyTokenizer_indenterror")}, which does nothing except record the error code and give up.
+First, the case from the last section. Line 2 is indented with one tab and line 3 with eight spaces. Under a tab stop of 8 those are the same column, so it looks fine. {lesson.claim("two lines that agree on the real count and disagree on the alternate count are refused, because their agreement was luck rather than intent")}. The check is {cite("Parser/tokenizer/helpers.c:90-97@v3.15.0rc1#_PyTokenizer_indenterror")}, which does nothing except record the error code and give up.
 """)
 
 
@@ -390,7 +392,7 @@ print(tokens.failure(TABS))
 lesson.md(f"""
 Second, a dedent to a column nobody ever indented to.
 
-The stack holds 0 and 2. Line 3 arrives at column 1, which is smaller than 2, so the tokenizer pops. Now the top is 0, and 1 is not 0. There is nothing left to pop and still no match, so it stops.
+The stack holds 0 and 2. Line 3 arrives at column 1, which is smaller than 2, so the tokenizer pops. Now the top is 0, and 1 is not 0. {lesson.claim("closing a block to a column nothing ever opened at is an error, because the stack runs out before it finds a match")}.
 
 {figure("a-dedent-with-no-home", "an indent stack that runs out before it finds a matching column")}
 """)
@@ -404,8 +406,8 @@ print(tokens.failure(STRAY))
 """)
 
 
-lesson.md("""
-Third, a bracket that never closes. This one raises a different exception type, `TokenError` rather than a `SyntaxError`, and it carries its position in its arguments rather than as attributes. The inconsistency is historical rather than deliberate.
+lesson.md(f"""
+Third, a bracket that never closes. {lesson.claim("an unclosed bracket raises TokenError rather than SyntaxError, and carries its position in its arguments rather than as attributes")}. The inconsistency is historical rather than deliberate.
 """)
 
 
@@ -437,7 +439,7 @@ There are two tokens for the end of a line, and the difference matters.
 
 The tokenizer picks between them in {cite("Parser/lexer/lexer.c:804-827@v3.15.0rc1#tok_extra_tokens")}, and the test is one field counting how many brackets are open. That single counter is all of implicit line joining.
 
-It is also why indentation is not measured inside brackets. The indentation code only runs when that counter is zero, so you can lay out a function call however you like and nothing complains.
+It is also why indentation is not measured inside brackets. {lesson.claim("a line ending inside brackets comes back as NL rather than NEWLINE, and the five spaces in front of the next line produce no INDENT at all")}, so you can lay out a function call however you like and nothing complains.
 """)
 
 
@@ -453,7 +455,7 @@ There is a second thing worth noticing, which is that the parser never sees that
 
 {figure("two-token-streams", "the token stream tokenize returns above the shorter one the compiler receives")}
 
-So the token stream you have been reading all lesson is bigger than the one the compiler works from. Most people assume it is the other way around.
+So {lesson.claim("the token stream tokenize hands you is bigger than the one the compiler works from, because comments and the newlines inside brackets are dropped before the parser")}. Most people assume it is the other way around.
 """)
 
 
@@ -467,7 +469,7 @@ for source in ["x = 1  # a comment\n", "x = (1,\n     2)\n"]:
 lesson.md(f"""
 ## A backslash leaves nothing at all
 
-The other way to join two lines is a trailing backslash, and it works differently again. It produces no token at all, not even a marker. The two physical lines become one, and the only trace left is in the position numbers, where the tokens jump from line 1 to line 2 in the middle of an expression.
+The other way to join two lines is a trailing backslash, and it works differently again. {lesson.claim("a backslash continuation produces no token at all, not even a marker, and the only trace left is the tokens jumping from line 1 to line 2 in the middle of an expression")}.
 
 The function is {cite("Parser/lexer/lexer.c:434-443@v3.15.0rc1#tok_continuation_line")}, and the one thing it insists on is that the backslash is the very last character on the line. A single space after it is an error, which is worth knowing the next time you spend five minutes staring at one.
 """)
@@ -489,7 +491,7 @@ The trick is a mode switch. The tokenizer has two modes, and {cite("Parser/lexer
 
 {figure("the-mode-switch", "the tokenizer moving between normal mode and f-string mode")}
 
-As soon as it hits an opening brace it goes back to normal mode, which is why the expression inside is tokenized as ordinary Python by the ordinary code.
+As soon as it hits an opening brace it goes back to normal mode, which is why {lesson.claim("an f-string comes out as several tokens, with the expression between the braces tokenized as ordinary Python")}.
 """)
 
 
@@ -517,7 +519,7 @@ Template strings are new in 3.14. They are lexed the same way, but with their ow
 
 The tokenizer works out which family it is in from the prefix letter, at {cite("Parser/lexer/lexer.c:1103-1128@v3.15.0rc1#string_kind")}, and it has to cope with `rt` and `tr` as well as plain `t`.
 
-Keeping the kinds separate is what lets the grammar build a different type of object for each, and it means any tool reading the token stream can tell them apart without inspecting the text.
+{lesson.claim("template strings get their own token kinds rather than borrowing the f-string ones")}, which is what lets the grammar build a different type of object for each, and it means any tool reading the token stream can tell them apart without inspecting the text.
 """)
 
 
