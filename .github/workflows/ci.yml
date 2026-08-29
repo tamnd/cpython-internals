@@ -155,6 +155,25 @@ jobs:
           path: build/probe
           retention-days: 7
 
+  # The other half of the same question. The browser is one place a lesson runs and the
+  # reader's own Python is the other, and that is not one thing either: Fedora's python3
+  # ships no _testinternalcapi at all.
+  #
+  # This job does not re-measure. The survey pulls six images and runs a package manager in
+  # each, which is half an hour, and it would answer as amd64 while the committed recording
+  # is arm64, so a run here would be a second recording rather than a check of this one.
+  # Re-measuring is `just build-dist`, run by a person when the pin moves. What this catches
+  # is the cheap and common failure: somebody edited a channel and did not rerun it.
+  dist:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - run: uv run distprobe check probes/distributions
+
   blueprints:
     runs-on: ubuntu-latest
     steps:
