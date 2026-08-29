@@ -76,6 +76,7 @@ def _buildargs(args: argparse.Namespace) -> int:
         ("CONFIGURE_FLAGS", " ".join(one.flags)),
         ("PACKAGES", " ".join(packages(one))),
         ("CC", one.environment.get("CC", "")),
+        ("LLVM", one.llvm),
         ("DEBUGGER", "yes" if one.debugger else ""),
         ("SUMMARY", one.summary),
     ]:

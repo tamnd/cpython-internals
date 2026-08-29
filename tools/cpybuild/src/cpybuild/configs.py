@@ -21,6 +21,16 @@ from dataclasses import dataclass, field
 #: those is not automatically true on the other.
 ARCHITECTURES = ("amd64", "arm64")
 
+#: The LLVM the JIT build needs, which is not the LLVM Debian has. CPython names an exact
+#: major version and refuses anything else, because the JIT cuts its templates out of object
+#: files that LLVM produced and a mismatch there is not a warning, it is wrong code.
+#:
+#: `Tools/jit/_llvm.py:13@v3.15.0rc1#_LLVM_VERSION`. Debian trixie ships 17, 18 and 19, so a
+#: build that installs the `llvm` package gets 19 and fails. A test reads this number back out
+#: of the pinned checkout, so when the pin moves and CPython wants a different LLVM, the test
+#: says so rather than a twenty minute job failing in CI.
+LLVM_VERSION = "21"
+
 #: What GitHub calls the runners for those. Native runners rather than emulation: qemu builds
 #: CPython perhaps ten times slower, which turns a fifteen minute job into an afternoon.
 RUNNERS = {"amd64": "ubuntu-24.04", "arm64": "ubuntu-24.04-arm"}
@@ -48,6 +58,10 @@ class Configuration:
     #: Whether the image carries the source tree and a debugger. Stepping through C with no
     #: source is not an experiment, it is a wall of addresses.
     debugger: bool = False
+
+    #: The LLVM major version this build needs from apt.llvm.org, if it needs one at all.
+    #: Only the JIT does, and only because Debian is two releases behind what CPython asks for.
+    llvm: str = ""
 
     #: Why this configuration is on the list, and what a reader would get wrong without it.
     note: str = ""
@@ -101,12 +115,20 @@ CONFIGURATIONS: list[Configuration] = [
         key="jit",
         summary="the experimental copy and patch JIT compiled in",
         flags=("--enable-experimental-jit",),
-        packages=("clang", "llvm"),
+        # A host Python, to run `Tools/jit/build.py` during `make`. The JIT generates its
+        # templates with a Python script before it can compile them, so this build needs an
+        # interpreter to build an interpreter. It is the only one that does, which is why it
+        # is here rather than in the common list.
+        packages=("python3",),
+        llvm=LLVM_VERSION,
         note=(
             "Needs LLVM at build time because the JIT is copy and patch: the build compiles "
             "each micro operation into an object file and the templates are cut out of it. "
             "The interpreter lessons need this to show tier 2 traces actually being "
-            "executed rather than described."
+            f"executed rather than described. The LLVM has to be exactly {LLVM_VERSION}, "
+            "which Debian does not have, so this is the one build that adds a package "
+            "repository. That was found the way these things usually are: the first run of "
+            "the workflow built the other four and failed this one on both architectures."
         ),
     ),
     Configuration(
@@ -150,8 +172,15 @@ COMMON_PACKAGES = (
 
 
 def packages(configuration: Configuration) -> tuple[str, ...]:
-    """Everything to install for this build, sorted, with no duplicates."""
-    return tuple(sorted(set(COMMON_PACKAGES) | set(configuration.packages)))
+    """Everything to install for this build, sorted, with no duplicates.
+
+    The LLVM packages are spelled out from the version rather than listed, so there is one
+    place to change when CPython wants a different one.
+    """
+    extra = set(configuration.packages)
+    if configuration.llvm:
+        extra |= {f"clang-{configuration.llvm}", f"llvm-{configuration.llvm}"}
+    return tuple(sorted(set(COMMON_PACKAGES) | extra))
 
 
 def matrix() -> list[dict[str, str]]:

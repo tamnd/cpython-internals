@@ -21,14 +21,30 @@ ARG CONFIG=release
 ARG CONFIGURE_FLAGS=""
 ARG PACKAGES=""
 ARG CC=""
+ARG LLVM=""
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 # ccache is here rather than in the package list because it is a property of building, not of
 # a configuration. The workflow mounts its cache directory, so a rebuild with no source change
 # is a couple of minutes instead of twenty.
+#
+# The LLVM repository is added only when a build asks for a version, which today is only the
+# JIT. CPython's JIT wants one exact LLVM major version and Debian trixie is two behind it, so
+# installing the `llvm` package gets the wrong one and the build fails several minutes in with
+# a message about a tool it could not find. Every other build uses what Debian has.
 RUN apt-get -qq update \
-    && apt-get -qq install -y --no-install-recommends ca-certificates ccache git ${PACKAGES} \
+    && apt-get -qq install -y --no-install-recommends ca-certificates ccache git \
+    && if [ -n "${LLVM}" ]; then \
+        apt-get -qq install -y --no-install-recommends curl gnupg; \
+        curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key \
+            -o /etc/apt/trusted.gpg.d/apt.llvm.org.asc; \
+        . /etc/os-release; \
+        echo "deb http://apt.llvm.org/${VERSION_CODENAME}/ llvm-toolchain-${VERSION_CODENAME}-${LLVM} main" \
+            > /etc/apt/sources.list.d/llvm.list; \
+        apt-get -qq update; \
+    fi \
+    && apt-get -qq install -y --no-install-recommends ${PACKAGES} \
     && rm -rf /var/lib/apt/lists/*
 
 ENV PATH="/usr/lib/ccache:${PATH}" CCACHE_DIR=/ccache
