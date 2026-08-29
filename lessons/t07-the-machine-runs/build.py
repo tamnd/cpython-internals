@@ -194,6 +194,8 @@ The data stack is the per thread thing frames live on. It grows as needed and it
 {lesson.claim("Python calling Python only grows the interpreter's own frame stack, so ninety thousand deep is fine, while going out through a C function and back in runs out of the real C stack after a few thousand")}. The C function has a real C stack frame that has to stay put while the callback runs, and `sorted` with a `key` is the classic example.
 
 The next cell shows the difference. It takes a few seconds and prints a `RecursionError`, which is the point.
+
+If you are reading this in a browser tab, the second half of that cell does not run and says so. Running out of C stack has to be survivable for the cell to print anything, and under WebAssembly it is not. The runtime overflows its own call stack before CPython gets a chance to notice, and nothing catches that. Everything else in this lesson runs there.
 """)
 
 
@@ -202,6 +204,12 @@ lesson.code(
 import sys
 
 sys.setrecursionlimit(200_000)
+
+# Running out of C stack has to be survivable for the second half of this cell to print
+# anything. On a normal build it is: CPython checks the stack pointer and raises. Under
+# WebAssembly the runtime overflows its own call stack first, which is not a Python
+# exception and cannot be caught, so the tab dies instead of printing.
+RECOVERABLE = sys.platform != "emscripten"
 
 
 def only_python(n):
@@ -218,14 +226,17 @@ def through_c(n):
 
 print("pure Python, 90000 deep:", only_python(90_000), "no complaints")
 
-depth = 0
-try:
-    while True:
-        depth += 500
-        through_c(depth)
-except RecursionError as problem:
-    print(f"through sorted, gave up somewhere under {depth} deep")
-    print("   ", problem)
+if not RECOVERABLE:
+    print("through sorted: not run here, a browser cannot survive running out of C stack")
+else:
+    depth = 0
+    try:
+        while True:
+            depth += 500
+            through_c(depth)
+    except RecursionError as problem:
+        print(f"through sorted, gave up somewhere under {depth} deep")
+        print("   ", problem)
 """,
     varies="How deep you get before the C stack runs out depends on the build and on the machine, so this number is different everywhere. That it stops far earlier than the pure Python version is the part to read.",
 )
