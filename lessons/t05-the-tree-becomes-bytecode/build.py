@@ -118,7 +118,7 @@ The first two are behind us. T02 was the tokenizer, T03 was the parser, T04 was 
 
 {term("code generation", "The code generator")} walks the tree and emits {term("instruction", "instructions")}. It does not think about them at all, it just writes down what each node means. The optimizer takes that list, rearranges it into a graph, and improves it. The {term("assembler")} turns the improved graph into the bytes and the tables that make up a code object.
 
-The reason this lesson can exist is that a stock CPython exports the first two as callable functions, in a module called `_testinternalcapi` that ships with the interpreter so CPython can test itself. Almost nobody uses it for teaching, and it is the best teaching hook in the codebase.
+The reason this lesson can exist is that {lesson.claim("a stock CPython exports the first two compiler stages as callable functions, in a module called _testinternalcapi that ships with the interpreter")} so CPython can test itself. Almost nobody uses it for teaching, and it is the best teaching hook in the codebase.
 """)
 
 
@@ -152,12 +152,12 @@ print(result.summary())
 )
 
 
-lesson.md("""
+lesson.md(f"""
 Read the last three numbers again. Eight instructions came out of the code generator, five survived the optimizer, and the finished code object is a handful of bytes. Three instructions went missing, and one of them was the multiplication.
 
 ## Where the multiplication went
 
-The next cell puts both lists side by side. The left column is what the code generator wrote down, the right column is what was left after the optimizer had a look at it.
+The next cell puts both lists side by side. The left column is what the code generator wrote down, the right column is what was left after the optimizer had a look at it. {lesson.claim("The multiplication in 6 * 7 happens while the file is being compiled, and no multiply instruction survives into the finished program")}.
 """)
 
 
@@ -179,7 +179,7 @@ Look at rows three, four and five on the left. Load a constant, load another con
 
 The function that does it is {cite("Python/flowgraph.c:1916-1948@v3.15.0rc1#fold_const_binop")}. Its job is small and worth spelling out. It finds a `BINARY_OP`, looks at the two instructions before it, and checks whether both of them are loading constants. If they are, it fetches the two values, does the arithmetic there and then, replaces the `BINARY_OP` with a load of the answer, and turns the two loads into nothing.
 
-The arithmetic itself is in {cite("Python/flowgraph.c:1860-1880@v3.15.0rc1#eval_const_binop")}, and it is a `switch` over the operators calling the same `PyNumber_Multiply` and `PyNumber_Add` your program would have called. The compiler is not simulating the multiplication. It is doing it, with the same code, on the same objects, just earlier.
+The arithmetic itself is in {cite("Python/flowgraph.c:1860-1880@v3.15.0rc1#eval_const_binop")}, and it is a `switch` over the operators calling the same `PyNumber_Multiply` and `PyNumber_Add` your program would have called. {lesson.claim("the compiler is not simulating the multiplication, it is doing it with the same C function your program would have called", unobservable="the call happens in C while the file is being compiled, and nothing in the finished code object records that it took place")}, just earlier.
 
 This has a name people use without explaining it, {term("constant folding")}, which is accurate and not much help. What is happening is that the compiler notices it already has everything it needs to work out an answer, so it works it out and writes the answer down instead of the recipe.
 """)
@@ -188,7 +188,7 @@ This has a name people use without explaining it, {term("constant folding")}, wh
 lesson.md(f"""
 ## Where 42 actually ended up
 
-The finished instruction is `LOAD_SMALL_INT 42`, and that is worth a moment because the 42 is not stored anywhere. It is the {term("oparg", "argument byte")} of the instruction itself.
+The finished instruction is `LOAD_SMALL_INT 42`, and that is worth a moment because {lesson.claim("the 42 is not in the constants table")}. It is the {term("oparg", "argument byte")} of the instruction itself.
 """)
 
 
@@ -208,7 +208,7 @@ That is not a typo, and it is two surprises at once.
 
 42 is not in there, because an instruction argument is one byte and 42 fits in one byte, so it rides along inside the instruction. {cite("Python/bytecodes.c:317-322@v3.15.0rc1#LOAD_SMALL_INT")} is the whole implementation, which is one index into an array of preallocated small integers, with no lookup and no table.
 
-And 6 is still in there with nothing loading it. The optimizer removed the instruction that used it and left the constant sitting in the table, because the constants are collected while the code is being generated and nobody goes back afterwards to sweep up. It costs eight bytes in the file and nothing at runtime, so it has never been worth fixing.
+And {lesson.claim("6 is still in the constants table with nothing loading it")}. The optimizer removed the instruction that used it and left the constant sitting in the table, because the constants are collected while the code is being generated and nobody goes back afterwards to sweep up. It costs eight bytes in the file and nothing at runtime, so it has never been worth fixing.
 
 You can check that claim rather than believing it.
 """)
@@ -230,7 +230,7 @@ print("constants actually loaded:", used)
 lesson.md(f"""
 ## Instructions that cannot run
 
-There is a second thing in the left column worth noticing, `ANNOTATIONS_PLACEHOLDER`, and there is no such instruction. You will never see it in a disassembly and the interpreter has no idea what it means.
+There is a second thing in the left column worth noticing, `ANNOTATIONS_PLACEHOLDER`, and {lesson.claim("there is no such instruction as ANNOTATIONS_PLACEHOLDER outside the compiler")}. You will never see it in a disassembly and the interpreter has no idea what it means.
 
 The code generator uses a handful of these. They are called {term("pseudo instruction", "pseudo instructions")}, and they carry information between the compiler's own stages. Some mark a spot that a later pass will fill in, and some describe control flow in a form that is easier to rearrange than a jump to a byte offset.
 """)
@@ -245,7 +245,7 @@ for name in compiler.pseudo_instructions():
 lesson.md(f"""
 Eleven of them, and the list comes from the interpreter's own opcode table rather than from this lesson, because it changes: {cite("Include/opcode_ids.h:247-257@v3.15.0rc1#ANNOTATIONS_PLACEHOLDER")}. Their numbers start at 256, which is the giveaway. An instruction argument is a byte, opcodes go up to 255, and anything numbered higher than that could not be written into a file even if somebody wanted to.
 
-`SETUP_FINALLY` is the interesting one. Look at what happens to a `try` block.
+`SETUP_FINALLY` is the interesting one. Look at what happens to a `try` block: {lesson.claim("SETUP_FINALLY and SETUP_CLEANUP are pseudo instructions, and both of them survive the optimizer")}.
 """)
 
 
@@ -274,9 +274,9 @@ Also worth noticing in that output: `1 / 0` was not folded. The optimizer tried,
 
 ## The optimizer works on a graph
 
-Calling it a list of instructions has been a simplification for the last few cells. The optimizer's first move is to cut the list into {term("basic block", "basic blocks")}, which are runs of instructions with no jumps in and no jumps out except at the end, and to join those blocks with edges wherever a jump goes. The result is a {term("control flow graph")}.
+Calling it a list of instructions has been a simplification for the last few cells. {lesson.claim("the optimizer's first move is to cut the instruction list into basic blocks and join them with edges wherever a jump goes", unobservable="the graph is built, used and thrown away inside the compiler, and is never handed back to Python in any form")}, where a basic block is a run of instructions with no jumps in and no jumps out except at the end. The result is a {term("control flow graph")}.
 
-Doing that makes a question askable that a flat list cannot answer: can this code be reached at all.
+Doing that makes a question askable that a flat list cannot answer: can this code be reached at all. {lesson.claim("The entire body of an if False block is removed before the file is written")}.
 """)
 
 
@@ -302,7 +302,7 @@ Seventeen instructions in and nine out, and the entire body of the `if` is gone.
 
 The steps are small and each one is dull on its own. `False` is a constant so `TO_BOOL` folds. Now `POP_JUMP_IF_FALSE` is jumping on a value that is known, so it becomes an ordinary jump, and the edge into the middle block disappears with it. Then {cite("Python/flowgraph.c:1008-1044@v3.15.0rc1#remove_unreachable")} walks the graph from the entry block counting how many edges arrive at each one, finds a block that nothing points to, and deletes its instructions.
 
-You can check that the string is really gone.
+You can check that {lesson.claim("the string inside the if False block is not in the code object's constants table")}.
 """)
 
 
@@ -315,14 +315,14 @@ print(compile(never, "lesson.py", "exec").co_consts)
 )
 
 
-lesson.md("""
+lesson.md(f"""
 `'this never runs'` is not in the file. It is not skipped at runtime and not stored and ignored, it was never written down.
 
 `False` is still there, which is the same kind of leftover constant as before. Removing it is nobody's job.
 
 ## What else disappears
 
-Two smaller rewrites are visible in almost every disassembly once you know to look for them.
+Two smaller rewrites are visible in almost every disassembly once you know to look for them. {lesson.claim("A list literal that is only iterated over is built once at compile time and stored as a constant tuple")}, and a handful of very common values are loaded by number rather than out of the table.
 """)
 
 
@@ -359,7 +359,7 @@ Somewhere there has to be a line, and in CPython it is four numbers: {cite("Pyth
 
 {figure("four-limits", "the four size limits that stop constant folding, with an example either side of each")}
 
-They are exact rather than rules of thumb, so you can find the boundary yourself.
+They are exact rather than rules of thumb, so you can find the boundary yourself. {lesson.claim("2 ** 65 is not folded, even though the answer is only a 66 bit number")}.
 """)
 
 
@@ -377,7 +377,7 @@ That estimate is deliberately generous, and it is worth knowing because it expla
 
 The same reasoning says 3 stops at the same exponent as 2, since both take two bits, and 4 stops earlier because it takes three.
 
-Two of the refusals have nothing to do with size. `1 / 0` is left alone because evaluating it raised, and `'%s' % name` is left alone on purpose, because `%` on a string is formatting rather than arithmetic and the compiler has no business running it early.
+Two of the refusals have nothing to do with size. {lesson.claim("1 / 0 is left for runtime because evaluating it raised, and a % on a string is left alone on purpose")}, because `%` on a string is formatting rather than arithmetic and the compiler has no business running it early.
 """)
 
 
@@ -388,12 +388,12 @@ for expression in ["7 % 3", "'%s' % 'x'", "1 / 0", "0.1 + 0.2"]:
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 `0.1 + 0.2` folds, and gives exactly the wrong looking answer you would get at runtime, because it is the same addition on the same floats. Folding never changes what your program computes. That is the one rule the whole thing has to obey.
 
 ## The one thing it cannot do
 
-Everything above depends on the compiler knowing both values. The moment one of them is a name, all of it stops.
+Everything above depends on the compiler knowing both values. {lesson.claim("Folding stops the moment either side of the operator is a name")}.
 """)
 
 
@@ -404,14 +404,14 @@ for expression in ["6 * 7", "6 * x", "x * 7"]:
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 This is the honest boundary of a compiler that does not run your program. `x` might be an integer, or a numpy array, or a class with a `__mul__` that sends an email. The compiler has no idea, and cannot have one, because `x` is looked up when the code runs.
 
 There is a real speedup here that people reach for by hand. Pulling a constant expression out of a loop is worth doing yourself, because the compiler will not do it for you as soon as a name is involved. And a name spelled `math.pi` is worse than a name spelled `pi`, because an attribute lookup is a whole extra instruction with its own cache.
 
 ## The assembler
 
-The graph now has to become a file. That is the third stage, and it is the one that builds the parts of a code object that are not instructions.
+The graph now has to become a file. That is the third stage, and it is the one that builds the parts of a code object that are not instructions. Here are the finished bytes, and {lesson.claim("a code object's bytes come in pairs, one byte of opcode and one byte of argument")}.
 """)
 
 
@@ -437,7 +437,7 @@ Some instructions are followed by blank slots that the interpreter writes into w
 
 {figure("what-the-assembler-makes", "the fields of a code object, and which ones the assembler builds")}
 
-Two of those fields are built here and nowhere else, and neither of them is in the bytes.
+Two of those fields are built here and nowhere else, and neither of them is in the bytes. The first is the line table: {lesson.claim("a traceback finds its line number by looking a byte offset up in a table that is stored separately from the instructions")}.
 """)
 
 
@@ -455,6 +455,8 @@ for start, end, line in bytecode.line_table("answer = 6 * 7"):
 
 lesson.md(f"""
 That is `co_linetable`, the {term("line table")}. It is how a traceback knows which line to print, and it is a lookup table rather than anything stored with the instructions. Since 3.11 it holds column numbers too, which is where the carets under the failing part of a line come from, and those columns came all the way from the tree in T03.
+
+The second is the exception table, and {lesson.claim("a try block leaves no instruction behind in the bytecode, only an entry in a table")}.
 """)
 
 
