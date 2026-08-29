@@ -44,7 +44,11 @@ jobs:
       # rather than sit next to it, or both legs of the matrix run the same interpreter
       # and the job quietly stops testing what it says it tests.
       - run: uv python pin ${{ matrix.python }}
-      - run: uv sync --all-packages
+      # The `live` extra brings anywidget, which is what the widgets use when a reader can
+      # click on them. It is installed here rather than only in a developer's environment
+      # because the alternative is that the live half of every widget is never run by CI,
+      # and the static half is the half that is easy to keep working.
+      - run: uv sync --all-packages --extra live
       - run: uv run python -c "import sys; print(sys.version)"
       - run: uv run pytest
 

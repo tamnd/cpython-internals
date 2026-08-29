@@ -275,3 +275,56 @@ def line_table(target: CodeLike) -> list[tuple[int, int, int | None]]:
     own lesson; this is the decoded view a reader needs long before then.
     """
     return list(code_of(target).co_lines())
+
+
+@dataclass(frozen=True)
+class Handler:
+    """One row of the exception table: a protected range and where it lands.
+
+    `start` and `end` are offsets into `co_code`, and the range is half open, so an
+    instruction at `end` is not covered. `depth` is how deep the value stack is unwound to
+    before the handler runs, and `lasti` says whether the offset of the instruction that
+    raised is pushed as well, which a bare `raise` inside the handler needs in order to know
+    what it is re-raising.
+    """
+
+    start: int
+    end: int
+    target: int
+    depth: int
+    lasti: bool
+
+    def covers(self, offset: int) -> bool:
+        """Whether an instruction at this offset is inside the protected range."""
+        return self.start <= offset < self.end
+
+
+def exception_table(target: CodeLike) -> list[Handler]:
+    """The exception table, decoded.
+
+    Since 3.11 there are no `SETUP_FINALLY` instructions in the bytecode. A `try` costs
+    nothing at all until something raises, and what replaced the instructions is this table,
+    which is consulted only while unwinding. That is the single biggest reason a modern
+    disassembly looks different from one a reader may have seen in an older book, and it is
+    invisible unless something prints the table.
+
+    The decoding is `dis._parse_exception_table`, which is private, and the alternative is
+    decoding the varint format in `co_exceptiontable` by hand. That format deserves the
+    lesson it gets rather than a helper function nobody reads, and CPython's own account of
+    it is in `InternalDocs/exception_handling.md`. An interpreter without that private
+    function gives an empty list rather than raising, because a missing extra view of the
+    code is not a reason for a lesson to stop.
+    """
+    parse = getattr(dis, "_parse_exception_table", None)
+    if parse is None:  # pragma: no cover - every supported version has it
+        return []
+    return [
+        Handler(
+            start=entry.start,
+            end=entry.end,
+            target=entry.target,
+            depth=entry.depth,
+            lasti=bool(entry.lasti),
+        )
+        for entry in parse(code_of(target))
+    ]

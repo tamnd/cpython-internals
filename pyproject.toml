@@ -14,6 +14,7 @@ dependencies = [
     "pyxray",
     "refcheck",
     "xraymanim",
+    "xraywidgets",
 ]
 
 # Installing the renderer. Manim brings cairo, pango, numpy and scipy with it, which is a
@@ -21,6 +22,9 @@ dependencies = [
 # thing here you have to opt into: `uv sync --extra anim`, or `just build-animations`.
 [project.optional-dependencies]
 anim = ["xraymanim[render]"]
+# The widgets that respond to a click. Everything in `xraywidgets` renders as plain HTML
+# without this, so a reader who skips it still gets the picture, just not the buttons.
+live = ["xraywidgets[live]"]
 
 [dependency-groups]
 dev = [
@@ -38,6 +42,7 @@ members = [
     "tools/nbdiagram",
     "tools/refcheck",
     "xraymanim",
+    "xraywidgets",
 ]
 
 [tool.uv.sources]
@@ -48,6 +53,7 @@ nbdiagram = { workspace = true }
 pyxray = { workspace = true }
 refcheck = { workspace = true }
 xraymanim = { workspace = true }
+xraywidgets = { workspace = true }
 
 [tool.pytest.ini_options]
 testpaths = [
@@ -58,6 +64,7 @@ testpaths = [
     "tools/nbdiagram/tests",
     "tools/refcheck/tests",
     "xraymanim/tests",
+    "xraywidgets/tests",
 ]
 addopts = "-q --strict-markers --strict-config"
 markers = [
@@ -80,7 +87,16 @@ filterwarnings = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["bpcheck", "nbbuild", "nbcheck", "nbdiagram", "pyxray", "refcheck", "xraymanim"]
+known-first-party = [
+    "bpcheck",
+    "nbbuild",
+    "nbcheck",
+    "nbdiagram",
+    "pyxray",
+    "refcheck",
+    "xraymanim",
+    "xraywidgets",
+]
 
 [tool.ruff]
 line-length = 100
@@ -103,6 +119,10 @@ ignore = [
 # The glossary is the same thing without the notebook around it: definitions written as
 # one paragraph per line, so that a sentence is never split across two of them.
 "pyxray/src/pyxray/glossary.py" = ["E501"]
+# Every word a widget shows a reader lives in one dictionary, written one sentence per line.
+# Splitting a sentence across two source lines to please a line length rule would leave the
+# sentence looking wrapped in the source and identical on screen, which helps nobody.
+"xraywidgets/src/xraywidgets/strings.py" = ["E501"]
 "lessons/**/diagrams.py" = ["E501"]
 # The lesson notebooks are the one thing here that runs on an interpreter we do not choose.
 # A reader in Colab is on whatever Google installed, so a version check the linter thinks

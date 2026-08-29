@@ -1,0 +1,25 @@
+[project]
+name = "xraywidgets"
+version = "0.1.0"
+description = "The interactive components the lessons embed, in marimo, in Jupyter and in the browser"
+requires-python = ">=3.14"
+license = "MIT"
+dependencies = ["pyxray"]
+
+# anywidget is optional, and that is the whole design rather than a packaging convenience.
+# Every widget here renders to plain HTML with no dependency at all, which is what a reader
+# sees on GitHub, in an nbconvert render, and in the seconds before Pyodide has finished
+# booting. Installing this extra adds the live version on top of that picture. If it were a
+# hard dependency the fallback would be a promise nobody ever tests.
+[project.optional-dependencies]
+live = ["anywidget>=0.9"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/xraywidgets"]
+
+[tool.uv.sources]
+pyxray = { workspace = true }
