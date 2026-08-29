@@ -29,9 +29,55 @@ Disassembler(some_function, depths=True).live()  # buttons work, needs `uv sync 
 
 The argument can be a string, a function, a method or a code object, so a lesson can hand it the function it was just talking about rather than a copy of the text of it.
 
+## The pipeline explorer
+
+```python
+from xraywidgets import PipelineExplorer
+
+PipelineExplorer("answer = 6 * 7")
+```
+
+Six panes side by side, one per stage: the token stream, the tree, the symbol table, the instructions as code generation left them, the same instructions after the optimizer, and the finished code object. Typing in the source box redraws all six.
+
+The point of showing them together is that each stage throws away something the one before it had, and that is hard to believe from prose. Add a comment to the end of the line and watch it sit in the tokens and be gone by the tree. Leave `6 * 7` alone and watch a `BINARY_OP` come out of code generation and be a plain `LOAD_SMALL_INT 42` by the time there is a code object. That is one edit and two panes, which beats a paragraph saying that constants are folded.
+
+Two of the six panes, code generation and the optimizer, need `_testinternalcapi`, which not every build ships. On a build without it those two say so and the other four still work. A widget that shows nothing because one interpreter hook is missing teaches nobody anything about the four stages that would have run fine.
+
+Long output is cut at forty lines per pane and the cut is announced, because six panes of a hundred lines is a page nobody scrolls through.
+
+## The prediction gate
+
+```python
+from xraywidgets import Option, PredictGate
+
+PredictGate(
+    question="The compiler sees 6 * 7. What ends up in the code object?",
+    options=[
+        Option(
+            "A BINARY_OP that multiplies at run time",
+            why="That is what happens for a * b, where the compiler cannot know the values.",
+        ),
+        Option(
+            "The constant 42",
+            why="Both sides are literals, so the multiplication happens once, while compiling.",
+            correct=True,
+        ),
+    ],
+    check="dis.dis(compile('6 * 7', '<here>', 'eval'))",
+)
+```
+
+A question in front of an output, with the answer behind a gate. Reading a disassembly teaches almost nothing on its own: it makes sense while you look at it, you move on, and your model of the compiler is exactly as wrong as it was before, because nothing made you commit to a prediction that could turn out wrong. Being wrong on purpose, in private, and then finding out why is the part that sticks.
+
+`Option` will not be built without a `why`, including on the right answer. A wrong option is only worth offering if somebody could plausibly pick it, and if somebody could plausibly pick it then the reason it is wrong is worth teaching. When the answer is revealed every option's explanation is shown, not only the picked one and not only the right one, so a reader who guessed correctly still learns why the option they nearly picked was wrong.
+
+Which option was picked is written to the reader's own browser with `localStorage` and goes nowhere else. Nothing is scored and nothing is uploaded. A reader who thinks a wrong answer is being logged somewhere stops guessing and starts reading ahead, and guessing is the whole mechanism. The storage exists because notebooks get re-run, and being asked six questions you have already answered is a good way to stop answering them.
+
+The static rendering gates too. The options are a numbered list and the explanations go inside a `<details>`, which folds and unfolds with no JavaScript and is reachable from the keyboard, so a reader looking at a rendered notebook on GitHub still gets asked before they get told.
+
 ## Why the browser decides nothing
 
-Python computes the rows and renders the HTML. The JavaScript puts that HTML on the page, listens for a click on a toggle and a keystroke in the source box, and hands both back to Python. It contains no opcode names, no cache arithmetic and no idea what an exception table is, and there is a test that greps it for opcode names to keep it that way.
+Python computes the rows and renders the HTML. The JavaScript puts that HTML on the page, listens for a click on a toggle and a keystroke in the source box, and hands both back to Python. It contains no opcode names, no cache arithmetic and no idea what an exception table is, and there is a test that greps it for opcode names to keep it that way. The one exception is the prediction gate, which reads and writes the reader's own answer in their own browser, because that is the only thing in this package that is nobody else's business.
 
 The reason is not tidiness. If the front end worked out which opcodes were specialized, there would be two answers to that question in this repository, and the one written in JavaScript is the one nobody runs a test against. It would drift, and it would drift in the direction of looking right, because the person who noticed would be a reader who trusted the widget over `dis` and got the wrong idea about CPython. Keeping the logic on one side means the picture in a rendered notebook and the picture you can click are the same picture by construction.
 
@@ -58,8 +104,10 @@ src/xraywidgets/
   style.py        the stylesheet, generated from pyxray.theme
   parts.py        the markup more than one widget needs, so it only looks one way
   base.py         what a widget is, and its two forms
-  disassembler.py the first one
-  static/         one front end module per widget, named after its slug
+  disassembler.py bytecode as a table, with four things dis leaves out
+  pipeline.py     six panes, source through code object
+  predict.py      ask before you show
+  static/         one front end module per widget, plus the part they share
 ```
 
 ## Installing

@@ -14,5 +14,7 @@ See `base.Widget` for why the truth lives in Python and the browser only draws.
 
 from .base import Widget
 from .disassembler import Disassembler
+from .pipeline import PipelineExplorer
+from .predict import Option, PredictGate
 
-__all__ = ["Disassembler", "Widget"]
+__all__ = ["Disassembler", "Option", "PipelineExplorer", "PredictGate", "Widget"]

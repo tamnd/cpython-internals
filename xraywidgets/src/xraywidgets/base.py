@@ -29,6 +29,10 @@ from .style import PREFIX, stylesheet
 #: Where the front end modules live. One file per widget, named after its slug.
 STATIC = Path(__file__).resolve().parent / "static"
 
+#: The half of the front end that is the same for every widget: putting markup on the page,
+#: forwarding a keystroke or a click, and putting the caret back afterwards.
+SHARED = STATIC / "_common.js"
+
 
 class Widget:
     """One component, in its two forms.
@@ -101,15 +105,20 @@ class Widget:
 
     @classmethod
     def esm(cls) -> str:
-        """The front end module for this widget, as source.
+        """The front end module for this widget, as source, with the shared part on the front.
 
-        Read off disk rather than embedded in a Python string, so that it is a `.js` file
-        an editor will highlight and a linter could be pointed at.
+        Both halves are read off disk rather than embedded in Python strings, so they are
+        `.js` files an editor will highlight and a linter could be pointed at.
+
+        The shared half is glued on by concatenation rather than imported. An import would be
+        a second network request made from inside a notebook output cell, which works in
+        Jupyter and does not reliably work in every other place a lesson gets rendered, and
+        the whole file is about a hundred lines.
         """
         path = STATIC / f"{cls.slug}.js"
         if not path.is_file():
             raise FileNotFoundError(f"{cls.slug} has no front end module at {path}")
-        return path.read_text(encoding="utf-8")
+        return f"{SHARED.read_text(encoding='utf-8')}\n{path.read_text(encoding='utf-8')}"
 
     @classmethod
     def css(cls) -> str:

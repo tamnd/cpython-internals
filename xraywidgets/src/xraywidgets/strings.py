@@ -33,13 +33,53 @@ STRINGS: dict[str, str] = {
     "disassembler.caches": "Inline caches",
     "disassembler.depths": "Stack depth",
     "disassembler.exceptions": "Exception table",
-    "disassembler.cache_row": "{count} cache entries",
+    "disassembler.cache_row": "{count} cache entr{ies}",
     "disassembler.specialized": "specialized",
     "disassembler.jump": "jumps to {target}",
     "disassembler.no_exceptions": "This code has no exception table, which means nothing in it can catch anything.",
     "disassembler.exception_range": "offsets {start} to {end} jump to {target}, depth {depth}{lasti}",
     "disassembler.lasti": ", and the instruction that raised is pushed",
-    "disassembler.count": "{count} instructions",
+    "disassembler.count": "{count} instruction{s}",
+    # The pipeline explorer.
+    "pipeline.title": "From source to a code object",
+    "pipeline.tokens": "Tokens",
+    "pipeline.tree": "The tree",
+    "pipeline.symbols": "The symbol table",
+    "pipeline.codegen": "After code generation",
+    "pipeline.optimized": "After the optimizer",
+    "pipeline.code": "The code object",
+    "pipeline.count_tokens": "{count} token{s}",
+    "pipeline.count_nodes": "{count} node{s}",
+    "pipeline.count_scopes": "{count} scope{s}",
+    "pipeline.count_instructions": "{count} instruction{s}",
+    "pipeline.count_after": "{count} instruction{s}, {gone} gone",
+    "pipeline.count_bytes": "{count} byte{s}",
+    "pipeline.more_lines": "and {count} more line{s}",
+    "pipeline.no_internals": "not on this build",
+    "pipeline.why_no_internals": "Two of these panes run the compiler one stage at a time, which needs the _testinternalcapi module. This interpreter was built without it, so those two are empty and the other four are unaffected.",
+    # The prediction gate.
+    "predict.title": "Predict first",
+    "predict.reveal": "Show the answer, once you have picked one",
+    "predict.right": "that is the one",
+    "predict.wrong": "not this time",
+    "predict.answer": "the answer",
+    "predict.yours": "what you picked",
+    "predict.check": "Run this if you want to see it for yourself:",
+}
+
+
+#: The plural endings a string can ask for, written as `{s}` or `{ies}` next to a `{count}`.
+#: Filled in from the count, so that a string says "1 token" and "2 tokens" without every
+#: caller doing the arithmetic. This is the first thing on screen in the first lesson, and
+#: "1 tokens" is the kind of thing a reader notices and then stops trusting.
+#:
+#: The endings stay in the string rather than being computed in the code, so a translator
+#: gets a whole sentence to work with and can move or drop them. English is the easy case
+#: here and this will not survive a language with three plural forms, but the shape is right:
+#: the thing that needs replacing is one dictionary, not thirty call sites.
+ENDINGS: dict[str, tuple[str, str]] = {
+    "s": ("", "s"),
+    "ies": ("y", "ies"),
 }
 
 
@@ -54,4 +94,9 @@ def text(key: str, **values: object) -> str:
         close = difflib.get_close_matches(key, STRINGS, n=3)
         hint = f", did you mean {' or '.join(close)}" if close else ""
         raise KeyError(f"no string called {key!r}{hint}")
-    return STRINGS[key].format(**values)
+    template = STRINGS[key]
+    count = values.get("count")
+    if isinstance(count, int):
+        one = abs(count) == 1
+        values = values | {name: forms[0] if one else forms[1] for name, forms in ENDINGS.items()}
+    return template.format(**values)

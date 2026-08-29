@@ -56,7 +56,7 @@ Pinned to `v3.15.0rc1` today and moving to `v3.15.0` when it ships on 1 October 
 | `nbdiagram` | Every picture in a lesson is an Excalidraw scene drawn from Python, written out as an editable `.excalidraw` and as the `.svg` GitHub and Colab display. Colours, type and spacing come from one shared theme, so the diagrams, the charts and the animations look like one project | [tools/nbdiagram](tools/nbdiagram) |
 | `bpcheck` | The shape a blueprint has to have before somebody can implement from it: the nine sections in order, the header block, the invariant numbering, and no fact deferred to a lesson | [tools/bpcheck](tools/bpcheck) |
 | `xraymanim` | The animations, and the fifteen shapes they are allowed to be made of. Each one is planned as a storyboard that is checked in milliseconds, so a mistake is caught before anybody pays for a render | [xraymanim](xraymanim) |
-| `xraywidgets` | The parts of a lesson you can click, starting with a disassembler that shows what `dis` hides. Each one renders twice from one piece of code: plain HTML with nothing installed, and the same picture with working buttons when anywidget is there | [xraywidgets](xraywidgets) |
+| `xraywidgets` | The parts of a lesson you can click: a disassembler that shows what `dis` hides, a pipeline explorer with six panes from source to code object, and a prediction gate that asks before it tells. Each one renders twice from one piece of code: plain HTML with nothing installed, and the same picture with working buttons when anywidget is there | [xraywidgets](xraywidgets) |
 
 ## The lessons
 

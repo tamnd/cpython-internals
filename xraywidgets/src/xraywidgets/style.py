@@ -129,6 +129,75 @@ textarea.{PREFIX}-source {{
   border: 1px solid currentColor;
   white-space: nowrap;
 }}
+.{PREFIX} pre {{
+  font-family: var(--{PREFIX}-mono);
+  font-size: 12px;
+  line-height: 1.45;
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre;
+}}
+
+/* The six panes of the pipeline explorer. `auto-fit` with a minimum rather than a fixed
+   column count, so the same widget is six columns on a wide screen, two in a notebook
+   sidebar and one on a phone, without a media query deciding which is which. */
+.{PREFIX}-panes {{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}}
+.{PREFIX}-pane {{
+  border: 1px solid var(--{PREFIX}-line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-width: 0;
+}}
+.{PREFIX}-pane-head {{
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}}
+.{PREFIX}-pane-title {{ font-weight: 700; font-size: 12px; }}
+/* The prediction gate. */
+.{PREFIX}-question {{ font-size: 15px; margin: 0 0 12px; }}
+.{PREFIX}-options {{ display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }}
+.{PREFIX}-option {{
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--{PREFIX}-line);
+  background: transparent;
+  color: inherit;
+}}
+.{PREFIX}-option[aria-pressed="true"] {{
+  border-color: var(--{PREFIX}-focus-stroke);
+  background: var(--{PREFIX}-focus-fill);
+  color: {theme.INK};
+}}
+.{PREFIX}-option:focus-visible {{
+  outline: 2px solid var(--{PREFIX}-focus-stroke);
+  outline-offset: 2px;
+}}
+.{PREFIX}-options-list {{ margin: 0 0 12px; padding-left: 22px; }}
+.{PREFIX}-options-list li {{ margin-bottom: 4px; }}
+.{PREFIX}-verdict {{ margin: 0 0 12px; }}
+.{PREFIX}-explanations {{ list-style: none; margin: 0; padding: 0; }}
+.{PREFIX}-explanation {{
+  border-top: 1px solid var(--{PREFIX}-line);
+  padding: 10px 0;
+}}
+.{PREFIX}-explanation p {{ margin: 4px 0 0; color: var(--{PREFIX}-muted); }}
+.{PREFIX}-option-label {{ font-weight: 700; }}
+.{PREFIX}-reveal summary {{ cursor: pointer; font-size: 13px; }}
+.{PREFIX}-reveal summary:focus-visible {{
+  outline: 2px solid var(--{PREFIX}-focus-stroke);
+  outline-offset: 2px;
+}}
 .{PREFIX}-error {{
   border: 1px solid var(--{PREFIX}-warning-stroke);
   background: var(--{PREFIX}-warning-fill);
