@@ -30,7 +30,7 @@ def test_every_key_is_dotted_and_starts_with_something_that_owns_it():
     for key in STRINGS:
         owner, _, rest = key.partition(".")
         assert rest, key
-        assert owner in {"common", "disassembler"}, key
+        assert owner in {"common", "disassembler", "pipeline", "predict"}, key
 
 
 def test_no_string_has_a_dash_that_should_have_been_a_hyphen():
