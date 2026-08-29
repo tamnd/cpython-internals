@@ -38,6 +38,25 @@ Write to one reader who knows Python and has never seen a struct. Say the thing,
 
 Numbers come from scripts, never from memory. If a paragraph says the small integer cache holds 1030 values, that number is interpolated from generated output rather than typed by a person.
 
+## The 3.14 and 3.15 problem
+
+Everything here is written against the pinned 3.15. Every reader who clicks a Colab badge is on 3.14, and so is every widget that runs in the browser, because Pyodide has not shipped 3.15 yet. That gap is not going away before the first milestone does, so lessons have to be honest about it rather than wait for it.
+
+`just versions` runs every lesson on both interpreters and compares the output of every cell. A cell whose output differs has to say so, and a cell that says so has to actually differ. Both halves are checked, because a note that has stopped being true is worse than no note: a reader who checks one against their own interpreter, finds it wrong, and decides the notes are decoration has been misled by the thing meant to help them.
+
+Declaring a difference is one keyword in the lesson's `build.py`:
+
+```python
+lesson.code(
+    source,
+    differs="On 3.14 the last instruction is LOAD_CONST rather than LOAD_COMMON_CONSTANT, and None is in co_consts.",
+)
+```
+
+Say what the reader is looking at and what the other version does instead. "This differs on 3.14" is not a note, it is an apology. Add `quiet=True` when a paragraph near the top of the lesson already explains a difference that then turns up in a dozen cells, so the same sentence is not repeated under every one of them.
+
+When the differing cell is the lesson's central observation, the note is not enough. Either the lesson gets a short section explaining both versions, because the difference is itself worth teaching, or the example changes to one that behaves the same on both. Which of the two depends on whether the difference is interesting. `LOAD_COMMON_CONSTANT` is interesting and gets explained. A line number inside `asyncio` is not, and the cell should stop printing it.
+
 ## Definition of done for a lesson
 
 No partial credit on any of these.
@@ -51,6 +70,7 @@ No partial credit on any of these.
 7. The blueprint fragment complete for its declared status
 8. A diagram or animation with alt text written by a person
 9. Three beginner testers have completed it
+10. Every cell whose output depends on the interpreter version declared, so `just versions` is green
 
 ## Filing things
 

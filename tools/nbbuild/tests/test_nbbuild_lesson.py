@@ -5,6 +5,7 @@ import json
 import pytest
 
 from nbbuild import Lesson, Malformed
+from nbversion.declare import KEY, NAMESPACE
 
 
 @pytest.fixture
@@ -42,6 +43,43 @@ def test_a_code_cell_carries_no_output_and_no_execution_count(root):
     cell = json.loads(lesson.document())["cells"][0]
     assert cell["outputs"] == []
     assert cell["execution_count"] is None
+
+
+def test_a_plain_code_cell_carries_no_version_note(root):
+    lesson = Lesson("t99-example", "t99", root=root)
+    lesson.code("print(1)")
+    assert json.loads(lesson.document())["cells"][0]["metadata"] == {}
+
+
+def test_a_version_note_goes_in_the_cells_own_metadata(root):
+    lesson = Lesson("t99-example", "t99", root=root)
+    lesson.code("print(1)", differs="On 3.14 this prints nothing.")
+    cell = json.loads(lesson.document())["cells"][0]
+    assert cell["metadata"] == {NAMESPACE: {KEY: "On 3.14 this prints nothing."}}
+
+
+def test_a_version_note_also_comes_out_as_something_the_reader_can_see(root):
+    """The metadata is for CI. A reader on Colab never opens it, so the note is said twice."""
+    lesson = Lesson("t99-example", "t99", root=root)
+    lesson.code("print(1)", differs="On 3.14 this prints nothing.")
+    cells = json.loads(lesson.document())["cells"]
+    assert [cell["cell_type"] for cell in cells] == ["code", "markdown"]
+    assert cells[1]["source"] == ["> **Version note.** On 3.14 this prints nothing."]
+
+
+def test_a_quiet_version_note_is_declared_without_a_cell_under_it(root):
+    """For the lessons where one paragraph up top covers a difference a dozen cells show."""
+    lesson = Lesson("t99-example", "t99", root=root)
+    lesson.code("print(1)", differs="Offsets are 2 lower on 3.14.", quiet=True)
+    cells = json.loads(lesson.document())["cells"]
+    assert [cell["cell_type"] for cell in cells] == ["code"]
+    assert cells[0]["metadata"] == {NAMESPACE: {KEY: "Offsets are 2 lower on 3.14."}}
+
+
+def test_a_version_note_goes_through_the_same_punctuation_check_as_the_prose(root):
+    lesson = Lesson("t99-example", "t99", root=root)
+    with pytest.raises(Malformed, match="em dash"):
+        lesson.code("print(1)", differs="On 3.14 \u2014 nothing.")
 
 
 def test_source_keeps_its_newlines_the_way_the_format_wants_them(root):

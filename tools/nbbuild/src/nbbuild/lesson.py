@@ -23,6 +23,7 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from nbversion.declare import KEY, NAMESPACE
 from pyxray.cite import markdown as cite_markdown
 from pyxray.glossary import link as glossary_link
 
@@ -34,6 +35,11 @@ BADGE_IMAGE = "https://colab.research.google.com/assets/colab-badge.svg"
 #: Punctuation the project does not use, written as escapes because these characters are
 #: almost indistinguishable from a hyphen in a diff, which is exactly why they get in.
 BANNED = (("\u2014", "em dash"), ("\u2013", "en dash"))
+
+#: How a version note reads to somebody running the lesson. Short, and at the top of the
+#: cell's own output area rather than at the end of the section, because a reader who is
+#: comparing what they got against what the lesson says is looking right there.
+VERSION_NOTE = "> **Version note.** {text}"
 
 
 def repository_root(start: Path | None = None) -> Path:
@@ -120,24 +126,50 @@ class Lesson:
         # would mean opening a lesson in Jupyter and saving it reorders the whole file.
         self.cells.append(dict(sorted(cell.items())))
 
-    def md(self, text: str) -> None:
-        """A prose cell.
+    def _forbid(self, text: str) -> None:
+        """Two of the project's writing rules, checked here rather than in review.
 
-        Two of the project's writing rules are checked here rather than in review, because
-        both are invisible in a diff and neither has ever been caught by a human.
+        Both are invisible in a diff and neither has ever been caught by a human.
         """
         for character, name in BANNED:
             if character in text:
                 raise Malformed(f"cell {len(self.cells) + 1} contains an {name}")
+
+    def md(self, text: str) -> None:
+        """A prose cell."""
+        self._forbid(text)
         self._add("markdown", text, {})
 
-    def code(self, text: str) -> None:
+    def code(self, text: str, *, differs: str = "", quiet: bool = False) -> None:
         """A code cell, with no outputs and no execution count.
 
         Outputs are never committed. The only proof a cell works is CI executing it, and a
         stored output is a screenshot that goes stale without telling anybody.
+
+        `differs` is for the cells that print something different depending on which Python
+        is running. The lessons are written against the pinned 3.15 and a reader in Colab or
+        in a WASM widget is on 3.14, so a handful of cells show them something that is true
+        of neither the lesson nor their own interpreter unless somebody says so. Passing the
+        sentence here does two things: it goes in the cell's metadata, where `nbversion
+        compare` checks it against what the two interpreters actually printed, and it comes
+        out underneath the cell as a note the reader can see.
+
+        `quiet` turns off that second half, for the lessons where one paragraph near the top
+        already explains a difference that then shows up in a dozen cells. Repeating it
+        under every one of them would train the reader to skip the notes, which is the
+        opposite of what they are for.
         """
-        self._add("code", text, {"execution_count": None, "outputs": []})
+        extra = {"execution_count": None, "outputs": []}
+        if not differs:
+            self._add("code", text, extra)
+            return
+        # Checked before either cell is added, so a rejected note does not leave half of
+        # itself behind in a lesson somebody is building interactively.
+        self._forbid(differs)
+        extra["metadata"] = {NAMESPACE: {KEY: differs}}
+        self._add("code", text, extra)
+        if not quiet:
+            self.md(VERSION_NOTE.format(text=differs))
 
     def document(self) -> str:
         """The finished notebook as the exact text that belongs on disk."""

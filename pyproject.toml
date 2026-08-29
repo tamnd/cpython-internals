@@ -12,6 +12,7 @@ dependencies = [
     "nbbuild",
     "nbcheck",
     "nbdiagram",
+    "nbversion",
     "pyxray",
     "refcheck",
     "xraymanim",
@@ -42,6 +43,7 @@ members = [
     "tools/nbbuild",
     "tools/nbcheck",
     "tools/nbdiagram",
+    "tools/nbversion",
     "tools/refcheck",
     "xraymanim",
     "xraywidgets",
@@ -53,6 +55,7 @@ bpcheck = { workspace = true }
 nbbuild = { workspace = true }
 nbcheck = { workspace = true }
 nbdiagram = { workspace = true }
+nbversion = { workspace = true }
 pyxray = { workspace = true }
 refcheck = { workspace = true }
 xraymanim = { workspace = true }
@@ -66,6 +69,7 @@ testpaths = [
     "tools/nbbuild/tests",
     "tools/nbcheck/tests",
     "tools/nbdiagram/tests",
+    "tools/nbversion/tests",
     "tools/refcheck/tests",
     "xraymanim/tests",
     "xraywidgets/tests",
@@ -97,6 +101,7 @@ known-first-party = [
     "nbbuild",
     "nbcheck",
     "nbdiagram",
+    "nbversion",
     "pyxray",
     "refcheck",
     "xraymanim",

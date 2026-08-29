@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Build the lesson notebooks from the Python files that define them"
 requires-python = ">=3.14"
 license = "MIT"
-dependencies = ["pyxray"]
+dependencies = ["nbversion", "pyxray"]
 
 [project.scripts]
 nbbuild = "nbbuild.cli:main"
@@ -17,4 +17,5 @@ build-backend = "hatchling.build"
 packages = ["src/nbbuild"]
 
 [tool.uv.sources]
+nbversion = { workspace = true }
 pyxray = { workspace = true }
