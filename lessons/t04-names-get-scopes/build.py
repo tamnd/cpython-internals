@@ -105,10 +105,10 @@ pyxray.show()
 )
 
 
-lesson.md("""
+lesson.md(f"""
 ## The puzzle
 
-Two functions, and it is worth reading them and deciding what you expect before running anything. Both contain the line `print(answer)`, and the only difference is that the second one has an extra line at the bottom.
+Two functions, and it is worth reading them and deciding what you expect before running anything. Both contain the line `print(answer)`, and the only difference is that the second one has an extra line at the bottom. {lesson.claim("a function that only reads a name finds the module's copy of it, so calling it prints the module's value")}.
 """)
 
 
@@ -151,10 +151,10 @@ The usual explanation is that assigning to a name anywhere in a function makes i
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## The compiler already knew
 
-The most direct way to see what happened is to look at the instructions. These two functions were compiled from the source above, before either of them ran, so whatever went wrong was already decided at that point.
+The most direct way to see what happened is to look at the instructions. {lesson.claim("the same line of source compiled to two different instructions in two functions in one file, and both were settled before either function ran")}, because these two functions were compiled from the source above before either of them ran.
 """)
 
 
@@ -180,12 +180,12 @@ That rules something out. The interpreter did not get to `print(answer)`, fail t
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## Who decided, and when
 
 Between the tree and the code generator there is a pass that does nothing but answer this question. It builds a table: for every block of code, a list of every name that appears in it and what that name means there.
 
-`symtable` in the standard library is that same pass, exposed to you. It is not a reimplementation or an approximation. `symtable.symtable` calls straight into the C the compiler uses.
+`symtable` in the standard library is that same pass, exposed to you. It is not a reimplementation or an approximation. `symtable.symtable` calls straight into the C the compiler uses, and {lesson.claim("the symtable module reports the same name as local in one function and not local in another, from the one file")}.
 """)
 
 
@@ -216,10 +216,10 @@ In CPython this happens in {cite("Python/symtable.c:1139-1150@v3.15.0rc1#analyze
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## The whole table at once
 
-Reading `symtable` directly gets verbose quickly, and it only tells you half the story. `pyxray.scopes` puts the symbol table and the compiled instructions side by side, so you can see the decision and the consequence in one row.
+Reading `symtable` directly gets verbose quickly, and it only tells you half the story. `pyxray.scopes` puts the symbol table and the compiled instructions side by side, so you can see the decision and the consequence in one row. {lesson.claim("every name in a block gets exactly one decision, and that decision is what picks the instruction")}.
 """)
 
 
@@ -235,14 +235,14 @@ Read one row at a time: the name, what was decided about it, why, and the instru
 
 The mapping from one column to the next happens in {cite("Python/compile.c:1009-1048@v3.15.0rc1#_PyCompile_ResolveNameop")}, which takes the scope the symbol table decided on and picks which family of opcode to use. {cite("Python/codegen.c:3281-3300@v3.15.0rc1#codegen_nameop")} is the caller, and it is the only place in the compiler that turns a name into a load or a store.
 
-This part is worth pausing on. The scope of a name is not stored anywhere in the finished {term("code object")}, and there is no table in there saying "answer is a local". The information survives only as the choice of instruction, which is why a disassembly tells you everything about scope and why nothing has to look it up while your program runs.
+This part is worth pausing on. {lesson.claim("the finished code object has no field saying what scope a name had, so the choice of instruction is the only record of it", unobservable="what would show it is the absence of a field on the code object, and no cell can print a thing that is not there")}. There is no table in a {term("code object")} saying "answer is a local". That is why a disassembly tells you everything about scope, and why nothing has to look anything up while your program runs.
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## The order the questions are asked in
 
-Five answers, and something has to choose between them when more than one could apply. The order is fixed, and it explains a couple of things that look arbitrary from the outside.
+Five answers, and something has to choose between them when more than one could apply. The order is fixed, and it explains a couple of things that look arbitrary from the outside. The first of them: {lesson.claim("a global statement beats an assignment in the same block, so a name assigned inside a function that declares it global is compiled as a global anyway")}.
 """)
 
 
@@ -270,10 +270,10 @@ The five names CPython uses internally are in {cite("Include/internal/pycore_sym
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## A global statement reaches further than you would think
 
-One consequence of that ladder is easy to miss. A `global` statement inside a function changes the instruction used at module level, outside the function.
+One consequence of that ladder is easy to miss. {lesson.claim("a global statement inside a function changes the instruction used for an assignment at module level, on a line above the function")}.
 """)
 
 
@@ -296,7 +296,7 @@ Both instructions do the same thing at module level, so nothing about the behavi
 lesson.md(f"""
 ## Closures need somewhere to put the value
 
-So far every name has been in one place: a frame, or the module dictionary. A {term("closure")} is the case where that is not enough, because two functions have to share one variable and one of them has already returned.
+So far every name has been in one place: a frame, or the module dictionary. A {term("closure")} is the case where that is not enough, because two functions have to share one variable and one of them has already returned. {lesson.claim("a name shared by two functions is a cell in the one that owns it and a free variable in the one that uses it, and both read it with LOAD_DEREF")}.
 """)
 
 
@@ -320,7 +320,7 @@ lesson.md(f"""
 
 {figure("one-box-two-frames", "two frames sharing one cell")}
 
-`MAKE_CELL` in `outer` is what creates the box. Once `outer` returns its frame is gone and the cell is not, because the function object `inner` is holding on to it. That is all a closure is: a function plus a tuple of cells.
+`MAKE_CELL` in `outer` is what creates the box. That is all a closure is: a function plus a tuple of cells, and {lesson.claim("the cell outlives the frame that made it, so the count kept by a returned closure survives from one call to the next")}.
 
 You can see the cells from the outside.
 """)
@@ -346,10 +346,10 @@ Note that `nonlocal` was needed here for the assignment, and would not have been
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## A class body is not a function
 
-The last of the five answers is `name`, and it only shows up at module level and inside a class body.
+The last of the five answers is `name`, and it only shows up at module level and inside a class body. {lesson.claim("the same two lines compile to different instructions in a class body and in a function, because a class body looks names up in a dictionary and a function uses numbered slots")}.
 """)
 
 
@@ -382,10 +382,10 @@ It also explains something you may have run into. `exec("x = 1")` inside a class
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## Where the check comes from
 
-One loose end is left. The instruction in `broken` was `LOAD_FAST_CHECK` rather than `LOAD_FAST`, and the difference is that one of them checks whether the slot has anything in it.
+One loose end is left. The instruction in `broken` was `LOAD_FAST_CHECK` rather than `LOAD_FAST`, and the difference is that one of them checks whether the slot has anything in it. {lesson.claim("the compiler only pays for the checked load where a read could come first, and a name assigned before it is read gets the plain fast load")}.
 """)
 
 
@@ -435,8 +435,8 @@ print(scopes.show(experiment))
 ''')
 
 
-lesson.md("""
-**Four**, which is a real bug people hit and cannot explain. A comprehension inside a class body can use the class's own attributes in some places and not others, so the code below looks fine and raises `NameError`.
+lesson.md(f"""
+**Four**, which is a real bug people hit and cannot explain. A comprehension inside a class body can use the class's own attributes in some places and not others: {lesson.claim("a comprehension in a class body can read the first iterable from the class and nothing else, so rows resolves and factor raises NameError three lines later")}.
 """)
 
 

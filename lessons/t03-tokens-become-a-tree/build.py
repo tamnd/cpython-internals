@@ -106,7 +106,7 @@ lesson.md(f"""
 
 `ast.parse` runs the real parser, the same one that runs when you import a module. It is a {term("PEG parser")}, generated from a {term("grammar")} file into `Parser/parser.c` and driven by {cite("Parser/pegen.c:938-941@v3.15.0rc1#_PyPegen_run_parser")}, and the Python side of it is {cite("Lib/ast.py:26-30@v3.15.0rc1#parse")}, which is a thin wrapper around `compile` with a flag set.
 
-Start with the line from T01.
+Start with the line from T01, where {lesson.claim("the tree is the first thing in the pipeline that knows `6 * 7` is one thing rather than three, with both numbers hanging underneath a single BinOp")}.
 """)
 
 
@@ -142,7 +142,7 @@ The line for `BinOp` in that file says it has three fields: an expression on the
 
 {figure("where-the-node-classes-come-from", "Python.asdl is read by asdl_c.py, which generates the classes and puts the declaration in the docstring")}
 
-{cite("Parser/asdl_c.py:95-109@v3.15.0rc1#asdl_of")} turns each declaration back into text at build time, and {cite("Parser/asdl_c.py:1617-1619@v3.15.0rc1#make_type")} hands it to `type()` as the docstring of the generated class. Everything below `Lib/ast.py` here is a {term("generated file")}, so what comes back is the definition itself rather than somebody's description of it.
+{cite("Parser/asdl_c.py:95-109@v3.15.0rc1#asdl_of")} turns each declaration back into text at build time, and {cite("Parser/asdl_c.py:1617-1619@v3.15.0rc1#make_type")} hands it to `type()` as the docstring of the generated class. So {lesson.claim("the ASDL declaration of a node type is carried around as the docstring of the class, which means printing it gives you the definition itself rather than somebody's description of it")}.
 """)
 
 
@@ -152,10 +152,10 @@ print(trees.fields(ast.BinOp))
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 `expr left` means the left side is any expression at all, not just a number. That single word is why `1 + 2 * 3` can nest: the left of a `BinOp` is allowed to be another `BinOp`, and so is the right.
 
-Some node types are a closed list of cases rather than a thing with fields. The operators are one of those, and asking for the declaration gives you every operator Python has.
+{lesson.claim("the operators are a closed list of cases rather than nodes with fields, so Mult has no fields at all")}, and asking for the declaration gives you every operator Python has.
 """)
 
 
@@ -180,7 +180,7 @@ The claim this lesson is really about is that the tree keeps what your code mean
 
 {figure("three-sources-one-tree", "three differently written files all producing one identical tree")}
 
-Three files, with brackets in one, no spaces in another and a comment on the third. Ask whether any two of them produce the same tree.
+Three files, with brackets in one, no spaces in another and a comment on the third. {lesson.claim("brackets, spacing and a trailing comment make no difference to the tree: three differently written files give one identical tree, field for field")}.
 """)
 
 
@@ -192,10 +192,10 @@ for other in WRITTEN[1:]:
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 All three give the same tree, and not just a similar or equivalent one: identical, field for field.
 
-It is worth seeing that the brackets really were there a moment ago. The tokenizer from T02 hands the parser both of them as ordinary tokens, and the parser is where they stop existing.
+It is worth seeing that the brackets really were there a moment ago. {lesson.claim("the tokenizer hands the parser both brackets as ordinary tokens, and the parser is where they stop existing")}.
 """)
 
 
@@ -218,7 +218,7 @@ The obvious objection is that brackets change what code means, so they cannot ju
 
 {figure("precedence-is-the-shape", "the trees for 1 + 2 * 3 and (1 + 2) * 3, side by side")}
 
-Same five tokens in the same order, two different trees. On the left the multiply is inside the add, because `2 * 3` has to happen first. On the right it is the other way round.
+{lesson.claim("the same five tokens in the same order give two different trees, because what the brackets did is kept as shape")}. On the left the multiply is inside the add, because `2 * 3` has to happen first. On the right it is the other way round.
 """)
 
 
@@ -244,6 +244,8 @@ lesson.md(f"""
 The tree forgets your formatting, and it does keep track of which characters each node came from. That is how a traceback can point at a column, and how tools like linters can tell you where the problem is.
 
 {cite("Lib/ast.py:385-390@v3.15.0rc1#get_source_segment")} goes the other way, from a node back to the text it covers.
+
+Two things in the list below. {lesson.claim("every node that was written somewhere carries the line and column range it covers")}, and {lesson.claim("a node with no fields has no position either, so there is nothing in the tree that says where the `*` was")}.
 """)
 
 
@@ -265,7 +267,7 @@ lesson.md(f"""
 
 {figure("what-unparse-rewrites", "a table of five things you might write and what unparse gives back")}
 
-Every row of that table is a different file and the same tree, so `unparse` has nothing to go on when it decides how to write it out. It picks one way and uses it every time.
+Every row of that table is a different file and the same tree, so `unparse` has nothing to go on when it decides how to write it out. It picks one way and uses it every time, which is why {lesson.claim("unparse gives back source that means the same thing rather than the source you wrote: 0x2a comes back as 42 and the underscores in 1_000_000 are gone")}. {lesson.claim("adjacent string literals are glued together by the grammar, so 'a' 'b' is already one string before anything runs")}.
 """)
 
 
@@ -282,12 +284,12 @@ Every one of them says "same tree", which is the property worth remembering and 
 """)
 
 
-lesson.md("""
+lesson.md(f"""
 ## The round trip, on real code
 
-The property in one sentence: take any source file, parse it, unparse it, and parse the result, and the two trees should be identical.
+The property in one sentence: {lesson.claim("parse a file, unparse it, parse the result, and you get an identical tree, for every module in your own standard library")}.
 
-Four examples do not prove a property, so run it over every module in the standard library that shipped with the interpreter you are using right now.
+Four examples do not prove a property, so run it over every module that shipped with the interpreter you are using right now.
 """)
 
 
