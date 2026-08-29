@@ -307,3 +307,42 @@ def test_unavailable_says_what_still_works(monkeypatch):
     with pytest.raises(compiler.Unavailable) as caught:
         compiler.stages("x = 1\n")
     assert "Every other cell in this lesson still works" in str(caught.value)
+
+
+def test_unavailable_names_the_package_that_fixes_it(monkeypatch):
+    """Measured, not guessed: probes/distributions is the table this sentence comes from."""
+    monkeypatch.setitem(sys.modules, "_testinternalcapi", None)
+    with pytest.raises(compiler.Unavailable) as caught:
+        compiler.stages("x = 1\n")
+    assert "python3-test" in str(caught.value)
+
+
+def test_a_module_without_the_functions_is_a_different_message(monkeypatch):
+    """The macOS system Python, 3.9, which has the module and none of the three functions.
+
+    Installing a package would not help that reader, so telling them to is worse than saying
+    nothing. They need a newer Python and the message says so.
+    """
+    monkeypatch.setitem(sys.modules, "_testinternalcapi", types.SimpleNamespace())
+    assert not compiler.available()
+    with pytest.raises(compiler.Unavailable) as caught:
+        compiler.stages("x = 1\n")
+    said = str(caught.value)
+    assert "python3-test" not in said
+    assert "3.12" in said
+    for name in compiler.HOOKS:
+        assert name in said
+
+
+def test_two_of_three_functions_names_only_the_missing_one(monkeypatch):
+    import _testinternalcapi
+
+    partial = types.SimpleNamespace(
+        compiler_codegen=_testinternalcapi.compiler_codegen,
+        optimize_cfg=_testinternalcapi.optimize_cfg,
+    )
+    monkeypatch.setitem(sys.modules, "_testinternalcapi", partial)
+    with pytest.raises(compiler.Unavailable) as caught:
+        compiler.stages("x = 1\n")
+    assert "assemble_code_object" in str(caught.value)
+    assert "compiler_codegen" not in str(caught.value)

@@ -44,6 +44,13 @@ def _probe(thunk) -> bool:
         return False
 
 
+#: The three functions `pyxray.compiler` drives the compiler through. Written out here rather
+#: than imported from there, because this module imports nothing from the package on purpose:
+#: it is the first thing a lesson runs and it has to work on an interpreter where half the
+#: rest of pyxray would not. A test asserts the two lists agree.
+COMPILER_HOOKS = ("compiler_codegen", "optimize_cfg", "assemble_code_object")
+
+
 def capabilities() -> dict[str, bool]:
     """What this interpreter lets us do, probed rather than assumed.
 
@@ -52,7 +59,13 @@ def capabilities() -> dict[str, bool]:
     the honest way to find out what it supports is to ask it.
     """
     probes = {
-        "testinternalcapi": lambda: __import__("_testinternalcapi") is not None,
+        # Not just the import. The macOS system Python is 3.9, it has the module, and it has
+        # none of the three compiler functions, because those arrived in 3.12. A banner that
+        # said the capability was there would be telling that reader the opposite of the
+        # truth, and they would find out from an AttributeError several cells later.
+        "testinternalcapi": lambda: all(
+            hasattr(__import__("_testinternalcapi"), name) for name in COMPILER_HOOKS
+        ),
         "testcapi": lambda: __import__("_testcapi") is not None,
         "ctypes": lambda: __import__("ctypes").sizeof(__import__("ctypes").c_void_p) > 0,
         # These three are called rather than looked up, because a module can exist and

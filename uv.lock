@@ -7,6 +7,7 @@ members = [
     "bpc",
     "bpcheck",
     "cpython-internals",
+    "distprobe",
     "nbbuild",
     "nbcheck",
     "nbdiagram",
@@ -328,6 +329,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "bpc" },
     { name = "bpcheck" },
+    { name = "distprobe" },
     { name = "nbbuild" },
     { name = "nbcheck" },
     { name = "nbdiagram" },
@@ -358,6 +360,7 @@ dev = [
 requires-dist = [
     { name = "bpc", editable = "tools/bpc" },
     { name = "bpcheck", editable = "tools/bpcheck" },
+    { name = "distprobe", editable = "tools/distprobe" },
     { name = "nbbuild", editable = "tools/nbbuild" },
     { name = "nbcheck", editable = "tools/nbcheck" },
     { name = "nbdiagram", editable = "tools/nbdiagram" },
@@ -412,6 +415,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/60/8b/32f9823da46cde7df
 wheels = [
     { url = "https://files.pythonhosted.org/packages/05/7f/798705f5296a58ca505d600456748d1be48078eac8a7050d8a98bc9edb89/decorator-5.3.1-py3-none-any.whl", hash = "sha256:f47fe6fdbd2edd623ecfe36875d37aba411624e2670dd395dddae1358689bb3c", size = 10365, upload-time = "2026-05-18T06:03:26.517Z" },
 ]
+
+[[package]]
+name = "distprobe"
+version = "0.1.0"
+source = { editable = "tools/distprobe" }
 
 [[package]]
 name = "executing"

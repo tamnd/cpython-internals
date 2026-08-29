@@ -27,7 +27,7 @@ vendor:
     git -C "{{cpython_src}}" rev-parse HEAD
 
 # The full local check, in the order that fails fastest.
-check: lint test citations blueprints diagrams lessons notebooks probe animations
+check: lint test citations blueprints diagrams lessons notebooks probe dist animations
 
 lint:
     uv run ruff check .
@@ -150,6 +150,22 @@ build-probe:
     uv run wasmprobe browser --into probes/pyodide
     uv run wasmprobe report probes/pyodide --into probes/pyodide/report.md
     uv run wasmprobe notebook --into probes/pyodide/probe.ipynb
+
+# Read the committed distribution survey and print what it means. Instant, needs nothing.
+#
+# This does not fail when a distribution is missing the module. That is a fact about Fedora,
+# not about this repository, and a build that went red every time somebody ran it would not
+# change how Fedora packages Python. It fails when the report has fallen behind the survey.
+dist:
+    uv run distprobe check probes/distributions
+
+# Ask every channel again. Pulls container images and runs a package manager inside each, so
+# it is several minutes on a cold cache and it needs Docker running. The Pyodide row is
+# copied out of the wasmprobe recording rather than measured a second time, so `just
+# build-probe` should run before this one when both are due.
+build-dist:
+    uv run distprobe survey --into probes/distributions
+    uv run distprobe report probes/distributions --into probes/distributions/report.md
 
 # Rewrite the citation lockfile after a human has read the diff. This is deliberately
 # not part of `check`, because a checker that silently repairs itself checks nothing.

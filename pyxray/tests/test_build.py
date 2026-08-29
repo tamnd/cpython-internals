@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 import sysconfig
+import types
 
 import pytest
 
@@ -71,12 +72,30 @@ def test_a_probe_that_blows_up_reports_an_absence():
 def test_the_compiler_hooks_are_present_on_a_stock_interpreter(info):
     """The claim in the README that _testinternalcapi ships on stock builds.
 
-    If this ever fails on a distribution readers use, that is not a broken test, it is the
-    answer to the open question about distribution coverage and it needs writing down.
+    Twelve ways of getting a Python were asked this, and the table is in
+    probes/distributions. Most of them say yes. If this starts failing somewhere new, that
+    is not a broken test, it is a row of that table changing and it needs writing down.
     """
     assert info.capabilities["testinternalcapi"], (
         "no _testinternalcapi on this build, which changes the browser tier story"
     )
+
+
+def test_the_capability_means_the_functions_and_not_just_the_module(monkeypatch):
+    """The macOS system Python, 3.9, has the module and none of the three functions.
+
+    A banner that called that available would be telling the reader least able to work it out
+    the opposite of the truth.
+    """
+    monkeypatch.setitem(sys.modules, "_testinternalcapi", types.SimpleNamespace())
+    assert build.capabilities()["testinternalcapi"] is False
+
+
+def test_the_banner_and_the_compiler_agree_about_which_functions_matter():
+    """Two lists, written out separately so build.py can import nothing. Kept in step here."""
+    from pyxray import compiler
+
+    assert build.COMPILER_HOOKS == compiler.HOOKS
 
 
 def test_missing_lists_only_absent_capabilities(info):

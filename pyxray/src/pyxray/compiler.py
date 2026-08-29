@@ -36,15 +36,47 @@ class Unavailable(RuntimeError):
     """
 
 
+#: The three functions this module drives the compiler through. Checked together, because a
+#: module that is there without them is a different problem with a different answer, and the
+#: reader should be told which one they have rather than finding out from an AttributeError
+#: four cells later.
+HOOKS = ("compiler_codegen", "optimize_cfg", "assemble_code_object")
+
+#: The one distribution measured so far that leaves the module out, and the package that puts
+#: it back. Named in the error rather than left to the reader to find, because the reader who
+#: hits this is the one least able to guess that a private CPython test module is packaged
+#: separately. probes/distributions has the rest of the table.
+FEDORA = "on Fedora and RHEL, dnf install python3-test puts it back"
+
+#: The release the three functions arrived in. The macOS system interpreter is 3.9, ships the
+#: module, and has none of them, which is the other way this fails and the more confusing one.
+FIRST_VERSION = (3, 12)
+
+#: The tail of both messages. The reader is mid lesson and the first thing they want to know
+#: is whether they have to stop.
+STILL_WORKS = (
+    "Every other cell in this lesson still works. The stage outputs below came from a "
+    "recorded run against the pinned build."
+)
+
+
 def _internal():
     try:
         import _testinternalcapi
     except ImportError as error:
         raise Unavailable(
             "this interpreter has no _testinternalcapi, so the compiler stages cannot be "
-            "run separately here. Every other cell in this lesson still works. The stage "
-            "outputs below came from a recorded run against the pinned build."
+            f"run separately here. Most Pythons ship it and a few do not: {FEDORA}. " + STILL_WORKS
         ) from error
+    missing = [name for name in HOOKS if not hasattr(_testinternalcapi, name)]
+    if missing:
+        wanted = ".".join(str(one) for one in FIRST_VERSION)
+        raise Unavailable(
+            f"this interpreter has _testinternalcapi but not {', '.join(missing)}, so the "
+            f"compiler stages cannot be run separately here. Those arrived in {wanted} and "
+            f"this is {sys.version_info[0]}.{sys.version_info[1]}, so the answer is a newer "
+            "Python rather than another package. " + STILL_WORKS
+        )
     return _testinternalcapi
 
 
