@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from wasmprobe import notebook, report
 from wasmprobe.cli import BROWSER, NATIVE, NOTEBOOK, REPORT, main
 from wasmprobe.result import FATAL, OK, Outcome, Run

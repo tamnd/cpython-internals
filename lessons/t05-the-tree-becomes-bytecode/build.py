@@ -24,6 +24,7 @@ describe an animation differently from the page that also shows it.
 
 from nbbuild import BANNER, TRAILING_NONE, Lesson
 from nbdiagram import Diagrams
+from tier1 import show as recording
 from xraymanim.render import figure as animation
 
 lesson = Lesson("t05-the-tree-becomes-bytecode", "t05")
@@ -491,6 +492,24 @@ lesson.md("""
 That is the whole cost of the `try` block: a few bytes in a table nobody reads unless something goes wrong.
 
 It is also the reason for a piece of Python advice that otherwise sounds like folklore. Asking forgiveness rather than permission is faster than checking first, because the check costs an instruction every single time while the `try` costs nothing until it fires.
+
+## The one part you cannot run here
+
+Everything above runs on the Python you already have. This next bit does not, and it is worth a minute, because it is the only measurement in the lesson that checks the thing the whole lesson rests on: the compiler throws away everything except the code object.
+
+To check that you have to count every reference in the process, before and after. `sys.getrefcount` counts references to one object you already have a name for, which is no use here, because the question is about the objects nobody kept a name for. `sys.gettotalrefcount` counts all of them, and it only exists in an interpreter built with `--with-pydebug`. That is not a flag you can turn on later, it is a different binary. So the program below was run in the debug build this project publishes, and what it printed is underneath it.
+""")
+
+
+lesson.md(recording("t05-compiling-costs-nothing-that-lasts"))
+
+
+lesson.md("""
+Read the first two numbers together. The count wobbles by about one when nothing has happened at all, because taking the measurement is itself Python. So anything in single figures below means nothing happened.
+
+The first compile costs three thousand, and that is not a leak. It is interning: the name `answer`, the filename, and the constants go into the interpreter's table and are deliberately kept, so the next file that mentions `answer` gets the same string object back. It is a one time cost, and the two thousand compiles after it are what proves it, moving the total by three.
+
+The last two numbers are the same fact from the other side. A thousand code objects held alive cost about five references each. Drop them and all of it comes back. The code object is the thing that survives, surviving is exactly what a reference count measures, and nothing else the compiler built is still standing.
 
 ## Try it yourself
 

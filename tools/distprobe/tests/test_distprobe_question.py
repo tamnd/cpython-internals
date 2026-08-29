@@ -7,6 +7,7 @@ import subprocess
 import sys
 
 import pytest
+
 from distprobe.question import MARKER, SOURCE, WANTED, Answer, Survey, Unreadable, parse
 
 

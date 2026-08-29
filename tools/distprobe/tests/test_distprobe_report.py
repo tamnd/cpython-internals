@@ -8,6 +8,7 @@ that.
 from __future__ import annotations
 
 import pytest
+
 from distprobe import report
 from distprobe.channels import CONTAINER, ELSEWHERE, Channel
 from distprobe.question import WANTED, Answer, Survey

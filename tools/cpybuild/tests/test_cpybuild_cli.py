@@ -11,10 +11,10 @@ import json
 from pathlib import Path
 
 import pytest
+
 from cpybuild.cli import main
 from cpybuild.configs import ARCHITECTURES, CONFIGURATIONS
 from cpybuild.images import Lock
-
 from refcheck import PINNED_COMMIT
 
 ONE = "sha256:" + "c" * 64

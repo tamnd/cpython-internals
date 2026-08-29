@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from wasmprobe.checks import INFO, TIER0, Check
 from wasmprobe.report import (
     BOTH_FINE,

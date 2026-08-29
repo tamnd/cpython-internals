@@ -8,6 +8,7 @@ prints the line, not that Docker works.
 from __future__ import annotations
 
 import pytest
+
 from distprobe import borrowed, report, run
 from distprobe.channels import CONTAINER, ELSEWHERE, Channel
 from distprobe.cli import ANSWERS, REPORT, main

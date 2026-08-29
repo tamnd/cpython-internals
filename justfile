@@ -27,7 +27,7 @@ vendor:
     git -C "{{cpython_src}}" rev-parse HEAD
 
 # The full local check, in the order that fails fastest.
-check: lint test citations claims blueprints diagrams lessons notebooks probe dist images animations
+check: lint test citations claims blueprints diagrams lessons notebooks probe dist images animations tier1
 
 lint:
     uv run ruff check .
@@ -204,6 +204,24 @@ build-image config="debug":
 # The five builds and what each one is for.
 images-list:
     uv run cpybuild list
+
+# Read the committed Tier 1 recordings and say whether they still belong to the experiments
+# that produced them, the image this project pins, and the lessons that show them. Instant and
+# offline: it never starts a container, because the recording exists so that nobody has to.
+tier1:
+    uv run tier1 check
+
+# Run every Tier 1 experiment in its published image and rewrite the recordings. Needs Docker
+# and a couple of hundred megabytes of image on a cold cache. Read the diff before committing
+# it: a measured number moving a little is expected, and a line changing is a finding.
+build-tier1:
+    uv run tier1 record
+
+# The same run without writing anything, which is what CI does. A measured number is compared
+# by its label and not by its value, because the count moves by one or two between two runs of
+# the same image, and a check that goes red for that is a check somebody deletes.
+verify-tier1:
+    uv run tier1 verify
 
 # Rewrite the citation lockfile after a human has read the diff. This is deliberately
 # not part of `check`, because a checker that silently repairs itself checks nothing.
