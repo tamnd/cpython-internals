@@ -195,8 +195,19 @@ def test_the_eleven_instructions_a06_starts_with_are_what_the_code_generator_emi
 
 
 def test_the_six_instructions_a06_ends_with_are_what_the_optimizer_leaves():
+    """One of the six has a different name on 3.14, and it is the trailing None.
+
+    3.15 loads it with `LOAD_COMMON_CONSTANT`, which is the instruction for the handful of
+    values every code object wants and none of them should have to carry. 3.14 loads it out
+    of the constants table like anything else. The animation is drawn against the pinned
+    3.15.0rc1, so that is what it shows, and this is the substitution rather than a skip,
+    because a skipped test on the older interpreter is a test that says nothing there.
+    """
     compiler = pytest.importorskip("pyxray.compiler")
-    assert drawn("FINAL") == opnames(compiler.stages(ONE_LINE).optimized)
+    expected = list(drawn("FINAL"))
+    if sys.version_info < (3, 15):
+        expected[expected.index("LOAD_COMMON_CONSTANT")] = "LOAD_CONST"
+    assert expected == opnames(compiler.stages(ONE_LINE).optimized)
 
 
 def test_the_three_blocks_a06_cuts_are_the_eleven_instructions_and_nothing_else():
