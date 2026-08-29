@@ -27,7 +27,7 @@ vendor:
     git -C "{{cpython_src}}" rev-parse HEAD
 
 # The full local check, in the order that fails fastest.
-check: lint test citations claims blueprints diagrams lessons notebooks probe dist animations
+check: lint test citations claims blueprints diagrams lessons notebooks probe dist images animations
 
 lint:
     uv run ruff check .
@@ -183,9 +183,9 @@ build-dist:
 # check that fails on a train, and what is worth catching here is a lockfile that has fallen
 # behind the pin or is missing a build somebody added.
 #
-# Not in `check` yet. There is no lockfile until the cpython-images workflow has run once and
-# its pull request has been merged, and a recipe in `check` that passes because the file it
-# reads does not exist is worse than no recipe.
+# It also reads the devcontainer, because that file names the debug image by digest and the two
+# drift the moment somebody edits one of them by hand. The way that drift shows up otherwise is
+# a reader spending an evening in an interpreter a month older than the lessons say it is.
 images:
     uv run cpybuild check
 

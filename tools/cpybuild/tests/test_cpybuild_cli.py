@@ -24,6 +24,9 @@ ONE = "sha256:" + "c" * 64
 DOCKERFILE = Path(__file__).parents[3] / "images" / "cpython" / "Dockerfile"
 
 
+TWO = "sha256:" + "d" * 64
+
+
 @pytest.fixture
 def lockfile(tmp_path):
     path = tmp_path / "cpython.lock.json"
@@ -31,7 +34,20 @@ def lockfile(tmp_path):
     for config in CONFIGURATIONS:
         for arch in ARCHITECTURES:
             lock.record(config.key, arch, ONE)
+        lock.record_index(config.key, TWO)
     lock.write(path)
+    return path
+
+
+@pytest.fixture
+def devcontainer(tmp_path, lockfile):
+    """A devcontainer pointing at the fixture lockfile, with a comment in it to be preserved."""
+    path = tmp_path / "devcontainer.json"
+    reference = Lock.load(lockfile).reference_index("debug")
+    path.write_text(
+        f'// read me\n{{\n  "image": "{reference}"\n}}\n',
+        encoding="utf-8",
+    )
     return path
 
 
@@ -110,8 +126,8 @@ def test_buildargs_is_pinned_to_the_same_commit_as_the_citations(capsys):
     assert f"CPYTHON_COMMIT={PINNED_COMMIT}" in capsys.readouterr().out.splitlines()
 
 
-def test_check_passes_on_a_complete_lockfile(lockfile, capsys):
-    assert main(["--lockfile", str(lockfile), "check"]) == 0
+def test_check_passes_on_a_complete_lockfile(lockfile, devcontainer, capsys):
+    assert main(["--lockfile", str(lockfile), "--devcontainer", str(devcontainer), "check"]) == 0
     assert "10 images from CPython" in capsys.readouterr().out
 
 
@@ -146,7 +162,7 @@ def test_protected_includes_what_is_in_the_lockfile_right_now(lockfile, capsys, 
     """Deleting the image the current site refers to would be the worst possible tidy up."""
     monkeypatch.setattr("cpybuild.cli.protected", lambda: set())
     assert main(["--lockfile", str(lockfile), "protected"]) == 0
-    assert capsys.readouterr().out.split() == [ONE]
+    assert sorted(capsys.readouterr().out.split()) == sorted({ONE, TWO})
 
 
 def test_protected_is_one_digest_per_line_for_a_shell_to_read(lockfile, capsys, monkeypatch):
@@ -154,7 +170,7 @@ def test_protected_is_one_digest_per_line_for_a_shell_to_read(lockfile, capsys, 
     monkeypatch.setattr("cpybuild.cli.protected", lambda: {other})
     main(["--lockfile", str(lockfile), "protected"])
     printed = capsys.readouterr().out.splitlines()
-    assert sorted(printed) == sorted({ONE, other})
+    assert sorted(printed) == sorted({ONE, TWO, other})
     assert all(line.startswith("sha256:") for line in printed)
 
 
@@ -229,3 +245,53 @@ def test_the_proof_program_exits_non_zero_when_the_build_is_wrong(capsys):
         assert leaving.code == 1
     else:  # pragma: no cover
         raise AssertionError("a GIL enabled interpreter passed the free threaded proof")
+
+
+def test_check_notices_a_devcontainer_left_on_an_older_image(lockfile, tmp_path, capsys):
+    """The two files move together in the weekly job and apart the moment somebody edits one."""
+    stale = tmp_path / "devcontainer.json"
+    stale.write_text(f'{{"image": "{ONE}"}}\n', encoding="utf-8")
+    assert main(["--lockfile", str(lockfile), "--devcontainer", str(stale), "check"]) == 1
+
+
+def test_check_says_nothing_about_a_devcontainer_that_is_not_there(lockfile, tmp_path):
+    """A checkout with no devcontainer is not broken, it is a checkout with no devcontainer."""
+    missing = tmp_path / "nowhere" / "devcontainer.json"
+    assert main(["--lockfile", str(lockfile), "--devcontainer", str(missing), "check"]) == 0
+
+
+def test_reference_names_a_half_and_joined_names_the_whole(lockfile, capsys):
+    assert main(["--lockfile", str(lockfile), "reference", "debug", "--arch", "amd64"]) == 0
+    assert capsys.readouterr().out.strip().endswith(ONE)
+    assert main(["--lockfile", str(lockfile), "reference", "debug", "--joined"]) == 0
+    assert capsys.readouterr().out.strip().endswith(TWO)
+
+
+def test_record_index_writes_the_joined_digest_back(lockfile):
+    other = "sha256:" + "e" * 64
+    assert main(["--lockfile", str(lockfile), "record-index", "jit", other]) == 0
+    assert Lock.load(lockfile).index("jit").digest == other
+
+
+def test_recording_something_that_is_not_a_digest_is_refused(lockfile):
+    assert main(["--lockfile", str(lockfile), "record-index", "jit", "latest"]) == 1
+
+
+def test_devcontainer_write_moves_the_image_and_keeps_the_comments(lockfile, devcontainer):
+    """That file is written by hand and explains itself, so the job edits one line of it."""
+    devcontainer.write_text(f'// read me\n{{\n  "image": "{ONE}"\n}}\n', encoding="utf-8")
+    args = ["--lockfile", str(lockfile), "--devcontainer", str(devcontainer)]
+    assert main([*args, "devcontainer", "--write"]) == 0
+    said = devcontainer.read_text(encoding="utf-8")
+    assert TWO in said
+    assert said.startswith("// read me")
+
+
+def test_devcontainer_without_write_only_prints(lockfile, devcontainer, capsys):
+    before = devcontainer.read_text(encoding="utf-8")
+    assert (
+        main(["--lockfile", str(lockfile), "--devcontainer", str(devcontainer), "devcontainer"])
+        == 0
+    )
+    assert TWO in capsys.readouterr().out
+    assert devcontainer.read_text(encoding="utf-8") == before
