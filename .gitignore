@@ -218,4 +218,7 @@ __marimo__/
 .streamlit/secrets.toml
 vendor/
 .venv/
+
+# Node, which only the WebAssembly probe driver needs
+node_modules/
 citations.lock.json.bak

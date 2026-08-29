@@ -1,0 +1,152 @@
+{
+  "runtime": "pyodide",
+  "python": "3.14.2",
+  "seconds": 0.9,
+  "payload_bytes": 13508566,
+  "outcomes": [
+    {
+      "key": "version",
+      "status": "ok",
+      "value": {
+        "python": "3.14.2",
+        "platform": "emscripten-5.0.3-wasm32",
+        "pointer_bytes": 4,
+        "free_threaded": false
+      }
+    },
+    {
+      "key": "internal_capi_import",
+      "status": "ok",
+      "value": {
+        "compiler_codegen": true,
+        "optimize_cfg": true,
+        "assemble_code_object": true
+      }
+    },
+    {
+      "key": "compiler_codegen",
+      "status": "ok",
+      "value": {
+        "instructions": 8,
+        "first": 128,
+        "metadata_keys": [
+          "argcount",
+          "kwonlyargcount",
+          "posonlyargcount"
+        ]
+      }
+    },
+    {
+      "key": "optimize_cfg",
+      "status": "raised",
+      "error": "KeyError: 'consts'"
+    },
+    {
+      "key": "optimize_cfg_direct",
+      "status": "ok",
+      "value": {
+        "slots": 3,
+        "instructions": 7
+      }
+    },
+    {
+      "key": "optimize_cfg_short_consts",
+      "status": "fatal",
+      "error": "memory access out of bounds"
+    },
+    {
+      "key": "ctypes_header",
+      "status": "ok",
+      "value": {
+        "refcount_field": 1,
+        "getrefcount": 2,
+        "type_pointer_matches": true,
+        "word_bytes": 4
+      }
+    },
+    {
+      "key": "monitoring",
+      "status": "ok",
+      "value": {
+        "fired": 1,
+        "event_names": 19
+      }
+    },
+    {
+      "key": "settrace",
+      "status": "ok",
+      "value": {
+        "events": [
+          "call",
+          "line",
+          "return"
+        ]
+      }
+    },
+    {
+      "key": "gc",
+      "status": "ok",
+      "value": {
+        "cycle_freed": true,
+        "thresholds": [
+          2000,
+          10,
+          0
+        ],
+        "enabled": true,
+        "generations": 3
+      }
+    },
+    {
+      "key": "debugmallocstats",
+      "status": "ok",
+      "value": {
+        "callable": true
+      }
+    },
+    {
+      "key": "front_end_modules",
+      "status": "ok",
+      "value": {
+        "dis": true,
+        "ast": true,
+        "symtable": true,
+        "tokenize": true,
+        "marshal": true,
+        "opcode": true,
+        "_opcode": true
+      }
+    },
+    {
+      "key": "disassembly",
+      "status": "ok",
+      "value": {
+        "opnames": [
+          "RESUME",
+          "LOAD_SMALL_INT",
+          "STORE_NAME",
+          "LOAD_CONST",
+          "RETURN_VALUE"
+        ],
+        "code_size": 10,
+        "consts": [
+          "6",
+          "None"
+        ],
+        "marshal_size": 109
+      }
+    },
+    {
+      "key": "small_integers",
+      "status": "ok",
+      "value": {
+        "top": 256
+      }
+    },
+    {
+      "key": "threading",
+      "status": "raised",
+      "error": "RuntimeError: can't start new thread"
+    }
+  ]
+}

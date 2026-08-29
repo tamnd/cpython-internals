@@ -112,6 +112,49 @@ jobs:
           path: build/versions
       - run: uv run nbversion compare build/versions/3.15 build/versions/3.14
 
+  # Everything in the browser tier rests on Pyodide keeping the surfaces the lessons poke
+  # at, and nobody notices when one of them goes away between releases. This job asks, on
+  # every pull request, rather than the once when somebody thought to check.
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: tools/wasmprobe/package-lock.json
+      - run: uv sync --all-packages
+      # The committed pair first, which is cheap and catches the common failure: somebody
+      # edited a check and did not rerun `just build-probe`, so the report and the notebook
+      # next to it now describe something else.
+      - run: uv run wasmprobe check probes/pyodide
+      - run: uv run nbcheck run probes
+      # Then the real thing. `npm ci` installs the pinned Pyodide, and the two runs below
+      # answer the question again against whatever the world looks like today rather than
+      # against a recording from whenever somebody last looked.
+      - run: npm ci
+        working-directory: tools/wasmprobe
+      # 3.14 rather than the pin, because Pyodide ships 3.14. A native 3.15 control would
+      # report every version difference as a WebAssembly one.
+      - run: uv run --python 3.14 --all-packages wasmprobe native --into build/probe
+        env:
+          # Its own environment, or this overwrites the .venv the steps above are using and
+          # the browser run below finds a 3.14 interpreter it did not ask for.
+          UV_PROJECT_ENVIRONMENT: ${{ runner.temp }}/venv-314
+      - run: uv run wasmprobe browser --into build/probe
+      - run: uv run wasmprobe report build/probe --into build/probe/report.md
+      - run: uv run wasmprobe notebook --into build/probe/probe.ipynb
+      - run: uv run wasmprobe check build/probe
+      - uses: actions/upload-artifact@v4
+        with:
+          name: probe
+          path: build/probe
+          retention-days: 7
+
   blueprints:
     runs-on: ubuntu-latest
     steps:

@@ -1,0 +1,61 @@
+# What stays in Tier 0 after measuring Pyodide
+
+This is the written half of gate Q1. The measured half is `report.md` next to it, and the raw runs are in `native.json` and `pyodide.json`. Reproduce them with `just build-probe`, or open `probe.ipynb` and run the same checks on whatever browser you are sitting in front of.
+
+## The short version
+
+Tier 0 survives. Fifteen checks, twelve behave the same in a browser as they do on a native CPython, and none of the three differences takes an experiment out of Tier 0.
+
+That is a better result than the issue expected. Rule 3 stands, and `pyxray.replay` stays a fallback in M2 rather than becoming a load bearing part of M0.
+
+## What was measured
+
+Pyodide 314.0.6 from npm, which is CPython 3.14.2 built for `emscripten-5.0.3-wasm32`, driven from Node. The control is a native CPython 3.14.7, deliberately 3.14 rather than the pinned 3.15, so a version difference does not get reported as a build difference.
+
+## The three differences
+
+**`optimize_cfg` cannot be called the way `pyxray` calls it.** `compiler_codegen` works and returns the same eight instructions in both places, but the metadata dictionary it hands back has no `consts` key in this build. It has `argcount`, `kwonlyargcount` and `posonlyargcount`, and that is all. Native 3.14 and 3.15 both include `consts`. Since `pyxray.compiler.stages` passes `metadata["consts"]` straight into `optimize_cfg`, that line raises `KeyError` in a browser.
+
+The optimizer itself is fine. Build a constants list of the right length from the instruction sequence and `optimize_cfg` runs and returns the same seven instructions it returns natively. So this is a missing key rather than a missing stage, and the fix is in our code, not in Pyodide. Filed as a bug. Until it lands, the compiler stage experiments in T05 stay in Tier 0 with that one line guarded.
+
+**A wrong constants list kills the runtime instead of raising.** Hand `optimize_cfg` a list that is too short and a native interpreter raises `ValueError: LOAD_CONST index 0 is out of range for consts (len=0)`. In WebAssembly the same call reads past the end of memory, the runtime does not come back, and in a notebook the kernel dies and the reader loses their work.
+
+This does not remove anything from Tier 0, but it does constrain how the pipeline widget is written. It has to build the constants list itself and never pass one it was given, because there is no way to catch this. The probe notebook runs that check last, on its own, with a paragraph warning the reader first.
+
+**A thread cannot be started.** `threading` imports and `threading.Thread(...)` constructs, and `start()` raises `RuntimeError: can't start new thread`. This is expected for a single threaded WebAssembly build without the pthread proxy, and it was already the assumption: the concurrency lessons are in M4 and were never Tier 0. Nothing moves.
+
+## What works, and is worth saying out loud
+
+`_testinternalcapi` imports, which was the check most likely to sink this. `compiler_codegen` and `optimize_cfg` are both there and both callable.
+
+`assemble_code_object` is present, and the probe only checks that it exists rather than calling it. That is not laziness. It asserts on its metadata instead of raising, and a failed assertion aborts the process, so calling it to see what happens would be the same class of mistake as the constants list above. `pyxray.compiler.assemble` refuses to call it for the same reason, tracked in issue 35.
+
+`ctypes` reads both fields in front of a live object: the reference count matches `sys.getrefcount`, and the type pointer one word further along really is `id(list)`. Object headers stay live in the browser rather than being shown from a recording.
+
+`sys.monitoring` registers a tool, sets a local event and fires the callback. The stepper stays in Tier 0.
+
+`sys.settrace` still reports call, line and return, so the fallback exists too.
+
+The cycle collector frees a two node cycle, has three generations, and is enabled.
+
+`dis`, `ast`, `symtable`, `tokenize`, `marshal`, `opcode` and `_opcode` all import, and `dis` gives the same five instructions, the same ten byte code object and the same 109 byte marshal blob as the native 3.14.
+
+## Where the two are genuinely different machines
+
+Four answers differ without anything being broken, and a lesson that asserts one of these numbers is teaching the build rather than the language.
+
+Pointers are four bytes rather than eight. `sysconfig.get_platform()` is `emscripten-5.0.3-wasm32`. The third garbage collector threshold is 0 rather than 10, so the oldest generation is never collected on a schedule. And the metadata key described above.
+
+The pointer size is the one to watch. Every diagram in the object lessons draws an eight byte word, and a reader in a browser who measures it gets four. T08 and T09 need a sentence about that, and it is a good sentence to have: it is the difference between memorising a number and knowing where the number comes from.
+
+## The phone question, answered partly
+
+The issue asks how long a cold boot takes on a mid range phone. This probe cannot answer that. It boots in about a second from a local disk under Node, which is a floor and not a promise.
+
+What it can measure is the part that dominates on a phone: 13.5 MB has to arrive before the first cell runs, which is the WebAssembly binary, the JavaScript glue, the standard library zip and the lock file. On a slow connection that is the wait, not the boot. Anything about tab memory, a service worker cache, or a real device is not answered here and is worth its own issue when the site actually exists.
+
+## What this changes
+
+Nothing moves from Tier 0 to Tier 1.
+
+Three pieces of work fall out of it. Guard the `metadata["consts"]` line in `pyxray.compiler.stages` so the compiler stages work in a browser. Make the pipeline widget build its own constants list rather than accepting one, because the alternative is a dead kernel. Add a sentence to the object lessons about the word size, and keep measuring it rather than asserting it, which is what those lessons already do for the small integer cache.

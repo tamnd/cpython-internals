@@ -1,0 +1,160 @@
+{
+  "runtime": "native",
+  "python": "3.14.7",
+  "seconds": 0.0,
+  "payload_bytes": 0,
+  "outcomes": [
+    {
+      "key": "version",
+      "status": "ok",
+      "value": {
+        "python": "3.14.7",
+        "platform": "macosx-15.0-arm64",
+        "pointer_bytes": 8,
+        "free_threaded": false
+      }
+    },
+    {
+      "key": "internal_capi_import",
+      "status": "ok",
+      "value": {
+        "compiler_codegen": true,
+        "optimize_cfg": true,
+        "assemble_code_object": true
+      }
+    },
+    {
+      "key": "compiler_codegen",
+      "status": "ok",
+      "value": {
+        "instructions": 8,
+        "first": 128,
+        "metadata_keys": [
+          "argcount",
+          "consts",
+          "kwonlyargcount",
+          "posonlyargcount"
+        ]
+      }
+    },
+    {
+      "key": "optimize_cfg",
+      "status": "ok",
+      "value": {
+        "instructions": 5
+      }
+    },
+    {
+      "key": "optimize_cfg_direct",
+      "status": "ok",
+      "value": {
+        "slots": 3,
+        "instructions": 7
+      }
+    },
+    {
+      "key": "optimize_cfg_short_consts",
+      "status": "ok",
+      "value": {
+        "raised": "ValueError: LOAD_CONST index 0 is out of range for consts (len=0)"
+      }
+    },
+    {
+      "key": "ctypes_header",
+      "status": "ok",
+      "value": {
+        "refcount_field": 1,
+        "getrefcount": 2,
+        "type_pointer_matches": true,
+        "word_bytes": 8
+      }
+    },
+    {
+      "key": "monitoring",
+      "status": "ok",
+      "value": {
+        "fired": 1,
+        "event_names": 19
+      }
+    },
+    {
+      "key": "settrace",
+      "status": "ok",
+      "value": {
+        "events": [
+          "call",
+          "line",
+          "return"
+        ]
+      }
+    },
+    {
+      "key": "gc",
+      "status": "ok",
+      "value": {
+        "cycle_freed": true,
+        "thresholds": [
+          2000,
+          10,
+          10
+        ],
+        "enabled": true,
+        "generations": 3
+      }
+    },
+    {
+      "key": "debugmallocstats",
+      "status": "ok",
+      "value": {
+        "callable": true
+      }
+    },
+    {
+      "key": "front_end_modules",
+      "status": "ok",
+      "value": {
+        "dis": true,
+        "ast": true,
+        "symtable": true,
+        "tokenize": true,
+        "marshal": true,
+        "opcode": true,
+        "_opcode": true
+      }
+    },
+    {
+      "key": "disassembly",
+      "status": "ok",
+      "value": {
+        "opnames": [
+          "RESUME",
+          "LOAD_SMALL_INT",
+          "STORE_NAME",
+          "LOAD_CONST",
+          "RETURN_VALUE"
+        ],
+        "code_size": 10,
+        "consts": [
+          "6",
+          "None"
+        ],
+        "marshal_size": 109
+      }
+    },
+    {
+      "key": "small_integers",
+      "status": "ok",
+      "value": {
+        "top": 256
+      }
+    },
+    {
+      "key": "threading",
+      "status": "ok",
+      "value": {
+        "ran": true,
+        "active": 1
+      }
+    }
+  ]
+}
