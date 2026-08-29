@@ -9,6 +9,10 @@ built from, so the captions cannot drift out of step with the picture.
 It also carries the list of shapes the animation uses. That is what makes the rule in
 VISUAL-SYSTEM.md mechanical rather than aspirational: a scene that starts drawing something
 the visual system has no name for has to say so here first, and saying so fails the check.
+
+And it carries the alt text, for the same reason the captions live here. Alt text written
+into a page by hand is alt text that goes stale the first time the animation changes, and
+nothing notices, because the one reader who would notice cannot see the picture either.
 """
 
 from __future__ import annotations
@@ -34,6 +38,28 @@ CAPTION_LIMIT = 78
 #: Under three beats it is a slide, not an animation, and a still picture would be cheaper
 #: to make and easier to look at.
 MINIMUM_BEATS = 3
+
+#: Alt text shorter than this is a label rather than a description. "the compiler" tells a
+#: reader who cannot see the animation nothing at all about what is in it.
+ALT_MINIMUM = 40
+
+#: And past this it is a paragraph. A screen reader reads alt text as one unbroken run with
+#: no way to skim or pause, so a long one is worse than a short one.
+ALT_LIMIT = 220
+
+#: Openings that spend the reader's first few words saying what they already know from the
+#: fact that alt text is being read to them at all.
+REDUNDANT = (
+    "a gif of",
+    "an animation of",
+    "an animation showing",
+    "an image of",
+    "a picture of",
+    "a diagram of",
+    "this animation",
+    "image of",
+    "animation of",
+)
 
 
 @dataclass(frozen=True)
@@ -76,6 +102,11 @@ class Storyboard:
     beats: tuple[Beat, ...]
     shapes: tuple[str, ...] = field(default_factory=tuple)
 
+    #: What is on screen, for somebody who is not going to see it. Written as a description
+    #: of the picture rather than a summary of the lesson, because the paragraph next to the
+    #: animation already does the second one and repeating it helps nobody.
+    alt: str = ""
+
     @property
     def seconds(self) -> float:
         return sum(beat.seconds for beat in self.beats)
@@ -108,6 +139,7 @@ class Storyboard:
                 f"{self.slug}: {self.seconds:.0f} seconds, over the {CAP_SECONDS:.0f} "
                 f"second cap; an animation this long is two animations"
             )
+        found.extend(self._alt())
         if not self.shapes:
             found.append(f"{self.slug}: say which shapes it draws, so the grammar can be checked")
         for shape in self.shapes:
@@ -116,4 +148,44 @@ class Storyboard:
                     f"{self.slug}: {shape!r} is not in the visual system; add it to "
                     f"VISUAL-SYSTEM.md and to grammar.py before drawing it"
                 )
+        return found
+
+    def _alt(self) -> list[str]:
+        """Whether the alt text is a description somebody could picture the animation from.
+
+        None of this can tell you the alt text is accurate. It can tell you it is not the
+        title again, not two words, and not a paragraph, which is what the three ways of
+        writing bad alt text look like.
+        """
+        found = []
+        text = self.alt.strip()
+        if not text:
+            return [f"{self.slug}: write alt text saying what is on screen"]
+        if "\n" in self.alt:
+            found.append(f"{self.slug}: the alt text has a line break in it")
+        for character, name in FORBIDDEN.items():
+            if character in self.alt:
+                found.append(f"{self.slug}: the alt text has an {name} in it")
+        if text.lower() == self.title.lower():
+            found.append(
+                f"{self.slug}: the alt text is the title again, and the title is already "
+                f"next to the picture; say what is on screen instead"
+            )
+        if len(text) < ALT_MINIMUM:
+            found.append(
+                f"{self.slug}: the alt text is {len(text)} characters, which is a label "
+                f"rather than a description of what is on screen"
+            )
+        if len(text) > ALT_LIMIT:
+            found.append(
+                f"{self.slug}: the alt text is {len(text)} characters, over {ALT_LIMIT}; "
+                f"a screen reader reads it as one run with nowhere to pause"
+            )
+        for opening in REDUNDANT:
+            if text.lower().startswith(opening):
+                found.append(
+                    f"{self.slug}: the alt text starts with {opening!r}, which the reader "
+                    f"already knows; start with what is in the picture"
+                )
+                break
         return found

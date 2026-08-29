@@ -5,13 +5,14 @@ from __future__ import annotations
 from dataclasses import replace
 
 from xraymanim.grammar import CAP_SECONDS
-from xraymanim.storyboard import Beat, Storyboard
+from xraymanim.storyboard import ALT_LIMIT, Beat, Storyboard
 
 CLEAN = Storyboard(
     slug="a99-a-demo",
     title="A demo that only exists in the tests",
     lesson="T99",
     shapes=("box", "arrow", "PyObjectBox"),
+    alt="a box with an arrow leaving it, and a second box that the arrow arrives at",
     beats=(
         Beat("Something happens.", 4.0),
         Beat("Then something else happens.", 4.0),
@@ -97,3 +98,58 @@ def test_declaring_no_shapes():
 def test_a_shape_the_visual_system_does_not_have():
     broken = replace(CLEAN, shapes=("box", "sparkle"))
     assert "'sparkle' is not in the visual system" in " ".join(broken.problems())
+
+
+def test_no_alt_text_at_all():
+    assert "write alt text" in replace(CLEAN, alt="").problems()[0]
+
+
+def test_alt_text_that_is_only_whitespace_counts_as_none():
+    assert "write alt text" in replace(CLEAN, alt="   ").problems()[0]
+
+
+def test_a_line_break_in_the_alt_text():
+    """A screen reader does nothing useful with it and the markdown image swallows it."""
+    broken = replace(CLEAN, alt="a box with an arrow leaving it,\nand a second box")
+    assert "line break" in broken.problems()[0]
+
+
+def test_an_em_dash_in_the_alt_text():
+    dashed = replace(CLEAN, alt="a box with an arrow leaving it \u2014 and a second box below")
+    assert "em dash" in dashed.problems()[0]
+
+
+def test_alt_text_that_is_the_title_again():
+    """The title is read out next to the picture already, so this is one sentence twice."""
+    lazy = replace(CLEAN, alt=CLEAN.title)
+    assert "the title again" in lazy.problems()[0]
+
+
+def test_alt_text_that_ignores_the_case_of_the_title():
+    lazy = replace(CLEAN, alt=CLEAN.title.upper())
+    assert "the title again" in lazy.problems()[0]
+
+
+def test_alt_text_that_is_a_label_rather_than_a_description():
+    assert "rather than a description" in replace(CLEAN, alt="two boxes").problems()[0]
+
+
+def test_alt_text_that_is_a_paragraph():
+    essay = replace(CLEAN, alt="a box, " * 40)
+    assert f"over {ALT_LIMIT}" in essay.problems()[0]
+
+
+def test_alt_text_that_opens_by_saying_it_is_an_animation():
+    """The reader knows. It is being read to them because they cannot see the picture."""
+    told = replace(CLEAN, alt="An animation of a box with an arrow leaving it, and a second box")
+    assert "already knows" in told.problems()[0]
+
+
+def test_only_the_first_redundant_opening_is_reported():
+    told = replace(CLEAN, alt="Image of a box with an arrow leaving it, and a second box below")
+    assert len(told.problems()) == 1
+
+
+def test_a_description_that_happens_to_mention_an_animation_later_is_fine():
+    fine = replace(CLEAN, alt="a box that the animation fills in, with an arrow leaving it")
+    assert fine.problems() == []

@@ -12,6 +12,7 @@ shows what the caption says it shows. Nothing can. That is what watching it is f
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 from .catalogue import ANIMATIONS, class_name, module_name
@@ -25,6 +26,10 @@ VISUAL_SYSTEM = Path("xraymanim") / "VISUAL-SYSTEM.md"
 
 #: The page that lists the animations for a human.
 INDEX = Path("anim") / "README.md"
+
+#: A markdown image with nothing between the brackets. Every image on a page this project
+#: publishes has to describe itself, and this is the one that does not.
+UNDESCRIBED = re.compile(r"!\[\s*\]\(")
 
 #: A GIF over this is one somebody on a slow connection will never see the end of, and it
 #: is also a file that makes cloning this repository slower forever, because git keeps it.
@@ -86,12 +91,27 @@ def _visual_system(root: Path) -> list[str]:
 
 
 def _index(root: Path) -> list[str]:
+    """That the page agrees with the catalogue, including about the alt text.
+
+    The alt text is the half of a page nobody proofreads, because everybody reviewing it
+    can see the picture. So it is written once in the catalogue and the page has to match
+    it exactly, which turns editing one and forgetting the other into a failing check
+    rather than a description of an animation that no longer exists.
+    """
     page = root / INDEX
     if not page.is_file():
         return [f"there is no index at {page}"]
     text = page.read_text(encoding="utf-8")
-    return [
-        f"{storyboard.slug} is not listed in {INDEX}"
-        for storyboard in ANIMATIONS
-        if storyboard.slug not in text
-    ]
+    problems = []
+    for storyboard in ANIMATIONS:
+        if storyboard.slug not in text:
+            problems.append(f"{storyboard.slug} is not listed in {INDEX}")
+            continue
+        if f"![{storyboard.alt}](" not in text:
+            problems.append(
+                f"{storyboard.slug}: {INDEX} shows the GIF with different alt text than "
+                f"the catalogue, so one of the two has been edited and the other has not"
+            )
+    if UNDESCRIBED.search(text):
+        problems.append(f"{INDEX} has an image with empty alt text in it")
+    return problems
