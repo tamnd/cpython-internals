@@ -81,6 +81,36 @@ jobs:
       # workspace copy is already installed, so what gets executed is the working tree and
       # not whatever is on main, which is the whole point of running them in a pull request.
       - run: uv run nbcheck run
+      # Same cells again, on this leg's interpreter, saved as one small JSON file per
+      # notebook. The versions job below is what reads them. Recording is separate from
+      # `nbcheck run` on purpose: that step stops at the first cell that raises, and this
+      # one keeps going, so a lesson that breaks cannot hide every version difference in
+      # the lessons after it.
+      - run: uv run nbversion record --into build/versions
+      - uses: actions/upload-artifact@v4
+        with:
+          name: versions-${{ matrix.python }}
+          path: build/versions
+          retention-days: 1
+
+  # Both legs of the notebooks matrix ran the same cells on different interpreters. This
+  # job is the one that compares the two and fails if a cell's output depends on which
+  # Python the reader has and the lesson does not say so.
+  versions:
+    runs-on: ubuntu-latest
+    needs: notebooks
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: versions-*
+          merge-multiple: true
+          path: build/versions
+      - run: uv run nbversion compare build/versions/3.15 build/versions/3.14
 
   blueprints:
     runs-on: ubuntu-latest

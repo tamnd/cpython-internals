@@ -15,7 +15,7 @@ so asking for one that has not been drawn fails here rather than turning into a 
 image somebody finds later.
 """
 
-from nbbuild import Lesson
+from nbbuild import BANNER, TRAILING_NONE, Lesson
 from nbdiagram import Diagrams
 
 lesson = Lesson("t01-one-line-seven-stages", "t01")
@@ -76,14 +76,20 @@ lesson.md("""
 ## Which interpreter is this
 
 Nearly every fact in this lesson is a fact about one particular build of CPython. Instruction names change between releases and so do the sizes of things, so every lesson here starts by saying out loud which binary is about to produce the output you are reading.
+
+If the banner says 3.14, which is what Colab installs today, nearly all of this lesson is the same and a handful of cells are not. The differences below all come from one change. On 3.15 the implicit `return None` at the end of a module is a `LOAD_COMMON_CONSTANT`, and `None` is not in the constant table at all. On 3.14 it is an ordinary `LOAD_CONST`, and `None` is in the table. That is one more constant and two fewer bytes of bytecode everywhere those get printed. Stage 6 comes back to it and asks your build directly.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import pyxray
 
 pyxray.show()
-""")
+""",
+    differs=BANNER,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -247,9 +253,13 @@ The instruction sequence is turned into a {term("control flow graph")}, and then
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 print(compiler.what_the_optimizer_did(result))
-""")
+""",
+    differs=TRAILING_NONE,
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -270,9 +280,13 @@ Folding only happens when the compiler can see both operands for itself. Replace
 """)
 
 
-lesson.code(r"""
+lesson.code(
+    r"""
 print(compiler.what_the_optimizer_did(compiler.stages("answer = six * 7\n")))
-""")
+""",
+    differs=TRAILING_NONE,
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -282,7 +296,8 @@ The {term("assembler")} turns the optimized graph into the {term("code object")}
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import dis
 
 print("co_consts    ", result.code.co_consts)
@@ -291,7 +306,10 @@ print("co_stacksize ", result.code.co_stacksize)
 print("co_code      ", len(result.code.co_code), "bytes")
 print()
 dis.dis(result.code)
-""")
+""",
+    differs="On 3.14 co_consts is (6, None) rather than (6,) and the bytecode is 10 bytes rather than 12, because None still needs a table entry there.",
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -305,14 +323,18 @@ The 42 is not in the constant table at all. It is the {term("oparg", "argument")
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 loaded = {i.argval for i in dis.get_instructions(result.code) if i.opname == "LOAD_CONST"}
 inline = [str(i) for i in result.optimized if "SMALL_INT" in i.opname]
 
 print("constants the code object carries:", result.code.co_consts)
 print("constants any instruction loads:  ", loaded or "none")
 print("where the 42 actually lives:      ", inline)
-""")
+""",
+    differs="On 3.14 one instruction does load a constant, the None at the end, so the middle line says {None} rather than none. The point of the cell survives: nothing loads the 6.",
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -322,13 +344,17 @@ Rather than take either version's word for it, print what your build did.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 print("python            ", sys.version.split()[0])
 print("last instructions ", [str(item) for item in result.optimized[-2:]])
 print("co_consts         ", result.code.co_consts)
 print("bytecode          ", len(result.code.co_code), "bytes")
 print("None is a constant", None in result.code.co_consts)
-""")
+""",
+    differs="This cell is here to differ. On 3.14 the last line says True and on 3.15 it says False, which is the whole paragraph above turned into output.",
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -353,9 +379,13 @@ The whole trip, in one line of counts.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 print(result.summary())
-""")
+""",
+    differs="On 3.14 the last number is 10 bytes rather than 12. Everything to the left of it is the same.",
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -382,14 +412,18 @@ Try `if True:\n    x = 1`, and see how much of the `if` is left by the time the 
 """)
 
 
-lesson.code(r"""
+lesson.code(
+    r"""
 MINE = "x = 2 ** 10\n"
 
 mine = compiler.stages(MINE)
 print(mine.summary())
 print()
 print(compiler.what_the_optimizer_did(mine))
-""")
+""",
+    differs=TRAILING_NONE,
+    quiet=True,
+)
 
 
 lesson.md("""

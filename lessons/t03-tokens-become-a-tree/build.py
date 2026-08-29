@@ -22,7 +22,7 @@ than imported, so a diagram that has not been built yet fails here instead of pr
 notebook full of broken images.
 """
 
-from nbbuild import Lesson
+from nbbuild import BANNER, YOUR_INSTALL, Lesson
 from nbdiagram import Diagrams
 
 lesson = Lesson("t03-tokens-become-a-tree", "t03")
@@ -90,11 +90,15 @@ Node types get added between releases and the tree for a given piece of code can
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import pyxray
 
 pyxray.show()
-""")
+""",
+    differs=BANNER,
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -287,12 +291,15 @@ Four examples do not prove a property, so run it over every module in the standa
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 report = trees.survey(trees.stdlib())
 
 print("standard library at", trees.stdlib())
 print(report)
-""")
+""",
+    differs=YOUR_INSTALL,
+)
 
 
 lesson.md("""

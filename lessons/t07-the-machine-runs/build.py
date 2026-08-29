@@ -18,7 +18,7 @@ than imported, so a diagram that has not been built yet fails here instead of pr
 notebook full of broken images.
 """
 
-from nbbuild import Lesson
+from nbbuild import BANNER, OFFSETS, Lesson
 from nbdiagram import Diagrams
 
 lesson = Lesson("t07-the-machine-runs", "t07")
@@ -80,14 +80,20 @@ lesson.md("""
 ## Which Python is this
 
 Instruction names and monitoring events both change between releases. Everything here was checked against the version this cell prints.
+
+It was also checked against 3.14, which is what Colab installs today, and one difference shows up in almost every listing. On 3.15 `RESUME` and `GET_ITER` carry an inline cache slot and on 3.14 they do not, so on 3.14 every offset below is two to four lower than the number in the text. Nothing else about the listing changes. Where a cell differs for some other reason, it says so underneath.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import pyxray
 
 pyxray.show()
-""")
+""",
+    differs=BANNER,
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -122,7 +128,8 @@ Your own build made this choice when it was compiled, and it left a note.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import sysconfig
 
 arguments = sysconfig.get_config_var("CONFIG_ARGS") or ""
@@ -135,7 +142,9 @@ print("configured with:")
 for argument in arguments.replace("'", "").split():
     if argument.startswith("--with") or argument.startswith("--enable"):
         print("   ", argument)
-""")
+""",
+    differs="This lists the flags your CPython was configured with, which says more about who built it than about the version.",
+)
 
 
 lesson.md("""
@@ -188,7 +197,8 @@ The next cell shows the difference. It takes a few seconds and prints a `Recursi
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import sys
 
 sys.setrecursionlimit(200_000)
@@ -216,7 +226,9 @@ try:
 except RecursionError as problem:
     print(f"through sorted, gave up somewhere under {depth} deep")
     print("   ", problem)
-""")
+""",
+    differs="How deep you get before the C stack runs out depends on the build and on the machine, so this number is different everywhere. That it stops far earlier than the pure Python version is the part to read.",
+)
 
 
 lesson.md(f"""
@@ -337,7 +349,8 @@ Not every event can be local. An event has to happen at a known instruction for 
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import sys
 
 monitoring = sys.monitoring
@@ -366,7 +379,10 @@ finally:
 
 print(f"{len(local)} events can be turned on for a single code object:")
 print("   ", ", ".join(local))
-""")
+""",
+    differs="3.14 has 12 of these events rather than 17. EXCEPTION_HANDLED, PY_THROW, PY_UNWIND, RAISE and RERAISE cannot be set on a single code object there.",
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -387,7 +403,8 @@ What we can do is join two things. The order instructions ran in is a real obser
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 from pyxray import stepper
 
 
@@ -404,7 +421,9 @@ print("deepest the stack got:", recording.deepest)
 print("co_stacksize says:", total_of.__code__.co_stacksize)
 print()
 print(recording.table())
-""")
+""",
+    differs="On 3.14 the offsets are lower and the deepest the stack gets is 3 rather than 4, because the loop is compiled a little differently. The shape of the recording is the same.",
+)
 
 
 lesson.md("""
@@ -429,7 +448,8 @@ It is the kind of thing that would cost you an afternoon if you hit it without w
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import dis
 
 compiled = {item.offset: item.opname for item in dis.get_instructions(total_of)}
@@ -439,7 +459,10 @@ print("compiled but never reported:")
 for offset, opname in compiled.items():
     if offset not in executed:
         print(f"   {offset:>4}  {opname}")
-""")
+""",
+    differs=OFFSETS,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -449,7 +472,8 @@ lesson.md("""
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import sys
 
 monitoring = sys.monitoring
@@ -480,7 +504,10 @@ try:
 finally:
     monitoring.set_local_events(3, total_of.__code__, 0)
     monitoring.free_tool_id(3)
-""")
+""",
+    differs=OFFSETS,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -651,7 +678,8 @@ Every frame has a pointer to the one that called it, which is `previous` in the 
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 from pyxray import stepper
 
 
@@ -669,7 +697,9 @@ def first():
 
 
 first()
-""")
+""",
+    differs="The frames above yours belong to whatever is running the notebook, so those names and line numbers come from Jupyter and asyncio rather than from anything the lesson did. The bottom of the list is your three functions, and that is the part to read.",
+)
 
 
 lesson.md("""

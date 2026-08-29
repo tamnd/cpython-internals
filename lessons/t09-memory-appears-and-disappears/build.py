@@ -17,7 +17,7 @@ than imported, so a diagram that has not been built yet fails here instead of pr
 notebook full of broken images.
 """
 
-from nbbuild import Lesson
+from nbbuild import BANNER, Lesson
 from nbdiagram import Diagrams
 
 lesson = Lesson("t09-memory-appears-and-disappears", "t09")
@@ -80,11 +80,15 @@ Everything below was checked against the version this cell prints and against 3.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import pyxray
 
 pyxray.show()
-""")
+""",
+    differs=BANNER,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -280,7 +284,8 @@ None of this is exotic. A doubly linked list is full of {term("reference cycle",
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import gc
 
 
@@ -303,7 +308,9 @@ def compare():
 
 
 compare()
-""")
+""",
+    differs="On 3.14 the collector reports freeing 8 objects rather than 6. The count includes whatever else the interpreter had waiting, so it is not stable across versions. Which of the three nodes survive is.",
+)
 
 
 lesson.md(f"""
@@ -521,7 +528,8 @@ You can watch the counts move with `sys.getallocatedblocks`, which counts blocks
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 before = heap.allocated()
 kept = [Plain() for _ in range(10_000)]
 after = heap.allocated()
@@ -533,7 +541,9 @@ freed = heap.allocated()
 print("blocks in use at the start ", before)
 print("after building 10000       ", after)
 print("after dropping them        ", freed)
-""")
+""",
+    differs="These are counts of blocks in your own process, so the two outer numbers depend on what the interpreter has already done. The 10000 that appear and then go away again is the part to read.",
+)
 
 
 lesson.md("""

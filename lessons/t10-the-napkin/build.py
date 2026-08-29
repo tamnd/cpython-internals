@@ -13,7 +13,7 @@ Run this file to regenerate the notebook, or `just build-lessons` to regenerate 
 them. `just lessons` checks that the committed notebook still matches this file.
 """
 
-from nbbuild import Lesson
+from nbbuild import BANNER, SMALL_INTS, TRAILING_NONE, Lesson
 from nbdiagram import Diagrams
 
 lesson = Lesson("t10-the-napkin", "t10")
@@ -74,11 +74,15 @@ Everything below was checked against the version this cell prints and against 3.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import pyxray
 
 pyxray.show()
-""")
+""",
+    differs=BANNER,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -153,7 +157,8 @@ You can watch that happen. The next cell compiles a function, throws away the so
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import marshal
 
 
@@ -183,7 +188,10 @@ def crossing():
 
 
 crossing()
-""")
+""",
+    differs="On 3.14 the marshalled code object is a few bytes smaller. The number is not the point, the fact that it still runs without the source is.",
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -202,7 +210,8 @@ Here is `answer = 6 * 7` at every stage, in a single cell. It is the same eight 
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import ast
 import symtable
 import tokenize
@@ -248,7 +257,10 @@ def walk_it():
 
 
 walk_it()
-""")
+""",
+    differs=TRAILING_NONE,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -271,7 +283,8 @@ Every one of these is a sentence you will have read somewhere, probably more tha
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import dis
 import gc
 
@@ -319,7 +332,10 @@ def settle():
 
 gc.collect()
 settle()
-""")
+""",
+    differs="On 3.14 the first answer is 10 bytes rather than 12, because the trailing None is a LOAD_CONST there. It is still bytecode, which is what the question was.",
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -340,7 +356,8 @@ The `257 is 257` one deserves its own cell, because the usual explanation of it 
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 a = 257
 b = 257
 print("two names, same source file:", a is b)
@@ -348,7 +365,10 @@ print("two names, same source file:", a is b)
 built = int("257")
 again = int("257")
 print("built one at a time:      ", built is again)
-""")
+""",
+    differs=SMALL_INTS,
+    quiet=True,
+)
 
 
 lesson.md(f"""

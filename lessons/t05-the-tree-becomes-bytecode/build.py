@@ -20,7 +20,7 @@ than imported, so a diagram that has not been built yet fails here instead of pr
 notebook full of broken images.
 """
 
-from nbbuild import Lesson
+from nbbuild import BANNER, TRAILING_NONE, Lesson
 from nbdiagram import Diagrams
 
 lesson = Lesson("t05-the-tree-becomes-bytecode", "t05")
@@ -91,14 +91,20 @@ lesson.md("""
 ## Which Python is this
 
 More of this lesson is version dependent than usual. The optimizer is where CPython's release notes spend most of their "faster" bullet points, so the exact instruction list below is the one your interpreter produced and not the one somebody wrote down in 2023.
+
+Everything below was checked against the version this cell prints and against 3.14, which is what Colab installs today. Two differences account for nearly all of the disagreements. On 3.15 the implicit `return None` at the end of a module is a `LOAD_COMMON_CONSTANT` and `None` is not in the constant table at all, where on 3.14 it is an ordinary `LOAD_CONST` and `None` is in the table. And on 3.15 `RESUME` and `GET_ITER` carry an inline cache, where on 3.14 they do not. So if you are on 3.14 you will see one more constant, two fewer bytes of bytecode, and every offset two to four lower than the numbers in the text. The shape of every listing is the same.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import pyxray
 
 pyxray.show()
-""")
+""",
+    differs=BANNER,
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -132,11 +138,15 @@ The next cell runs every stage on one line of source and counts what came out of
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 result = compiler.stages("answer = 6 * 7")
 
 print(result.summary())
-""")
+""",
+    differs=TRAILING_NONE,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -148,9 +158,13 @@ The next cell puts both lists side by side. The left column is what the code gen
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 print(compiler.what_the_optimizer_did(result))
-""")
+""",
+    differs=TRAILING_NONE,
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -175,11 +189,15 @@ The finished instruction is `LOAD_SMALL_INT 42`, and that is worth a moment beca
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 code = compile("answer = 6 * 7", "lesson.py", "exec")
 
 print("co_consts:", code.co_consts)
-""")
+""",
+    differs=TRAILING_NONE,
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -193,13 +211,17 @@ You can check that claim rather than believing it.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import dis
 
 used = [step.arg for step in dis.get_instructions(code) if step.opname == "LOAD_CONST"]
 print("constants in the table:", code.co_consts)
 print("constants actually loaded:", used)
-""")
+""",
+    differs=TRAILING_NONE,
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -224,7 +246,8 @@ Eleven of them, and the list comes from the interpreter's own opcode table rathe
 """)
 
 
-lesson.code('''
+lesson.code(
+    '''
 guarded = """
 try:
     n = 1 / 0
@@ -233,7 +256,10 @@ except ZeroDivisionError:
 """
 
 print(compiler.what_the_optimizer_did(compiler.stages(guarded)))
-''')
+''',
+    differs=TRAILING_NONE,
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -251,7 +277,8 @@ Doing that makes a question askable that a flat list cannot answer: can this cod
 """)
 
 
-lesson.code('''
+lesson.code(
+    '''
 never = """
 if False:
     print("this never runs")
@@ -259,7 +286,10 @@ print("this does")
 """
 
 print(compiler.what_the_optimizer_did(compiler.stages(never)))
-''')
+''',
+    differs=TRAILING_NONE,
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -273,9 +303,13 @@ You can check that the string is really gone.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 print(compile(never, "lesson.py", "exec").co_consts)
-""")
+""",
+    differs=TRAILING_NONE,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -289,7 +323,8 @@ Two smaller rewrites are visible in almost every disassembly once you know to lo
 """)
 
 
-lesson.code('''
+lesson.code(
+    '''
 looping = """
 total = 0
 for n in [1, 2, 3]:
@@ -297,7 +332,10 @@ for n in [1, 2, 3]:
 """
 
 print(compiler.what_the_optimizer_did(compiler.stages(looping)))
-''')
+''',
+    differs="On 3.14 the trailing None is a LOAD_CONST, GET_ITER prints without an argument, and the constant indices shift by one.",
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -374,9 +412,13 @@ The graph now has to become a file. That is the third stage, and it is the one t
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 print(compile("answer = 6 * 7", "lesson.py", "exec").co_code.hex(" "))
-""")
+""",
+    differs="On 3.14 this is 10 bytes rather than 12, and the bytes themselves are different, because RESUME has no inline cache and the final None is a LOAD_CONST.",
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -396,12 +438,16 @@ Two of those fields are built here and nowhere else, and neither of them is in t
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 from pyxray import bytecode
 
 for start, end, line in bytecode.line_table("answer = 6 * 7"):
     print(f"bytes {start:>3} to {end:<3} came from line {line}")
-""")
+""",
+    differs="On 3.14 the ranges start two bytes lower, because RESUME has no inline cache there.",
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -409,7 +455,8 @@ That is `co_linetable`, the {term("line table")}. It is how a traceback knows wh
 """)
 
 
-lesson.code('''
+lesson.code(
+    '''
 faulty = """
 try:
     n = 1 / 0
@@ -420,7 +467,10 @@ except ZeroDivisionError:
 table = compile(faulty, "lesson.py", "exec").co_exceptiontable
 print("exception table, in bytes:", len(table))
 print(table.hex(" "))
-''')
+''',
+    differs="On 3.14 the table is 12 bytes rather than 16, and the bytes are different. It encodes offsets into the bytecode, and those offsets are different on the two versions.",
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -438,7 +488,8 @@ It is also the reason for a piece of Python advice that otherwise sounds like fo
 """)
 
 
-lesson.code('''
+lesson.code(
+    '''
 experiment = """
 x = 1
 y = 2
@@ -446,7 +497,10 @@ z = x + y
 """
 
 print(compiler.what_the_optimizer_did(compiler.stages(experiment)))
-''')
+''',
+    differs=TRAILING_NONE,
+    quiet=True,
+)
 
 
 lesson.md("""
