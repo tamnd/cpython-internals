@@ -17,6 +17,7 @@ dependencies = [
     "nbversion",
     "pyxray",
     "refcheck",
+    "tier1",
     "wasmprobe",
     "xraymanim",
     "xraywidgets",
@@ -50,6 +51,7 @@ members = [
     "tools/nbdiagram",
     "tools/nbversion",
     "tools/refcheck",
+    "tools/tier1",
     "tools/wasmprobe",
     "xraymanim",
     "xraywidgets",
@@ -66,6 +68,7 @@ nbdiagram = { workspace = true }
 nbversion = { workspace = true }
 pyxray = { workspace = true }
 refcheck = { workspace = true }
+tier1 = { workspace = true }
 wasmprobe = { workspace = true }
 xraymanim = { workspace = true }
 xraywidgets = { workspace = true }
@@ -82,6 +85,7 @@ testpaths = [
     "tools/nbdiagram/tests",
     "tools/nbversion/tests",
     "tools/refcheck/tests",
+    "tools/tier1/tests",
     "tools/wasmprobe/tests",
     "xraymanim/tests",
     "xraywidgets/tests",
@@ -111,12 +115,16 @@ filterwarnings = [
 known-first-party = [
     "bpc",
     "bpcheck",
+    "cpybuild",
+    "distprobe",
     "nbbuild",
     "nbcheck",
     "nbdiagram",
     "nbversion",
     "pyxray",
     "refcheck",
+    "tier1",
+    "wasmprobe",
     "xraymanim",
     "xraywidgets",
 ]

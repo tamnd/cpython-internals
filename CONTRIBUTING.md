@@ -73,6 +73,16 @@ The browser is one place a lesson runs. The other is whatever Python the reader 
 
 The short version is that most channels ship it and Fedora's `python3` does not. If you are writing a lesson that imports it, import it through `pyxray.compiler` and let that raise the message that names the package to install, rather than writing your own `try` around the import. If you are adding a channel, put it in `tools/distprobe/src/distprobe/channels.py` and run `just build-dist`. A channel that this machine cannot reach still belongs on the list, with a note saying what would answer it, because a table that quietly leaves out the hard rows looks finished when it is not.
 
+## What neither of them can do
+
+A few questions need an interpreter that was built a particular way. Counting every reference in the process is the first one the lessons hit: `sys.gettotalrefcount` only exists in a build configured with `--with-pydebug`, and that is a different binary rather than a flag anybody can turn on afterwards. Telling a beginner to compile CPython before lesson five is telling them to stop reading.
+
+That is what Tier 1 is for, and it lives in [experiments](experiments). The program runs in the image `cpybuild` publishes, pinned by digest, and what it printed is committed next to it and shown in the lesson. CI pulls the same digest, runs it again and compares, so the numbers in the lesson are checked against a real interpreter on every pull request rather than pasted in once.
+
+Before you add one, answer the field that asks why a stock interpreter cannot do it. That is the entry fee rather than documentation. An experiment that could have run in the reader's own notebook is worth ten times as much there, and the honest answer is usually that it could.
+
+Mark every line whose value is a measurement with a leading `~` and give it a label. Those lines are compared by their label and not their value, because taking a measurement is itself Python and the same count taken twice does not come back the same. Put the assertion that would catch a real regression inside the program, where it runs against a live interpreter every time CI does, rather than leaning on the committed numbers to catch it.
+
 ## Definition of done for a lesson
 
 No partial credit on any of these.

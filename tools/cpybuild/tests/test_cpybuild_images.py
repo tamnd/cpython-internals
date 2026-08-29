@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import pytest
+
 from cpybuild import images
 from cpybuild.configs import ARCHITECTURES, CONFIGURATIONS
 from cpybuild.images import Broken, Built, Lock, problems
-
 from refcheck import PINNED_COMMIT, PINNED_TAG
 
 ONE = "sha256:" + "a" * 64

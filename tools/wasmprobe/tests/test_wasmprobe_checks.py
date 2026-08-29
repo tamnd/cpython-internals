@@ -6,6 +6,7 @@ import ast
 import builtins
 
 import pytest
+
 from wasmprobe.checks import BY_KEY, CHECKS, INFO, NICE, TIER0, Check
 
 WEIGHTS = {TIER0, NICE, INFO}

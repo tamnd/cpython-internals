@@ -7,6 +7,7 @@ import builtins
 import re
 
 import pytest
+
 from cpybuild import configs
 from cpybuild.configs import ARCHITECTURES, BY_KEY, CONFIGURATIONS, LLVM_VERSION, RUNNERS
 

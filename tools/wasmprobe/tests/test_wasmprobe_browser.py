@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from wasmprobe import browser, report
 from wasmprobe.checks import BY_KEY, CHECKS
 from wasmprobe.result import FATAL, OK, SKIPPED, Outcome, Run

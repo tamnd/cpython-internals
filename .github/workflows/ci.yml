@@ -211,6 +211,41 @@ jobs:
       - run: uv run pytest tools/cpybuild/tests
       - run: uv run cpybuild check
 
+  # The only job here that runs an interpreter this project did not get from uv. A few
+  # questions cannot be asked on a stock CPython, counting every reference in the process
+  # being the one this starts with, so those programs run in the debug build the images
+  # workflow publishes and what they printed is committed next to them.
+  #
+  # This job pulls that image by digest and runs them again. It writes nothing. A difference
+  # is reported and the run goes red, which is the only thing that makes committing an answer
+  # worth more than pasting one into the prose by hand.
+  tier1:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - run: uv run pytest tools/tier1/tests
+      # The offline half first, because it is milliseconds and it catches the failure that
+      # actually happens: somebody edited an experiment and left the recording underneath it.
+      - run: uv run tier1 check
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Measured numbers are compared by their label rather than their value. The count moves
+      # by one or two between two runs of the same image, because taking the measurement is
+      # itself Python, and a check that goes red for that is a check somebody deletes. The
+      # assertion that would catch a real regression lives inside the program, where it runs
+      # against a live interpreter every time this job does.
+      - run: uv run tier1 verify
+
   animations:
     runs-on: ubuntu-latest
     steps:

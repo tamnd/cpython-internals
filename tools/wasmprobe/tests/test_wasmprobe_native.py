@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import pytest
+
 from wasmprobe.checks import CHECKS, INFO, Check
 from wasmprobe.native import one, run
 from wasmprobe.result import OK, RAISED

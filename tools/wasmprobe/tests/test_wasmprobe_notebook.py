@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from wasmprobe import notebook
 from wasmprobe.checks import CHECKS
 
