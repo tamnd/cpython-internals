@@ -17,11 +17,14 @@ edited in Jupyter and committed without coming back here fails the build.
 
 The pictures come from `diagrams.py` in this directory. They are looked up on disk rather
 than imported, so a diagram that has not been built yet fails here instead of producing a
-notebook full of broken images.
+notebook full of broken images. The animation is looked up the same way, and its alt text
+comes out of the animation catalogue rather than being typed in here, so a lesson cannot
+describe an animation differently from the page that also shows it.
 """
 
 from nbbuild import BANNER, TRAILING_NONE, Lesson
 from nbdiagram import Diagrams
+from xraymanim.render import figure as animation
 
 lesson = Lesson("t05-the-tree-becomes-bytecode", "t05")
 badge = lesson.badge
@@ -299,6 +302,12 @@ lesson.md(f"""
 Seventeen instructions in and nine out, and the entire body of the `if` is gone.
 
 {figure("the-unreachable-block", "a block with no arrow pointing into it, which is how the compiler finds dead code")}
+
+That picture is the end of the story rather than the story. Here is the same thing happening, on a smaller program:
+
+{animation("a06-the-block-nothing-points-at")}
+
+Watch the arrow into the middle block, and then watch the block.
 
 The steps are small and each one is dull on its own. `False` is a constant so `TO_BOOL` folds. Now `POP_JUMP_IF_FALSE` is jumping on a value that is known, so it becomes an ordinary jump, and the edge into the middle block disappears with it. Then {cite("Python/flowgraph.c:1008-1044@v3.15.0rc1#remove_unreachable")} walks the graph from the entry block counting how many edges arrive at each one, finds a block that nothing points to, and deletes its instructions.
 

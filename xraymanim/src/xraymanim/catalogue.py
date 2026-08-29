@@ -130,12 +130,35 @@ A_CYCLE_AND_THE_COLLECTOR = Storyboard(
 )
 
 #: In course order, which is also render order and the order they are listed in anim/README.
+THE_BLOCK_NOTHING_POINTS_AT = Storyboard(
+    slug="a06-the-block-nothing-points-at",
+    title="The block nothing points at",
+    lesson="T05",
+    alt=(
+        "three blocks of instructions joined by arrows, with the arrow into the middle block "
+        "disappearing and that block then being deleted"
+    ),
+    shapes=("box", "slots", "arrow", "highlight"),
+    beats=(
+        Beat("Two statements. The code generator turns them into eleven instructions.", 4.5),
+        Beat("The optimizer does not see a list. It cuts it into blocks at every jump.", 5.5),
+        Beat("Three blocks, and an arrow wherever control can get from one to the next.", 5.5),
+        Beat("False is a constant, so TO_BOOL folds and the jump tests a known value.", 6.0),
+        Beat("A jump that always goes the same way is not a test. It is just a jump.", 5.5),
+        Beat("So the arrow into the middle block goes with it. Nothing points there.", 5.5),
+        Beat("remove_unreachable starts at the entry block and counts arrows arriving.", 5.5),
+        Beat("The middle block gets zero, so it is deleted. Not skipped. Deleted.", 5.0),
+        Beat("Six come out, and not one of them can ever store anything into x.", 5.5),
+    ),
+)
+
 ANIMATIONS: tuple[Storyboard, ...] = (
     SEVEN_STAGES,
     A_NAME_IS_A_LABEL,
     THE_STACK_MACHINE,
     HOW_A_DICT_FINDS_A_KEY,
     A_CYCLE_AND_THE_COLLECTOR,
+    THE_BLOCK_NOTHING_POINTS_AT,
 )
 
 

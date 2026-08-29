@@ -15,6 +15,7 @@ Everything in them is real. The tokens are what `tokenize` returns, the instruct
 | a03 | [The stack machine](rendered/a03-the-stack-machine.gif) | T07 | 38s |
 | a04 | [How a dict finds a key](rendered/a04-how-a-dict-finds-a-key.gif) | T08 | 41s |
 | a05 | [A cycle, and what frees it](rendered/a05-a-cycle-and-the-collector.gif) | T09 | 36s |
+| a06 | [The block nothing points at](rendered/a06-the-block-nothing-points-at.gif) | T05 | 49s |
 
 ## a01, one line of Python, seven stages
 
@@ -45,6 +46,16 @@ A dict is not one table. Since 3.6 it has been a small array of slot numbers and
 ![two objects pointing at each other, their counts falling to one and staying there, and the collector taking them](https://raw.githubusercontent.com/tamnd/cpython-internals/main/anim/rendered/a05-a-cycle-and-the-collector.gif)
 
 Reference counting is right nearly all of the time, so the interesting question is when it is not. Two objects that hold each other: take the names away, both counts drop to one, and one is not zero, so nothing is freed and nothing can reach them either. The second half is what the collector does about it, which is smaller than people expect. It copies each count, subtracts one for every reference it finds inside the group, and anything whose copy reaches zero was only ever being kept alive from inside.
+
+## a06, the block nothing points at
+
+![three blocks of instructions joined by arrows, with the arrow into the middle block disappearing and that block then being deleted](https://raw.githubusercontent.com/tamnd/cpython-internals/main/anim/rendered/a06-the-block-nothing-points-at.gif)
+
+The compiler works out that some of your code can never run, and deletes it before the file is written. T05 has a section on this with a still picture in it, and a still picture is the wrong medium: the whole idea is that something goes away.
+
+`if False: x = 1` then `y = 2`. Eleven instructions come out of the code generator, and the optimizer cuts them into three blocks at the jump. Then `False` folds, the conditional jump becomes a plain one, and the arrow into the middle block disappears with it. Nothing points at that block any more, so `remove_unreachable` deletes it, and six instructions come out the other end.
+
+Watch the last caption rather than assuming. `x` is still in the code object's names table, because names are collected while the code is generated and nothing goes back to tidy up afterwards. What is gone is every instruction that could store into it, which is not the same sentence.
 
 ## How they are made
 

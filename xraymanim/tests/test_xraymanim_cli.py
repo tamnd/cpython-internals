@@ -10,9 +10,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from xraymanim import cli
 from xraymanim.catalogue import ANIMATIONS
-from xraymanim.render import markdown
+from xraymanim.render import figure, markdown
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -49,3 +51,27 @@ def test_check_passes_on_the_repository(capsys):
 def test_list_says_how_long_the_whole_set_takes(capsys):
     assert cli.main(["list"]) == 0
     assert "minutes to watch" in capsys.readouterr().out
+
+
+def test_figure_hands_a_lesson_the_catalogue_alt_text():
+    """A lesson does not get to describe an animation differently from the page showing it."""
+    storyboard = ANIMATIONS[0]
+    assert figure(storyboard.slug) == markdown(storyboard.slug, storyboard.alt)
+
+
+def test_figure_refuses_an_animation_nobody_has_rendered(tmp_path):
+    """A missing GIF should fail the lesson build, not publish a notebook with a hole in it."""
+    with pytest.raises(FileNotFoundError):
+        figure(ANIMATIONS[0].slug, root=tmp_path)
+
+
+def test_figure_refuses_a_slug_that_is_not_an_animation():
+    with pytest.raises(KeyError):
+        figure("a99-never-made")
+
+
+def test_the_lesson_that_shows_a06_is_the_lesson_a06_was_written_for():
+    """Both ends of the link, so a lesson cannot quietly borrow another lesson's animation."""
+    build = ROOT / "lessons" / "t05-the-tree-becomes-bytecode" / "build.py"
+    shown = [one for one in ANIMATIONS if one.slug in build.read_text(encoding="utf-8")]
+    assert [one.lesson for one in shown] == ["T05"]

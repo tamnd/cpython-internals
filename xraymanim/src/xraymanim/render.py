@@ -25,6 +25,12 @@ from pathlib import Path
 #: Where the committed GIFs live, relative to the repository root.
 RENDERED = Path("anim") / "rendered"
 
+#: The repository, worked out from where this file is. Everything that takes a root takes
+#: it as an argument, because the tests point it at a temporary directory. This is here for
+#: the one caller that cannot: a lesson's build.py, which wants to ask whether a GIF exists
+#: without also being told where the repository is that it is already sitting inside.
+REPOSITORY = Path(__file__).resolve().parents[3]
+
 #: Where a GIF is when the page showing it is not on GitHub. A relative path works in the
 #: repository and breaks in a notebook opened from Colab, which fetches the notebook and
 #: nothing else, so pages link the raw file instead.
@@ -34,6 +40,23 @@ RAW = "https://raw.githubusercontent.com/tamnd/cpython-internals/main/anim/rende
 def markdown(slug: str, alt: str) -> str:
     """The line a page uses to show an animation, so nobody has to type it twice."""
     return f"![{alt}]({RAW.format(slug=slug)})"
+
+
+def figure(slug: str, root: Path | None = None) -> str:
+    """The same line, for a lesson, with the GIF checked for on disk first.
+
+    A lesson calls this instead of writing the markdown out, which gets it the catalogue's
+    alt text and a failure now rather than a broken image in a published notebook. The
+    catalogue is imported here rather than at the top of the module because a scene file
+    imports this one, and the catalogue imports nothing at all.
+    """
+    from .catalogue import find
+
+    storyboard = find(slug)
+    where = (root or REPOSITORY) / RENDERED / f"{slug}.gif"
+    if not where.is_file():
+        raise FileNotFoundError(f"{slug} has not been rendered; run `just build-animations`")
+    return markdown(storyboard.slug, storyboard.alt)
 
 
 #: Manim's quality flags. Medium is 1280 by 720 at 30 frames a second, which is more than
