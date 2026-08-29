@@ -1,0 +1,25 @@
+[project]
+name = "nbversion"
+version = "0.1.0"
+description = "Find the lesson cells whose output depends on which Python is running"
+requires-python = ">=3.14"
+license = "MIT"
+dependencies = [
+    "nbcheck",
+    "nbformat>=5.10",
+    "nbclient>=0.10",
+    "ipykernel>=6.29",
+]
+
+[project.scripts]
+nbversion = "nbversion.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nbversion"]
+
+[tool.uv.sources]
+nbcheck = { workspace = true }

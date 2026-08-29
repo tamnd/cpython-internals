@@ -3,6 +3,7 @@
 # slowest possible feedback loop and the reason the two drift apart.
 
 pinned_tag := "v3.15.0rc1"
+pinned_version := "3.15"
 cpython_src := env("CPYTHON_SRC", "vendor/cpython")
 
 default:
@@ -100,6 +101,19 @@ build-lessons:
 notebooks:
     uv run nbcheck lint
     uv run nbcheck run
+
+# Run every lesson on both interpreters and check that the cells whose output differs are
+# the ones declared as differing. This is the slowest recipe here by a distance, because it
+# executes every notebook twice, so it is not part of `check`. CI does it in the two
+# notebook jobs it already runs and compares the results afterwards, which costs it nothing.
+versions:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    rm -rf build/versions
+    uv run nbversion record --into build/versions
+    UV_PROJECT_ENVIRONMENT=/tmp/venv-314 uv run --python 3.14 --all-packages \
+        nbversion record --into build/versions
+    uv run nbversion compare build/versions/{{pinned_version}} build/versions/3.14
 
 # The structural checks on their own, with no kernel, for while you are still writing.
 notebooks-lint:
