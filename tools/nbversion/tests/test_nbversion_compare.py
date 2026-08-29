@@ -1,14 +1,26 @@
-"""The four verdicts, and which of them stop the build.
+"""The five verdicts, and which of them stop the build.
 
 The one that is easy to leave out is `stale`. It is tempting to treat a note as harmless
 once the difference goes away, and it is not: a reader who checks a note against their own
 interpreter, finds it wrong, and concludes the notes are decoration has been actively
 misled by the thing that was supposed to help them.
+
+`noted` is the escape hatch for a cell whose output depends on the machine rather than on
+the version, which two recordings cannot decide either way.
 """
 
 from __future__ import annotations
 
-from nbversion.compare import DECLARED, MISSING, STALE, UNDECLARED, cells, notebooks, summary
+from nbversion.compare import (
+    DECLARED,
+    MISSING,
+    NOTED,
+    STALE,
+    UNDECLARED,
+    cells,
+    notebooks,
+    summary,
+)
 from nbversion.record import Recording
 
 
@@ -115,3 +127,48 @@ def test_the_summary_counts_each_kind():
     right = recording({"a": "2", "b": "2", "c": "1"}, python="3.14")
     found = cells(left, right, {"a": "declared", "c": "stale"})
     assert summary(found) == "1 declared, 1 undeclared, 1 stale"
+
+
+def test_a_varies_note_passes_when_the_two_runs_differ():
+    left, right = recording({"t01-01": "3"}), recording({"t01-01": "4"}, python="3.14")
+    found = cells(left, right, {}, {"t01-01": "Depends how your Python was built."})
+    assert kinds(found) == [NOTED]
+    assert not found[0].failed
+
+
+def test_a_varies_note_passes_when_the_two_runs_agree():
+    """Which is the whole point of it.
+
+    Whether two machines happen to agree about a machine difference says nothing, so a
+    `varies` note cannot go stale the way a `differs` note can. Running the comparison on a
+    CI box where both interpreters came from the same builder must not delete a note that
+    is still true for the reader on a framework install.
+    """
+    left, right = recording({"t01-01": "3"}), recording({"t01-01": "3"}, python="3.14")
+    found = cells(left, right, {}, {"t01-01": "Depends how your Python was built."})
+    assert kinds(found) == [NOTED]
+    assert not found[0].failed
+
+
+def test_a_varies_note_wins_over_a_differs_note_on_the_same_cell():
+    """The builder refuses to write both, and the comparison does not have to trust it."""
+    left, right = recording({"t01-01": "3"}), recording({"t01-01": "4"}, python="3.14")
+    found = cells(left, right, {"t01-01": "version"}, {"t01-01": "machine"})
+    assert kinds(found) == [NOTED]
+    assert found[0].detail == "machine"
+
+
+def test_varies_notes_reach_the_cells_of_the_right_notebook():
+    left = {"t01.ipynb": recording({"t01-01": "3"})}
+    right = {"t01.ipynb": recording({"t01-01": "4"}, python="3.14")}
+    found = notebooks(left, right, {}, {"t01.ipynb": {"t01-01": "machine"}})
+    assert kinds(found) == [NOTED]
+
+
+def test_the_summary_counts_noted_separately_from_declared():
+    left = {"t01.ipynb": recording({"t01-01": "3", "t01-02": "5"})}
+    right = {"t01.ipynb": recording({"t01-01": "4", "t01-02": "6"}, python="3.14")}
+    found = notebooks(
+        left, right, {"t01.ipynb": {"t01-01": "version"}}, {"t01.ipynb": {"t01-02": "machine"}}
+    )
+    assert summary(found) == "1 declared, 1 noted"

@@ -17,7 +17,7 @@ than imported, so a diagram that has not been built yet fails here instead of pr
 notebook full of broken images.
 """
 
-from nbbuild import Lesson
+from nbbuild import BANNER, SMALL_INTS, TRAILING_NONE, Lesson
 from nbdiagram import Diagrams
 
 lesson = Lesson("t08-everything-is-an-object", "t08")
@@ -80,11 +80,15 @@ Two of the numbers in this lesson changed in 3.15. Everything here was checked a
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import pyxray
 
 pyxray.show()
-""")
+""",
+    differs=BANNER,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -98,7 +102,8 @@ Guessing wrong here is the useful part. Three of these four have an answer that 
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 one = 256
 two = 256
 print("256 is 256      ->", one is two)
@@ -114,7 +119,10 @@ print("'a' * 1 is 'a'  ->", built is letter)
 first = []
 second = []
 print("[] is []        ->", first is second)
-""")
+""",
+    differs=SMALL_INTS,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -221,7 +229,8 @@ Rather than trusting either number, ask your own interpreter. `pyxray.obj.small_
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 from pyxray import obj
 
 low, high = obj.small_int_range()
@@ -230,7 +239,10 @@ print(f"this interpreter shares integers from {low} to {high}")
 for value in [-6, -5, 0, 255, 256, 257, 1024, 1025]:
     shared = "shared" if obj.shares_identity(value) else "built fresh"
     print(f"   {value:>6}   {shared}")
-""")
+""",
+    differs="On 3.14 the shared range stops at 256, so 257 and 1024 come out as built fresh. The cell asks your own interpreter rather than telling you, so both answers are right.",
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -251,7 +263,8 @@ You can see it directly in `co_consts`.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 source = "a = 257\\nb = 257\\n"
 code = compile(source, "<demo>", "exec")
 
@@ -260,7 +273,9 @@ print("constants the compiler kept:", code.co_consts)
 scope = {}
 exec(code, scope)
 print("a is b ->", scope["a"] is scope["b"], "  because there is one constant, not two")
-""")
+""",
+    differs=TRAILING_NONE,
+)
 
 
 lesson.md("""
@@ -270,7 +285,8 @@ Now the same question asked in a way the compiler cannot answer ahead of time.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 def fresh(text):
     return int(text)
 
@@ -278,7 +294,10 @@ def fresh(text):
 print("int('257') twice  ->", fresh("257") is fresh("257"))
 print("int('10') twice   ->", fresh("10") is fresh("10"))
 print("int('99999') twice->", fresh("99999") is fresh("99999"))
-""")
+""",
+    differs=SMALL_INTS,
+    quiet=True,
+)
 
 
 lesson.md(f"""

@@ -20,7 +20,7 @@ than imported, so a diagram that has not been built yet fails here instead of pr
 notebook full of broken images.
 """
 
-from nbbuild import Lesson
+from nbbuild import BANNER, OFFSETS, YOUR_INSTALL, Lesson
 from nbdiagram import Diagrams
 
 lesson = Lesson("t06-reading-bytecode-fluently", "t06")
@@ -82,14 +82,20 @@ lesson.md("""
 ## Which Python is this
 
 Instruction names change between releases more than almost anything else in CPython. Half the opcodes in the listings below did not exist three releases ago. Everything here was checked against the version this cell prints, and if yours is different the shapes will still be right even where the names are not.
+
+It was also checked against 3.14, which is what Colab installs today, and one difference shows up in almost every listing. On 3.15 `RESUME` and `GET_ITER` carry an inline cache slot and on 3.14 they do not, so on 3.14 every offset below is two to four lower than the number in the text. Nothing else about the listing changes. Where a cell differs for some other reason, it says so underneath.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import pyxray
 
 pyxray.show()
-""")
+""",
+    differs=BANNER,
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -107,11 +113,15 @@ Every listing you read from here on is that shape. The trick to reading one flue
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 from pyxray import stack
 
 print(stack.table("total = 0\\ntotal = total + 1"))
-""")
+""",
+    differs=OFFSETS,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -136,7 +146,8 @@ The next cell pulls the real bytes out of a code object so you can see there is 
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import opcode
 
 code = compile("print(total)", "lesson.py", "exec")
@@ -147,7 +158,10 @@ print()
 for offset in range(0, 8, 2):
     opcode_byte, argument_byte = code.co_code[offset], code.co_code[offset + 1]
     print(f"{offset:>3}  {opcode_byte:>3} {argument_byte:>3}   {opcode.opname[opcode_byte]}")
-""")
+""",
+    differs="On 3.14 RESUME has no cache entry, so the second row is LOAD_NAME rather than CACHE and every offset after it is two lower.",
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -178,7 +192,8 @@ Now run it over a real listing and read the meanings down the right hand side.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 def greet(name):
     return "hello " + name
 
@@ -187,7 +202,10 @@ for item in bytecode.disassemble(greet):
     meaning = "" if item.arg is None else bytecode.argument_meaning(item.opname)
     argument = "" if item.arg is None else str(item.arg)
     print(f"{item.offset:>4}  {item.opname:<20} {argument:>4}  {meaning}")
-""")
+""",
+    differs=OFFSETS,
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -229,7 +247,8 @@ The next cell builds a file with 300 names in it and finds the four bytes from t
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import dis
 
 crowded = "\\n".join(f"a{i} = {i}" for i in range(300)) + "\\nprint(a256)\\n"
@@ -243,7 +262,10 @@ for index, item in enumerate(items):
         print(f"{item.arg} * 256 + {following.arg % 256} = {following.arg}")
         print("co_names[" + str(following.arg) + "] is", code.co_names[following.arg])
         break
-""")
+""",
+    differs=OFFSETS,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -266,7 +288,8 @@ They stop being noise as soon as you count jumps by hand, which is the next sect
 """)
 
 
-lesson.code('''
+lesson.code(
+    '''
 loop = """
 total = 0
 for n in [1, 2, 3]:
@@ -275,7 +298,10 @@ print(total)
 """
 
 print(bytecode.table(loop, show_caches=True))
-''')
+''',
+    differs=OFFSETS,
+    quiet=True,
+)
 
 
 lesson.md(f"""
@@ -293,9 +319,13 @@ The macro that does it is one line: {cite("Python/ceval_macros.h:256-261@v3.15.0
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 print(bytecode.jump_table(loop))
-""")
+""",
+    differs=OFFSETS,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -331,12 +361,15 @@ Each instruction's {term("stack effect")} comes from two generated tables, `_PyO
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 for name in ["GET_ITER", "BINARY_OP", "END_FOR", "POP_ITER"]:
     number = opcode.opmap[name]
     argument = 0 if number >= opcode.HAVE_ARGUMENT else None
     print(f"{name:<12} {dis.stack_effect(number, argument):>3}")
-""")
+""",
+    differs="On 3.14 GET_ITER is 0 and POP_ITER is -1. In 3.15 GET_ITER leaves one more item on the stack than it takes, and POP_ITER takes that extra item away again.",
+)
 
 
 lesson.md(f"""
@@ -352,7 +385,8 @@ The pseudocode the interpreter follows when something is raised is at {cite("Int
 """)
 
 
-lesson.code('''
+lesson.code(
+    '''
 guarded = """
 try:
     value = int("x")
@@ -361,7 +395,10 @@ except ValueError:
 """
 
 print(stack.table(guarded))
-''')
+''',
+    differs=OFFSETS,
+    quiet=True,
+)
 
 
 lesson.md("""
@@ -375,7 +412,8 @@ The next cell compiles a chunk of the standard library, walks every code object 
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import sysconfig
 import types
 from pathlib import Path
@@ -403,7 +441,9 @@ for path in files:
         disagreed += stack.high_water(code_object) != code_object.co_stacksize
 
 print(f"{len(files)} files, {checked} code objects, {disagreed} disagreements")
-""")
+""",
+    varies=YOUR_INSTALL,
+)
 
 
 lesson.md("""
@@ -490,7 +530,8 @@ Run the next cell for the source and check.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 def add_up_the_positive_ones(items):
     total = 0
     for item in items:
@@ -500,7 +541,10 @@ def add_up_the_positive_ones(items):
 
 
 print(bytecode.table(add_up_the_positive_ones))
-""")
+""",
+    differs=OFFSETS,
+    quiet=True,
+)
 
 
 lesson.md("""

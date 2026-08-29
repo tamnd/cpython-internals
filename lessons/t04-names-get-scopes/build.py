@@ -20,7 +20,7 @@ than imported, so a diagram that has not been built yet fails here instead of pr
 notebook full of broken images.
 """
 
-from nbbuild import Lesson
+from nbbuild import BANNER, Lesson
 from nbdiagram import Diagrams
 
 lesson = Lesson("t04-names-get-scopes", "t04")
@@ -94,11 +94,15 @@ The instruction names in this lesson are the ones your interpreter actually prod
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import pyxray
 
 pyxray.show()
-""")
+""",
+    differs=BANNER,
+    quiet=True,
+)
 
 
 lesson.md("""

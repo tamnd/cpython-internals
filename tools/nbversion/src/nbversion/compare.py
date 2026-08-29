@@ -17,6 +17,11 @@ from .record import Recording
 #: A cell differs and the author said it would. Reported, not a failure.
 DECLARED = "declared"
 
+#: A cell carries a `varies` note, which says its output depends on the machine rather than
+#: on the version. Two recordings cannot check that, so this is reported and never fails,
+#: whether the two runs agreed or not.
+NOTED = "noted"
+
 #: A cell differs and nothing in the notebook says so.
 UNDECLARED = "undeclared"
 
@@ -60,8 +65,14 @@ def diff(first: str, second: str, *, names: tuple[str, str], context: int = 2) -
     return "\n".join(lines)
 
 
-def cells(first: Recording, second: Recording, declared: dict[str, str]) -> list[Finding]:
+def cells(
+    first: Recording,
+    second: Recording,
+    declared: dict[str, str],
+    varies: dict[str, str] | None = None,
+) -> list[Finding]:
     """Compare one notebook's two recordings."""
+    varies = varies or {}
     found = []
     for cell in sorted(set(first.cells) | set(second.cells)):
         if cell not in first.cells or cell not in second.cells:
@@ -74,6 +85,13 @@ def cells(first: Recording, second: Recording, declared: dict[str, str]) -> list
                     f"recorded on {present} only, so the two runs saw different notebooks",
                 )
             )
+            continue
+        # A cell whose output depends on the machine is checked out of the comparison
+        # before anything is compared. Whether these two runs agreed is an accident of
+        # which two machines made them, so neither answer means anything.
+        loose = varies.get(cell, "")
+        if loose:
+            found.append(Finding(first.notebook, cell, NOTED, loose))
             continue
         differs = first.cells[cell] != second.cells[cell]
         note = declared.get(cell, "")
@@ -108,8 +126,10 @@ def notebooks(
     first: dict[str, Recording],
     second: dict[str, Recording],
     declared: dict[str, dict[str, str]],
+    varies: dict[str, dict[str, str]] | None = None,
 ) -> list[Finding]:
     """Compare two directories of recordings."""
+    varies = varies or {}
     found = []
     for name in sorted(set(first) | set(second)):
         if name not in first or name not in second:
@@ -118,13 +138,13 @@ def notebooks(
                 Finding(name, "-", MISSING, f"there is no recording of it in the {side} run")
             )
             continue
-        found.extend(cells(first[name], second[name], declared.get(name, {})))
+        found.extend(cells(first[name], second[name], declared.get(name, {}), varies.get(name, {})))
     return found
 
 
 def summary(findings: list[Finding]) -> str:
     """One line saying how it went, for the end of the output."""
-    counted = {kind: 0 for kind in (DECLARED, UNDECLARED, STALE, MISSING)}
+    counted = {kind: 0 for kind in (DECLARED, NOTED, UNDECLARED, STALE, MISSING)}
     for one in findings:
         counted[one.kind] += 1
     parts = [f"{counted[kind]} {kind}" for kind in counted if counted[kind]]

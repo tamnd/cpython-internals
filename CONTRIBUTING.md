@@ -55,6 +55,8 @@ lesson.code(
 
 Say what the reader is looking at and what the other version does instead. "This differs on 3.14" is not a note, it is an apology. Add `quiet=True` when a paragraph near the top of the lesson already explains a difference that then turns up in a dozen cells, so the same sentence is not repeated under every one of them.
 
+There is a second keyword for the other kind of cell. `varies=` is for output that depends on the reader's machine rather than on the version: which flags their interpreter was configured with, how many files are in their standard library, how deep the C stack goes before it runs out. It reads exactly the same to a reader and the check treats it differently. A `differs` note is a claim two recordings can test, so it fails when it stops being true. A `varies` note is not, because whether two runs agree about a machine difference depends on which two machines made them, and a CI box where both interpreters came from the same builder would delete a note that is still right for somebody on a framework install. So `varies` is reported and never fails. Do not reach for it to silence a real version difference.
+
 When the differing cell is the lesson's central observation, the note is not enough. Either the lesson gets a short section explaining both versions, because the difference is itself worth teaching, or the example changes to one that behaves the same on both. Which of the two depends on whether the difference is interesting. `LOAD_COMMON_CONSTANT` is interesting and gets explained. A line number inside `asyncio` is not, and the cell should stop printing it.
 
 ## Definition of done for a lesson

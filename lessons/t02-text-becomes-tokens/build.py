@@ -16,7 +16,7 @@ than imported, so a diagram that has not been built yet fails here instead of pr
 notebook full of broken images.
 """
 
-from nbbuild import Lesson
+from nbbuild import BANNER, Lesson
 from nbdiagram import Diagrams
 
 lesson = Lesson("t02-text-becomes-tokens", "t02")
@@ -92,11 +92,15 @@ Every lesson still starts by naming the exact build that is about to produce you
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import pyxray
 
 pyxray.show()
-""")
+""",
+    differs=BANNER,
+    quiet=True,
+)
 
 
 lesson.md(f"""

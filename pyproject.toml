@@ -129,6 +129,9 @@ ignore = [
 # The glossary is the same thing without the notebook around it: definitions written as
 # one paragraph per line, so that a sentence is never split across two of them.
 "pyxray/src/pyxray/glossary.py" = ["E501"]
+# The shared version notes are prose too, one sentence per line, and they are read by a
+# person in a notebook rather than in the source. Same reason as the lesson builders.
+"tools/nbbuild/src/nbbuild/notes.py" = ["E501"]
 # Every word a widget shows a reader lives in one dictionary, written one sentence per line.
 # Splitting a sentence across two source lines to please a line length rule would leave the
 # sentence looking wrapped in the source and identical on screen, which helps nobody.

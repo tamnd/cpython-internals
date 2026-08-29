@@ -19,11 +19,12 @@ So the lessons are executed on both interpreters and the outputs compared. Anyth
 
 `record` runs on one interpreter and writes a small JSON file per notebook: cell id to normalised output. It is not an executed notebook, because the diff of two executed notebooks is mostly metadata.
 
-`compare` reads two of those directories and produces one of four verdicts per cell.
+`compare` reads two of those directories and produces one of five verdicts per cell.
 
 | verdict | what it means | fails |
 | --- | --- | --- |
 | `declared` | the cell differs and the notebook says so | no |
+| `noted` | the cell's output depends on the machine, so there is nothing to check | no |
 | `undeclared` | the cell differs and nothing says so | yes |
 | `stale` | the cell carries a note and the two interpreters now agree | yes |
 | `missing` | the two runs saw different sets of cells | yes |
@@ -48,6 +49,8 @@ The metadata looks like this, and survives a round trip through Jupyter because 
 ```json
 "metadata": {"cpython_internals": {"differs": "On 3.14 ..."}}
 ```
+
+`varies=` is the other keyword, for a cell whose output depends on the reader's machine rather than on the version: the flags their interpreter was built with, how many files their standard library has, how deep the C stack goes. It writes the same kind of note under a `varies` key, and it is the `noted` verdict above. Two recordings cannot check that kind of claim, because whether they agree depends on which two machines made them, and running the comparison on a CI box where both interpreters came from the same builder would call the note stale and delete something that is still true for a reader on a framework install.
 
 ## Normalising
 

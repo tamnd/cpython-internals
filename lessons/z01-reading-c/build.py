@@ -14,7 +14,7 @@ Run this file to regenerate the notebook, or `just build-lessons` to regenerate 
 them. `just lessons` checks that the committed notebook still matches this file.
 """
 
-from nbbuild import Lesson
+from nbbuild import BANNER, Lesson
 from nbdiagram import Diagrams
 
 lesson = Lesson("z01-reading-c", "z01")
@@ -77,11 +77,15 @@ Everything below was checked against the version this cell prints and against 3.
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 import pyxray
 
 pyxray.show()
-""")
+""",
+    differs=BANNER,
+    quiet=True,
+)
 
 
 lesson.md(f"""
