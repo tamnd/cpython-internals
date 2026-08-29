@@ -15,6 +15,18 @@ Two of the six panes need `_testinternalcapi`, which not every build ships. When
 missing those two say so and the other four still work, because a widget that shows nothing
 because one interpreter hook is absent teaches nobody anything about the four stages that
 would have run fine.
+
+One rule about this widget that is not obvious from reading it. The optimizer stage is
+reached through `pyxray.compiler.stages`, which builds the constants list it passes to
+`optimize_cfg` from the instruction sequence, every time, and takes one from nobody. That
+is deliberate and it is a safety rule rather than a style choice. `optimize_cfg` reads that
+list by index, and a list shorter than the largest index in the sequence reads past the end
+of memory in the WebAssembly build. There is no exception, the runtime does not come back,
+and in a notebook the reader loses everything they had done. This widget is the one place a
+reader types their own source, which changes which constants the sequence refers to, so it
+is also the easiest way to get there. Never add a parameter to this widget that ends up as
+that argument, and never cache a list across two runs. See issue 78 and the measurement in
+`probes/pyodide/`.
 """
 
 from __future__ import annotations
@@ -70,6 +82,9 @@ class PipelineExplorer(Widget):
             "title": self.title or text("pipeline.title"),
             "version": text("common.python", version=compiler.python_version()),
             "internals": compiler.available(),
+            # Assume the good case, then correct it once the run has happened. The error
+            # branch below never gets that far and there is nothing to warn about there.
+            "constants": True,
         }
         try:
             run = self.run()
@@ -86,6 +101,7 @@ class PipelineExplorer(Widget):
             "error": "",
             "panes": panes,
             "summary": run.summary() if run else "",
+            "constants": run.constants_known if run else True,
         }
 
     def panes(self, run: compiler.Stages | None) -> list[dict[str, object]]:
@@ -94,11 +110,23 @@ class PipelineExplorer(Widget):
             {
                 "name": name,
                 "label": text(key),
-                "available": run is not None or not needs_internals,
+                "available": self.trustworthy(name, run, needs_internals),
                 **self.content(name, run),
             }
             for name, key, needs_internals in PANES
         ]
+
+    def trustworthy(self, name: str, run: compiler.Stages | None, needs_internals: bool) -> bool:
+        """Is this pane showing the reader the real thing?
+
+        Drives the warning colour on the count, so it has to mean one thing. A pane is not
+        trustworthy when the stage could not run at all, and also when the optimizer ran
+        without the constant values, because that output is a real answer to a question the
+        reader did not ask.
+        """
+        if run is None:
+            return not needs_internals
+        return name != "optimized" or run.constants_known
 
     def run(self) -> compiler.Stages | None:
         """The compiler stages, or `None` on a build without the internal hooks.
@@ -144,6 +172,11 @@ class PipelineExplorer(Widget):
                 [str(one) for one in run.codegen],
                 text("pipeline.count_instructions", count=len(run.codegen)),
             )
+        if not run.constants_known:
+            # The stage ran, so showing its output is fair, but on this build the optimizer
+            # was working from placeholders. Counting what it removed would be reporting a
+            # number about the wrong run, so the pane says what is missing instead.
+            return self.lines([str(one) for one in run.optimized], text("pipeline.no_constants"))
         return self.lines(
             [str(one) for one in run.optimized],
             text("pipeline.count_after", count=len(run.optimized), gone=run.removed_by_optimizer),
@@ -195,6 +228,8 @@ class PipelineExplorer(Widget):
                 parts.append(element("p", state["summary"], class_=f"{PREFIX}-note"))
         if not state["internals"]:
             parts.append(element("p", text("pipeline.why_no_internals"), class_=f"{PREFIX}-note"))
+        elif not state["constants"]:
+            parts.append(element("p", text("pipeline.why_no_constants"), class_=f"{PREFIX}-note"))
         if not live:
             parts.append(self.notice())
         return join(parts)

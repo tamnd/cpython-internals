@@ -106,14 +106,15 @@ result = {
     ),
     Check(
         key="optimize_cfg",
-        question="Does optimize_cfg run over that sequence the way pyxray calls it",
-        weight=TIER0,
-        costs="The middle stage. It is the one that makes 6 * 7 disappear, which is the "
-        "single most convincing thing in the first part of the course.",
-        accepted="The metadata this build hands back has no consts key, so the call fails "
-        "before it reaches the optimizer. The check below shows the optimizer itself is "
-        "fine, so in the browser the pipeline builds that list from the instruction "
-        "sequence instead of asking for it.",
+        # This is how pyxray called optimize_cfg until this probe was written, and it is
+        # kept as it was rather than updated, because the point of it now is the contrast
+        # with the check below. Fixed in issue 77.
+        question="Does optimize_cfg run when it is handed the constants from the metadata",
+        weight=INFO,
+        costs="Nothing now. It cost the whole middle stage until this measurement, and the "
+        "answer was to build the constants list off the instruction sequence rather than "
+        "ask for it. Still worth asking every run: the day this passes is the day constant "
+        "folding can be shown in a browser as well as here.",
         source="""
 import _testinternalcapi
 import ast
@@ -125,22 +126,22 @@ result = {"instructions": len(optimized.get_instructions())}
     ),
     Check(
         key="optimize_cfg_direct",
-        # The check above asks for the constants in the metadata that codegen returned,
-        # which is what our own code does. If that key is missing the check fails without
-        # ever reaching the function. This one builds its own list of the right length off
-        # the instruction sequence, so the answer is about optimize_cfg and nothing else.
+        # The check above asks for the constants in the metadata that codegen returned, so
+        # a missing key means it never reaches the function at all. This one builds its own
+        # list of the right length off the instruction sequence, which is what
+        # pyxray.compiler does now, so the answer is about optimize_cfg and nothing else.
         question="Does optimize_cfg run at all, given a constants list built by hand",
         weight=TIER0,
-        costs="The same middle stage, asked in a way a missing metadata key cannot hide.",
+        costs="The middle stage. It is the one that makes 6 * 7 disappear, which is the "
+        "single most convincing thing in the first part of the course.",
         source="""
 import _testinternalcapi
 import ast
-import opcode
+import dis
 
 sequence, metadata = _testinternalcapi.compiler_codegen(ast.parse("answer = 6 * 7"), "<probe>", 0)
-load = opcode.opmap["LOAD_CONST"]
-slots = [one[1] for one in sequence.get_instructions() if one[0] == load]
-consts = [None] * (max(slots) + 1 if slots else 0)
+slots = [one[1] for one in sequence.get_instructions() if one[0] in dis.hasconst]
+consts = [object() for _ in range(max(slots, default=-1) + 1)]
 optimized = _testinternalcapi.optimize_cfg(sequence, consts, 0)
 result = {"slots": len(consts), "instructions": len(optimized.get_instructions())}
 """,

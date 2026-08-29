@@ -14,9 +14,11 @@ Pyodide 314.0.6 from npm, which is CPython 3.14.2 built for `emscripten-5.0.3-wa
 
 ## The three differences
 
-**`optimize_cfg` cannot be called the way `pyxray` calls it.** `compiler_codegen` works and returns the same eight instructions in both places, but the metadata dictionary it hands back has no `consts` key in this build. It has `argcount`, `kwonlyargcount` and `posonlyargcount`, and that is all. Native 3.14 and 3.15 both include `consts`. Since `pyxray.compiler.stages` passes `metadata["consts"]` straight into `optimize_cfg`, that line raises `KeyError` in a browser.
+**`compiler_codegen` returns no constants list.** It works and returns the same eight instructions in both places, but the metadata dictionary it hands back has only `argcount`, `kwonlyargcount` and `posonlyargcount` in this build. Native 3.14 and 3.15 both include `consts` as well. `pyxray.compiler.stages` used to pass `metadata["consts"]` straight into `optimize_cfg`, so that line raised `KeyError` in a browser.
 
-The optimizer itself is fine. Build a constants list of the right length from the instruction sequence and `optimize_cfg` runs and returns the same seven instructions it returns natively. So this is a missing key rather than a missing stage, and the fix is in our code, not in Pyodide. Filed as a bug. Until it lands, the compiler stage experiments in T05 stay in Tier 0 with that one line guarded.
+The optimizer itself is fine. Build a constants list of the right length from the instruction sequence and `optimize_cfg` runs and returns the same seven instructions it returns natively. So this was a missing key rather than a missing stage, and the fix was in our code, not in Pyodide. It is fixed: `stages` builds that list itself now, from the sequence it is about to pass in, and records whether the values were real. Issue 77.
+
+One thing does not survive the fix, and it is worth being plain about. Without the values, the optimizer cannot fold `6 * 7` into `42`, and on some code it makes a different decision than it would with them. So the stage runs in a browser and its output is not what the source compiles to. The pipeline widget says so on that pane rather than letting the reader assume, and the last pane, which is the finished code object, is the real answer on every build.
 
 **A wrong constants list kills the runtime instead of raising.** Hand `optimize_cfg` a list that is too short and a native interpreter raises `ValueError: LOAD_CONST index 0 is out of range for consts (len=0)`. In WebAssembly the same call reads past the end of memory, the runtime does not come back, and in a notebook the kernel dies and the reader loses their work.
 
@@ -50,7 +52,7 @@ The pointer size is the one to watch. Every diagram in the object lessons draws 
 
 ## The phone question, answered partly
 
-The issue asks how long a cold boot takes on a mid range phone. This probe cannot answer that. It boots in about a second from a local disk under Node, which is a floor and not a promise.
+The issue asks how long a cold boot takes on a mid range phone. This probe cannot answer that. It boots in a second or two from a local disk under Node, which is a floor and not a promise.
 
 What it can measure is the part that dominates on a phone: 13.5 MB has to arrive before the first cell runs, which is the WebAssembly binary, the JavaScript glue, the standard library zip and the lock file. On a slow connection that is the wait, not the boot. Anything about tab memory, a service worker cache, or a real device is not answered here and is worth its own issue when the site actually exists.
 
@@ -58,4 +60,4 @@ What it can measure is the part that dominates on a phone: 13.5 MB has to arrive
 
 Nothing moves from Tier 0 to Tier 1.
 
-Three pieces of work fall out of it. Guard the `metadata["consts"]` line in `pyxray.compiler.stages` so the compiler stages work in a browser. Make the pipeline widget build its own constants list rather than accepting one, because the alternative is a dead kernel. Add a sentence to the object lessons about the word size, and keep measuring it rather than asserting it, which is what those lessons already do for the small integer cache.
+Three pieces of work fell out of it. Two are done. `pyxray.compiler.stages` builds its own constants list, so the compiler stages run in a browser, and it says whether the values were real so nothing claims a fold that did not happen (issue 77). The pipeline widget reaches the optimizer only through that function and takes a list from nobody, because the alternative is a dead kernel (issue 78). Still open: a sentence in the object lessons about the word size, measured rather than asserted, which is what those lessons already do for the small integer cache (issue 79).
