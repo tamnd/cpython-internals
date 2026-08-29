@@ -26,7 +26,7 @@ vendor:
     git -C "{{cpython_src}}" rev-parse HEAD
 
 # The full local check, in the order that fails fastest.
-check: lint test citations blueprints diagrams lessons notebooks
+check: lint test citations blueprints diagrams lessons notebooks animations
 
 lint:
     uv run ruff check .
@@ -95,6 +95,17 @@ notebooks:
 # The structural checks on their own, with no kernel, for while you are still writing.
 notebooks-lint:
     uv run nbcheck lint
+
+# Check the animations without a renderer: every storyboard is inside the ninety second
+# cap, every shape it draws is in the visual system, and the scene file, the committed GIF
+# and the index page all still agree with the plan. Milliseconds, and no manim needed.
+animations:
+    uv run xraymanim check
+
+# Re-render every animation. Needs `uv sync --extra anim` first, and ffmpeg on PATH. This is
+# minutes rather than seconds, which is why it is not part of `check`.
+build-animations:
+    uv run --extra anim xraymanim render
 
 # Rewrite the citation lockfile after a human has read the diff. This is deliberately
 # not part of `check`, because a checker that silently repairs itself checks nothing.
