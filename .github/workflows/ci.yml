@@ -250,6 +250,30 @@ jobs:
       # against a live interpreter every time this job does.
       - run: uv run tier1 verify
 
+  boss:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # A boss fight is the one thing here a reader runs on their own interpreter with
+        # nothing installed, so it has to hold on more than the pin. 3.14 is what Colab and
+        # Pyodide have, and a fight that only agrees with 3.15 would fail the reader rather
+        # than teach them.
+        python: ["3.15.0rc1", "3.14"]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python }}
+      - run: uv python pin ${{ matrix.python }}
+      - run: uv sync --all-packages
+      - run: uv run boss check
+      # Twenty seeds rather than the one `just boss` runs. The generated half of a corpus is
+      # different for every seed, so a rule that is nearly right passes on seed zero and fails
+      # somewhere in the next few thousand functions. This is the job that finds that.
+      - run: uv run boss verify --seeds 20
+
   animations:
     runs-on: ubuntu-latest
     steps:
