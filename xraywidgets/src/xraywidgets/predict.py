@@ -176,6 +176,7 @@ class PredictGate(Widget):
             ),
             class_=f"{PREFIX}-options",
             role="group",
+            aria_label=text("predict.options_label"),
         )
 
     def listing(self, state: dict[str, object]) -> Raw:

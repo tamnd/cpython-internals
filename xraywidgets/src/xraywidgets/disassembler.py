@@ -171,14 +171,24 @@ class Disassembler(Widget):
         parts = [
             head(state["title"], state["version"], count),
             source(state["code"], live=live),
-            toggles([(one["name"], one["label"], one["on"]) for one in state["flags"]], live=live),
+            toggles(
+                [(one["name"], one["label"], one["on"]) for one in state["flags"]],
+                live=live,
+                label=text("disassembler.toggles_label"),
+            ),
         ]
         if state["error"]:
             parts.append(error(state["error"]))
         elif not state["rows"]:
             parts.append(element("p", text("common.nothing"), class_=f"{PREFIX}-note"))
         else:
-            parts.append(table(self.headings(), [self.row(one) for one in state["rows"]]))
+            parts.append(
+                table(
+                    self.headings(),
+                    [self.row(one) for one in state["rows"]],
+                    label=text("disassembler.table_label"),
+                )
+            )
         if self.exceptions:
             parts.append(self.exception_block(state["handlers"]))
         if not live:
