@@ -59,27 +59,43 @@ def outputs(cell: dict) -> str:
     drawn at run time differs in the last byte of its compression for reasons that have
     nothing to do with Python.
     """
-    parts = []
+    parts: list[list[str]] = []
     for one in cell.get("outputs", []):
         kind = one.get("output_type")
         if kind == "stream":
-            parts.append(_joined(one.get("text", "")))
+            _add_stream(parts, _joined(one.get("text", "")))
         elif kind in ("execute_result", "display_data"):
             data = one.get("data", {})
             if "text/plain" in data:
-                parts.append(_joined(data["text/plain"]))
+                parts.append(["other", _joined(data["text/plain"])])
             else:
-                parts.append(f"<{', '.join(sorted(data))}>")
+                parts.append(["other", f"<{', '.join(sorted(data))}>"])
         elif kind == "error":
             # The message, not the traceback. A traceback is full of file paths and frame
             # counts that differ for reasons the reader does not care about, and a lesson
             # that raises on purpose cares about which exception and what it said.
-            parts.append(f"{one.get('ename', '')}: {one.get('evalue', '')}")
+            parts.append(["other", f"{one.get('ename', '')}: {one.get('evalue', '')}"])
     # One newline between outputs, no matter how many the outputs came with. A `print` puts
     # a newline on the end of the stream and a returned value does not, so joining them
     # raw gives a blank line in one cell and not in another for no reason a reader cares
     # about.
-    return text("\n".join(part.rstrip("\n") for part in parts))
+    return text("\n".join(body.rstrip("\n") for _, body in parts))
+
+
+def _add_stream(parts: list[list[str]], body: str) -> None:
+    """Glue this stream output onto the one before it rather than starting a new part.
+
+    A cell's standard output does not arrive as one message. The kernel sends it in chunks
+    and where it breaks them depends on how fast the process was going, so the same cell
+    run twice can produce one stream output or three. That matters because the join above
+    strips the trailing newlines off each part, and a break that lands on a blank line the
+    cell printed on purpose would eat it. That showed up as a cell differing between two
+    interpreters on nothing but a blank line, differently on each run.
+    """
+    if parts and parts[-1][0] == "stream":
+        parts[-1][1] += body
+    else:
+        parts.append(["stream", body])
 
 
 def _joined(value: object) -> str:

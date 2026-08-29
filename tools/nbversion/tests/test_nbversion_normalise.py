@@ -88,6 +88,28 @@ def test_stream_text_also_arrives_as_one_string():
     assert outputs({"outputs": [stream("one\ntwo\n")]}) == "one\ntwo"
 
 
+def test_a_blank_line_survives_the_kernel_splitting_the_output():
+    """The kernel breaks a cell's stdout into chunks and where it breaks is a race.
+
+    Two stream outputs with the break landing on a blank line the cell printed on purpose
+    have to read the same as one stream output holding the lot, or a cell differs between
+    two interpreters on nothing, and differently every run.
+    """
+    whole = {"outputs": [stream("one\n\ntwo\n")]}
+    split = {"outputs": [stream("one\n"), stream("\ntwo\n")]}
+    assert outputs(split) == outputs(whole) == "one\n\ntwo"
+
+
+def test_a_stream_broken_in_three_reads_as_one():
+    pieces = {"outputs": [stream("a\n"), stream("b\n"), stream("c\n")]}
+    assert outputs(pieces) == "a\nb\nc"
+
+
+def test_a_result_between_two_streams_still_separates_them():
+    cell = {"outputs": [stream("before\n\n"), result("value"), stream("after\n")]}
+    assert outputs(cell) == "before\nvalue\nafter"
+
+
 def test_several_outputs_are_joined_in_order():
     cell = {"outputs": [stream("printed\n"), result("returned")]}
     assert outputs(cell) == "printed\nreturned"

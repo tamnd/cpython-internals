@@ -492,21 +492,38 @@ Rounding up is what makes reuse cheap. A pool holds blocks of exactly one size, 
 """)
 
 
-lesson.code("""
-ALIGNMENT = 16
+lesson.code(
+    """
+import ctypes
+import sys
+
+# The header picks the alignment from the pointer size, so this does too rather than
+# writing 16 down. On a 32 bit build, which is what you get in a browser, it is 8.
+ALIGNMENT = 16 if ctypes.sizeof(ctypes.c_void_p) > 4 else 8
 THRESHOLD = 512
 
+
+def rounded(want):
+    return ALIGNMENT * ((want + ALIGNMENT - 1) // ALIGNMENT)
+
+
+print("alignment here:", ALIGNMENT, "bytes")
+print("size classes:  ", THRESHOLD // ALIGNMENT)
+print()
 for want in [1, 16, 17, 56, 88, 500, 512, 513]:
-    if want > THRESHOLD:
-        served = "the system allocator"
-    else:
-        served = ALIGNMENT * ((want + ALIGNMENT - 1) // ALIGNMENT)
+    served = "the system allocator" if want > THRESHOLD else rounded(want)
     print(f"ask for {want:>4} bytes -> {served}")
-""")
+
+empty = sys.getsizeof([])
+print()
+print(f"an empty list is {empty} bytes, takes {rounded(empty)}, wastes {rounded(empty) - empty}")
+""",
+    varies="On a 32 bit build, which is what a browser gives you, the alignment is 8 rather than 16, there are 64 size classes rather than 32, and the rounded up numbers change with them.",
+)
 
 
 lesson.md(f"""
-An empty list is 56 bytes and takes a 64 byte block, so 8 bytes go unused, and that is the price of the whole arrangement.
+The last line of that cell is the arrangement charging its fee. On a 64 bit machine an empty list is 56 bytes and takes a 64 byte block, so 8 bytes go unused. A few wasted bytes per object, in exchange for never having to search for a block that fits.
 
 ## Giving it back
 
