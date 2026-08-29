@@ -570,7 +570,8 @@ The clearest way to see that the memory really is reused is to watch an address 
 """)
 
 
-lesson.code("""
+lesson.code(
+    """
 gc.collect()
 
 first = Plain()
@@ -581,7 +582,9 @@ second = Plain()
 print("first object was at ", hex(where))
 print("second object is at ", hex(id(second)))
 print("same address reused ->", id(second) == where)
-""")
+""",
+    varies="Almost always True, but it is the allocator's choice rather than a promise. If anything else asked for a block of that size between the two lines, the second object goes somewhere else and this prints False.",
+)
 
 
 lesson.md(f"""
