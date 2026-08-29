@@ -107,7 +107,7 @@ It sounds limiting until you see how little you need. Below is `total = total + 
 
 {figure("the-stack-rising", "the stack after each instruction of total = total + n")}
 
-Two loads push, the addition pops two and pushes one, and the store pops the last one. It started empty, ended empty, and got two high in the middle. That highest point is `co_stacksize`, and the interpreter uses it to work out how much room to reserve for the {term("frame")} before it starts.
+Two loads push, the addition pops two and pushes one, and the store pops the last one. {lesson.claim("a line like total = total + 1 pushes two values, replaces them with one, and leaves the stack as empty as it found it")}, and the highest point in the middle is `co_stacksize`, which the interpreter uses to work out how much room to reserve for the {term("frame")} before it starts.
 
 Every listing you read from here on is that shape. The trick to reading one fluently is to stop reading the instruction names and start reading what happens to the stack.
 """)
@@ -140,7 +140,7 @@ An {term("instruction")} is two bytes. One byte is the {term("opcode")}, which s
 
 That is the whole encoding, and CPython says so in a comment on the type: {cite("Include/internal/pycore_structs.h:17-32@v3.15.0rc1#_Py_CODEUNIT")}.
 
-`_Py_CODEUNIT` is a union, so reading it one way gives a 16 bit number and reading it another way gives the two fields. Fixed width instructions are why the interpreter can step forward without decoding anything first, and why every offset you see in a listing is even.
+`_Py_CODEUNIT` is a union, so reading it one way gives a 16 bit number and reading it another way gives the two fields. Fixed width instructions are why the interpreter can step forward without decoding anything first, and why {lesson.claim("every offset in a listing is even: the bytes of a code object come in pairs and there is nothing else in there")}.
 
 The next cell pulls the real bytes out of a code object so you can see there is nothing else in there.
 """)
@@ -171,7 +171,7 @@ The thing that stops most people the first time is that `LOAD_CONST 1` and `LOAD
 
 {figure("one-argument-six-meanings", "the argument 1, and the six different things it can mean")}
 
-There is no rule you can apply from the outside. The meaning is a property of the instruction, and the `opcode` module publishes the lists: `hasconst`, `hasname`, `haslocal`, `hasfree`, `hasjrel`, `hascompare`, `hasexc`. Everything else with an argument treats it as a plain number that instruction knows what to do with.
+There is no rule you can apply from the outside. {lesson.claim("the same argument byte means a different thing for every instruction, and which thing is published by the opcode module rather than worked out from the number")}. The lists are `hasconst`, `hasname`, `haslocal`, `hasfree`, `hasjrel`, `hascompare` and `hasexc`, and everything else with an argument treats it as a plain number that instruction knows what to do with.
 """)
 
 
@@ -215,7 +215,7 @@ A few instructions do two things at once, and they fit two arguments into the on
 
 18 in binary is `0001 0010`. The top half is 1, the bottom half is 2. The C is exactly that: {cite("Python/bytecodes.c:305-310@v3.15.0rc1#LOAD_FAST_BORROW_LOAD_FAST_BORROW")}, which shifts right by four for the first slot and masks with 15 for the second.
 
-Four bits holds 0 to 15, so this only works for the first sixteen locals. A function with more than sixteen locals gets ordinary separate loads for anything past the sixteenth.
+Four bits holds 0 to 15, so this only works for the first sixteen locals. A function with more than sixteen locals gets ordinary separate loads for anything past the sixteenth. {lesson.claim("a packed load carries two slot numbers in one byte, four bits each, so the argument 18 means slots 1 and 2")}.
 """)
 
 
@@ -241,7 +241,7 @@ One byte holds 0 to 255. Plenty of files have more than 256 names in them, and p
 
 {figure("extended-arg", "four real bytes from a file with 300 names in it")}
 
-It shifts what it is holding left by eight and adds the next instruction's argument on: {cite("Python/bytecodes.c:6092-6098@v3.15.0rc1#EXTENDED_ARG")}. Up to three of them can stack in front of one instruction, which gets you a 32 bit argument, and that limit is stated in the comment on `_Py_CODEUNIT` above.
+{lesson.claim("an argument bigger than 255 is carried by an EXTENDED_ARG in front of the instruction, which shifts what it holds left by eight and adds the next argument on")}: {cite("Python/bytecodes.c:6092-6098@v3.15.0rc1#EXTENDED_ARG")}. Up to three of them can stack in front of one instruction, which gets you a 32 bit argument, and that limit is stated in the comment on `_Py_CODEUNIT` above.
 
 The next cell builds a file with 300 names in it and finds the four bytes from the picture.
 """)
@@ -282,7 +282,7 @@ The other reason offsets do not go 0, 2, 4, 6 is that some instructions are foll
 
 {figure("what-dis-does-not-show", "what dis prints, next to what is actually in co_code")}
 
-Those slots are {term("inline cache", "inline caches")}. The interpreter writes into them while your program runs, remembering what it saw last time so it can take a faster path next time. They are real bytes in `co_code` and the offsets step over them, and by default `dis` does not print them because for most purposes they are noise.
+Those slots are {term("inline cache", "inline caches")}. The interpreter writes into them while your program runs, remembering what it saw last time so it can take a faster path next time. {lesson.claim("inline caches are real bytes in co_code that the offsets step over, and dis leaves them out of a listing unless you ask for them")}.
 
 They stop being noise as soon as you count jumps by hand, which is the next section, so the cell below prints them.
 """)
@@ -313,9 +313,9 @@ This is the part that catches everybody out. A jump argument is not a byte offse
 
 {figure("counting-a-jump", "the JUMP_BACKWARD at the end of a loop, and where the 14 comes from")}
 
-Two separate adjustments are hiding in that. The count is in instructions and an instruction is two bytes, so multiply by two, and it counts from after the jump including the jump's own cache slot rather than from the jump itself.
+Two separate adjustments are hiding in that. {lesson.claim("a jump argument counts instructions rather than bytes, and it counts from after the jump including the jump's own cache slot")}, so getting from the argument to an offset means multiplying by two and starting from a place that is further on than the jump.
 
-The macro that does it is one line: {cite("Python/ceval_macros.h:256-261@v3.15.0rc1#JUMPBY")}. It adds to `next_instr`, which is a pointer to `_Py_CODEUNIT`, so C's pointer arithmetic does the doubling and nothing in the interpreter ever multiplies by two.
+The macro that does it is one line: {cite("Python/ceval_macros.h:256-261@v3.15.0rc1#JUMPBY")}. It adds to `next_instr`, and {lesson.claim("the interpreter never multiplies a jump by two, because next_instr points at a two byte unit and C's pointer arithmetic does the doubling", unobservable="the doubling is in the type of a C pointer, and the only thing that reaches Python is the finished offset")}.
 """)
 
 
@@ -328,12 +328,12 @@ print(bytecode.jump_table(loop))
 )
 
 
-lesson.md("""
+lesson.md(f"""
 The `JUMP_BACKWARD` sits at byte 38 with a cache slot at 40, so the interpreter is at 42 when the jump happens, and 42 minus 28 is 14, which is the `FOR_ITER` at the top of the loop.
 
 `FOR_ITER` jumps forward to 42, which is the instruction right after the `JUMP_BACKWARD`. That is what makes a loop a loop: the exit and the back edge point at each other.
 
-One thing worth knowing if you learned this on an older Python: absolute jumps are gone. Every jump in 3.15 is relative, and the next cell checks that rather than asking you to believe it.
+One thing worth knowing if you learned this on an older Python: absolute jumps are gone. {lesson.claim("there are no absolute jumps left at all, and every jump instruction is relative")}, and the next cell checks that rather than asking you to believe it.
 """)
 
 
@@ -357,7 +357,7 @@ The rule is in the comment at the top of the function: {cite("Python/flowgraph.c
 
 The comment also says the assumption that makes it terminate: cycles in the flow graph have no net effect on the stack depth. A loop that pushed one value per pass and never popped it would have no answer, and the compiler rejects such code long before this point.
 
-Each instruction's {term("stack effect")} comes from two generated tables, `_PyOpcode_num_popped` and `_PyOpcode_num_pushed`, declared at {cite("Include/internal/pycore_opcode_metadata.h:35-38@v3.15.0rc1#_PyOpcode_num_popped")} and filled in from the stack signatures written on each instruction in `Python/bytecodes.c`. The compiler reads them through {cite("Python/flowgraph.c:772-798@v3.15.0rc1#get_stack_effects")}, and Python exposes the same numbers as `dis.stack_effect`.
+Each instruction's {term("stack effect")} comes from two generated tables, `_PyOpcode_num_popped` and `_PyOpcode_num_pushed`, declared at {cite("Include/internal/pycore_opcode_metadata.h:35-38@v3.15.0rc1#_PyOpcode_num_popped")} and filled in from the stack signatures written on each instruction in `Python/bytecodes.c`. The compiler reads them through {cite("Python/flowgraph.c:772-798@v3.15.0rc1#get_stack_effects")}, and {lesson.claim("how many values an instruction pops and pushes is written down for every one of them, and dis.stack_effect hands back the net of the two")}.
 """)
 
 
@@ -381,7 +381,7 @@ lesson.md(f"""
 
 One thing in it is not obvious from the description above. A `try` block has entry points that no instruction jumps to. The interpreter reaches them by looking up the {term("exception table")}, so the walk has to seed them separately and at the right height. The table is a list of five tuples: {cite("InternalDocs/exception_handling.md:108-118@v3.15.0rc1#exception")}. The height we want is the recorded depth, plus one if the handler asked for the instruction pointer to be pushed, plus one for the exception itself. That last plus one is easy to miss, and missing it is how the first version of this came out one short on 847 code objects.
 
-The pseudocode the interpreter follows when something is raised is at {cite("InternalDocs/exception_handling.md:80-95@v3.15.0rc1#exception")}, and it is the clearest paragraph in CPython's internal docs.
+The pseudocode the interpreter follows when something is raised is at {cite("InternalDocs/exception_handling.md:80-95@v3.15.0rc1#exception")}, and it is the clearest paragraph in CPython's internal docs. {lesson.claim("a handler starts at a stack height the instruction above it did not leave behind, because nothing falls into a handler from the line above")}.
 """)
 
 
@@ -401,14 +401,14 @@ print(stack.table(guarded))
 )
 
 
-lesson.md("""
-Look at the row where the handler starts. The instruction above it ended at one height and this one begins at a different one, which looks like a mistake until you remember the listing is in address order and nothing falls into a handler from above. The only way to reach it is to raise.
+lesson.md(f"""
+Look at the row where the handler starts. The instruction above it ended at one height and this one begins at a different one, which looks like a mistake until you remember the listing is in address order. The only way to reach a handler is to raise.
 
 ## Checking the claim
 
 A lesson can tell you a rule is right, and checking is better.
 
-The next cell compiles a chunk of the standard library, walks every code object in it with the Python version of the rule, and compares against the `co_stacksize` that CPython itself worked out in C. Every disagreement is a bug in this lesson.
+The next cell compiles a chunk of the standard library, walks every code object in it with the Python version of the rule, and compares against the `co_stacksize` that CPython itself worked out in C. {lesson.claim("the Python version of the stack depth rule in this lesson agrees with CPython's own co_stacksize on every code object it is run over")}, so every disagreement is a bug in this lesson.
 """)
 
 
@@ -446,14 +446,14 @@ print(f"{len(files)} files, {checked} code objects, {disagreed} disagreements")
 )
 
 
-lesson.md("""
+lesson.md(f"""
 It found no disagreements. Run it over the whole standard library rather than the first 150 files and it still finds none, across thirty three thousand code objects.
 
 That is what this project means when it says you could reimplement CPython from these lessons. The rule has been written down twice, once in C by the people who maintain the compiler and once in Python here, and the two agree everywhere anybody has looked.
 
 ## The floor of one
 
-There is one special case worth knowing about, because you will hit it and wonder what went wrong.
+There is one special case worth knowing about, because you will hit it and wonder what went wrong: {lesson.claim("a function that never pushes anything still reports a stack size of one, because a computed zero is bumped up to one")}.
 """)
 
 
@@ -513,7 +513,7 @@ print(listing)
 ''')
 
 
-lesson.md("""
+lesson.md(f"""
 Work through it with the four questions.
 
 Loaded: one argument called `items`, two locals called `total` and `item`, and the number 0 twice.
@@ -526,7 +526,7 @@ What happens next: `FOR_ITER` at 14 exits to 58, so 14 to 58 is a loop. `POP_JUM
 
 That is a loop over `items` that adds up the ones greater than zero. The `18` on the packed load is slots 1 and 2, which are `total` and `item`, exactly as the two halves of the byte say.
 
-Run the next cell for the source and check.
+Run the next cell for the source and check. {lesson.claim("a listing on its own is enough to work out what a function does, and the source it was compiled from agrees")}.
 """)
 
 
