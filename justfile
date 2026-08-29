@@ -159,6 +159,7 @@ build-probe:
     UV_PROJECT_ENVIRONMENT=/tmp/venv-314 uv run --python 3.14 --all-packages \
         wasmprobe native --into probes/pyodide
     uv run wasmprobe browser --into probes/pyodide
+    uv run wasmprobe lessons --into probes/pyodide
     uv run wasmprobe report probes/pyodide --into probes/pyodide/report.md
     uv run wasmprobe notebook --into probes/pyodide/probe.ipynb
 
