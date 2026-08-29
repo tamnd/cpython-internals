@@ -22,7 +22,9 @@ Each is built for amd64 and arm64, because half the readers are on an Apple lapt
 just images
 ```
 
-The fast half, and the one in `just check`. It reads the committed lockfile and says whether it still describes this project: every build present for both architectures, every digest shaped like a digest, and the whole thing recorded against the CPython commit the citations are pinned to. Offline and instant, because a check that needs the network is a check that fails on a train.
+The fast half. It reads the committed lockfile and says whether it still describes this project: every build present for both architectures, every digest shaped like a digest, and the whole thing recorded against the CPython commit the citations are pinned to. Offline and instant, because a check that needs the network is a check that fails on a train.
+
+Not part of `just check` yet. There is no lockfile until the workflow has run once and its pull request has been merged, and a recipe that passes because the file it reads does not exist is worse than no recipe.
 
 ```
 just build-image debug
@@ -40,7 +42,7 @@ docker run --rm -it $(uv run cpybuild reference debug) python3
 
 `reference` prints `ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:...`, which pulls by digest and still says which build it is when a person reads it. Use the digest rather than the tag anywhere the answer matters. A tag is a name somebody can move, and an experiment that silently ran against a different binary than the one it was written for is worse than an experiment that failed.
 
-If you would rather not think about any of this, open the repository in the devcontainer. It is the debug image, referenced by the same digest, with the source tree and gdb already in it.
+A devcontainer that does this for you, so that opening the repository puts you in the debug build with the source and gdb already there, is the next piece and is not written yet.
 
 ## The lockfile
 
@@ -58,7 +60,9 @@ The workflow does not push it to `main`. It opens a pull request, because a bot 
 
 ## The Dockerfile
 
-`images/cpython/Dockerfile` at the top of the repository, two stages. The build stage installs the packages `cpybuild packages` names, fetches the pinned commit blobless and shallow, applies anything in `patches/`, and compiles with `ccache` on a buildkit cache mount. The final stage is `debian:trixie-slim` with the runtime libraries, which is the difference between an image around 250 MB and one around a gigabyte.
+`images/cpython/Dockerfile` at the top of the repository, two stages. The build stage installs the packages `cpybuild packages` names, fetches the pinned commit blobless and shallow, applies anything in `patches/`, and compiles with `ccache` on a buildkit cache mount. The final stage is `debian:trixie-slim` with only the runtime libraries, so the compiler and the two hundred megabytes of headers do not travel.
+
+The release image comes out around 700 MB unpacked on arm64, and most of that is CPython rather than Debian: 170 MB of the `test` package, 80 MB of static library, and a 37 MB binary that still has its debug symbols. Nothing is trimmed out of it beyond one duplicate. `make install` leaves two copies of `libpython3.15.a` and one is made a symlink to the other, which is 80 MB for nothing lost. It would be easy to strip the binary and delete the tests and get under half that, and the image would no longer be what you get by typing `./configure && make`, which is the one thing the release build is for.
 
 Only the `debug` image carries the CPython source tree and gdb, with a `.gdbinit` that has already sourced `Tools/gdb/libpython.py`. The source is most of what that image weighs, and stepping through C without it is a wall of addresses rather than an experiment.
 
