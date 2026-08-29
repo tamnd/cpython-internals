@@ -60,12 +60,11 @@ def test_no_other_build_needs_a_host_python():
     assert not any("python3" in configs.packages(one) for one in others)
 
 
-def test_the_jit_asks_for_the_llvm_cpython_actually_wants():
+def test_the_jit_asks_for_the_llvm_cpython_actually_wants(tree):
     """CPython names one exact LLVM major version and refuses anything else, because the JIT
     cuts its templates out of object files LLVM produced. Read it back out of the pinned
     checkout rather than trusting the number here, so a moved pin is a failing test and not a
     twenty minute build failing in CI."""
-    tree = pytest.importorskip("refcheck").find_tree()
     said = (tree / "Tools" / "jit" / "_llvm.py").read_text(encoding="utf-8")
     wanted = re.search(r'_LLVM_VERSION\s*=\s*"(\d+)"', said)
     assert wanted, "CPython stopped spelling _LLVM_VERSION the way this test reads it"
