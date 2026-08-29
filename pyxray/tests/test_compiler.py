@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import dis
 import sys
 import token
 import tokenize
@@ -142,6 +143,113 @@ def test_running_at_optimize_two_drops_the_docstring():
 def test_the_metadata_from_code_generation_is_handed_back(result):
     assert "consts" in result.metadata
     assert isinstance(result.metadata["consts"], list)
+
+
+def test_a_normal_run_says_it_had_the_real_constants(result):
+    assert result.constants_known
+
+
+def stripped(monkeypatch):
+    """Make this interpreter behave like the WebAssembly one: codegen with no consts key.
+
+    Pyodide 314 returns argcount, kwonlyargcount and posonlyargcount and nothing else.
+    That is measured, and the recording is in probes/pyodide/pyodide.json. Faking it here
+    rather than only asserting on the helper means the whole of stages() runs the path a
+    browser takes, including the real call into optimize_cfg.
+    """
+    real = compiler._internal()
+
+    class WithoutConsts:
+        def compiler_codegen(self, tree, filename, optimize):
+            sequence, metadata = real.compiler_codegen(tree, filename, optimize)
+            return sequence, {key: value for key, value in metadata.items() if key != "consts"}
+
+        def __getattr__(self, name):
+            return getattr(real, name)
+
+    monkeypatch.setattr(compiler, "_internal", WithoutConsts)
+
+
+def test_the_optimizer_still_runs_when_the_metadata_has_no_constants(monkeypatch):
+    stripped(monkeypatch)
+    run = compiler.stages(SOURCE)
+    assert not run.constants_known
+    assert run.optimized
+    assert not any(one.pseudo for one in run.optimized)
+
+
+def test_without_the_constants_the_fold_does_not_happen_and_is_not_claimed(monkeypatch):
+    stripped(monkeypatch)
+    run = compiler.stages("answer = 6 * 7")
+    assert not run.constants_known
+    assert "BINARY_OP" in [one.opname for one in run.optimized]
+    # The last stage comes from the ordinary compile(), which had the real constants, so
+    # the finished code object still shows the fold. That is what stops a build without
+    # the metadata from teaching the reader something untrue.
+    assert "BINARY_OP" not in [one.opname for one in dis.get_instructions(run.code)]
+
+
+def test_a_placeholder_stays_a_load_const_rather_than_looking_like_a_known_value(monkeypatch):
+    """The optimizer rewrites LOAD_CONST of a None into the shorter common constant form.
+
+    Padding with None would make a browser reader see LOAD_COMMON_CONSTANT where their
+    source has a 6, which reads as a real optimization and is not one. The placeholder
+    exists so that does not happen.
+    """
+    stripped(monkeypatch)
+    run = compiler.stages("answer = 6 * 7")
+    names = [one.opname for one in run.optimized]
+    assert names.count("LOAD_CONST") == 3
+    assert "LOAD_COMMON_CONSTANT" not in names
+
+
+def test_the_constants_list_is_never_shorter_than_the_sequence_asks_for():
+    """The one that matters. A short list reads past the end of memory under WebAssembly.
+
+    There is no exception to catch there, so this cannot be a try block anywhere. It has to
+    be true by construction, which means the list is built here and never handed in.
+    """
+    internal = compiler._internal()
+    sequence, _ = internal.compiler_codegen(ast.parse("answer = 6 * 7"), "<test>", 0)
+    needed = compiler._slots_needed(sequence)
+    assert needed > 0
+    for given in ({}, {"consts": []}, {"consts": [6]}, {"consts": None}, {"consts": "nonsense"}):
+        consts, known = compiler._consts_for(sequence, given)
+        assert len(consts) == needed, given
+        assert not known, given
+
+
+def test_a_long_enough_real_list_is_passed_through_untouched():
+    internal = compiler._internal()
+    sequence, metadata = internal.compiler_codegen(ast.parse("answer = 6 * 7"), "<test>", 0)
+    consts, known = compiler._consts_for(sequence, metadata)
+    assert known
+    assert consts == metadata["consts"]
+
+
+def test_this_interpreter_hands_back_its_constants():
+    assert compiler.constants_available()
+
+
+def test_a_build_without_the_constants_says_so_where_the_reader_is_looking(monkeypatch):
+    stripped(monkeypatch)
+    assert compiler.available()
+    assert not compiler.constants_available()
+    report = compiler.what_the_optimizer_did(compiler.stages("answer = 6 * 7"))
+    assert "did not hand over the constant values" in report
+
+
+def test_the_optimizer_report_says_nothing_extra_when_the_values_were_there(result):
+    assert "did not hand over" not in compiler.what_the_optimizer_did(result)
+
+
+def test_constants_are_not_available_without_the_hooks(monkeypatch):
+    monkeypatch.setitem(sys.modules, "_testinternalcapi", None)
+    assert not compiler.constants_available()
+
+
+def test_the_placeholder_says_what_it_is():
+    assert "not available" in repr(compiler.Unknown())
 
 
 def test_the_code_object_is_the_one_the_source_really_compiles_to(result):

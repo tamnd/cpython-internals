@@ -57,6 +57,23 @@ def available() -> bool:
     return True
 
 
+def constants_available() -> bool:
+    """Does this build's code generator hand back the constants it collected?
+
+    Two builds can both export the compiler hooks and still differ here. The optimizer
+    needs the values to work out that `6 * 7` is `42`, and Pyodide's build returns metadata
+    with no constants in it at all, so on a browser that answer is False and no fold in this
+    material happens. Measured rather than assumed, because it is the sort of thing that
+    changes in a release and a lesson that asserted it would go quietly wrong.
+    """
+    try:
+        internal = _internal()
+    except Unavailable:
+        return False
+    sequence, metadata = internal.compiler_codegen(ast.parse("answer = 6 * 7"), "<pyxray>", 0)
+    return _consts_for(sequence, metadata)[1]
+
+
 @dataclass(frozen=True)
 class RawInstruction:
     """One instruction as the compiler holds it, before there is a code object.
@@ -106,6 +123,71 @@ def _count(number: int, word: str) -> str:
     return f"{number} {word}" if number == 1 else f"{number} {word}s"
 
 
+def _slots_needed(sequence) -> int:
+    """How long a constants list has to be before this sequence can be optimized.
+
+    One past the largest index any instruction reads, or zero when none of them reads one.
+    `dis.hasconst` holds only `LOAD_CONST` today and has held more in the past, so this
+    asks the interpreter rather than naming the opcode.
+    """
+    indexes = [
+        item[1]
+        for item in sequence.get_instructions()
+        if item[0] in dis.hasconst and isinstance(item[1], int)
+    ]
+    return max(indexes) + 1 if indexes else 0
+
+
+class Unknown:
+    """A stand in for a constant the interpreter did not hand over.
+
+    Used only when `compiler_codegen` returns no constants at all, which happens on the
+    WebAssembly build. The optimizer needs a list of the right length or it reads past the
+    end of it, so it gets one of these per slot. They exist to be unusable: the optimizer
+    cannot fold them, cannot compare them to anything it recognises, and cannot rewrite a
+    `LOAD_CONST` of one into the shorter `LOAD_COMMON_CONSTANT` form. So the pane shows
+    `LOAD_CONST 0` and the reader sees a stage that ran without the values rather than a
+    fold that looks real and is not.
+    """
+
+    __slots__ = ()
+
+    def __repr__(self) -> str:
+        return "<constant not available on this build>"
+
+
+def _consts_for(sequence, metadata: dict) -> tuple[list, bool]:
+    """The constants list to hand the optimizer, and whether it holds the real values.
+
+    `compiler_codegen` collects the constants it saw and returns them under a `consts`
+    key, and that list is the one to use, because the optimizer reads the values out of it
+    to turn `6 * 7` into `42`. Pyodide's build does not return that key at all. Asking for
+    it there raises `KeyError` and the middle stage never runs, which is the bug this
+    function exists to fix. The measurement is in `probes/pyodide/`.
+
+    When the key is missing the list is built from the sequence instead, one `Unknown` per
+    slot, and the second half of the return value is False. Callers have to check it before
+    saying anything about what the optimizer did, because without the values the optimizer
+    does not simply skip its constant work, it does that work on the wrong information.
+    `6 * 7` keeps its `BINARY_OP` and `while 0:` keeps its loop. The stage really ran and
+    what it produced is not what the source compiles to, and both halves of that need
+    saying.
+
+    The length is the part to be careful about. Hand `optimize_cfg` a list shorter than the
+    largest index in the sequence and a native interpreter raises a tidy `ValueError`,
+    while the WebAssembly build reads past the end of its memory and does not come back.
+    There is no exception to catch and in a notebook it takes the reader's kernel with it.
+    So this pads to the right length every time rather than trusting what it was handed,
+    and nothing outside this module gets to supply the list.
+    """
+    needed = _slots_needed(sequence)
+    given = metadata.get("consts")
+    consts = list(given) if isinstance(given, list) else []
+    known = isinstance(given, list) and len(consts) >= needed
+    consts.extend(Unknown() for _ in range(needed - len(consts)))
+    return consts, known
+
+
 @dataclass(frozen=True)
 class Stages:
     """Every intermediate form between source text and a code object."""
@@ -119,6 +201,12 @@ class Stages:
     optimized: list[RawInstruction]
     code: types.CodeType
     metadata: dict = field(default_factory=dict)
+    #: Did the optimizer get the real constant values? False on a build whose codegen
+    #: metadata has no consts key, Pyodide being the one we have measured. The optimizer
+    #: still runs there, on placeholders, so `optimized` is a real answer to a different
+    #: question and not what this source compiles to. Check this before saying anything
+    #: about what the optimizer did.
+    constants_known: bool = True
 
     @property
     def removed_by_optimizer(self) -> int:
@@ -297,7 +385,8 @@ def stages(source: str, filename: str = "<pyxray>", *, optimize: int = 0) -> Sta
     sequence, metadata = internal.compiler_codegen(tree, filename, optimize)
     generated = _instructions(sequence)
 
-    optimized_sequence = internal.optimize_cfg(sequence, metadata["consts"], 0)
+    consts, constants_known = _consts_for(sequence, metadata)
+    optimized_sequence = internal.optimize_cfg(sequence, consts, 0)
     optimized = _instructions(optimized_sequence)
 
     # The third hook, assemble_code_object, is deliberately not called here. See
@@ -316,6 +405,7 @@ def stages(source: str, filename: str = "<pyxray>", *, optimize: int = 0) -> Sta
         optimized=optimized,
         code=code,
         metadata=dict(metadata),
+        constants_known=constants_known,
     )
 
 
@@ -358,6 +448,15 @@ def what_the_optimizer_did(result: Stages) -> str:
         lines.append(f"{left:<{width}}  {right}".rstrip())
     lines.append("")
     lines.append(f"{len(before)} instructions in, {len(after)} out")
+    if not result.constants_known:
+        # Only ever true in a browser. Saying it here rather than in the lesson text means
+        # the reader is told next to the output they are looking at, which is where the
+        # wrong conclusion would otherwise be drawn.
+        lines.append(
+            "This build did not hand over the constant values, so the optimizer ran "
+            "without them. Nothing above was folded, and parts of the right column are "
+            "not what this source really compiles to."
+        )
     return "\n".join(lines)
 
 

@@ -40,10 +40,23 @@ def test_only_tier_zero_can_be_accepted():
             assert check.weight == TIER0
 
 
-def test_accepted_checks_do_not_block():
-    accepted = [check for check in CHECKS if check.accepted]
-    assert accepted, "the point of the field is that at least one gap is known"
-    assert not any(check.blocking for check in accepted)
+def test_an_accepted_gap_does_not_block():
+    """No check carries one right now, and that is the good outcome rather than dead code.
+
+    The last one to carry it was `optimize_cfg`, and the fix in issue 77 was to stop asking
+    for the metadata key it was missing. Building a check here rather than asserting the
+    real list is not empty means the mechanism stays tested for the next measured gap.
+    """
+    gap = Check(
+        key="example",
+        question="Does the thing work",
+        weight=TIER0,
+        costs="A lesson would move to Tier 1.",
+        source="result = 1",
+        accepted="It does not, and here is what the lessons do instead.",
+    )
+    assert not gap.blocking
+    assert Check(**{**vars(gap), "accepted": ""}).blocking
 
 
 def test_tier_zero_without_an_excuse_blocks():

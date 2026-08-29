@@ -56,6 +56,8 @@ STRINGS: dict[str, str] = {
     "pipeline.count_bytes": "{count} byte{s}",
     "pipeline.more_lines": "and {count} more line{s}",
     "pipeline.no_internals": "not on this build",
+    "pipeline.no_constants": "no constant values",
+    "pipeline.why_no_constants": "This build does not hand back the constant values it collected, so the optimizer ran without them. It could not fold 6 * 7 into 42, and on some code it makes a different decision than it would with the real values. The last pane is the finished code object and is always the real answer.",
     "pipeline.why_no_internals": "Two of these panes run the compiler one stage at a time, which needs the _testinternalcapi module. This interpreter was built without it, so those two are empty and the other four are unaffected.",
     # The prediction gate.
     "predict.title": "Predict first",

@@ -126,11 +126,14 @@ lesson.code("""
 from pyxray import compiler
 
 print("stage by stage compiling available:", compiler.available())
+print("the compiler hands back its constants:", compiler.constants_available())
 """)
 
 
 lesson.md("""
-If that said False you are on a build without `_testinternalcapi`, which happens on some slimmed down distributions. Most cells below still work, and the two that run the stages separately will raise a clear error rather than a confusing one.
+If the first line said False you are on a build without `_testinternalcapi`, which happens on some slimmed down distributions. Most cells below still work, and the two that run the stages separately will raise a clear error rather than a confusing one.
+
+The second line is the one that catches people out in a browser. The code generator collects the constants it comes across and normally hands them back with everything else, and the optimizer needs those values to work out that 6 times 7 is 42. The WebAssembly build does not hand them back. Every cell in this lesson still runs there, because `pyxray` builds a list of placeholders of the right length rather than asking for one, but the folding does not happen and the two column output says so underneath. If that line said False and you want to watch a fold, run this lesson on an ordinary Python.
 
 ## The whole trip, counted
 

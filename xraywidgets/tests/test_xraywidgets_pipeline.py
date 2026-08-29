@@ -140,6 +140,99 @@ def test_a_build_without_the_hooks_does_not_pretend_to_have_a_summary(monkeypatc
     assert PipelineExplorer(L0).state()["summary"] == ""
 
 
+def without_constants(monkeypatch):
+    """Make the compiler behave like Pyodide's, whose codegen returns no consts key."""
+    real = compiler._internal()
+
+    class WithoutConsts:
+        def compiler_codegen(self, tree, filename, optimize):
+            sequence, metadata = real.compiler_codegen(tree, filename, optimize)
+            return sequence, {key: value for key, value in metadata.items() if key != "consts"}
+
+        def __getattr__(self, name):
+            return getattr(real, name)
+
+    monkeypatch.setattr(compiler, "_internal", WithoutConsts)
+
+
+def test_a_build_without_the_constants_still_draws_every_pane(monkeypatch):
+    without_constants(monkeypatch)
+    widget = PipelineExplorer(L0)
+    for name, _, _ in PANES:
+        assert pane(widget, name)["lines"], name
+
+
+def test_the_optimizer_pane_says_the_values_were_missing_rather_than_counting(monkeypatch):
+    without_constants(monkeypatch)
+    shown = pane(PipelineExplorer(L0), "optimized")
+    assert shown["count"] == "no constant values"
+    assert shown["available"] is False
+
+
+def test_the_reader_is_told_why_the_optimizer_pane_is_different(monkeypatch):
+    without_constants(monkeypatch)
+    drawn = PipelineExplorer(L0).render()
+    assert "could not fold 6 * 7 into 42" in drawn
+    assert "_testinternalcapi" not in drawn
+
+
+def test_the_other_panes_are_not_marked_down_for_it(monkeypatch):
+    without_constants(monkeypatch)
+    widget = PipelineExplorer(L0)
+    assert pane(widget, "codegen")["available"] is True
+    assert pane(widget, "tokens")["available"] is True
+
+
+class _Watching:
+    """The real hooks with `optimize_cfg` replaced, so a test can see what was passed."""
+
+    def __init__(self, real, optimize_cfg):
+        self._real = real
+        self.optimize_cfg = optimize_cfg
+
+    def compiler_codegen(self, tree, filename, optimize):
+        sequence, metadata = self._real.compiler_codegen(tree, filename, optimize)
+        return sequence, {key: value for key, value in metadata.items() if key != "consts"}
+
+    def __getattr__(self, name):
+        return getattr(self._real, name)
+
+
+@pytest.mark.parametrize(
+    "source",
+    [
+        "answer = 6 * 7",
+        "x = (1, 2, 3)",
+        "def f(a):\n    return a + 'hello'\n",
+        "for i in range(10):\n    pass\n",
+        "x = 1\nwhile 0:\n    x = 2\n",
+        "class C:\n    'doc'\n    y = 2\n",
+        "",
+    ],
+)
+def test_no_source_a_reader_can_type_makes_the_widget_hand_over_a_short_list(source, monkeypatch):
+    """Issue 78. A constants list shorter than the sequence asks for kills a WebAssembly
+    runtime outright, with no exception to catch, so the widget builds its own every time.
+
+    This drives real sources through the widget's own path and checks the list it ends up
+    passing is long enough, which is the property that has to hold rather than the absence
+    of a crash on this interpreter, where a short list would only raise.
+    """
+    handed = []
+    real = compiler._internal()
+    original = real.optimize_cfg
+
+    def watched(sequence, consts, position):
+        handed.append((compiler._slots_needed(sequence), len(consts)))
+        return original(sequence, consts, position)
+
+    monkeypatch.setattr(compiler, "_internal", lambda: _Watching(real, watched))
+    PipelineExplorer(source).state()
+    assert handed, "the optimizer was never reached"
+    for needed, given in handed:
+        assert given >= needed
+
+
 def test_the_live_markup_has_somewhere_to_type_and_the_still_one_does_not():
     assert 'data-role="code"' in PipelineExplorer(L0).view()["html"]
     assert 'data-role="code"' not in PipelineExplorer(L0).render()
