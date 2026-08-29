@@ -91,6 +91,27 @@ jobs:
       - run: uv run pytest tools/bpcheck/tests
       - run: uv run bpcheck lint
 
+  animations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      # manim is about thirty packages and a Cairo build, so it lives behind an extra and
+      # only this job pays for it. Every other job still runs `xraymanim check`, because the
+      # cheap half of the library deliberately does not import manim.
+      - run: uv sync --all-packages --extra anim
+      - run: uv run --extra anim pytest xraymanim/tests
+      # ffmpeg is already on the runner, and it is what turns the rendered video into the
+      # GIF a reader sees on GitHub.
+      - run: ffmpeg -version | head -n 1
+      # The committed GIFs are not compared byte for byte, because video encoders are not
+      # reproducible across versions or platforms and a checksum here would fail for reasons
+      # nobody can fix. Re-rendering catches the failure that actually happens: a scene that
+      # raises because the library moved underneath it.
+      - run: uv run --extra anim xraymanim render --into "$RUNNER_TEMP/anim"
+
   citations:
     runs-on: ubuntu-latest
     steps:

@@ -55,6 +55,7 @@ Pinned to `v3.15.0rc1` today and moving to `v3.15.0` when it ships on 1 October 
 | `nbbuild` | Lessons are written as Python and generated into notebooks, because nobody should have to edit a `.ipynb` by hand or review a diff of one. The generated file is committed as well, and CI fails if it stops matching the code that produced it | [tools/nbbuild](tools/nbbuild) |
 | `nbdiagram` | Every picture in a lesson is an Excalidraw scene drawn from Python, written out as an editable `.excalidraw` and as the `.svg` GitHub and Colab display. Colours, type and spacing come from one shared theme, so the diagrams, the charts and the animations look like one project | [tools/nbdiagram](tools/nbdiagram) |
 | `bpcheck` | The shape a blueprint has to have before somebody can implement from it: the nine sections in order, the header block, the invariant numbering, and no fact deferred to a lesson | [tools/bpcheck](tools/bpcheck) |
+| `xraymanim` | The animations, and the fifteen shapes they are allowed to be made of. Each one is planned as a storyboard that is checked in milliseconds, so a mistake is caught before anybody pays for a render | [xraymanim](xraymanim) |
 
 ## The lessons
 
@@ -84,6 +85,19 @@ The pictures are generated too. A lesson's `diagrams.py` sits next to its `build
 More are landing in order. [lessons/README.md](lessons/README.md) explains how one is put together and how to run them locally.
 
 Three things the tooling has already found, all of which would have gone into prose as fact and been wrong. The small integer cache stops at 1024 on 3.15 rather than 256, so the `257 is 257` example every tutorial uses gives the opposite answer ([#33](https://github.com/tamnd/cpython-internals/issues/33)). `sys.getrefcount` stopped being reliably one too high in 3.14, because `LOAD_FAST_BORROW` passes a local without creating a reference while `LOAD_GLOBAL` still creates one, so the correction every introspection helper applies depends on the call site. And `RESUME` grew an inline cache entry in 3.15, so it is two bytes on 3.14 and four on 3.15, which shifts every offset in a hand counted disassembly.
+
+## The animations
+
+Some things are hard to see in a still picture, because the point of them is that something changes. A reference count going up and down, an instruction pointer walking along a strip of bytecode, a value moving on and off the stack. Those get a short animation instead, under ninety seconds, no sound, captions burned into the picture so it works on a phone with the volume off.
+
+Everything in them is real. The tokens are what `tokenize` returns and the instruction listings are what CPython 3.15.0rc1 emits, because a reader watching an animation cannot stop and check the bytecode while it plays.
+
+| | Animation | Lesson |
+|---|---|---|
+| a01 | [One line of Python, seven stages](anim/rendered/a01-seven-stages.gif) | T01 |
+| a02 | [A name is a label, not a box](anim/rendered/a02-a-name-is-a-label.gif) | T08 |
+
+They are all drawn from the same fifteen shapes, listed with what each one means in [xraymanim/VISUAL-SYSTEM.md](xraymanim/VISUAL-SYSTEM.md), and adding a sixteenth needs an amendment to that document first. That rule is not a convention somebody has to remember: the shape list is code, a storyboard that names a shape outside it fails, and a shape that is drawable but undescribed fails too. [anim/README.md](anim/README.md) has the index and how to render them.
 
 ## The blueprints
 

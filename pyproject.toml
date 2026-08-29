@@ -13,7 +13,14 @@ dependencies = [
     "nbdiagram",
     "pyxray",
     "refcheck",
+    "xraymanim",
 ]
+
+# Installing the renderer. Manim brings cairo, pango, numpy and scipy with it, which is a
+# lot to ask of a job that only wants to lint a notebook, so the animations are the one
+# thing here you have to opt into: `uv sync --extra anim`, or `just build-animations`.
+[project.optional-dependencies]
+anim = ["xraymanim[render]"]
 
 [dependency-groups]
 dev = [
@@ -23,7 +30,15 @@ dev = [
 ]
 
 [tool.uv.workspace]
-members = ["pyxray", "tools/bpcheck", "tools/nbbuild", "tools/nbcheck", "tools/nbdiagram", "tools/refcheck"]
+members = [
+    "pyxray",
+    "tools/bpcheck",
+    "tools/nbbuild",
+    "tools/nbcheck",
+    "tools/nbdiagram",
+    "tools/refcheck",
+    "xraymanim",
+]
 
 [tool.uv.sources]
 bpcheck = { workspace = true }
@@ -32,6 +47,7 @@ nbcheck = { workspace = true }
 nbdiagram = { workspace = true }
 pyxray = { workspace = true }
 refcheck = { workspace = true }
+xraymanim = { workspace = true }
 
 [tool.pytest.ini_options]
 testpaths = [
@@ -41,16 +57,30 @@ testpaths = [
     "tools/nbcheck/tests",
     "tools/nbdiagram/tests",
     "tools/refcheck/tests",
+    "xraymanim/tests",
 ]
 addopts = "-q --strict-markers --strict-config"
 markers = [
     "pinned: needs the pinned CPython source tree",
     "freethreaded: needs a free threaded build",
 ]
-filterwarnings = ["error"]
+filterwarnings = [
+    "error",
+    # Manim pulls in pydub, whose module body has an invalid escape sequence in it. The
+    # warning fires the first time the file is compiled and not once there is a .pyc, so
+    # leaving it as an error makes the animation tests fail on a cold cache and pass on a
+    # warm one, which is the worst kind of test.
+    "ignore:invalid escape sequence:SyntaxWarning",
+    "ignore:.*is an invalid escape sequence:SyntaxWarning",
+    # Manim parses the SVG it renders text into with `xml.etree.iterparse` and never closes
+    # the iterator, so the warning fires from a destructor at an arbitrary later moment.
+    # Left as an error it does not fail the test that caused it, it fails whichever test
+    # happened to be running when the garbage collector got round to it.
+    "ignore:unclosed iterparse iterator:ResourceWarning",
+]
 
 [tool.ruff.lint.isort]
-known-first-party = ["bpcheck", "nbbuild", "nbcheck", "nbdiagram", "pyxray", "refcheck"]
+known-first-party = ["bpcheck", "nbbuild", "nbcheck", "nbdiagram", "pyxray", "refcheck", "xraymanim"]
 
 [tool.ruff]
 line-length = 100

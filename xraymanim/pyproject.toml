@@ -1,0 +1,27 @@
+[project]
+name = "xraymanim"
+version = "0.1.0"
+description = "The visual grammar for the animations, and the renderer that produces them"
+requires-python = ">=3.14"
+license = "MIT"
+dependencies = ["pyxray"]
+
+# Manim is an optional extra rather than a plain dependency. The grammar, the storyboards
+# and the checks are pure Python and are what every CI job runs, and making all of those
+# jobs install cairo, pango, numpy and scipy to check that a caption is not too long would
+# be paying a large bill for nothing.
+[project.optional-dependencies]
+render = ["manim>=0.19"]
+
+[project.scripts]
+xraymanim = "xraymanim.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/xraymanim"]
+
+[tool.uv.sources]
+pyxray = { workspace = true }
