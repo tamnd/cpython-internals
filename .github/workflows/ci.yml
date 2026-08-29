@@ -73,6 +73,11 @@ jobs:
       # a reader clicking a Colab badge cannot run a build step first. This is the step that
       # stops the two from drifting after somebody edits a cell in Jupyter and commits it.
       - run: uv run nbbuild check
+      # The claim ledger is generated from the lessons the same way the notebooks are, so it
+      # goes stale the same way. `nbbuild check` above already fails a claim that lost the
+      # cell underneath it, because claims resolve while a lesson is being built. This is the
+      # other half: the committed CLAIMS.md still says what the lessons say.
+      - run: uv run nbbuild claims --check
       # Same argument one level down: a lesson embeds its diagrams as images served from
       # this repository, so the committed SVG has to still be what the script draws.
       - run: uv run nbdiagram check
