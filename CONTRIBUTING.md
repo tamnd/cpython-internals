@@ -59,6 +59,14 @@ There is a second keyword for the other kind of cell. `varies=` is for output th
 
 When the differing cell is the lesson's central observation, the note is not enough. Either the lesson gets a short section explaining both versions, because the difference is itself worth teaching, or the example changes to one that behaves the same on both. Which of the two depends on whether the difference is interesting. `LOAD_COMMON_CONSTANT` is interesting and gets explained. A line number inside `asyncio` is not, and the cell should stop printing it.
 
+## What the browser can and cannot do
+
+A Tier 0 experiment has to run in a browser tab with nothing installed. Which surfaces survive that is measured, not assumed, and the answer lives in [probes/pyodide](probes/pyodide): a matrix, the two raw runs behind it, a notebook you can open in Colab to ask your own runtime the same questions, and a written decision.
+
+Read `decision.md` before writing an experiment that pokes at the interpreter. Three things are known to be different today. `optimize_cfg` cannot be handed the constants list `compiler_codegen` returns, because that build does not put one there. Handing `optimize_cfg` a constants list that is too short reads past the end of memory and kills the runtime, where a native interpreter raises a tidy `ValueError`, so anything that builds one has to build it correctly rather than catch the mistake. And a thread cannot be started.
+
+If you need a surface nobody has measured, add a check to `tools/wasmprobe/src/wasmprobe/checks.py` and run `just build-probe`. A check is a string of Python that leaves its answer in `result`, and it has to import everything it uses, because the check before it may have taken the runtime down. Mark it `TIER0` if a lesson would depend on it, and `just probe` will fail the build the day it stops working. If it already fails and you have decided what to do instead, write that decision in the check's `accepted` field rather than deleting the check, so the gap stays in the report and the next regression is still visible.
+
 ## Definition of done for a lesson
 
 No partial credit on any of these.

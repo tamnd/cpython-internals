@@ -27,7 +27,7 @@ vendor:
     git -C "{{cpython_src}}" rev-parse HEAD
 
 # The full local check, in the order that fails fastest.
-check: lint test citations blueprints diagrams lessons notebooks animations
+check: lint test citations blueprints diagrams lessons notebooks probe animations
 
 lint:
     uv run ruff check .
@@ -129,6 +129,27 @@ animations:
 # minutes rather than seconds, which is why it is not part of `check`.
 build-animations:
     uv run --extra anim xraymanim render
+
+# Read the committed probe results and fail when a surface the lessons need has stopped
+# working in the browser, or when the report and the notebook have fallen behind the checks.
+# Milliseconds: it reads two JSON files, it does not boot anything.
+probe:
+    uv run wasmprobe check probes/pyodide
+    uv run nbcheck run probes
+
+# Record the probe again on both runtimes and rewrite the report and the notebook. Needs
+# node and `npm install` in tools/wasmprobe, and a 3.14 to compare against, because Pyodide
+# ships 3.14 and a native 3.15 control would confuse a version difference for a build one.
+#
+# There is no `nbcheck lint probes` anywhere here on purpose. Those rules are written for a
+# lesson: install pyxray, print the version banner, and so on. The probe installs nothing,
+# which is the whole point of it, so it would fail two rules for doing its job properly.
+build-probe:
+    UV_PROJECT_ENVIRONMENT=/tmp/venv-314 uv run --python 3.14 --all-packages \
+        wasmprobe native --into probes/pyodide
+    uv run wasmprobe browser --into probes/pyodide
+    uv run wasmprobe report probes/pyodide --into probes/pyodide/report.md
+    uv run wasmprobe notebook --into probes/pyodide/probe.ipynb
 
 # Rewrite the citation lockfile after a human has read the diff. This is deliberately
 # not part of `check`, because a checker that silently repairs itself checks nothing.

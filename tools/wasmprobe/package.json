@@ -1,0 +1,13 @@
+{
+  "name": "wasmprobe-driver",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Boots Pyodide and runs the wasmprobe checks inside it",
+  "type": "module",
+  "scripts": {
+    "probe": "node driver.mjs"
+  },
+  "dependencies": {
+    "pyodide": "314.0.6"
+  }
+}

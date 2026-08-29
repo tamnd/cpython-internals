@@ -15,6 +15,7 @@ dependencies = [
     "nbversion",
     "pyxray",
     "refcheck",
+    "wasmprobe",
     "xraymanim",
     "xraywidgets",
 ]
@@ -45,6 +46,7 @@ members = [
     "tools/nbdiagram",
     "tools/nbversion",
     "tools/refcheck",
+    "tools/wasmprobe",
     "xraymanim",
     "xraywidgets",
 ]
@@ -58,6 +60,7 @@ nbdiagram = { workspace = true }
 nbversion = { workspace = true }
 pyxray = { workspace = true }
 refcheck = { workspace = true }
+wasmprobe = { workspace = true }
 xraymanim = { workspace = true }
 xraywidgets = { workspace = true }
 
@@ -71,6 +74,7 @@ testpaths = [
     "tools/nbdiagram/tests",
     "tools/nbversion/tests",
     "tools/refcheck/tests",
+    "tools/wasmprobe/tests",
     "xraymanim/tests",
     "xraywidgets/tests",
 ]
@@ -78,6 +82,7 @@ addopts = "-q --strict-markers --strict-config"
 markers = [
     "pinned: needs the pinned CPython source tree",
     "freethreaded: needs a free threaded build",
+    "slow: boots a WebAssembly runtime, so it takes seconds rather than milliseconds",
 ]
 filterwarnings = [
     "error",
@@ -132,6 +137,8 @@ ignore = [
 # The shared version notes are prose too, one sentence per line, and they are read by a
 # person in a notebook rather than in the source. Same reason as the lesson builders.
 "tools/nbbuild/src/nbbuild/notes.py" = ["E501"]
+# The probe notebook's markdown, same rule again. It is read in a browser, not here.
+"tools/wasmprobe/src/wasmprobe/notebook.py" = ["E501"]
 # Every word a widget shows a reader lives in one dictionary, written one sentence per line.
 # Splitting a sentence across two source lines to please a line length rule would leave the
 # sentence looking wrapped in the source and identical on screen, which helps nobody.
