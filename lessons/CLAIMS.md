@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-51 claims across 12 lessons, 4 of them not observable from Python.
+74 claims across 12 lessons, 5 of them not observable from Python.
 
 ## T01. One line, seven stages
 
@@ -60,11 +60,36 @@ Without it the exception becomes the rule and this goes back to being a book.
 
 ## T03. Tokens become a tree
 
-Not marked up yet.
+| Claim | Proved by |
+| --- | --- |
+| the tree is the first thing in the pipeline that knows `6 * 7` is one thing rather than three, with both numbers hanging underneath a single BinOp | [`t03-08`](t03-tokens-become-a-tree/t03.ipynb) |
+| the ASDL declaration of a node type is carried around as the docstring of the class, which means printing it gives you the definition itself rather than somebody's description of it | [`t03-12`](t03-tokens-become-a-tree/t03.ipynb) |
+| the operators are a closed list of cases rather than nodes with fields, so Mult has no fields at all | [`t03-14`](t03-tokens-become-a-tree/t03.ipynb) |
+| brackets, spacing and a trailing comment make no difference to the tree: three differently written files give one identical tree, field for field | [`t03-17`](t03-tokens-become-a-tree/t03.ipynb) |
+| the tokenizer hands the parser both brackets as ordinary tokens, and the parser is where they stop existing | [`t03-19`](t03-tokens-become-a-tree/t03.ipynb) |
+| the same five tokens in the same order give two different trees, because what the brackets did is kept as shape | [`t03-21`](t03-tokens-become-a-tree/t03.ipynb) |
+| every node that was written somewhere carries the line and column range it covers | [`t03-24`](t03-tokens-become-a-tree/t03.ipynb) |
+| a node with no fields has no position either, so there is nothing in the tree that says where the `*` was | [`t03-24`](t03-tokens-become-a-tree/t03.ipynb) |
+| unparse gives back source that means the same thing rather than the source you wrote: 0x2a comes back as 42 and the underscores in 1_000_000 are gone | [`t03-27`](t03-tokens-become-a-tree/t03.ipynb) |
+| adjacent string literals are glued together by the grammar, so 'a' 'b' is already one string before anything runs | [`t03-27`](t03-tokens-become-a-tree/t03.ipynb) |
+| parse a file, unparse it, parse the result, and you get an identical tree, for every module in your own standard library | [`t03-30`](t03-tokens-become-a-tree/t03.ipynb) |
 
 ## T04. Names get scopes
 
-Not marked up yet.
+| Claim | Proved by |
+| --- | --- |
+| a function that only reads a name finds the module's copy of it, so calling it prints the module's value | [`t04-08`](t04-names-get-scopes/t04.ipynb) |
+| the same line of source compiled to two different instructions in two functions in one file, and both were settled before either function ran | [`t04-13`](t04-names-get-scopes/t04.ipynb) |
+| the symtable module reports the same name as local in one function and not local in another, from the one file | [`t04-16`](t04-names-get-scopes/t04.ipynb) |
+| every name in a block gets exactly one decision, and that decision is what picks the instruction | [`t04-19`](t04-names-get-scopes/t04.ipynb) |
+| the finished code object has no field saying what scope a name had, so the choice of instruction is the only record of it | not observable from Python: what would show it is the absence of a field on the code object, and no cell can print a thing that is not there |
+| a global statement beats an assignment in the same block, so a name assigned inside a function that declares it global is compiled as a global anyway | [`t04-22`](t04-names-get-scopes/t04.ipynb) |
+| a global statement inside a function changes the instruction used for an assignment at module level, on a line above the function | [`t04-25`](t04-names-get-scopes/t04.ipynb) |
+| a name shared by two functions is a cell in the one that owns it and a free variable in the one that uses it, and both read it with LOAD_DEREF | [`t04-28`](t04-names-get-scopes/t04.ipynb) |
+| the cell outlives the frame that made it, so the count kept by a returned closure survives from one call to the next | [`t04-30`](t04-names-get-scopes/t04.ipynb) |
+| the same two lines compile to different instructions in a class body and in a function, because a class body looks names up in a dictionary and a function uses numbered slots | [`t04-33`](t04-names-get-scopes/t04.ipynb) |
+| the compiler only pays for the checked load where a read could come first, and a name assigned before it is read gets the plain fast load | [`t04-36`](t04-names-get-scopes/t04.ipynb) |
+| a comprehension in a class body can read the first iterable from the class and nothing else, so rows resolves and factor raises NameError three lines later | [`t04-41`](t04-names-get-scopes/t04.ipynb) |
 
 ## T05. The tree becomes bytecode
 
