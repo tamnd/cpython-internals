@@ -1,0 +1,44 @@
+// A debug build of the CPython this project is pinned to, with the source it was built from
+// sitting next to it and a debugger that knows how to read it. Open this repository in a
+// container and you are stepping through the interpreter in about a minute, without a
+// compiler, a toolchain, or an evening spent on either.
+//
+// What is in here: `python3` is CPython 3.15.0rc1 built with `--with-pydebug
+// --with-assertions`, so `sys.gettotalrefcount()` exists and every assertion in the
+// interpreter is live. The source is at `/usr/src/cpython`, and gdb is set up to load
+// CPython's own `libpython.py` helper, which is what turns a C backtrace into something with
+// Python frames in it.
+//
+// The image is named by digest rather than by tag on purpose. A tag is a name somebody can
+// move, and an experiment that quietly ran against a different interpreter than the one the
+// lesson was written against is worse than an experiment that failed. The digest here is the
+// one in `images/cpython.lock.json`, and `just images` fails if the two ever drift apart.
+//
+// This container is for reading and stepping through CPython. It is not where the notebooks
+// are built: that wants uv and the repository's own tooling, which is `just check` on your
+// own machine.
+{
+  "name": "CPython 3.15.0rc1, debug build",
+  "image": "ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:de0d69b176872e99c63152b8ab4ebffac7bb131e5422c8eaebc7f455374ea824",
+
+  // gdb needs to attach to a process, and Docker's default seccomp profile blocks the call it
+  // uses to do that. Without these two lines the debugger starts and then cannot run anything,
+  // which is a confusing way to find out.
+  "runArgs": ["--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"],
+
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+
+  // Printed on every attach, because the first question anybody has is whether this is really
+  // the debug build, and the honest answer is a function that only a debug build has.
+  "postAttachCommand": "python3 -c \"import sys; print(sys.version); print('total refcount:', sys.gettotalrefcount()); print('source:', '/usr/src/cpython')\"",
+
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "ms-vscode.cpptools"],
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/python/bin/python3"
+      }
+    }
+  }
+}

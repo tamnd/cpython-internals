@@ -63,5 +63,32 @@
         "size": 0
       }
     }
+  },
+  "indexes": {
+    "debug": {
+      "digest": "sha256:de0d69b176872e99c63152b8ab4ebffac7bb131e5422c8eaebc7f455374ea824",
+      "built": "2026-08-29",
+      "size": 0
+    },
+    "freethreaded": {
+      "digest": "sha256:163208498c496198c5cfc7069cfc24b6bc0c33c5dbf01605186c47390d96445a",
+      "built": "2026-08-29",
+      "size": 0
+    },
+    "jit": {
+      "digest": "sha256:5668129fcfc39cea816d66705c13d1b96ca592630594b202f221ba9efea21a3a",
+      "built": "2026-08-29",
+      "size": 0
+    },
+    "release": {
+      "digest": "sha256:50704f9093badfccf4530d1f8c3c66a685e16f472e060f7cd83d73569cc51894",
+      "built": "2026-08-29",
+      "size": 0
+    },
+    "tailcall": {
+      "digest": "sha256:2328c800a7364fa30b8a8d86a7f0febe9457c24d0f7d8f5ca13f193710bf406a",
+      "built": "2026-08-29",
+      "size": 0
+    }
   }
 }

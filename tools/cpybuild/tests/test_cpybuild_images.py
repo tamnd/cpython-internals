@@ -19,7 +19,16 @@ def full(**changed) -> Lock:
     for config in CONFIGURATIONS:
         for arch in ARCHITECTURES:
             lock.record(config.key, arch, ONE)
+        lock.record_index(config.key, TWO)
     return lock
+
+
+#: A devcontainer, cut down to the line these tests are about.
+BOX = '{\n  "name": "a box",\n  "image": "%s"\n}\n'
+
+
+def box(lock: Lock, config: str = "debug") -> str:
+    return BOX % lock.reference_index(config)
 
 
 def released(**by_tag):
@@ -59,7 +68,8 @@ def test_a_release_whose_lockfile_cannot_be_read_stops_the_tidy_up():
 
 
 def test_digests_of_a_lockfile_is_every_image_in_it():
-    assert images.digests(full()) == {ONE}
+    """The joined ones are in here too, which is the half a tidy up would otherwise delete."""
+    assert images.digests(full()) == {ONE, TWO}
 
 
 def test_a_complete_lockfile_has_nothing_to_say():
@@ -172,3 +182,89 @@ def test_writing_a_lockfile_makes_the_directory(tmp_path):
     path = tmp_path / "deep" / "cpython.lock.json"
     full().write(path)
     assert Lock.load(path).tag == PINNED_TAG
+
+
+def test_the_joined_image_is_what_a_person_pulls():
+    """Neither half is: an index is its own object and its digest is neither of theirs."""
+    said = full().reference_index("debug")
+    assert said == f"{images.REGISTRY}:debug@{TWO}"
+
+
+def test_a_lockfile_with_no_joined_image_is_incomplete():
+    lock = full()
+    del lock.indexes["jit"]
+    assert problems(lock) == ["no joined jit image, so nothing can pull it without an arch"]
+
+
+def test_a_joined_digest_that_is_not_a_digest_is_caught():
+    lock = full()
+    lock.indexes["debug"] = Built(digest="debug-latest", built="2026-08-29")
+    assert any("joined debug" in one for one in problems(lock))
+
+
+def test_asking_for_a_joined_image_that_was_never_published_says_so():
+    with pytest.raises(Broken) as caught:
+        Lock().reference_index("debug")
+    assert "debug" in str(caught.value)
+
+
+def test_a_joined_image_for_a_build_nobody_configured_is_reported():
+    lock = full()
+    lock.record_index("pgo", ONE)
+    assert "pgo is in the lockfile and not in the configuration list" in problems(lock)
+
+
+def test_a_lockfile_with_joined_images_survives_a_round_trip():
+    lock = full()
+    assert Lock.from_json(lock.as_json()).as_json() == lock.as_json()
+
+
+def test_an_older_lockfile_with_no_joined_images_still_reads():
+    """The file on disk predates them, and a reader that refused it would be a broken bisect."""
+    body = full().as_json().replace('"indexes"', '"other"')
+    assert Lock.from_json(body).indexes == {}
+
+
+def test_a_devcontainer_pointing_at_the_lockfile_is_fine():
+    lock = full()
+    assert images.devcontainer_problems(lock, box(lock)) == []
+
+
+def test_a_devcontainer_left_behind_by_a_rebuild_is_caught():
+    """The whole reason this is checked: the two files are updated together and edited apart."""
+    lock = full()
+    stale = BOX % f"{images.REGISTRY}:debug@{ONE}"
+    said = images.devcontainer_problems(lock, stale)
+    assert len(said) == 1
+    assert ONE in said[0] and TWO in said[0]
+
+
+def test_a_devcontainer_naming_a_tag_rather_than_a_digest_is_caught():
+    lock = full()
+    assert images.devcontainer_problems(lock, BOX % f"{images.REGISTRY}:debug")
+
+
+def test_a_devcontainer_with_no_image_at_all_says_so():
+    assert images.devcontainer_problems(full(), '{"name": "a box"}')
+
+
+def test_retargeting_keeps_everything_around_the_image():
+    """It is a file with comments in it that somebody is meant to read, so it is edited rather
+    than regenerated."""
+    before = '// a comment\n{\n  "image": "old",\n  "name": "a box"\n}\n'
+    after = images.retarget(before, "new")
+    assert '"image": "new"' in after
+    assert after.startswith("// a comment")
+    assert '"name": "a box"' in after
+
+
+def test_retargeting_a_file_with_no_image_refuses_rather_than_appending():
+    with pytest.raises(Broken):
+        images.retarget('{"name": "a box"}', "new")
+
+
+def test_the_committed_devcontainer_pulls_the_committed_debug_image():
+    """The one test in here that reads the real files, because they are the ones that ship."""
+    lock = Lock.load(images.LOCKFILE)
+    said = images.DEVCONTAINER.read_text(encoding="utf-8")
+    assert images.devcontainer_problems(lock, said) == []

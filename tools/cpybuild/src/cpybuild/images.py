@@ -35,6 +35,14 @@ LOCKFILE = Path("images/cpython.lock.json")
 #: failure mode of a typo here is an image reference that pulls nothing with no explanation.
 DIGEST = re.compile(r"^sha256:[0-9a-f]{64}$")
 
+#: The devcontainer, which is the only thing outside CI that pulls one of these images.
+DEVCONTAINER = Path(".devcontainer/devcontainer.json")
+
+#: The image line in the devcontainer. That file is rewritten rather than regenerated: it has
+#: comments in it that are there for a person to read, and a generator that reprinted the whole
+#: file would either lose them or take ownership of them.
+IMAGE_LINE = re.compile(r'("image"\s*:\s*")([^"]*)(")')
+
 
 class Broken(ValueError):
     """The lockfile says something that cannot be true."""
@@ -69,8 +77,18 @@ class Lock:
     registry: str = REGISTRY
     images: dict[str, dict[str, Built]] = field(default_factory=dict)
 
+    #: The joined image for each configuration, the one a person pulls without saying which
+    #: architecture they are on. It is a separate digest rather than either half's, because
+    #: joining two architectures copies their manifests into a new index and that index is its
+    #: own object in the registry. Recorded here so the devcontainer can name it and so the
+    #: tidy up knows not to delete it.
+    indexes: dict[str, Built] = field(default_factory=dict)
+
     def get(self, config: str, arch: str) -> Built | None:
         return self.images.get(config, {}).get(arch)
+
+    def index(self, config: str) -> Built | None:
+        return self.indexes.get(config)
 
     def reference(self, config: str, arch: str) -> str:
         """What to write in a workflow or a devcontainer, which is never a bare tag."""
@@ -79,10 +97,20 @@ class Lock:
             raise Broken(f"no {config} image for {arch} in the lockfile")
         return f"{self.registry}:{config}@{found.digest}"
 
+    def reference_index(self, config: str) -> str:
+        """What a devcontainer names: one reference that works on either architecture."""
+        found = self.index(config)
+        if found is None:
+            raise Broken(f"no joined {config} image in the lockfile")
+        return f"{self.registry}:{config}@{found.digest}"
+
     def record(self, config: str, arch: str, digest: str, size: int = 0) -> None:
         self.images.setdefault(config, {})[arch] = Built(
             digest=digest, built=date.today().isoformat(), size=size
         )
+
+    def record_index(self, config: str, digest: str, size: int = 0) -> None:
+        self.indexes[config] = Built(digest=digest, built=date.today().isoformat(), size=size)
 
     def as_json(self) -> str:
         body = {
@@ -93,6 +121,7 @@ class Lock:
                 name: {arch: one.as_dict() for arch, one in sorted(builds.items())}
                 for name, builds in sorted(self.images.items())
             },
+            "indexes": {name: one.as_dict() for name, one in sorted(self.indexes.items())},
         }
         return json.dumps(body, indent=2) + "\n"
 
@@ -107,6 +136,7 @@ class Lock:
                 name: {arch: Built.from_dict(one) for arch, one in builds.items()}
                 for name, builds in body.get("images", {}).items()
             },
+            indexes={name: Built.from_dict(one) for name, one in body.get("indexes", {}).items()},
         )
 
     @classmethod
@@ -121,8 +151,13 @@ class Lock:
 
 
 def digests(lock: Lock) -> set[str]:
-    """Every digest one lockfile refers to."""
-    return {one.digest for builds in lock.images.values() for one in builds.values()}
+    """Every digest one lockfile refers to, the joined images included.
+
+    The joined ones matter as much as the halves here, because this set is what the tidy up
+    is not allowed to delete and the joined image is the one a reader pulls.
+    """
+    found = {one.digest for builds in lock.images.values() for one in builds.values()}
+    return found | {one.digest for one in lock.indexes.values()}
 
 
 def _from_git(revision: str, path: str = str(LOCKFILE)) -> str | None:
@@ -194,7 +229,49 @@ def problems(lock: Lock) -> list[str]:
                 found.append(f"no {one.key} image for {arch}")
             elif not DIGEST.match(built.digest):
                 found.append(f"{one.key} on {arch} has a digest that is not one: {built.digest}")
-    extra = set(lock.images) - {one.key for one in CONFIGURATIONS}
-    for name in sorted(extra):
+    for one in CONFIGURATIONS:
+        joined = lock.index(one.key)
+        if joined is None:
+            found.append(f"no joined {one.key} image, so nothing can pull it without an arch")
+        elif not DIGEST.match(joined.digest):
+            found.append(f"the joined {one.key} image has a digest that is not one")
+    known = {one.key for one in CONFIGURATIONS}
+    for name in sorted((set(lock.images) | set(lock.indexes)) - known):
         found.append(f"{name} is in the lockfile and not in the configuration list")
     return found
+
+
+def image_in(text: str) -> str:
+    """Which image a devcontainer file names."""
+    found = IMAGE_LINE.search(text)
+    if found is None:
+        raise Broken("the devcontainer names no image")
+    return found.group(2)
+
+
+def retarget(text: str, reference: str) -> str:
+    """The same devcontainer file, pointed at another image.
+
+    A replacement rather than a rewrite, so the comments in that file survive the weekly
+    rebuild moving a digest under them.
+    """
+    if IMAGE_LINE.search(text) is None:
+        raise Broken("the devcontainer names no image")
+    return IMAGE_LINE.sub(lambda found: found.group(1) + reference + found.group(3), text, count=1)
+
+
+def devcontainer_problems(lock: Lock, text: str, config: str = "debug") -> list[str]:
+    """Whether the devcontainer still points at the image the lockfile describes.
+
+    The two files are updated by the same job and drift the moment somebody edits one of them
+    by hand, and the way that drift shows up otherwise is a reader spending an evening in an
+    interpreter that is a month older than everything the lessons say about it.
+    """
+    try:
+        named = image_in(text)
+        wanted = lock.reference_index(config)
+    except Broken as error:
+        return [str(error)]
+    if named != wanted:
+        return [f"the devcontainer pulls {named} and the lockfile says {wanted}"]
+    return []

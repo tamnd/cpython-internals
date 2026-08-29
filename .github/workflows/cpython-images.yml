@@ -203,7 +203,15 @@ jobs:
                 "${name}:${config}-${arch}" | uv run python -c "import json,sys; print(json.load(sys.stdin)['digest'])")
               uv run cpybuild record "${config}" "${arch}" "${digest}"
             done
+            # And the joined index, which is a third object with a digest of its own. Joining
+            # copies the two halves into a new manifest, so neither digest above appears in it
+            # and neither of them is what a person should pull. This is the one the
+            # devcontainer names, and recording it is also what stops the tidy up deleting it.
+            joined=$(docker buildx imagetools inspect --format '{{json .Manifest}}' \
+              "${name}:${config}" | uv run python -c "import json,sys; print(json.load(sys.stdin)['digest'])")
+            uv run cpybuild record-index "${config}" "${joined}"
           done
+          uv run cpybuild devcontainer --write
           uv run cpybuild check
 
       # The lockfile is a generated file that has to be committed, the same way the citation
@@ -224,6 +232,9 @@ jobs:
             The weekly image rebuild finished and these are the digests it produced. The
             CPython commit has not moved, so any change in here is the Debian base image
             underneath: a patched OpenSSL, a new libc, that sort of thing.
+
+            The devcontainer moves with the lockfile, because it names the debug image by
+            digest and a reader opening it should get the interpreter that was built today.
 
             Worth a look at the run before merging. If a configuration failed, its digest in
             here is the old one and the run is red rather than this pull request.

@@ -195,6 +195,22 @@ jobs:
       # skip here and run in the citations job, which is the one with the tree.
       - run: uv run pytest tools/bpc/tests
 
+  # The lockfile and the devcontainer, read rather than pulled. Nothing here touches the
+  # registry: what this catches is the lockfile falling behind the pin, a build somebody added
+  # with no image, and a devcontainer pointing at a digest the lockfile no longer names. The
+  # images themselves are built and proved by the cpython-images workflow, which is the only
+  # thing in this repository that compiles CPython.
+  images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - run: uv run pytest tools/cpybuild/tests
+      - run: uv run cpybuild check
+
   animations:
     runs-on: ubuntu-latest
     steps:

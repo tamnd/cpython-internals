@@ -13,7 +13,10 @@ thing and nothing else.
     cpybuild proof debug                a program that fails unless the image is that build
     cpybuild check                      is the committed lockfile complete and on the pin
     cpybuild reference debug --arch amd64
+    cpybuild reference debug --joined   the one reference that works on either architecture
     cpybuild record debug amd64 sha256:...
+    cpybuild record-index debug sha256:...
+    cpybuild devcontainer --write       point the devcontainer at the lockfile's debug image
     cpybuild protected                  digests the tidy up is not allowed to delete
     cpybuild prune --versions v.json --protected p.txt   version ids that can be deleted
 """
@@ -29,7 +32,18 @@ from refcheck import PINNED_COMMIT, PINNED_TAG
 
 from . import retention
 from .configs import ARCHITECTURES, BY_KEY, CONFIGURATIONS, matrix, packages
-from .images import LOCKFILE, Broken, Lock, digests, problems, protected
+from .images import (
+    DEVCONTAINER,
+    DIGEST,
+    LOCKFILE,
+    Broken,
+    Lock,
+    devcontainer_problems,
+    digests,
+    problems,
+    protected,
+    retarget,
+)
 
 
 def _list(args: argparse.Namespace) -> int:
@@ -124,6 +138,17 @@ def _check(args: argparse.Namespace) -> int:
     found = problems(lock)
     total = len(CONFIGURATIONS) * len(ARCHITECTURES)
     print(f"{total} images from CPython {lock.tag} at {lock.commit[:12]}")
+
+    # The devcontainer is checked here rather than in a recipe of its own because it is the
+    # same question: does what somebody pulls still match what was built. It is skipped when
+    # the file is absent so this stays usable in a checkout that has not got one.
+    where = Path(args.devcontainer)
+    if where.is_file():
+        said = devcontainer_problems(lock, where.read_text(encoding="utf-8"))
+        found = found + said
+        if not said:
+            print(f"{where} pulls the debug build by digest")
+
     for one in found:
         print(f"  {one}", file=sys.stderr)
     return 1 if found else 0
@@ -132,10 +157,36 @@ def _check(args: argparse.Namespace) -> int:
 def _reference(args: argparse.Namespace) -> int:
     lock = Lock.load(Path(args.lockfile))
     try:
-        print(lock.reference(args.config, args.arch))
+        if args.joined:
+            print(lock.reference_index(args.config))
+        else:
+            print(lock.reference(args.config, args.arch))
     except Broken as error:
         print(str(error), file=sys.stderr)
         return 1
+    return 0
+
+
+def _devcontainer(args: argparse.Namespace) -> int:
+    """Print the reference the devcontainer should name, or write it into the file.
+
+    The workflow runs this with `--write` in the same step that records the digests, so the
+    pull request that moves the lockfile moves the devcontainer with it and neither can be
+    left behind.
+    """
+    lock = Lock.load(Path(args.lockfile))
+    where = Path(args.devcontainer)
+    try:
+        wanted = lock.reference_index(args.config)
+    except Broken as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    if not args.write:
+        print(wanted)
+        return 0
+    body = where.read_text(encoding="utf-8")
+    where.write_text(retarget(body, wanted), encoding="utf-8")
+    print(f"{where}: {wanted}")
     return 0
 
 
@@ -175,7 +226,22 @@ def _prune(args: argparse.Namespace) -> int:
     return 0
 
 
+def _refuse_a_tag(digest: str) -> bool:
+    """Whether what the workflow handed us is a digest at all.
+
+    Checked here rather than only in `check`, because the thing that goes wrong is a build
+    step printing a tag or an error message into a variable, and a lockfile that took it is a
+    lockfile somebody has to go and repair by hand later.
+    """
+    if DIGEST.match(digest):
+        return False
+    print(f"{digest} is not a digest, so it is not going in the lockfile", file=sys.stderr)
+    return True
+
+
 def _record(args: argparse.Namespace) -> int:
+    if _refuse_a_tag(args.digest):
+        return 1
     path = Path(args.lockfile)
     lock = Lock.load(path) if path.is_file() else Lock()
     lock.record(args.config, args.arch, args.digest, size=args.size)
@@ -184,9 +250,23 @@ def _record(args: argparse.Namespace) -> int:
     return 0
 
 
+def _record_index(args: argparse.Namespace) -> int:
+    if _refuse_a_tag(args.digest):
+        return 1
+    path = Path(args.lockfile)
+    lock = Lock.load(path) if path.is_file() else Lock()
+    lock.record_index(args.config, args.digest, size=args.size)
+    lock.write(path)
+    print(f"{path}: the joined {args.config} image is {args.digest}")
+    return 0
+
+
 def build() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="cpybuild", description=__doc__)
     parser.add_argument("--lockfile", default=str(LOCKFILE), help="where the lockfile lives")
+    parser.add_argument(
+        "--devcontainer", default=str(DEVCONTAINER), help="where the devcontainer lives"
+    )
     subs = parser.add_subparsers(dest="command", required=True)
 
     named = subs.add_parser("list", help="the five builds and what each is for")
@@ -217,7 +297,15 @@ def build() -> argparse.ArgumentParser:
     named_ref = subs.add_parser("reference", help="the digest reference for one image")
     named_ref.add_argument("config", choices=sorted(BY_KEY))
     named_ref.add_argument("--arch", choices=ARCHITECTURES, default="amd64")
+    named_ref.add_argument(
+        "--joined", action="store_true", help="the multi architecture image rather than a half"
+    )
     named_ref.set_defaults(handler=_reference)
+
+    box = subs.add_parser("devcontainer", help="the image the devcontainer should pull")
+    box.add_argument("config", nargs="?", default="debug", choices=sorted(BY_KEY))
+    box.add_argument("--write", action="store_true", help="put it in the file")
+    box.set_defaults(handler=_devcontainer)
 
     safe = subs.add_parser("protected", help="digests the tidy up must not delete")
     safe.set_defaults(handler=_protected)
@@ -234,6 +322,12 @@ def build() -> argparse.ArgumentParser:
     kept.add_argument("digest")
     kept.add_argument("--size", type=int, default=0, help="compressed bytes, for the table")
     kept.set_defaults(handler=_record)
+
+    joined = subs.add_parser("record-index", help="put a joined digest in the lockfile")
+    joined.add_argument("config", choices=sorted(BY_KEY))
+    joined.add_argument("digest")
+    joined.add_argument("--size", type=int, default=0, help="compressed bytes, for the table")
+    joined.set_defaults(handler=_record_index)
 
     return parser
 
