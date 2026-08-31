@@ -1410,10 +1410,45 @@
       "first_line": "/* JUMPBY makes the generator identify the instruction as a jump. SKIP_OVER is",
       "lines": 6
     },
+    "Python/codegen.c:3101-3113@v3.15.0rc1": {
+      "digest": "5f861ef490e10a9e",
+      "first_line": "case Assign_kind:",
+      "lines": 13
+    },
+    "Python/codegen.c:3280-3293@v3.15.0rc1": {
+      "digest": "8a5e76bbfffe0ea3",
+      "first_line": "static int",
+      "lines": 14
+    },
     "Python/codegen.c:3281-3300@v3.15.0rc1": {
       "digest": "84adbc4d62605d1b",
       "first_line": "codegen_nameop(compiler *c, location loc,",
       "lines": 20
+    },
+    "Python/codegen.c:3293-3293@v3.15.0rc1": {
+      "digest": "d11cabb9c0523fcd",
+      "first_line": "int scope = _PyST_GetScope(SYMTABLE_ENTRY(c), mangled);",
+      "lines": 1
+    },
+    "Python/codegen.c:3387-3413@v3.15.0rc1": {
+      "digest": "c2ef29d7dde0ed98",
+      "first_line": "static int",
+      "lines": 27
+    },
+    "Python/codegen.c:3650-3687@v3.15.0rc1": {
+      "digest": "6fc416080b86f101",
+      "first_line": "codegen_compare(compiler *c, expr_ty e)",
+      "lines": 38
+    },
+    "Python/codegen.c:5375-5382@v3.15.0rc1": {
+      "digest": "66363f12d5aa50a7",
+      "first_line": "static int",
+      "lines": 8
+    },
+    "Python/codegen.c:5390-5394@v3.15.0rc1": {
+      "digest": "03ed5151b82d6617",
+      "first_line": "case BinOp_kind:",
+      "lines": 5
     },
     "Python/codegen.c:894-897@v3.15.0rc1": {
       "digest": "8b917b6660187af0",
@@ -1444,6 +1479,11 @@
       "digest": "50ec4f7c0b2ce56a",
       "first_line": "PyCodeObject *",
       "lines": 15
+    },
+    "Python/compile.c:5-13@v3.15.0rc1": {
+      "digest": "6c48e22a0eb269f2",
+      "first_line": "* PyCodeObject.  The compiler makes several passes to build the code",
+      "lines": 9
     },
     "Python/compile.c:892-907@v3.15.0rc1": {
       "digest": "62dbcc2065eaa65b",

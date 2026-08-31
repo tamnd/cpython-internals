@@ -441,6 +441,25 @@ def stages(source: str, filename: str = "<pyxray>", *, optimize: int = 0) -> Sta
     )
 
 
+def innermost_codegen(source: str, filename: str = "<pyxray>") -> list[RawInstruction]:
+    """What the code generator emitted for the innermost code unit in this source.
+
+    `stages` keeps the top level sequence, which is the right answer when the source is one
+    module and the wrong one when the point being made is about a function body. The compiler
+    holds each nested unit as its own sequence hanging off the one around it, so walking in is
+    a matter of following the first nested sequence until there are none left.
+
+    This is the generator's output rather than the finished code object's, which matters: the
+    optimizer rewrites some of these instructions into specialized forms, so a disassembly is
+    not a fair picture of what this pass produced.
+    """
+    internal = _internal()
+    sequence, _metadata = internal.compiler_codegen(ast.parse(source, filename), filename, 0)
+    while nested := sequence.get_nested():
+        sequence = nested[0]
+    return _instructions(sequence)
+
+
 def assemble(*_args, **_kwargs):
     """Not in this version, and the reason is worth reading.
 

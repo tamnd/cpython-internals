@@ -346,3 +346,34 @@ def test_two_of_three_functions_names_only_the_missing_one(monkeypatch):
         compiler.stages("x = 1\n")
     assert "assemble_code_object" in str(caught.value)
     assert "compiler_codegen" not in str(caught.value)
+
+
+def test_innermost_codegen_walks_into_a_nested_function():
+    """The whole point of the helper: a function body, not the module that holds it.
+
+    `stages` would hand back the module sequence here, which is four instructions that build
+    a function object and say nothing about the addition inside it.
+    """
+    source = "def f():\n    base = 0\n    def g():\n        answer = base + 1\n    return g\n"
+    names = [one.opname for one in compiler.innermost_codegen(source)]
+    assert "BINARY_OP" in names
+    assert "LOAD_DEREF" in names
+    assert "MAKE_FUNCTION" not in names
+
+
+def test_innermost_codegen_on_a_module_is_the_module():
+    """Nothing nested means nothing to walk into, and the top level is the answer."""
+    names = [one.opname for one in compiler.innermost_codegen("answer = base + 1")]
+    assert names.count("BINARY_OP") == 1
+    assert "LOAD_NAME" in names
+
+
+def test_innermost_codegen_is_before_the_optimizer():
+    """A plain LOAD_FAST, not the borrowing form the optimizer picks on 3.15.
+
+    This is the reason the helper exists rather than a disassembly, so it is worth pinning.
+    """
+    source = "def f():\n    base = 0\n    answer = base + 1\n"
+    names = [one.opname for one in compiler.innermost_codegen(source)]
+    assert "LOAD_FAST" in names
+    assert not any(name.startswith("LOAD_FAST_") for name in names)
