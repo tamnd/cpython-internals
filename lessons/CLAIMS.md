@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-191 claims across 19 lessons, 19 of them not observable from Python.
+197 claims across 20 lessons, 19 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -85,6 +85,17 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a soft keyword can be a keyword and an ordinary variable name in the same file, and a reserved word cannot | [`f03-12`](f03-the-parser-nobody-wrote/f03.ipynb) |
 | the wording of a syntax error is written in the grammar file, and code that no invalid_ rule matches falls back to a generic message | [`f03-15`](f03-the-parser-nobody-wrote/f03.ipynb) |
 | the node types you see from the ast module are named directly in the grammar's actions | [`f03-17`](f03-the-parser-nobody-wrote/f03.ipynb) |
+
+## F04. The tree is generated too
+
+| Claim | Proved by |
+| --- | --- |
+| the _fields tuple on a node class is the field list from the schema, in the order the schema wrote it | [`f04-07`](f04-the-tree-is-generated-too/f04.ipynb) |
+| position information is declared once per family in the schema, so a node either has all four position attributes or none of them | [`f04-09`](f04-the-tree-is-generated-too/f04.ipynb) |
+| the abstract base classes in the ast module are exactly the sum types in the schema, and the classes with no subclasses are the products | [`f04-11`](f04-the-tree-is-generated-too/f04.ipynb) |
+| an optional field arrives as None and a sequence field arrives as an empty list, whether or not you wrote anything for it | [`f04-13`](f04-the-tree-is-generated-too/f04.ipynb) |
+| the tree keeps meaning and drops spelling, so parsing and unparsing is not a round trip | [`f04-15`](f04-the-tree-is-generated-too/f04.ipynb) |
+| a hand built tree is checked in C before the compiler sees it, and the two kinds of complaint come from two different places | [`f04-17`](f04-the-tree-is-generated-too/f04.ipynb) |
 
 ## T01. One line, seven stages
 
