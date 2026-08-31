@@ -385,7 +385,7 @@ And when a process dies with no traceback at all, that same file gets you the Py
 
 ## Where this goes next
 
-B03 is the test suite, which is the other thing a build gives you. CPython ships about six hundred thousand lines of tests, and knowing how to run one of them against a change you made is what turns reading this material into being able to alter CPython.
+B03 is the test suite, which is the other thing a build gives you. CPython ships about seven hundred thousand lines of tests, and knowing how to run one of them against a change you made is what turns reading this material into being able to alter CPython.
 """)
 
 

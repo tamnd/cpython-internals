@@ -793,6 +793,60 @@ DEBUGGING = Group(
     ),
 )
 
+
+TESTING = Group(
+    "Checking that it still works",
+    "The words for CPython's own test suite. It is twice the size of the library it tests, it is ordinary unittest underneath, and the rest is what it takes to run four hundred files in a row without one of them spoiling the next.",
+    (
+        Term(
+            name="regrtest",
+            short="The runner CPython uses on its own test suite.",
+            long="A layer on top of unittest that knows how to find test files in a directory, run each one in its own process, put a time limit on it, check the environment came back the way it was found, and hunt reference leaks. `python -m test` is how you start it. For one test file none of that matters and plain unittest does the same job.",
+            cite="Lib/test/libregrtest/main.py:793-796@v3.15.0rc1#main",
+            also=("`python -m test`", "`Lib/test/regrtest.py`"),
+            see=("test case", "reference leak"),
+            met="B03",
+        ),
+        Term(
+            name="test case",
+            short="One method on a unittest.TestCase subclass, whose name starts with test.",
+            long="The unit everything else counts. A file holds several classes, a class holds several of these, and the dotted name of one, like `test.test_dis.DisTests.test_widths`, is what `-m` and `--list-cases` work in. Failing one prints FAIL, raising anything else prints ERROR, and the difference is worth knowing when you are reading a wall of them.",
+            cite="Lib/unittest/case.py:393@v3.15.0rc1#TestCase",
+            also=("`assertEqual`", "test method"),
+            see=("regrtest",),
+            met="B03",
+        ),
+        Term(
+            name="reference leak",
+            short="An object the interpreter can no longer reach and will never free.",
+            long="Not a crash and not a failing test. The test passes, the memory stays, and the only sign is that the process holds a few more references after the test than before. Almost always a bug in C code that forgot a decref. Found by running a test several times over on a debug build and watching `sys.gettotalrefcount()`, which is what the `-R` flag does.",
+            cite="Lib/test/libregrtest/refleak.py:196-209@v3.15.0rc1#check_rc_deltas",
+            also=("`-R 3:3`", "refleak"),
+            see=("reference count", "debug build"),
+            met="B03",
+        ),
+        Term(
+            name="environment changed",
+            short="A test that passed and left something different behind it.",
+            long="regrtest takes a copy of 28 things before each test file, from `os.environ` and `sys.path` down to whether your terminal still echoes, and compares afterwards. A mismatch is exit code 3, or a failure with `--fail-env-changed`. It matters because the files run in a random order in one process, so an untidy test breaks a different test on a different machine a week later.",
+            cite="Lib/test/libregrtest/save_env.py:62-76@v3.15.0rc1#resources",
+            also=("`--fail-env-changed`",),
+            see=("regrtest",),
+            met="B03",
+        ),
+        Term(
+            name="resource",
+            short="Something a test needs that the runner will not use unless told.",
+            long="Network access, audio devices, large temporary files, anything slow or intrusive. A test asks for one with `@support.requires_resource('network')` and is skipped unless the run was started with `-u network`, or `-u all`. This is why a clean local run and a buildbot run do not cover the same tests.",
+            cite="Lib/test/support/__init__.py:1354-1360@v3.15.0rc1#requires_resource",
+            also=("`-u all`", "`requires_resource`"),
+            see=("regrtest",),
+            met="B03",
+        ),
+    ),
+)
+
+
 #: The groups, in the order a reader meets them, which is also the order of the lessons.
 GROUPS: tuple[Group, ...] = (
     READING,
@@ -804,6 +858,7 @@ GROUPS: tuple[Group, ...] = (
     MEMORY,
     BUILDING,
     DEBUGGING,
+    TESTING,
 )
 
 #: Every term, flattened.

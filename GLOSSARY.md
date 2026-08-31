@@ -8,7 +8,7 @@ This file is generated from `pyxray/src/pyxray/glossary.py`. Edit that and run `
 
 ## Index
 
-[ASDL](#asdl) | [Argument Clinic](#argument-clinic) | [EXTENDED_ARG](#extended_arg) | [JIT](#jit) | [PEG parser](#peg-parser) | [Pyodide](#pyodide) | [WebAssembly](#webassembly) | [abstract syntax tree](#abstract-syntax-tree) | [adaptive instruction](#adaptive-instruction) | [arena](#arena) | [assembler](#assembler) | [backtrace](#backtrace) | [basic block](#basic-block) | [binding](#binding) | [block](#block) | [borrowed reference](#borrowed-reference) | [bytecode](#bytecode) | [cell](#cell) | [closure](#closure) | [code generation](#code-generation) | [code object](#code-object) | [computed goto](#computed-goto) | [configure](#configure) | [constant folding](#constant-folding) | [control flow graph](#control-flow-graph) | [cycle collector](#cycle-collector) | [deallocation](#deallocation) | [debug build](#debug-build) | [deoptimization](#deoptimization) | [dispatch](#dispatch) | [eval loop](#eval-loop) | [exception table](#exception-table) | [finalizer](#finalizer) | [frame](#frame) | [free threaded build](#free-threaded-build) | [free variable](#free-variable) | [gdb](#gdb) | [generated file](#generated-file) | [generation](#generation) | [grammar](#grammar) | [header file](#header-file) | [immortal object](#immortal-object) | [indent and dedent](#indent-and-dedent) | [inline cache](#inline-cache) | [instance dictionary](#instance-dictionary) | [instruction](#instruction) | [interning](#interning) | [line table](#line-table) | [monitoring events](#monitoring-events) | [new reference](#new-reference) | [object](#object) | [object header](#object-header) | [obmalloc](#obmalloc) | [oparg](#oparg) | [opcode](#opcode) | [pdb](#pdb) | [pointer](#pointer) | [pool](#pool) | [profile guided optimization](#profile-guided-optimization) | [pseudo instruction](#pseudo-instruction) | [pyconfig](#pyconfig) | [reference count](#reference-count) | [reference cycle](#reference-cycle) | [scope](#scope) | [segmentation fault](#segmentation-fault) | [small integer cache](#small-integer-cache) | [specialization](#specialization) | [stack effect](#stack-effect) | [stolen reference](#stolen-reference) | [struct](#struct) | [symbol table](#symbol-table) | [tier one](#tier-one) | [tier two](#tier-two) | [token](#token) | [tokenizer](#tokenizer) | [trace function](#trace-function) | [type object](#type-object) | [value stack](#value-stack) | [weak reference](#weak-reference)
+[ASDL](#asdl) | [Argument Clinic](#argument-clinic) | [EXTENDED_ARG](#extended_arg) | [JIT](#jit) | [PEG parser](#peg-parser) | [Pyodide](#pyodide) | [WebAssembly](#webassembly) | [abstract syntax tree](#abstract-syntax-tree) | [adaptive instruction](#adaptive-instruction) | [arena](#arena) | [assembler](#assembler) | [backtrace](#backtrace) | [basic block](#basic-block) | [binding](#binding) | [block](#block) | [borrowed reference](#borrowed-reference) | [bytecode](#bytecode) | [cell](#cell) | [closure](#closure) | [code generation](#code-generation) | [code object](#code-object) | [computed goto](#computed-goto) | [configure](#configure) | [constant folding](#constant-folding) | [control flow graph](#control-flow-graph) | [cycle collector](#cycle-collector) | [deallocation](#deallocation) | [debug build](#debug-build) | [deoptimization](#deoptimization) | [dispatch](#dispatch) | [environment changed](#environment-changed) | [eval loop](#eval-loop) | [exception table](#exception-table) | [finalizer](#finalizer) | [frame](#frame) | [free threaded build](#free-threaded-build) | [free variable](#free-variable) | [gdb](#gdb) | [generated file](#generated-file) | [generation](#generation) | [grammar](#grammar) | [header file](#header-file) | [immortal object](#immortal-object) | [indent and dedent](#indent-and-dedent) | [inline cache](#inline-cache) | [instance dictionary](#instance-dictionary) | [instruction](#instruction) | [interning](#interning) | [line table](#line-table) | [monitoring events](#monitoring-events) | [new reference](#new-reference) | [object](#object) | [object header](#object-header) | [obmalloc](#obmalloc) | [oparg](#oparg) | [opcode](#opcode) | [pdb](#pdb) | [pointer](#pointer) | [pool](#pool) | [profile guided optimization](#profile-guided-optimization) | [pseudo instruction](#pseudo-instruction) | [pyconfig](#pyconfig) | [reference count](#reference-count) | [reference cycle](#reference-cycle) | [reference leak](#reference-leak) | [regrtest](#regrtest) | [resource](#resource) | [scope](#scope) | [segmentation fault](#segmentation-fault) | [small integer cache](#small-integer-cache) | [specialization](#specialization) | [stack effect](#stack-effect) | [stolen reference](#stolen-reference) | [struct](#struct) | [symbol table](#symbol-table) | [test case](#test-case) | [tier one](#tier-one) | [tier two](#tier-two) | [token](#token) | [tokenizer](#tokenizer) | [trace function](#trace-function) | [type object](#type-object) | [value stack](#value-stack) | [weak reference](#weak-reference)
 
 ## Reading the source
 
@@ -677,3 +677,47 @@ Also written `bt`, stack trace. First met in B02. See also [gdb](#gdb), [frame](
 Not an exception. There is no interpreter left to build one, nothing is printed, and `try` and `except` never see it. You reach one through `ctypes` or through a C extension with a bug in it. A debugger attached to the corpse is the only thing that will tell you which line of Python was responsible, which is what `py-bt` is for.
 
 Also written SIGSEGV, segfault. First met in B02. See also [gdb](#gdb), [backtrace](#backtrace).
+
+## Checking that it still works
+
+The words for CPython's own test suite. It is twice the size of the library it tests, it is ordinary unittest underneath, and the rest is what it takes to run four hundred files in a row without one of them spoiling the next.
+
+### regrtest
+
+**The runner CPython uses on its own test suite.**
+
+A layer on top of unittest that knows how to find test files in a directory, run each one in its own process, put a time limit on it, check the environment came back the way it was found, and hunt reference leaks. `python -m test` is how you start it. For one test file none of that matters and plain unittest does the same job.
+
+Also written `python -m test`, `Lib/test/regrtest.py`. First met in B03. See also [test case](#test-case), [reference leak](#reference-leak). In the source: [`Lib/test/libregrtest/main.py:793-796@v3.15.0rc1#main`](https://github.com/python/cpython/blob/v3.15.0rc1/Lib/test/libregrtest/main.py#L793-L796).
+
+### test case
+
+**One method on a unittest.TestCase subclass, whose name starts with test.**
+
+The unit everything else counts. A file holds several classes, a class holds several of these, and the dotted name of one, like `test.test_dis.DisTests.test_widths`, is what `-m` and `--list-cases` work in. Failing one prints FAIL, raising anything else prints ERROR, and the difference is worth knowing when you are reading a wall of them.
+
+Also written `assertEqual`, test method. First met in B03. See also [regrtest](#regrtest). In the source: [`Lib/unittest/case.py:393@v3.15.0rc1#TestCase`](https://github.com/python/cpython/blob/v3.15.0rc1/Lib/unittest/case.py#L393).
+
+### reference leak
+
+**An object the interpreter can no longer reach and will never free.**
+
+Not a crash and not a failing test. The test passes, the memory stays, and the only sign is that the process holds a few more references after the test than before. Almost always a bug in C code that forgot a decref. Found by running a test several times over on a debug build and watching `sys.gettotalrefcount()`, which is what the `-R` flag does.
+
+Also written `-R 3:3`, refleak. First met in B03. See also [reference count](#reference-count), [debug build](#debug-build). In the source: [`Lib/test/libregrtest/refleak.py:196-209@v3.15.0rc1#check_rc_deltas`](https://github.com/python/cpython/blob/v3.15.0rc1/Lib/test/libregrtest/refleak.py#L196-L209).
+
+### environment changed
+
+**A test that passed and left something different behind it.**
+
+regrtest takes a copy of 28 things before each test file, from `os.environ` and `sys.path` down to whether your terminal still echoes, and compares afterwards. A mismatch is exit code 3, or a failure with `--fail-env-changed`. It matters because the files run in a random order in one process, so an untidy test breaks a different test on a different machine a week later.
+
+Also written `--fail-env-changed`. First met in B03. See also [regrtest](#regrtest). In the source: [`Lib/test/libregrtest/save_env.py:62-76@v3.15.0rc1#resources`](https://github.com/python/cpython/blob/v3.15.0rc1/Lib/test/libregrtest/save_env.py#L62-L76).
+
+### resource
+
+**Something a test needs that the runner will not use unless told.**
+
+Network access, audio devices, large temporary files, anything slow or intrusive. A test asks for one with `@support.requires_resource('network')` and is skipped unless the run was started with `-u network`, or `-u all`. This is why a clean local run and a buildbot run do not cover the same tests.
+
+Also written `-u all`, `requires_resource`. First met in B03. See also [regrtest](#regrtest). In the source: [`Lib/test/support/__init__.py:1354-1360@v3.15.0rc1#requires_resource`](https://github.com/python/cpython/blob/v3.15.0rc1/Lib/test/support/__init__.py#L1354-L1360).
