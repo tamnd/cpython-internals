@@ -600,6 +600,11 @@
       "first_line": "PyNumber_Multiply(PyObject *v, PyObject *w)",
       "lines": 1
     },
+    "Objects/classobject.c:64-84@v3.15.0rc1": {
+      "digest": "bb82668b374833eb",
+      "first_line": "PyObject *",
+      "lines": 21
+    },
     "Objects/clinic/listobject.c.h:1-3@v3.15.0rc1": {
       "digest": "3e8ec84ffbf9f1e1",
       "first_line": "/*[clinic input]",
@@ -644,6 +649,66 @@
       "digest": "0bdba2c917b75359",
       "first_line": "int",
       "lines": 5
+    },
+    "Objects/descrobject.c:137-160@v3.15.0rc1": {
+      "digest": "1026e33b396ad845",
+      "first_line": "static PyObject *",
+      "lines": 24
+    },
+    "Objects/descrobject.c:163-181@v3.15.0rc1": {
+      "digest": "822311e554d7bab8",
+      "first_line": "member_get(PyObject *self, PyObject *obj, PyObject *type)",
+      "lines": 19
+    },
+    "Objects/descrobject.c:1685-1718@v3.15.0rc1": {
+      "digest": "b15e3a6673c9087b",
+      "first_line": "property_descr_get(PyObject *self, PyObject *obj, PyObject *type)",
+      "lines": 34
+    },
+    "Objects/descrobject.c:1720-1755@v3.15.0rc1": {
+      "digest": "fe21cc3e01f1ce44",
+      "first_line": "static int",
+      "lines": 36
+    },
+    "Objects/descrobject.c:183-201@v3.15.0rc1": {
+      "digest": "135f0037da281aac",
+      "first_line": "static PyObject *",
+      "lines": 19
+    },
+    "Objects/descrobject.c:203-214@v3.15.0rc1": {
+      "digest": "f4d5b429346acb28",
+      "first_line": "static PyObject *",
+      "lines": 12
+    },
+    "Objects/descrobject.c:216-240@v3.15.0rc1": {
+      "digest": "02bee99884323ef9",
+      "first_line": "static int",
+      "lines": 25
+    },
+    "Objects/descrobject.c:794-828@v3.15.0rc1": {
+      "digest": "f10efe24da69b92e",
+      "first_line": "PyTypeObject PyMemberDescr_Type = {",
+      "lines": 35
+    },
+    "Objects/descrobject.c:94-130@v3.15.0rc1": {
+      "digest": "bc66e218dea859cc",
+      "first_line": "static PyObject *",
+      "lines": 37
+    },
+    "Objects/funcobject.c:1264-1270@v3.15.0rc1": {
+      "digest": "991dc84999f49f93",
+      "first_line": "func_descr_get(PyObject *func, PyObject *obj, PyObject *type)",
+      "lines": 7
+    },
+    "Objects/funcobject.c:1530-1537@v3.15.0rc1": {
+      "digest": "760d452e18210a9c",
+      "first_line": "static PyObject *",
+      "lines": 8
+    },
+    "Objects/funcobject.c:1794-1799@v3.15.0rc1": {
+      "digest": "edc1441a5461c263",
+      "first_line": "static PyObject *",
+      "lines": 6
     },
     "Objects/listobject.c:103-134@v3.15.0rc1": {
       "digest": "779a7953df231c11",
@@ -774,6 +839,11 @@
       "digest": "9e6a8d9ad5b83628",
       "first_line": "dict. */",
       "lines": 10
+    },
+    "Objects/typeobject.c:12274-12308@v3.15.0rc1": {
+      "digest": "221dabb2a1f5ee99",
+      "first_line": "static int",
+      "lines": 35
     },
     "Objects/typeobject.c:12456-12470@v3.15.0rc1": {
       "digest": "b3eb73a5e54ec845",
