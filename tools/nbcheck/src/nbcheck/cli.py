@@ -11,6 +11,8 @@ import argparse
 import sys
 from pathlib import Path
 
+from .blocks import measurements
+from .blocks import problems as shape_problems
 from .notebook import NotebookError, find, load
 from .rules import check
 from .run import execute
@@ -41,6 +43,36 @@ def command_lint(args) -> int:
     for problem in problems:
         print(problem, file=sys.stderr)
     print(f"{len(notebooks)} notebook(s): {len(problems)} problem(s)")
+    return 1 if problems else 0
+
+
+def command_blocks(args) -> int:
+    """Measure every lesson against the shape and the caps in the authoring guide.
+
+    This prints the three numbers for every lesson whether or not anything is wrong, because
+    the useful thing to know while writing is how much room is left, and a check that only
+    speaks up at the moment you have gone over tells you that too late.
+    """
+    notebooks = find(_roots(args))
+    if not notebooks:
+        print("no notebooks found", file=sys.stderr)
+        return 0
+
+    problems = []
+    print(f"{'lesson':40} {'hook':>6} {'tour':>6} {'lesson':>7}")
+    for path in notebooks:
+        try:
+            book = load(path)
+        except NotebookError as error:
+            print(error, file=sys.stderr)
+            return 1
+        sizes = measurements(book)
+        print(f"{path.parent.name:40} {sizes['hook']:6} {sizes['tour']:6} {sizes['lesson']:7}")
+        problems.extend(f"{path}: {one}" for one in shape_problems(book, path))
+
+    for problem in problems:
+        print(problem, file=sys.stderr)
+    print(f"{len(notebooks)} lesson(s): {len(problems)} problem(s)")
     return 1 if problems else 0
 
 
@@ -77,6 +109,10 @@ def build_parser() -> argparse.ArgumentParser:
         help="the repository root, used to work out what the Colab badge should point at",
     )
     lint.set_defaults(func=command_lint)
+
+    shape = sub.add_parser("blocks", help="the nine blocks, in order, within the word caps")
+    shape.add_argument("paths", nargs="*", help=f"defaults to {' '.join(DEFAULT_ROOTS)}")
+    shape.set_defaults(func=command_blocks)
 
     run = sub.add_parser("run", help="execute every cell and fail on the first cell that raises")
     run.add_argument("paths", nargs="*", help=f"defaults to {' '.join(DEFAULT_ROOTS)}")

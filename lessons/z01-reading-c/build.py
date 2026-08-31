@@ -28,15 +28,15 @@ lesson.md(f"""
 
 {badge}
 
-Every lesson in this material points at CPython's own source, and CPython is written in C. If you have never read C, those links are a wall, and this lesson is about getting over it.
+Every lesson here points at CPython's source, which is written in C. If you have never read C those links are a wall, and this lesson gets you over it.
 
 {figure("where-we-are", "the eight stages of the pipeline with none of them highlighted")}
 
-You are not going to learn C here. You are going to learn to read one specific dialect of it, the one CPython is written in, well enough to follow a function and know when you have understood it. That is a much smaller job, and it takes about an hour.
+You are not going to learn C here, only to read the dialect CPython is written in, well enough to follow a function and know when you have understood it. That is a much smaller job, about an hour.
 
-We are going to do the whole thing through one function: `list.append`. It is nine lines long, it calls two other things, and between them they use almost every idiom you will meet anywhere else in the codebase.
+We do it all through one function: `list.append`. It is nine lines long, calls two other things, and between them they use almost every idiom in the codebase.
 
-By the end you will be able to read a {term("struct")}, follow a {term("pointer")}, tell a {term("new reference")} from a {term("borrowed reference", "borrowed one")}, know what a macro is hiding, and recognise the `goto error` pattern, which looks like terrible code at first glance and is in fact the right answer.
+By the end you will read a {term("struct")}, follow a {term("pointer")}, tell a {term("new reference")} from a {term("borrowed reference", "borrowed one")}, know what a macro hides, and recognise the `goto error` pattern, which looks like terrible code and is the right answer.
 """)
 
 

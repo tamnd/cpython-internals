@@ -36,6 +36,8 @@ The house style is in `spec/12-authoring-guide.md` once that lands. The short ve
 
 Write to one reader who knows Python and has never seen a struct. Say the thing, then explain it, not the other way around. Never write "simply", "just", "obviously", "of course" or "trivially", because in this material somebody will find every single thing hard. Admit what is ugly, because CPython has thirty five years of history in it and saying "this is here for a bad reason, here is the issue" teaches more than pretending everything was designed.
 
+A lesson is nine blocks in a fixed order with a word cap on three of them, and `just notebooks-lint` measures both. The blocks and the caps are listed in [lessons/README.md](lessons/README.md), and the reasoning behind the two caps that are not the authoring guide's own numbers is at the top of `tools/nbcheck/src/nbcheck/blocks.py`. If a tour will not fit under 2500 words it is usually two lessons rather than one long one, so try splitting it before asking to raise the cap.
+
 Numbers come from scripts, never from memory. If a paragraph says the small integer cache holds 1030 values, that number is interpolated from generated output rather than typed by a person.
 
 ## The 3.14 and 3.15 problem

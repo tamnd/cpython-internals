@@ -31,15 +31,15 @@ lesson.md(f"""
 
 {badge}
 
-T08 finished on the {term("reference count")}: a small number in front of every object saying how many places are holding it. This lesson is about what happens when that number reaches zero, and about the one situation where it never does.
+T08 finished on the {term("reference count")}: a small number in front of every object saying how many places hold it. This lesson is about what happens when it reaches zero, and the one case where it never does.
 
 {figure("where-we-are", "the eight stages of the pipeline with none of them highlighted")}
 
-Nothing is highlighted again, for the same reason as last time. This is not a stage of the pipeline, it is what happens to the values underneath every stage, all the time, while the pipeline runs.
+Nothing is highlighted again: this is not a stage of the pipeline, it is what happens underneath every stage while the pipeline runs.
 
-Most languages you have used have a garbage collector and you have never had to think about when it runs. Python is different in one important way: most of the freeing happens immediately, at a moment you can predict exactly, and only a small leftover case needs a collector at all. Knowing which is which is the difference between a `close()` you can rely on and one you cannot.
+Most languages hide their garbage collector and you never think about it. Python is different: most freeing happens immediately, at a moment you can predict, and only a small leftover needs a collector. That is the difference between a `close()` you can rely on and one you cannot.
 
-By the end you will be able to watch an object die, build one that refuses to, explain the trick the collector uses to tell garbage from live data, and say why freeing a big list does not make your process smaller.
+By the end you will watch an object die, build one that refuses to, explain the trick that tells garbage from live data, and say why freeing a big list does not shrink your process.
 """)
 
 
@@ -153,7 +153,7 @@ Every object carries a count of how many places are currently holding it, and {l
 lesson.md(f"""
 {figure("the-count-moves", "a table of six lines of Python and the reference count after each one")}
 
-Here is the count moving. The demo is inside a function on purpose, because at the top level of a notebook the module's own dictionary holds an extra reference to everything and every number below would be one higher.
+Here is the count moving. The demo is inside a function on purpose: at the top level of a notebook the module's own dictionary holds an extra reference to everything and every number below would be one higher.
 """)
 
 
@@ -183,21 +183,19 @@ watch()
 
 
 lesson.md(f"""
-1, 2, 3, 2, 1. When `watch` returns, `thing` goes out of scope, the count reaches zero, and the list is freed before the next statement in the notebook starts.
-
-The C behind that is very short for a piece of code the whole language rests on.
+1, 2, 3, 2, 1. When `watch` returns, `thing` goes out of scope, the count reaches zero, and the list is freed before the next statement runs. The C behind that is short for a piece of code the whole language rests on.
 
 {cite("Include/refcount.h:417-429@v3.15.0rc1#Py_DECREF")}
 
-It subtracts one, and if the result is zero it frees the object. Everything else in this lesson is a consequence of those two lines, including the gap in them, which is that neither line ever fires for two objects that are only holding each other.
+It subtracts one, and if the result is zero it frees the object. Everything else in this lesson is a consequence of those two lines, including the gap in them: neither line ever fires for two objects that are only holding each other.
 
-The immortality check at the top is the 3.14 change T08 ended on. `None`, `True`, small integers and every interned string skip the count entirely, so this function does nothing at all for a large fraction of the objects it is called on.
+The immortality check at the top is the 3.14 change T08 ended on. `None`, `True`, small integers and every interned string skip the count entirely, so this function does nothing for a large fraction of the objects it is called on.
 
 The work at zero happens in one function.
 
 {cite("Objects/object.c:3282-3300@v3.15.0rc1#_Py_Dealloc")}
 
-The comment above it is worth reading. Freeing a list frees everything in it, which can free everything in those, and a long enough chain of that is a stack overflow in the C code. CPython watches how much C stack is left and, when it gets close, puts the object on a queue to be freed later instead. That mechanism is called the trashcan, and it is the reason deleting a linked list of a million nodes does not crash the interpreter.
+The comment above it is worth reading. Freeing a list frees everything in it, which can free everything in those, and a long enough chain of that overflows the C stack. CPython watches how much stack is left and, when it gets close, queues the object to be freed later. That mechanism is called the trashcan, and it is why deleting a linked list of a million nodes does not crash the interpreter.
 
 ## Watching the moment it dies
 
@@ -269,7 +267,7 @@ timing()
 lesson.md("""
 The message lands between "bound" and "after", not at the end of the function and not at the end of the program.
 
-It is worth being clear about how much you should lean on this. It is real, and it is genuinely useful, and it is also a CPython implementation detail. PyPy and other implementations do not reference count, so the same code there frees the object at some later point of the runtime's choosing. `with` blocks exist because they make the timing part of the language instead of part of the implementation. Use `__del__` for a last resort cleanup and `with` for cleanup you actually depend on.
+It is worth being clear about how much you should lean on this. It is real and useful, and it is also a CPython implementation detail. PyPy does not reference count, so the same code there frees the object at some later point of the runtime's choosing. `with` blocks exist because they make the timing part of the language instead of part of the implementation. Use `__del__` for a last resort cleanup and `with` for cleanup you actually depend on.
 
 ## The shape counting cannot free
 """)
@@ -280,7 +278,7 @@ lesson.md(f"""
 
 Both counts start at 2, one for the name and one for the other object. Dropping both names takes each count to 1 and stops there, so {lesson.claim("two objects that hold each other keep each other's count above zero after every name to them has gone, and counting alone never frees either one")}. What does free them is the collector: {lesson.claim("running gc.collect() by hand frees a pair that dropping their names did not")}.
 
-None of this is exotic. A doubly linked list is full of {term("reference cycle", "reference cycles")}, and so is a tree whose nodes carry a parent pointer. An exception traceback holds the {term("frame")} and the frame holds the exception. A {term("closure")} that refers to the function it lives in is a cycle. Any real program makes these constantly.
+None of this is exotic. A doubly linked list is full of {term("reference cycle", "reference cycles")}, and so is a tree whose nodes carry a parent pointer. An exception traceback holds the {term("frame")} and the frame holds the exception. Any real program makes these constantly.
 """)
 
 
@@ -318,7 +316,7 @@ lesson.md(f"""
 
 {figure("two-ways-to-free", "reference counting and the cycle collector side by side")}
 
-The important row is the last one on each side. Counting cannot free a cycle, and cycles are the only reason the {term("cycle collector")} exists. If you never made one, `gc.collect()` would have nothing to do.
+The important row is the last one on each side. Counting cannot free a cycle, and cycles are the only reason the {term("cycle collector")} exists.
 
 ## How the collector actually decides
 
@@ -366,11 +364,11 @@ gc.collect()
 lesson.md(f"""
 One cycle with three members, closed into a ring. The order the names print in is the order the search finished them in rather than the direction the references run, so read it as a membership list rather than a route.
 
-`heap.cycles` hands back names rather than objects, which is a small decision worth explaining. Returning the objects would give you a fresh reference to each of them, and a tool for finding things that outlive their references should not be one of the reasons they are still here.
+`heap.cycles` hands back names rather than objects. Returning the objects would give you a fresh reference to each of them, and a tool for finding things that outlive their references should not be one of the reasons they are still here.
 
 ## `__del__` on a cycle
 
-There used to be a nasty corner here. Before Python 3.4, a cycle whose members defined `__del__` could not be collected at all, because the collector had no safe order to run the finalizers in. Those objects went on a list called `gc.garbage` and stayed there for the life of the process.
+There used to be a nasty corner here. Before Python 3.4 a cycle whose members defined `__del__` could not be collected at all, because the collector had no safe order to run the finalizers in, so those objects went on `gc.garbage` and stayed there for the life of the process.
 
 PEP 442 fixed it. Finalizers now run before anything is freed, each one exactly once, and then the collection proceeds, so {lesson.claim("a cycle whose members define __del__ is collected like any other, with every finalizer run and gc.garbage left empty")}.
 """)
@@ -400,7 +398,7 @@ Both `__del__` methods run, `gc.garbage` stays empty, and the memory comes back.
 
 {cite("Python/gc.c:1041-1074@v3.15.0rc1#finalize_garbage")}
 
-The `_PyGC_SET_FINALIZED` flag is what guarantees "exactly once". A finalizer is allowed to store `self` somewhere and bring the object back to life, and if that object dies again later the collector must not call the finalizer a second time.
+The `_PyGC_SET_FINALIZED` flag is what guarantees "exactly once". A finalizer is allowed to store `self` somewhere and bring the object back to life, and if that object dies again later the finalizer must not run again.
 
 ## Generations
 
@@ -440,13 +438,13 @@ print("what generation is 42 in?  ", heap.generation_of(42))
 lesson.md(f"""
 `(2000, 10, 10)` and then 0, 1, 2, and `None`.
 
-Read the thresholds as three different kinds of number. The first one is a count of objects: when allocations minus frees since the last pass exceeds 2000, generation 0 is examined. The other two are counts of collections: after 10 passes over generation 0, generation 1 gets a look, and after 10 of those, generation 2 does.
+Read the thresholds as two different kinds of number. The first is a count of objects: when allocations minus frees since the last pass exceeds 2000, generation 0 is examined. The other two are counts of collections: after 10 passes over generation 0, generation 1 gets a look, and after 10 of those, generation 2 does.
 
 {cite("Include/internal/pycore_interp_structs.h:271-286@v3.15.0rc1#GC_GENERATION_INIT")}
 
-The first number was 700 for many years and became 2000 in 3.13. If you have read a blog post quoting 700, that is why.
+The first number was 700 for many years and became 2000 in 3.13. A blog post quoting 700 was written before 3.13.
 
-The `None` at the end is the other half of the story. {lesson.claim("the collector does not track an object that cannot hold a reference to another object, so an integer or a string is in no generation at all")}, because a thing that cannot point at anything can never be part of a cycle. Not tracking them is the single largest thing the collector does for performance, since it removes most of the objects in a typical program from consideration entirely.
+The `None` at the end is the other half of the story. {lesson.claim("the collector does not track an object that cannot hold a reference to another object, so an integer or a string is in no generation at all")}, because a thing that cannot point at anything can never be part of a cycle. Not tracking them is the largest thing the collector does for performance, since it removes most of the objects in a typical program.
 """)
 
 
@@ -459,13 +457,13 @@ for value in [42, "text", (1, 2), [1, 2], {"k": 1}, (1, [2])]:
 
 
 lesson.md(f"""
-The two tuples are the interesting pair. A tuple is a container, so it starts out tracked, but a tuple holding only untracked things can never be on a cycle either. The collector notices this the first time it looks at one and stops tracking it. That is why `(1, 2)` prints False here and would print True if you built it and asked immediately, and why `(1, [2])` stays tracked forever.
+The two tuples are the interesting pair. A tuple is a container, so it starts out tracked, but a tuple holding only untracked things can never be on a cycle either, and the collector notices the first time it looks at one. That is why `(1, 2)` prints False here and would print True if you asked immediately, and why `(1, [2])` stays tracked forever.
 
 ## Where the bytes came from
 
-Everything up to here has been about deciding when to free. Underneath that is a separate question: where the memory came from in the first place, and where it goes back to.
+Everything up to here has been about deciding when to free. Underneath is a separate question: where the memory came from, and where it goes back to.
 
-Python objects are small and there are a lot of them. A program that called the operating system's `malloc` for every 56 byte list would spend most of its time in the allocator. So CPython has its own allocator sitting on top, called {term("obmalloc")}, and it works in four layers.
+Python objects are small and there are a lot of them. A program that called the operating system's `malloc` for every 56 byte list would spend most of its time in the allocator. So CPython has its own allocator on top, called {term("obmalloc")}, and it works in four layers.
 """)
 
 
@@ -482,13 +480,11 @@ There is a size limit on all of this: {lesson.claim("requests over 512 bytes go 
 
 {cite("Include/internal/pycore_obmalloc.h:156-164@v3.15.0rc1#SMALL_REQUEST_THRESHOLD")}
 
-Under that limit, every request is rounded up to one of a fixed set of sizes.
-
 {figure("size-classes", "the size classes small requests are rounded up to")}
 
 {cite("Include/internal/pycore_obmalloc.h:128-146@v3.15.0rc1#ALIGNMENT")}
 
-Rounding up is what makes reuse cheap. A pool holds blocks of exactly one size, so a freed block fits any future object in the same class without any searching, measuring or splitting. The cost is a few wasted bytes per object and the benefit is an allocator fast enough that nobody thinks about it.
+Rounding up is what makes reuse cheap. A pool holds blocks of exactly one size, so a freed block fits any future object in the same class without searching, measuring or splitting. The cost is a few wasted bytes per object.
 """)
 
 
@@ -523,7 +519,7 @@ print(f"an empty list is {empty} bytes, takes {rounded(empty)}, wastes {rounded(
 
 
 lesson.md(f"""
-The last line of that cell is the arrangement charging its fee. On a 64 bit machine an empty list is 56 bytes and takes a 64 byte block, so 8 bytes go unused. A few wasted bytes per object, in exchange for never having to search for a block that fits.
+The last line of that cell is the arrangement charging its fee. On a 64 bit machine an empty list is 56 bytes and takes a 64 byte block, so 8 bytes go unused.
 
 ## Giving it back
 
@@ -588,13 +584,13 @@ print("same address reused ->", id(second) == where)
 
 
 lesson.md(f"""
-The same address, almost every time. The first object freed its block back to a pool, and the very next request for that size class got the same block. This is also a good reminder that `id()` is only unique among objects that are alive at the same moment, which is the footnote T08 put on it.
+The same address, almost every time. The first object freed its block back to a pool, and the next request for that size class got the same block. It is also a reminder that `id()` is only unique among objects alive at the same moment, which is the footnote T08 put on it.
 
 ## What to reach for
 
 {figure("what-to-reach-for", "a table of six questions and the tool that answers each one")}
 
-Five of those six are in the standard library. The only thing this lesson needed its own code for is finding cycles, and that is because `gc` will tell you that it collected some objects but not which ones or what shape they were in.
+Five of those six are in the standard library. The only thing this lesson needed its own code for is finding cycles, because `gc` tells you it collected some objects but not which ones or what shape they were in.
 
 ## Try it yourself
 

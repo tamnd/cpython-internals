@@ -30,19 +30,13 @@ lesson.md(f"""
 
 {badge}
 
-A Python file is just characters. The {term("tokenizer")} is the part of CPython that cuts those characters into pieces and gives each piece a name: this is a number, that is a name, this one is a plus sign. Each piece is a {term("token")}.
+A Python file is just characters. The {term("tokenizer")} cuts them into pieces and names each one: a number, a name, a plus sign. Each piece is a {term("token")}.
 
-Two of the things people find confusing about Python are decided here and nowhere else.
-
-The first is indentation. Python has no braces, and the reason that works is that the tokenizer adds a token when a block opens and another when it closes. You never type them and you never see them, but the parser does, and to the parser they do the job braces do in C. They are called {term("indent and dedent")}.
-
-The second is f-strings. An f-string is not one string with special handling bolted on. The tokenizer takes it apart, and the code between the braces comes out as ordinary Python tokens.
-
-Here is where this lesson sits. T01 walked past all seven stages. This one stops at the first.
+Two confusing things about Python are decided here and nowhere else. Python has no braces, so the tokenizer invents a token when a block opens and another when it closes, {term("indent and dedent")}, and to the parser those do the job braces do in C. And an f-string is taken apart here, so the code between its braces arrives as ordinary tokens.
 
 {figure("where-we-are", "the seven stages of running Python, with the tokenizer highlighted")}
 
-By the end you will have run the real tokenizer on your own input, seen it produce tokens that are not in your file, read the indentation algorithm in full, and broken it three different ways on purpose.
+T01 walked past all seven stages. This one stops at the first, where you will run the real tokenizer on your own input, see tokens that are not in your file, read the indentation algorithm in full, and break it three ways on purpose.
 
 No C required, and everything here runs on a normal Python.
 """)

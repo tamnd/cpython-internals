@@ -36,15 +36,15 @@ lesson.md(f"""
 
 {badge}
 
-T02 left you with a flat list of {term("token", "tokens")}: a name, an equals sign, a number, a star, another number. That list is in the right order, and it says nothing about what goes with what.
+T02 left you with a flat list of {term("token", "tokens")}: a name, an equals sign, a number, a star, a number. The list is in the right order and says nothing about what goes with what.
 
-This lesson is about the part that fixes that. The parser reads the tokens and builds an {term("abstract syntax tree")}, and the tree is the first thing in the pipeline that knows `6 * 7` is one thing rather than three.
+This lesson is about the part that fixes it. The parser reads the tokens and builds an {term("abstract syntax tree")}, the first thing that knows `6 * 7` is one thing rather than three.
 
 {figure("where-we-are", "the eight stages of running Python, with the syntax tree highlighted")}
 
-The interesting question about the tree is not how it gets built but what it keeps. Your brackets are gone by the end of this stage, and so are your spacing and your comments, and everything they meant is still there. By the end you will have watched three different files turn into exactly the same tree, and then checked that claim against every module in your own standard library.
+The interesting question is not how the tree gets built but what it keeps. Your brackets are gone by the end of this stage, and so are your spacing and comments, and everything they meant is still there. By the end you will have watched three files turn into the same tree, and then checked that against every module in your standard library.
 
-No C required and no build of your own, since everything here runs on a normal Python.
+No C required, and everything here runs on a normal Python.
 """)
 
 

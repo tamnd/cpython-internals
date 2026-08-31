@@ -34,13 +34,13 @@ lesson.md(f"""
 
 {badge}
 
-Five lessons in, you have seen a lot of disassembly listings. Most people read them the way they read a foreign language they half know, picking out the words they recognise and guessing the rest. This lesson is about not having to guess.
+Five lessons in, you have seen a lot of disassembly. Most people read them the way they read a foreign language they half know, picking out the words they recognise and guessing the rest. This lesson is about not having to guess.
 
 {figure("where-we-are", "the eight stages of running Python, with the code object highlighted")}
 
-Nothing new gets built here. T05 handed us a {term("code object")} and described it from the outside, and this is where you learn to read what is inside one, so that from T07 onwards you can look at a listing and know what the interpreter is about to do without running it.
+Nothing new gets built here. T05 handed us a {term("code object")} and described it from the outside. This is where you learn to read what is inside one, so that from T07 on you can read a listing and know what the interpreter will do without running it.
 
-There are four things to learn and they are all small: what the argument byte means, which is a different answer for every instruction, how the stack rises and falls as you read down the page, how jumps count, and which bytes `dis` does not show you.
+There are four things to learn and they are all small: what the argument byte means, which differs for every instruction, how the stack rises and falls as you read down the page, how jumps count, and which bytes `dis` does not show you.
 
 No C required, and everything here runs on a normal Python.
 """)
