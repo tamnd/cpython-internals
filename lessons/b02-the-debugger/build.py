@@ -164,16 +164,21 @@ That is the whole vocabulary. Six commands, and you have just done a real debugg
 
 A debugger sounds like it must be doing something special. It is not. {lesson.claim("pdb is ordinary Python that asks the interpreter to call it back on every function call, line and return, which is a hook any program can install")}, and the hook is one function call: {cite("Lib/bdb.py:232-236@v3.15.0rc1#start_trace")}.
 
-Here is a debugger in four lines. It does one thing, which is print every call, and there is nothing missing from it except features.
+Here is a debugger in a handful of lines. It does one thing, which is print the calls it was asked to watch, and there is nothing missing from it except features.
 """)
 
 
 lesson.code("""
 import sys
 
+# The hook fires on every call anywhere in the process, and in a notebook that includes
+# Jupyter's own, so this only prints the three functions the cell is about.
+WATCHING = {"top", "middle", "double"}
+
 
 def watch(frame, event, arg):
-    print(f"call    {frame.f_code.co_qualname:8}  line {frame.f_lineno}")
+    if frame.f_code.co_qualname in WATCHING:
+        print(f"call    {frame.f_code.co_qualname:8}  line {frame.f_lineno}")
     return None
 
 
@@ -197,6 +202,8 @@ sys.settrace(None)
 
 lesson.md(f"""
 Three calls, in the order they happened. `pdb` is that with a prompt attached, a list of breakpoints, and the good sense to return itself so it keeps getting called.
+
+The name check is the only thing in there that is not about debugging. A trace hook is global: once it is installed the interpreter calls it for every function anywhere, so without the check you would also watch whatever Jupyter does between one line of this cell and the next.
 
 In 3.14 and later, pdb prefers {term("monitoring events", "sys.monitoring")} when it can get it and falls back to `sys.settrace` otherwise, which is the `if` in the lines cited above. The idea is the same either way: the interpreter offers to tell you when things happen, and a debugger is whatever you do with that offer.
 
