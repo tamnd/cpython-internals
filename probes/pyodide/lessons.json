@@ -3,6 +3,30 @@
   "python": "3.14.2",
   "lessons": [
     {
+      "slug": "b01-building-cpython",
+      "cells": [
+        {
+          "name": "b01-03",
+          "status": "ok"
+        },
+        {
+          "name": "b01-05",
+          "status": "ok",
+          "printed": "cpython 3.14.2 on Emscripten wasm32, WebAssembly\n  note: this is 3.14, and everything here is written against 3.15, so bytecode and some object layouts will differ from the prose\n"
+        },
+        {
+          "name": "b01-07",
+          "status": "ok",
+          "printed": "the configure options this interpreter was built with:\n  --without-pymalloc\n  --disable-shared\n  --disable-ipv6\n  --enable-big-digits=30\n  --enable-optimizations\n  --host=wasm32-unknown-emscripten\n  --build=x86_64-pc-linux-gnu\n  --prefix=/root/repo/cpython/installs/python-3.14.2\n  --with-build-python=/usr/local/bin/python3.14\n  and 8 environment settings, mostly compiler flags\n\nsettings the lessons care about:\n  Py_DEBUG               not set                assertions on, and sys.gettotalrefcount exists\n  Py_GIL_DISABLED        not set                the free threaded build, with a different object header\n  _Py_TAIL_CALL_INTERP   not set                the eval loop is a chain of tail calls rather than a switch\n  WITH_PYMALLOC          not set                objects come from CPython's own allocator rather than from malloc\n  Py_STATS               not set                the interpreter counts what it does, at a cost\n  Py_TRACE_REFS          not set                every object is on a linked list of every object\n  SIZEOF_VOID_P          4                      how many bytes an address takes, which is what a list slot costs\n  CC                     cc                     the compiler\n  OPT                    -DNDEBUG -g -O3 -Wall  the optimization flags it was given\n\nwhich of the five builds this is:\n  yes  release        what you get by typing ./configure && make, and what almost everybody runs\n   no  debug          the interpreter checking its own invariants instead of trusting them\n   no  freethreaded   built without the GIL, which is a different interpreter rather than a flag\n   no  jit            the copy and patch JIT compiled in, so tier 2 traces really execute\n   no  tailcall       the same bytecode through a chain of tail calls instead of one huge switch\n"
+        },
+        {
+          "name": "b01-10",
+          "status": "ok",
+          "printed": "pyconfig.h would be at //include/python3.14/pyconfig.h\n\nThere is no header on disk here, which is what a browser build looks like.\nEverything you can ask this interpreter comes from sysconfig alone,\nso the underscored macros are not just hidden, they are gone.\n"
+        }
+      ]
+    },
+    {
       "slug": "t01-one-line-seven-stages",
       "cells": [
         {
@@ -90,7 +114,7 @@
           "printed": "1 line of source, 8 tokens, 8 nodes in the tree, 1 scope, 8 instructions after code generation, 7 after the optimizer, 10 bytes of bytecode\n"
         },
         {
-          "name": "t01-43",
+          "name": "t01-42",
           "status": "ok",
           "printed": "1 line of source, 8 tokens, 8 nodes in the tree, 1 scope, 8 instructions after code generation, 7 after the optimizer, 10 bytes of bytecode\n\nafter code generation             after the optimizer\n----------------------------------------------------------------\nRESUME 0                          RESUME 0\nANNOTATIONS_PLACEHOLDER (pseudo)  LOAD_CONST 0\nLOAD_CONST 0                      LOAD_CONST 1\nLOAD_CONST 1                      BINARY_OP 8\nBINARY_OP 8                       STORE_NAME 0\nSTORE_NAME 0                      LOAD_CONST 2\nLOAD_CONST 2                      RETURN_VALUE\nRETURN_VALUE\n\n8 instructions in, 7 out\nThis build did not hand over the constant values, so the optimizer ran without them. Nothing above was folded, and parts of the right column are not what this source really compiles to.\n"
         }
@@ -384,7 +408,7 @@
         {
           "name": "t04-30",
           "status": "ok",
-          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x1860cc8: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
+          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x1812600: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
         },
         {
           "name": "t04-33",
@@ -661,7 +685,7 @@
         {
           "name": "t07-38",
           "status": "ok",
-          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x16c45a0, file 't07-38', line 7, code make_one>\nits name: make_one\n"
+          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x170dc40, file 't07-38', line 7, code make_one>\nits name: make_one\n"
         },
         {
           "name": "t07-40",
@@ -695,12 +719,12 @@
         {
           "name": "t08-11",
           "status": "ok",
-          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x17ec9e8, 3 reference(s), 26 bytes, not tracked\nlist at 0x17c4cf0, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x145ac60, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x15a60d0, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
+          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x1654e70, 3 reference(s), 26 bytes, not tracked\nlist at 0x154dd68, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x1849fa0, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x1147688, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
         },
         {
           "name": "t08-14",
           "status": "ok",
-          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x16328b0\nid(b) 0x14ccf38\nid(c) 0x16328b0\n"
+          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x12fdfe0\nid(b) 0x120b4b8\nid(c) 0x12fdfe0\n"
         },
         {
           "name": "t08-17",
@@ -740,7 +764,7 @@
         {
           "name": "t08-35",
           "status": "ok",
-          "printed": "dict at 0x1259b80\ndict at 0x13c6628\nlist at 0x1577050\n"
+          "printed": "dict at 0x145ff38\ndict at 0x14ae330\nlist at 0x1834ab0\n"
         },
         {
           "name": "t08-37",
@@ -799,7 +823,7 @@
         {
           "name": "t09-21",
           "status": "ok",
-          "printed": "Node at 0x1212288 -> Node at 0x1885038 -> Node at 0x159c1d8 -> Node at 0x1212288\n"
+          "printed": "Node at 0x17bd320 -> Node at 0x18073a8 -> Node at 0x16a5968 -> Node at 0x17bd320\n"
         },
         {
           "name": "t09-23",
@@ -829,7 +853,7 @@
         {
           "name": "t09-37",
           "status": "ok",
-          "printed": "first object was at  0x14f0708\nsecond object is at  0x14f0708\nsame address reused -> True\n"
+          "printed": "first object was at  0x1705d40\nsecond object is at  0x1705d40\nsame address reused -> True\n"
         }
       ]
     },

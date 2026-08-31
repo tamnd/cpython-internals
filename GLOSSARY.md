@@ -8,7 +8,7 @@ This file is generated from `pyxray/src/pyxray/glossary.py`. Edit that and run `
 
 ## Index
 
-[ASDL](#asdl) | [Argument Clinic](#argument-clinic) | [EXTENDED_ARG](#extended_arg) | [JIT](#jit) | [PEG parser](#peg-parser) | [abstract syntax tree](#abstract-syntax-tree) | [adaptive instruction](#adaptive-instruction) | [arena](#arena) | [assembler](#assembler) | [basic block](#basic-block) | [binding](#binding) | [block](#block) | [borrowed reference](#borrowed-reference) | [bytecode](#bytecode) | [cell](#cell) | [closure](#closure) | [code generation](#code-generation) | [code object](#code-object) | [computed goto](#computed-goto) | [constant folding](#constant-folding) | [control flow graph](#control-flow-graph) | [cycle collector](#cycle-collector) | [deallocation](#deallocation) | [deoptimization](#deoptimization) | [dispatch](#dispatch) | [eval loop](#eval-loop) | [exception table](#exception-table) | [finalizer](#finalizer) | [frame](#frame) | [free variable](#free-variable) | [generated file](#generated-file) | [generation](#generation) | [grammar](#grammar) | [header file](#header-file) | [immortal object](#immortal-object) | [indent and dedent](#indent-and-dedent) | [inline cache](#inline-cache) | [instance dictionary](#instance-dictionary) | [instruction](#instruction) | [interning](#interning) | [line table](#line-table) | [new reference](#new-reference) | [object](#object) | [object header](#object-header) | [obmalloc](#obmalloc) | [oparg](#oparg) | [opcode](#opcode) | [pointer](#pointer) | [pool](#pool) | [pseudo instruction](#pseudo-instruction) | [reference count](#reference-count) | [reference cycle](#reference-cycle) | [scope](#scope) | [small integer cache](#small-integer-cache) | [specialization](#specialization) | [stack effect](#stack-effect) | [stolen reference](#stolen-reference) | [struct](#struct) | [symbol table](#symbol-table) | [tier one](#tier-one) | [tier two](#tier-two) | [token](#token) | [tokenizer](#tokenizer) | [type object](#type-object) | [value stack](#value-stack) | [weak reference](#weak-reference)
+[ASDL](#asdl) | [Argument Clinic](#argument-clinic) | [EXTENDED_ARG](#extended_arg) | [JIT](#jit) | [PEG parser](#peg-parser) | [Pyodide](#pyodide) | [WebAssembly](#webassembly) | [abstract syntax tree](#abstract-syntax-tree) | [adaptive instruction](#adaptive-instruction) | [arena](#arena) | [assembler](#assembler) | [basic block](#basic-block) | [binding](#binding) | [block](#block) | [borrowed reference](#borrowed-reference) | [bytecode](#bytecode) | [cell](#cell) | [closure](#closure) | [code generation](#code-generation) | [code object](#code-object) | [computed goto](#computed-goto) | [configure](#configure) | [constant folding](#constant-folding) | [control flow graph](#control-flow-graph) | [cycle collector](#cycle-collector) | [deallocation](#deallocation) | [debug build](#debug-build) | [deoptimization](#deoptimization) | [dispatch](#dispatch) | [eval loop](#eval-loop) | [exception table](#exception-table) | [finalizer](#finalizer) | [frame](#frame) | [free threaded build](#free-threaded-build) | [free variable](#free-variable) | [generated file](#generated-file) | [generation](#generation) | [grammar](#grammar) | [header file](#header-file) | [immortal object](#immortal-object) | [indent and dedent](#indent-and-dedent) | [inline cache](#inline-cache) | [instance dictionary](#instance-dictionary) | [instruction](#instruction) | [interning](#interning) | [line table](#line-table) | [new reference](#new-reference) | [object](#object) | [object header](#object-header) | [obmalloc](#obmalloc) | [oparg](#oparg) | [opcode](#opcode) | [pointer](#pointer) | [pool](#pool) | [profile guided optimization](#profile-guided-optimization) | [pseudo instruction](#pseudo-instruction) | [pyconfig](#pyconfig) | [reference count](#reference-count) | [reference cycle](#reference-cycle) | [scope](#scope) | [small integer cache](#small-integer-cache) | [specialization](#specialization) | [stack effect](#stack-effect) | [stolen reference](#stolen-reference) | [struct](#struct) | [symbol table](#symbol-table) | [tier one](#tier-one) | [tier two](#tier-two) | [token](#token) | [tokenizer](#tokenizer) | [type object](#type-object) | [value stack](#value-stack) | [weak reference](#weak-reference)
 
 ## Reading the source
 
@@ -565,3 +565,63 @@ First met in T09. See also [reference count](#reference-count), [deallocation](#
 The collector runs finalizers on the objects in a cycle before it frees any of them, and a finalizer that stores a reference to its own object somewhere can bring the whole group back. That case is handled rather than being an error, which is worth knowing before writing one.
 
 Also written `__del__`. First met in T09. See also [deallocation](#deallocation), [cycle collector](#cycle-collector). In the source: [`Python/gc.c:1041-1074@v3.15.0rc1#finalize_garbage`](https://github.com/python/cpython/blob/v3.15.0rc1/Python/gc.c#L1041-L1074).
+
+## Building the interpreter
+
+The words that turn out to be about the binary rather than about the language. B01 through B04 are the lessons, and several numbers in the earlier lessons move when the build does.
+
+### configure
+
+**The script that inspects your machine and writes the Makefile and pyconfig.h.**
+
+Nobody wrote `configure`. It is generated from `configure.ac` by autoconf, and it is the file that turns your flags and your operating system into two files the rest of the build reads. The argument list you gave it survives in the finished interpreter as `sysconfig.get_config_var("CONFIG_ARGS")`, which is how you can find out how a Python you did not build was built.
+
+Also written `./configure`, `configure.ac`. First met in B01. See also [debug build](#debug-build), [generated file](#generated-file).
+
+### pyconfig
+
+**The header full of #define lines saying what your system has and what you asked for.**
+
+Every C file in CPython includes `pyconfig.h`, and it is how one source tree becomes a different program on Linux, on macOS and in a browser. It is also more complete than `sysconfig`: the parser behind `sysconfig.get_config_vars` only matches macros whose names start with a capital letter, so every `_Py_` macro in the header is invisible from Python. When the two disagree, the header is the one the compiler saw.
+
+Also written `pyconfig.h`. First met in B01. See also [configure](#configure). In the source: [`Lib/sysconfig/__init__.py:438@v3.15.0rc1#define_rx`](https://github.com/python/cpython/blob/v3.15.0rc1/Lib/sysconfig/__init__.py#L438).
+
+### debug build
+
+**An interpreter built with Py_DEBUG, which checks its own invariants as it runs.**
+
+`--with-pydebug` turns on assertions all through the interpreter, adds `sys.gettotalrefcount`, and makes the allocator fill freed memory with a recognisable byte pattern so a use after free shows up as garbage instead of as the old value still sitting there. It also makes objects bigger and everything two to three times slower, which is why behaviour in this material comes from a debug build and timings never do.
+
+Also written `--with-pydebug`, `Py_DEBUG`. First met in B01. See also [configure](#configure), [reference count](#reference-count). In the source: [`configure.ac:1771-1785@v3.15.0rc1#Py_DEBUG`](https://github.com/python/cpython/blob/v3.15.0rc1/configure.ac#L1771-L1785).
+
+### free threaded build
+
+**CPython built without the GIL, which is a different interpreter rather than a flag.**
+
+`--disable-gil` sets `Py_GIL_DISABLED`, and what follows is not a switch: the object header gains fields, reference counting splits into a local count and a shared one, the allocator becomes per thread and the cycle collector is a different algorithm. Every reference count and every `sys.getsizeof` in the object lessons comes out differently here, which is why those lessons measure rather than assert.
+
+Also written `--disable-gil`, `Py_GIL_DISABLED`. First met in B01. See also [reference count](#reference-count), [cycle collector](#cycle-collector), [object header](#object-header).
+
+### profile guided optimization
+
+**Build the interpreter, run it to see which branches are hot, then build it again.**
+
+`--enable-optimizations` is worth roughly ten percent and turns a five minute build into twenty minutes or an hour, because the whole thing is compiled twice with a test run in between. It is the right flag for measuring speed and the wrong one for understanding a crash, since everything hot has been inlined into everything else by the time the debugger sees it.
+
+Also written PGO, `--enable-optimizations`. First met in B01. See also [debug build](#debug-build). In the source: [`configure.ac:1847-1860@v3.15.0rc1#Py_OPT`](https://github.com/python/cpython/blob/v3.15.0rc1/configure.ac#L1847-L1860).
+
+### WebAssembly
+
+**A portable instruction set that browsers run, and one of the targets CPython builds for.**
+
+CPython compiled to WebAssembly is a real CPython rather than a reimplementation, which is what makes the browser tier of this project possible at all. It is a 32 bit target, so a pointer is 4 bytes instead of 8, and every object size in the lessons shrinks with it. That is the single most common reason a number in a lesson does not match what a reader sees.
+
+Also written wasm. First met in B01. See also [Pyodide](#pyodide).
+
+### Pyodide
+
+**A CPython distribution compiled to WebAssembly, with a package installer attached.**
+
+This is what runs when you open one of these lessons in a browser without a local Python. It is a genuine CPython build, so `dis`, `gc` and `sys.monitoring` all work, but it is not the same build as the one on your laptop and a few things are missing from it. Every lesson opens with a banner that says which of the two you are on, for exactly this reason.
+
+First met in B01. See also [WebAssembly](#webassembly).

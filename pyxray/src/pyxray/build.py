@@ -12,6 +12,7 @@ So every lesson opens with the banner, and the banner is not optional.
 from __future__ import annotations
 
 import platform
+import re
 import sys
 import sysconfig
 from dataclasses import dataclass, field
@@ -23,11 +24,40 @@ PINNED_VERSION = (3, 15, 0)
 PINNED_RELEASELEVEL = "candidate"
 
 
-def _config(name: str) -> Any:
+#: A `#define` in `pyconfig.h` whose name starts with an underscore. `sysconfig` cannot see
+#: these: `parse_config_h` matches names beginning with a capital letter, so every `_Py_`
+#: macro a build defined is missing from `sysconfig.get_config_vars()`. There are seven of
+#: them in a normal build and one of them is the only record that the interpreter was built
+#: with tail calls, which is why this is here rather than in a footnote somewhere.
+#:
+#: `Lib/sysconfig/__init__.py:438@v3.15.0rc1#parse_config_h`.
+UNDERSCORED = re.compile(r"^#define (_[A-Za-z0-9_]+) (.*)$", re.M)
+
+
+def header() -> dict[str, str]:
+    """The underscored macros in this build's `pyconfig.h`, which `sysconfig` leaves out.
+
+    Read off the installed header rather than asked for, because there is nowhere else to
+    get them. Any failure comes back as an empty dict: the header is missing on Windows
+    store builds and under WebAssembly, and a banner is not worth an exception.
+    """
     try:
-        return sysconfig.get_config_var(name)
+        with open(sysconfig.get_config_h_filename(), encoding="utf-8", errors="replace") as file:
+            text = file.read()
     except Exception:
-        return None
+        return {}
+    return dict(UNDERSCORED.findall(text))
+
+
+def _config(name: str) -> Any:
+    """One build setting, from `sysconfig` first and from `pyconfig.h` when it has to be."""
+    try:
+        value = sysconfig.get_config_var(name)
+    except Exception:
+        value = None
+    if value is None and name.startswith("_"):
+        return header().get(name)
+    return value
 
 
 def _probe(thunk) -> bool:
@@ -185,7 +215,7 @@ def current() -> Build:
         jit_available=_probe(lambda: jit.is_available()) if jit else False,
         jit_enabled=_probe(lambda: jit.is_enabled()) if jit else False,
         jit_active=_probe(lambda: jit.is_active()) if jit else False,
-        tail_call=bool(_config("Py_TAIL_CALL_INTERP")),
+        tail_call=_config("_Py_TAIL_CALL_INTERP") in ("1", 1),
         pymalloc=bool(_config("WITH_PYMALLOC")),
         stats=bool(_config("Py_STATS")),
         wasm=sys.platform in {"emscripten", "wasi"},

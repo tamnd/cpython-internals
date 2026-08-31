@@ -162,12 +162,18 @@ CONFIGURATIONS: list[Configuration] = [
         environment={"CC": "clang"},
         packages=("clang",),
         # The weak one, and worth being straight about it. The other four ask the interpreter
-        # about itself. This reads back the flag configure was given, because a tail calling
-        # build is not visible from Python at all: `_Py_TAIL_CALL_INTERP` is a C macro and
-        # nothing exposes it. It is still worth having, because configure refuses the flag
-        # outright when the compiler has no `musttail`, so the flag surviving into the
-        # installed interpreter means it was accepted rather than warned about and dropped.
-        proof=('"--with-tail-call-interp" in sysconfig.get_config_var("CONFIG_ARGS")'),
+        # about itself. This reads back the flag configure was given, which is one step removed
+        # from asking whether the build actually has tail calls in it. It is still worth
+        # having, because configure refuses the flag outright when the compiler has no
+        # `musttail`, so the flag surviving into the installed interpreter means it was
+        # accepted rather than warned about and dropped.
+        #
+        # The stronger proof is `_Py_TAIL_CALL_INTERP` in the installed `pyconfig.h`, which is
+        # the macro configure actually defines. `sysconfig` cannot see it, because
+        # `parse_config_h` only matches macros whose names begin with a capital letter, but
+        # reading the header is not hard. Tracked in #111, and not changed here because a
+        # proof only runs when the images are rebuilt and this one has not been tried yet.
+        proof=('"--with-tail-call-interp" in (sysconfig.get_config_var("CONFIG_ARGS") or "")'),
         note=(
             "Needs Clang 19 or newer, because it leans on `musttail`, which GCC does not "
             "have. The same bytecode runs through a chain of tail calls instead of a switch "

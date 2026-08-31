@@ -670,8 +670,83 @@ MEMORY = Group(
 )
 
 
+BUILDING = Group(
+    "Building the interpreter",
+    "The words that turn out to be about the binary rather than about the language. B01 through B04 are the lessons, and several numbers in the earlier lessons move when the build does.",
+    (
+        Term(
+            name="configure",
+            short="The script that inspects your machine and writes the Makefile and pyconfig.h.",
+            long='Nobody wrote `configure`. It is generated from `configure.ac` by autoconf, and it is the file that turns your flags and your operating system into two files the rest of the build reads. The argument list you gave it survives in the finished interpreter as `sysconfig.get_config_var("CONFIG_ARGS")`, which is how you can find out how a Python you did not build was built.',
+            also=("`./configure`", "`configure.ac`"),
+            see=("debug build", "generated file"),
+            met="B01",
+        ),
+        Term(
+            name="pyconfig",
+            short="The header full of #define lines saying what your system has and what you asked for.",
+            long="Every C file in CPython includes `pyconfig.h`, and it is how one source tree becomes a different program on Linux, on macOS and in a browser. It is also more complete than `sysconfig`: the parser behind `sysconfig.get_config_vars` only matches macros whose names start with a capital letter, so every `_Py_` macro in the header is invisible from Python. When the two disagree, the header is the one the compiler saw.",
+            cite="Lib/sysconfig/__init__.py:438@v3.15.0rc1#define_rx",
+            also=("`pyconfig.h`",),
+            see=("configure",),
+            met="B01",
+        ),
+        Term(
+            name="debug build",
+            short="An interpreter built with Py_DEBUG, which checks its own invariants as it runs.",
+            long="`--with-pydebug` turns on assertions all through the interpreter, adds `sys.gettotalrefcount`, and makes the allocator fill freed memory with a recognisable byte pattern so a use after free shows up as garbage instead of as the old value still sitting there. It also makes objects bigger and everything two to three times slower, which is why behaviour in this material comes from a debug build and timings never do.",
+            cite="configure.ac:1771-1785@v3.15.0rc1#Py_DEBUG",
+            also=("`--with-pydebug`", "`Py_DEBUG`"),
+            see=("configure", "reference count"),
+            met="B01",
+        ),
+        Term(
+            name="free threaded build",
+            short="CPython built without the GIL, which is a different interpreter rather than a flag.",
+            long="`--disable-gil` sets `Py_GIL_DISABLED`, and what follows is not a switch: the object header gains fields, reference counting splits into a local count and a shared one, the allocator becomes per thread and the cycle collector is a different algorithm. Every reference count and every `sys.getsizeof` in the object lessons comes out differently here, which is why those lessons measure rather than assert.",
+            also=("`--disable-gil`", "`Py_GIL_DISABLED`"),
+            see=("reference count", "cycle collector", "object header"),
+            met="B01",
+        ),
+        Term(
+            name="profile guided optimization",
+            short="Build the interpreter, run it to see which branches are hot, then build it again.",
+            long="`--enable-optimizations` is worth roughly ten percent and turns a five minute build into twenty minutes or an hour, because the whole thing is compiled twice with a test run in between. It is the right flag for measuring speed and the wrong one for understanding a crash, since everything hot has been inlined into everything else by the time the debugger sees it.",
+            cite="configure.ac:1847-1860@v3.15.0rc1#Py_OPT",
+            also=("PGO", "`--enable-optimizations`"),
+            see=("debug build",),
+            met="B01",
+        ),
+        Term(
+            name="WebAssembly",
+            short="A portable instruction set that browsers run, and one of the targets CPython builds for.",
+            long="CPython compiled to WebAssembly is a real CPython rather than a reimplementation, which is what makes the browser tier of this project possible at all. It is a 32 bit target, so a pointer is 4 bytes instead of 8, and every object size in the lessons shrinks with it. That is the single most common reason a number in a lesson does not match what a reader sees.",
+            also=("wasm",),
+            see=("Pyodide",),
+            met="B01",
+        ),
+        Term(
+            name="Pyodide",
+            short="A CPython distribution compiled to WebAssembly, with a package installer attached.",
+            long="This is what runs when you open one of these lessons in a browser without a local Python. It is a genuine CPython build, so `dis`, `gc` and `sys.monitoring` all work, but it is not the same build as the one on your laptop and a few things are missing from it. Every lesson opens with a banner that says which of the two you are on, for exactly this reason.",
+            see=("WebAssembly",),
+            met="B01",
+        ),
+    ),
+)
+
+
 #: The groups, in the order a reader meets them, which is also the order of the lessons.
-GROUPS: tuple[Group, ...] = (READING, FRONT_END, NAMES, COMPILING, RUNNING, OBJECTS, MEMORY)
+GROUPS: tuple[Group, ...] = (
+    READING,
+    FRONT_END,
+    NAMES,
+    COMPILING,
+    RUNNING,
+    OBJECTS,
+    MEMORY,
+    BUILDING,
+)
 
 #: Every term, flattened.
 TERMS: tuple[Term, ...] = tuple(term for group in GROUPS for term in group.terms)
