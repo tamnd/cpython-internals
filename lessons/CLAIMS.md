@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-287 claims across 34 lessons, 22 of them not observable from Python.
+291 claims across 35 lessons, 22 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -256,6 +256,15 @@ Without it the exception becomes the rule and this goes back to being a book.
 | attributes defined from C appear as one of five descriptor types, and whether each is a data descriptor is decided by whether its type fills in tp_descr_set | [`o06-20`](o06-what-property-actually-is/o06.ipynb) |
 | a descriptor placed in an instance dict is returned as itself, because the lookup that would call __get__ only runs for objects found on the type | [`o06-24`](o06-what-property-actually-is/o06.ipynb) |
 | __set_name__ runs once for every entry in the class dict during class creation, and never runs again for later assignments to the class | [`o06-26`](o06-what-property-actually-is/o06.ipynb) |
+
+## O07. Two arrays and a hash
+
+| Claim | Proved by |
+| --- | --- |
+| the probe order for a size 8 table starting at slot 0 is 0, 1, 6, 7, 4, 5, 2, 3, which visits every slot exactly once before repeating | [`o07-08`](o07-two-arrays-and-a-hash/o07.ipynb) |
+| a dict grows when its entry array is full rather than when its length crosses a threshold, so the resize points fall at 6, 11, 22, 43 and 86 keys | [`o07-10`](o07-two-arrays-and-a-hash/o07.ipynb) |
+| a dict that is deleted from and inserted into in equal measure still resizes, because the entry array only ever gets compacted by a resize | [`o07-16`](o07-two-arrays-and-a-hash/o07.ipynb) |
+| a dict with only exact str keys uses a smaller entry layout, and putting one non string key in converts the whole table to the larger one | [`o07-21`](o07-two-arrays-and-a-hash/o07.ipynb) |
 
 ## T01. One line, seven stages
 

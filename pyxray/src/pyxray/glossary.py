@@ -833,6 +833,23 @@ OBJECTS = Group(
             see=("type object", "heap type"),
             met="O02",
         ),
+        Term(
+            name="compact dict",
+            short="A dict laid out as a small array of slot numbers in front of an entry array.",
+            long="The slot array, `dk_indices`, holds a row number into the entry array, or -1 for a position never used, or -2 for one that used to hold something. The entry array is appended to and never reordered, so iterating it top to bottom gives insertion order with no bookkeeping at all. Only the small array has holes, which is why the layout is called compact: a mostly empty hash table costs one byte per slot rather than a whole row.",
+            cite="Include/internal/pycore_dict.h:196-235@v3.15.0rc1#_dictkeysobject",
+            also=("compact ordered dict",),
+            see=("probe sequence", "instance dictionary"),
+            met="O07",
+        ),
+        Term(
+            name="probe sequence",
+            short="The order of slots a dict lookup visits when the first one is a collision.",
+            long="The first slot is the hash masked down to the table size. After that the step is `i = mask & (i * 5 + perturb + 1)`, where `perturb` starts as the whole hash and is shifted right by 5 each round. The `i * 5 + 1` part visits every slot exactly once and in an order unrelated to how consecutive keys arrive, and `perturb` brings back the high bits of the hash the mask discarded. For a size 8 table starting at slot 0 the order is 0, 1, 6, 7, 4, 5, 2, 3.",
+            cite="Objects/dictobject.c:1078-1101@v3.15.0rc1#do_lookup",
+            see=("compact dict",),
+            met="O07",
+        ),
     ),
 )
 
