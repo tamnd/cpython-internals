@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-166 claims across 15 lessons, 16 of them not observable from Python.
+171 claims across 16 lessons, 17 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -40,6 +40,16 @@ Without it the exception becomes the rule and this goes back to being a book.
 | A -m pattern matches if it matches the full test id or any single dotted part of it, so a bare method name finds that method in every class | [`b03-12`](b03-the-test-suite/b03.ipynb) |
 | sys.gettotalrefcount only exists on a debug build, which is why hunting leaks needs one | not observable from Python: the function is compiled in only when CPython is configured with --with-pydebug, so an ordinary interpreter has nothing to call |
 | A run is only reported as a leak when every counted repetition gained at least one reference, so a single noisy run is not enough | [`b03-16`](b03-the-test-suite/b03.ipynb) |
+
+## B04. Reading the tree
+
+| Claim | Proved by |
+| --- | --- |
+| the running interpreter can hand you the file and the line range for anything in the standard library written in Python, in the same shape as the source references in this book | [`b04-07`](b04-reading-the-tree/b04.ipynb) |
+| the ast module can list every function and class in a file with the exact line range of each, which is enough to build an index of any Python file in the standard library | [`b04-12`](b04-reading-the-tree/b04.ipynb) |
+| a generated file says so in its own first few lines, and usually names the script that wrote it, so you can find every one of them in your own standard library with a search for a handful of phrases | [`b04-14`](b04-reading-the-tree/b04.ipynb) |
+| running those scripts against the unchanged input reproduces the committed files byte for byte, which is what makes generated a fact about a file rather than a comment in it | not observable from Python: the scripts live in Tools/ and read Python/bytecodes.c, and neither of those ships with an installed Python, so this is the recorded run below rather than a cell |
+| every commit in CPython names an issue number in the first line of its message, so any line of code leads to a discussion | [`b04-22`](b04-reading-the-tree/b04.ipynb) |
 
 ## T01. One line, seven stages
 

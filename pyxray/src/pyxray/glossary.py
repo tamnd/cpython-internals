@@ -790,6 +790,30 @@ DEBUGGING = Group(
             see=("gdb", "backtrace"),
             met="B02",
         ),
+        Term(
+            name="regen",
+            short="The make targets that rewrite every generated file from its input.",
+            long="`make regen-cases` rebuilds the twelve files that come out of `Python/bytecodes.c`, `make regen-all` does that and the rest, and the reason to know the names is that forgetting them is the classic wasted afternoon. You edit the input, you build, nothing changes, and the build was quietly using the generated files that were already there. The Makefile calls each generator directly, so you can run one on its own with the interpreter you already have.",
+            also=("`make regen-all`", "`make regen-cases`"),
+            see=("generated file", "Argument Clinic"),
+            met="B04",
+        ),
+        Term(
+            name="blurb",
+            short="One file per change under Misc/NEWS.d, naming the issue it came from.",
+            long="A user visible change ships with a small file whose name carries the issue number, and at release time they are collected into one file per version. It exists so that a release note is written by the person who made the change rather than by somebody guessing afterwards, and it means every entry in a release note is a link back to the argument that produced it.",
+            cite="Misc/NEWS.d/next/Core_and_Builtins/README.rst:1-3@v3.15.0rc1",
+            see=("devguide",),
+            met="B04",
+        ),
+        Term(
+            name="devguide",
+            short="The separate repository that documents how to work on CPython.",
+            long="Building, testing, the git workflow, what a core developer will ask you for and how long to expect to wait. It is written for a new contributor rather than for a reader, which makes it the wrong place to look for how the interpreter works and the right place to look for anything about the process around it. `InternalDocs/` in the main repository is the other half, and is the one written for somebody trying to understand the code.",
+            also=("devguide.python.org",),
+            see=("blurb", "generated file"),
+            met="B04",
+        ),
     ),
 )
 
