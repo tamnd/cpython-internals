@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-263 claims across 31 lessons, 21 of them not observable from Python.
+272 claims across 32 lessons, 21 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -217,6 +217,20 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a class defining only __getitem__ can be iterated over and used with in, because that one name fills the sq_item slot and the old sequence protocol is still what iteration falls back on | [`o03-15`](o03-dunders-and-slots/o03.ipynb) |
 | a subclass that defines __radd__ itself is called before the base class __add__, and an unrelated class defining __radd__ is not, because both names share one slot and the dispatcher checks the subclass relationship first | [`o03-17`](o03-dunders-and-slots/o03.ipynb) |
 | a class that defines __eq__ and not __hash__ ends up with a real None stored under __hash__ in its class dict, and putting a hash back is a one line assignment | [`o03-19`](o03-dunders-and-slots/o03.ipynb) |
+
+## O04. The order things are found in
+
+| Claim | Proved by |
+| --- | --- |
+| a class with two bases carries a flat __mro__ tuple that flattens both paths into one order, and method lookup follows that order rather than searching the base classes | [`o04-07`](o04-the-order-things-are-found-in/o04.ipynb) |
+| swapping the order of the declared bases changes the resulting MRO, so the bases tuple is an input to the computation and not just a record of what you typed | [`o04-09`](o04-the-order-things-are-found-in/o04.ipynb) |
+| every class's MRO starts with the class itself, ends with object, and lists each declared base in the order it was declared | [`o04-11`](o04-the-order-things-are-found-in/o04.ipynb) |
+| a twenty line C3 merge written in Python reproduces CPython's __mro__ exactly, for hand written diamonds and for classes taken from the standard library | [`o04-13`](o04-the-order-things-are-found-in/o04.ipynb) |
+| a chain of single inheritance produces an MRO that is just each class prepended to its base's MRO, which is the fast path CPython takes without running the merge | [`o04-15`](o04-the-order-things-are-found-in/o04.ipynb) |
+| a pair of bases that order two classes in opposite ways makes the class statement itself raise TypeError, and a repeated base is rejected earlier by a separate check with a different message | [`o04-17`](o04-the-order-things-are-found-in/o04.ipynb) |
+| super in a method resolves against the MRO of the instance's type, so an unchanged method in Left can dispatch to Right when the instance is a Both, even though Left never refers to Right | [`o04-19`](o04-the-order-things-are-found-in/o04.ipynb) |
+| assigning to a class's __bases__ recomputes the MRO of that class and of every subclass, and instances that already exist pick up the new method at once | [`o04-22`](o04-the-order-things-are-found-in/o04.ipynb) |
+| a metaclass that overrides mro can return an order the C3 rules would never produce, and attribute lookup uses that order without complaint | [`o04-24`](o04-the-order-things-are-found-in/o04.ipynb) |
 
 ## T01. One line, seven stages
 
