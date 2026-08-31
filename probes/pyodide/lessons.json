@@ -539,7 +539,7 @@
         {
           "name": "f10-11",
           "status": "ok",
-          "printed": "  --           MAKE_CELL                0 (a)\n               MAKE_CELL                6 (n)\n\n   1           RESUME                   0\n\n   2           LOAD_SMALL_INT           0\n               STORE_DEREF              6 (n)\n\n   4           LOAD_FAST_BORROW         0 (a)\n               LOAD_FAST_BORROW         6 (n)\n               BUILD_TUPLE              2\n               LOAD_CONST               1 (<code object inner at 0x18c9610, file \"f10-09\", line 4>)\n               MAKE_FUNCTION\n               SET_FUNCTION_ATTRIBUTE   8 (closure)\n               STORE_FAST               5 (inner)\n\n   7           LOAD_FAST_BORROW         5 (inner)\n               RETURN_VALUE\n\nDisassembly of <code object inner at 0x18c9610, file \"f10-09\", line 4>:\n  --           COPY_FREE_VARS           2\n\n   4           RESUME                   0\n\n   5           LOAD_DEREF               0 (a)\n               LOAD_DEREF               1 (n)\n               BINARY_OP                0 (+)\n               RETURN_VALUE\n"
+          "printed": "  --           MAKE_CELL                0 (a)\n               MAKE_CELL                6 (n)\n\n   1           RESUME                   0\n\n   2           LOAD_SMALL_INT           0\n               STORE_DEREF              6 (n)\n\n   4           LOAD_FAST_BORROW         0 (a)\n               LOAD_FAST_BORROW         6 (n)\n               BUILD_TUPLE              2\n               LOAD_CONST               1 (<code object inner at 0x18117f8, file \"f10-09\", line 4>)\n               MAKE_FUNCTION\n               SET_FUNCTION_ATTRIBUTE   8 (closure)\n               STORE_FAST               5 (inner)\n\n   7           LOAD_FAST_BORROW         5 (inner)\n               RETURN_VALUE\n\nDisassembly of <code object inner at 0x18117f8, file \"f10-09\", line 4>:\n  --           COPY_FREE_VARS           2\n\n   4           RESUME                   0\n\n   5           LOAD_DEREF               0 (a)\n               LOAD_DEREF               1 (n)\n               BINARY_OP                0 (+)\n               RETURN_VALUE\n"
         },
         {
           "name": "f10-13",
@@ -555,6 +555,64 @@
           "name": "f10-17",
           "status": "ok",
           "printed": "  original h                /one/place.py\n  new      something_else   /made/up.py\n  equal to the original now  False\n\n  assigning to co_name says: readonly attribute\n"
+        }
+      ]
+    },
+    {
+      "slug": "f11-two-tables-on-the-side",
+      "cells": [
+        {
+          "name": "f11-03",
+          "status": "ok"
+        },
+        {
+          "name": "f11-05",
+          "status": "ok",
+          "printed": "cpython 3.14.2 on Emscripten wasm32, WebAssembly\n  note: this is 3.14, and everything here is written against 3.15, so bytecode and some object layouts will differ from the prose\n"
+        },
+        {
+          "name": "f11-07",
+          "status": "ok",
+          "printed": "  the try covers bytes 8 to 42, handler at 46\n\n  inside the try  10 instructions\n  the plain loop  10 instructions\n  the same list   True\n\n  the try version has 31 instructions in total,\n  and the 21 outside it are the setup, the return and the handler\n"
+        },
+        {
+          "name": "f11-10",
+          "status": "ok",
+          "printed": "  SETUP_FINALLY    in the bytecode: False\n  POP_BLOCK        in the bytecode: False\n  SETUP_CLEANUP    in the bytecode: False\n  SETUP_WITH       in the bytecode: False\n\n  and the whole exception table is 12 bytes:\n    84 11 17 00 97 0d 28 03 a7 01 28 03\n  the plain version's table is 0 bytes\n"
+        },
+        {
+          "name": "f11-13",
+          "status": "ok",
+          "printed": "  84 11 17 00 97 0d 28 03 a7 01 28 03\n\n    byte 0: 132  10000100   starts: yes  more: no   value 4\n    byte 1:  17  00010001   starts: no   more: no   value 17\n    byte 2:  23  00010111   starts: no   more: no   value 23\n    byte 3:   0  00000000   starts: no   more: no   value 0\n\n  so start 4, size 17, target 23, and depth and lasti packed into 0\n  which covers bytes 8 to 42, handler at byte 46\n  with the stack popped back to 0 and lasti False\n"
+        },
+        {
+          "name": "f11-16",
+          "status": "ok",
+          "printed": "  start  end  target  depth  lasti\n      8   42      68      0  False\n     68   94     100      1  True\n     94   98     106      0  False\n     98  100     100      1  True\n    100  106     106      0  False\n    106  132     132      1  True\n\n  6 entries in 25 bytes\n  and dis agrees on every one of them: True\n"
+        },
+        {
+          "name": "f11-20",
+          "status": "ok",
+          "printed": "  it failed at instruction 11, which the table puts at\n  line 2, columns 28 to 43\n\n        return first[\"count\"] + second[\"count\"]\n                                ^^^^^^^^^^^^^^^\n"
+        },
+        {
+          "name": "f11-23",
+          "status": "ok",
+          "printed": "  43 instructions in guarded\n  8 of them come from nowhere, and they are ['COPY', 'POP_EXCEPT', 'PUSH_EXC_INFO', 'RERAISE']\n\n  co_code            138 bytes\n  co_linetable        75 bytes\n  co_exceptiontable   25 bytes\n"
+        },
+        {
+          "name": "f11-26",
+          "status": "ok"
+        },
+        {
+          "name": "f11-28",
+          "status": "ok",
+          "printed": "  294 code objects out of four standard library modules\n  0 of them decoded differently from co_positions()\n"
+        },
+        {
+          "name": "f11-31",
+          "status": "ok",
+          "printed": "       5   exception table 85               line table 05\n     100   exception table c1 24            line table 64 01\n    4000   exception table fe 20            line table 60 3e\n  100000   exception table d8 5a 20         line table 60 5a 18\n\n  same number, same six bit chunks, read from opposite ends\n"
         }
       ]
     },
@@ -940,7 +998,7 @@
         {
           "name": "t04-30",
           "status": "ok",
-          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x177e4f8: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
+          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x14f6df0: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
         },
         {
           "name": "t04-33",
@@ -1217,7 +1275,7 @@
         {
           "name": "t07-38",
           "status": "ok",
-          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x180fd48, file 't07-38', line 7, code make_one>\nits name: make_one\n"
+          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x16bfa20, file 't07-38', line 7, code make_one>\nits name: make_one\n"
         },
         {
           "name": "t07-40",
@@ -1251,12 +1309,12 @@
         {
           "name": "t08-11",
           "status": "ok",
-          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x15374b8, 3 reference(s), 26 bytes, not tracked\nlist at 0x1685d38, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x1825e68, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x14d0058, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
+          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x1638f40, 3 reference(s), 26 bytes, not tracked\nlist at 0x135f4f0, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x17a4f70, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x18b2970, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
         },
         {
           "name": "t08-14",
           "status": "ok",
-          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0xfe7c48\nid(b) 0x12976b0\nid(c) 0xfe7c48\n"
+          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x1285510\nid(b) 0x17993c0\nid(c) 0x1285510\n"
         },
         {
           "name": "t08-17",
@@ -1296,7 +1354,7 @@
         {
           "name": "t08-35",
           "status": "ok",
-          "printed": "dict at 0x1342e70\ndict at 0x16f4028\nlist at 0x12975c8\n"
+          "printed": "dict at 0x11f2548\ndict at 0x1342e70\nlist at 0x17992a8\n"
         },
         {
           "name": "t08-37",
@@ -1355,7 +1413,7 @@
         {
           "name": "t09-21",
           "status": "ok",
-          "printed": "Node at 0x135a0e0 -> Node at 0x135d318 -> Node at 0x1521170 -> Node at 0x135a0e0\n"
+          "printed": "Node at 0x113ad28 -> Node at 0x182c188 -> Node at 0x1597008 -> Node at 0x113ad28\n"
         },
         {
           "name": "t09-23",
@@ -1385,7 +1443,7 @@
         {
           "name": "t09-37",
           "status": "ok",
-          "printed": "first object was at  0x14b3670\nsecond object is at  0x14b3670\nsame address reused -> True\n"
+          "printed": "first object was at  0x174a8e8\nsecond object is at  0x174a8e8\nsame address reused -> True\n"
         }
       ]
     },

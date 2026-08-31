@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-229 claims across 26 lessons, 19 of them not observable from Python.
+236 claims across 27 lessons, 19 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -158,6 +158,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a module body and a class body have no flags set at all, and a function has several | [`f10-13`](f10-inside-a-code-object/f10.ipynb) |
 | the same source compiled from two different filenames gives two equal code objects | [`f10-15`](f10-inside-a-code-object/f10.ipynb) |
 | replace gives you a new code object and leaves the original alone | [`f10-17`](f10-inside-a-code-object/f10.ipynb) |
+
+## F11. Two tables on the side
+
+| Claim | Proved by |
+| --- | --- |
+| the instructions inside a try block are identical to the same code with no try around it | [`f11-07`](f11-two-tables-on-the-side/f11.ipynb) |
+| an exception table entry decodes to start, size, target and a doubled depth | [`f11-13`](f11-two-tables-on-the-side/f11.ipynb) |
+| a dozen lines of Python decode co_exceptiontable exactly as dis does | [`f11-16`](f11-two-tables-on-the-side/f11.ipynb) |
+| the caret in a traceback is drawn from the column numbers in co_linetable | [`f11-20`](f11-two-tables-on-the-side/f11.ipynb) |
+| some instructions in a normal function have no source location at all | [`f11-23`](f11-two-tables-on-the-side/f11.ipynb) |
+| a hand written decoder reproduces co_positions() for every code object in a standard library module | [`f11-26`](f11-two-tables-on-the-side/f11.ipynb) |
+| the two tables encode integers with their chunks in opposite orders | [`f11-31`](f11-two-tables-on-the-side/f11.ipynb) |
 
 ## T01. One line, seven stages
 
