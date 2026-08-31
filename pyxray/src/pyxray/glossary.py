@@ -264,6 +264,31 @@ FRONT_END = Group(
             see=("f string", "replacement field"),
             met="F02",
         ),
+        Term(
+            name="parser generator",
+            short="The program that reads the grammar file and writes the parser.",
+            long="It lives in `Tools/peg_generator` and is a normal Python package, so it is not part of any installed Python and you cannot import it without a source checkout. It has two back ends. The C one writes `Parser/parser.c` and is what a CPython build runs. The Python one writes a parser you can import, which is what the test suite and anyone experimenting with the grammar uses.",
+            cite="Makefile.pre.in:2046-2054@v3.15.0rc1",
+            also=("pegen",),
+            see=("grammar", "PEG parser", "generated file"),
+            met="F03",
+        ),
+        Term(
+            name="soft keyword",
+            short="A word that counts as a keyword only in the one place the grammar looks for it.",
+            long="The grammar marks these with double quotes rather than single ones, and there are five of them: `_`, `case`, `lazy`, `match` and `type`. The tokenizer knows nothing about any of them, which is why you can still have a variable called `match`. Only a parser willing to try an alternative and back out of it can work this way.",
+            cite="Grammar/python.gram:32-34@v3.15.0rc1",
+            see=("PEG parser", "grammar", "token"),
+            met="F03",
+        ),
+        Term(
+            name="left recursion",
+            short="A rule that names itself as the first thing it matches.",
+            long="Read literally this never terminates, so most parser generators refuse it and ask you to rewrite the rule. Pegen accepts it and generates a loop instead: parse the rule without the recursion, then feed the result back in and try again, keeping the longest parse that got longer. That is why `1 - 2 - 3` groups to the left without anybody writing down a precedence table.",
+            cite="Parser/parser.c:14045-14079@v3.15.0rc1#sum_rule",
+            see=("grammar", "PEG parser", "parser generator"),
+            met="F03",
+        ),
     ),
 )
 

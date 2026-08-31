@@ -15,6 +15,7 @@ So those programs run somewhere else. They run in the images this project publis
 | [b04-what-a-script-wrote](tier1/b04-what-a-script-wrote.md) | B04 | debug | How much of the C in CPython was written by a script rather than by a person? |
 | [b04-changing-the-source-of-truth](tier1/b04-changing-the-source-of-truth.md) | B04 | debug | What happens to the generated C when you add an instruction to Python/bytecodes.c? |
 | [f01-one-line-at-a-time](tier1/f01-one-line-at-a-time.md) | F01 | debug | How much of your file is in the tokenizer's memory while it is being read? |
+| [f03-a-parser-nobody-wrote](tier1/f03-a-parser-nobody-wrote.md) | F03 | debug | What does the parser generator actually do, and what does it write? |
 
 ## The commands
 
