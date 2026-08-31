@@ -70,6 +70,11 @@
       "first_line": "#define CO_OPTIMIZED    0x0001",
       "lines": 36
     },
+    "Include/cpython/code.h:314-325@v3.15.0rc1": {
+      "digest": "69c2883f3fd31c09",
+      "first_line": "typedef enum _PyCodeLocationInfoKind {",
+      "lines": 12
+    },
     "Include/cpython/code.h:45-84@v3.15.0rc1": {
       "digest": "b8093c5db4f33759",
       "first_line": "#define _PyCode_DEF(SIZE) {                                                    \\",
@@ -129,6 +134,21 @@
       "digest": "fc05fedf627a517c",
       "first_line": "#define CO_FAST_ARG_POS (0x02)  // pos-only, pos-or-kw, varargs",
       "lines": 8
+    },
+    "Include/internal/pycore_code.h:394-403@v3.15.0rc1": {
+      "digest": "f19a30d3d1b1672b",
+      "first_line": "static inline unsigned char *",
+      "lines": 10
+    },
+    "Include/internal/pycore_code.h:405-416@v3.15.0rc1": {
+      "digest": "4258457082674f92",
+      "first_line": "static inline int",
+      "lines": 12
+    },
+    "Include/internal/pycore_code.h:432-437@v3.15.0rc1": {
+      "digest": "3969a1749fa282ab",
+      "first_line": "static inline int",
+      "lines": 6
     },
     "Include/internal/pycore_flowgraph.h:27-31@v3.15.0rc1": {
       "digest": "5f318ca1d3438caa",
@@ -489,6 +509,11 @@
       "digest": "c109b796d3aee235",
       "first_line": "static int",
       "lines": 22
+    },
+    "Objects/codeobject.c:1201-1225@v3.15.0rc1": {
+      "digest": "db7d492e583ccdfe",
+      "first_line": "static void",
+      "lines": 25
     },
     "Objects/codeobject.c:2502-2541@v3.15.0rc1": {
       "digest": "83840c731b19be0c",
@@ -1335,6 +1360,21 @@
       "first_line": "self->tok = _PyTokenizer_FromReadline(readline, encoding, 1, 1);",
       "lines": 1
     },
+    "Python/assemble.c:133-156@v3.15.0rc1": {
+      "digest": "4e437d03e06750b5",
+      "first_line": "assemble_emit_exception_table_entry(struct assembler *a, int start, int end,",
+      "lines": 24
+    },
+    "Python/assemble.c:158-190@v3.15.0rc1": {
+      "digest": "976fe9d268bf6d82",
+      "first_line": "assemble_exception_table(struct assembler *a, instr_sequence *instrs)",
+      "lines": 33
+    },
+    "Python/assemble.c:257-267@v3.15.0rc1": {
+      "digest": "70e139cd9b341390",
+      "first_line": "static void",
+      "lines": 11
+    },
     "Python/assemble.c:368-406@v3.15.0rc1": {
       "digest": "08bbae3c3ba3a552",
       "first_line": "static void",
@@ -1474,6 +1514,16 @@
       "digest": "fc120747f28c3b59",
       "first_line": "PyObject *",
       "lines": 30
+    },
+    "Python/ceval.h:440-444@v3.15.0rc1": {
+      "digest": "ab7807756cb3110a",
+      "first_line": "static inline unsigned char *",
+      "lines": 5
+    },
+    "Python/ceval.h:457-490@v3.15.0rc1": {
+      "digest": "7b8f661400efec41",
+      "first_line": "static Py_NO_INLINE int",
+      "lines": 34
     },
     "Python/ceval_macros.h:128-141@v3.15.0rc1": {
       "digest": "b032ce0706e98a42",
