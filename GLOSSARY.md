@@ -8,7 +8,7 @@ This file is generated from `pyxray/src/pyxray/glossary.py`. Edit that and run `
 
 ## Index
 
-[ASDL](#asdl) | [Argument Clinic](#argument-clinic) | [EXTENDED_ARG](#extended_arg) | [JIT](#jit) | [PEG parser](#peg-parser) | [Pyodide](#pyodide) | [WebAssembly](#webassembly) | [abstract syntax tree](#abstract-syntax-tree) | [adaptive instruction](#adaptive-instruction) | [arena](#arena) | [assembler](#assembler) | [backtrace](#backtrace) | [basic block](#basic-block) | [binding](#binding) | [block](#block) | [blurb](#blurb) | [borrowed reference](#borrowed-reference) | [bytecode](#bytecode) | [cell](#cell) | [closure](#closure) | [code generation](#code-generation) | [code object](#code-object) | [coding cookie](#coding-cookie) | [computed goto](#computed-goto) | [configure](#configure) | [constant folding](#constant-folding) | [control flow graph](#control-flow-graph) | [cycle collector](#cycle-collector) | [deallocation](#deallocation) | [debug build](#debug-build) | [deoptimization](#deoptimization) | [devguide](#devguide) | [dispatch](#dispatch) | [environment changed](#environment-changed) | [eval loop](#eval-loop) | [exception table](#exception-table) | [finalizer](#finalizer) | [frame](#frame) | [free threaded build](#free-threaded-build) | [free variable](#free-variable) | [gdb](#gdb) | [generated file](#generated-file) | [generation](#generation) | [grammar](#grammar) | [header file](#header-file) | [immortal object](#immortal-object) | [indent and dedent](#indent-and-dedent) | [inline cache](#inline-cache) | [instance dictionary](#instance-dictionary) | [instruction](#instruction) | [interning](#interning) | [line table](#line-table) | [monitoring events](#monitoring-events) | [new reference](#new-reference) | [object](#object) | [object header](#object-header) | [obmalloc](#obmalloc) | [oparg](#oparg) | [opcode](#opcode) | [pdb](#pdb) | [pointer](#pointer) | [pool](#pool) | [profile guided optimization](#profile-guided-optimization) | [pseudo instruction](#pseudo-instruction) | [pyconfig](#pyconfig) | [reference count](#reference-count) | [reference cycle](#reference-cycle) | [reference leak](#reference-leak) | [regen](#regen) | [regrtest](#regrtest) | [resource](#resource) | [scope](#scope) | [segmentation fault](#segmentation-fault) | [small integer cache](#small-integer-cache) | [specialization](#specialization) | [stack effect](#stack-effect) | [stolen reference](#stolen-reference) | [struct](#struct) | [symbol table](#symbol-table) | [test case](#test-case) | [tier one](#tier-one) | [tier two](#tier-two) | [token](#token) | [tokenizer](#tokenizer) | [trace function](#trace-function) | [type object](#type-object) | [underflow](#underflow) | [value stack](#value-stack) | [weak reference](#weak-reference)
+[ASDL](#asdl) | [Argument Clinic](#argument-clinic) | [EXTENDED_ARG](#extended_arg) | [JIT](#jit) | [PEG parser](#peg-parser) | [Pyodide](#pyodide) | [WebAssembly](#webassembly) | [abstract syntax tree](#abstract-syntax-tree) | [adaptive instruction](#adaptive-instruction) | [arena](#arena) | [assembler](#assembler) | [backtrace](#backtrace) | [basic block](#basic-block) | [binding](#binding) | [block](#block) | [blurb](#blurb) | [borrowed reference](#borrowed-reference) | [bytecode](#bytecode) | [cell](#cell) | [closure](#closure) | [code generation](#code-generation) | [code object](#code-object) | [coding cookie](#coding-cookie) | [computed goto](#computed-goto) | [configure](#configure) | [constant folding](#constant-folding) | [control flow graph](#control-flow-graph) | [cycle collector](#cycle-collector) | [deallocation](#deallocation) | [debug build](#debug-build) | [deoptimization](#deoptimization) | [devguide](#devguide) | [dispatch](#dispatch) | [environment changed](#environment-changed) | [eval loop](#eval-loop) | [exception table](#exception-table) | [f string](#f-string) | [finalizer](#finalizer) | [frame](#frame) | [free threaded build](#free-threaded-build) | [free variable](#free-variable) | [gdb](#gdb) | [generated file](#generated-file) | [generation](#generation) | [grammar](#grammar) | [header file](#header-file) | [immortal object](#immortal-object) | [indent and dedent](#indent-and-dedent) | [inline cache](#inline-cache) | [instance dictionary](#instance-dictionary) | [instruction](#instruction) | [interning](#interning) | [line table](#line-table) | [monitoring events](#monitoring-events) | [new reference](#new-reference) | [object](#object) | [object header](#object-header) | [obmalloc](#obmalloc) | [oparg](#oparg) | [opcode](#opcode) | [pdb](#pdb) | [pointer](#pointer) | [pool](#pool) | [profile guided optimization](#profile-guided-optimization) | [pseudo instruction](#pseudo-instruction) | [pyconfig](#pyconfig) | [reference count](#reference-count) | [reference cycle](#reference-cycle) | [reference leak](#reference-leak) | [regen](#regen) | [regrtest](#regrtest) | [replacement field](#replacement-field) | [resource](#resource) | [scope](#scope) | [segmentation fault](#segmentation-fault) | [small integer cache](#small-integer-cache) | [specialization](#specialization) | [stack effect](#stack-effect) | [stolen reference](#stolen-reference) | [struct](#struct) | [symbol table](#symbol-table) | [t string](#t-string) | [test case](#test-case) | [tier one](#tier-one) | [tier two](#tier-two) | [token](#token) | [tokenizer](#tokenizer) | [trace function](#trace-function) | [type object](#type-object) | [underflow](#underflow) | [value stack](#value-stack) | [weak reference](#weak-reference)
 
 ## Reading the source
 
@@ -153,6 +153,30 @@ Also written encoding declaration. First met in F01. See also [tokenizer](#token
 It is a field on `struct tok_state` rather than a fixed call, which is how one lexer reads from a file, a string, a bytes object or a Python callable without knowing which it got. Each of the four constructors sets it to its own version and then never comes up again.
 
 First met in F01. See also [tokenizer](#tokenizer). In the source: [`Parser/lexer/lexer.c:74-82@v3.15.0rc1`](https://github.com/python/cpython/blob/v3.15.0rc1/Parser/lexer/lexer.c#L74-L82).
+
+### f string
+
+**A string literal with a prefix of f, whose braces hold real expressions.**
+
+Since PEP 701 landed in 3.12 the tokenizer reads one directly rather than grabbing it whole and handing it to a separate parser. That is the reason the old restrictions on quotes, backslashes and comments inside the braces all went away at once: there is no longer a second parser to disagree with the first one.
+
+Also written formatted string literal. First met in F02. See also [replacement field](#replacement-field), [t string](#t-string), [tokenizer](#tokenizer).
+
+### replacement field
+
+**The part of an f-string between a pair of braces, made of an expression and up to three optional pieces.**
+
+After the expression comes an optional equals sign for debugging, an optional conversion after a bang, and an optional format spec after a colon. The lexer has to recognise all four boundaries while it is still scanning characters, which is most of what makes f-string lexing harder than it looks.
+
+First met in F02. See also [f string](#f-string), [t string](#t-string). In the source: [`Grammar/python.gram:971-973@v3.15.0rc1`](https://github.com/python/cpython/blob/v3.15.0rc1/Grammar/python.gram#L971-L973).
+
+### t string
+
+**A template string, written with a t prefix, which hands you its pieces instead of formatting them.**
+
+PEP 750 added these in 3.14 and they reuse the f-string lexer completely. The one difference in the tokenizer is a two value enum saying which kind it is. Because a t-string is meant to be inspected rather than printed, it always keeps the source text of each expression, where an f-string only keeps it after an equals sign.
+
+Also written template string. First met in F02. See also [f string](#f-string), [replacement field](#replacement-field).
 
 ## Names and where they live
 

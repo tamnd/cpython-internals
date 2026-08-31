@@ -240,6 +240,30 @@ FRONT_END = Group(
             see=("tokenizer",),
             met="F01",
         ),
+        Term(
+            name="f string",
+            short="A string literal with a prefix of f, whose braces hold real expressions.",
+            long="Since PEP 701 landed in 3.12 the tokenizer reads one directly rather than grabbing it whole and handing it to a separate parser. That is the reason the old restrictions on quotes, backslashes and comments inside the braces all went away at once: there is no longer a second parser to disagree with the first one.",
+            also=("formatted string literal",),
+            see=("replacement field", "t string", "tokenizer"),
+            met="F02",
+        ),
+        Term(
+            name="replacement field",
+            short="The part of an f-string between a pair of braces, made of an expression and up to three optional pieces.",
+            long="After the expression comes an optional equals sign for debugging, an optional conversion after a bang, and an optional format spec after a colon. The lexer has to recognise all four boundaries while it is still scanning characters, which is most of what makes f-string lexing harder than it looks.",
+            cite="Grammar/python.gram:971-973@v3.15.0rc1",
+            see=("f string", "t string"),
+            met="F02",
+        ),
+        Term(
+            name="t string",
+            short="A template string, written with a t prefix, which hands you its pieces instead of formatting them.",
+            long="PEP 750 added these in 3.14 and they reuse the f-string lexer completely. The one difference in the tokenizer is a two value enum saying which kind it is. Because a t-string is meant to be inspected rather than printed, it always keeps the source text of each expression, where an f-string only keeps it after an equals sign.",
+            also=("template string",),
+            see=("f string", "replacement field"),
+            met="F02",
+        ),
     ),
 )
 

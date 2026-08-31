@@ -10,6 +10,16 @@
       "first_line": "term[expr_ty]:",
       "lines": 7
     },
+    "Grammar/python.gram:968-983@v3.15.0rc1": {
+      "digest": "ea94b785eb56e932",
+      "first_line": "fstring_middle[expr_ty]:",
+      "lines": 16
+    },
+    "Grammar/python.gram:971-973@v3.15.0rc1": {
+      "digest": "bbdb9ac63a51e696",
+      "first_line": "fstring_replacement_field[expr_ty]:",
+      "lines": 3
+    },
     "Include/cpython/code.h:45-84@v3.15.0rc1": {
       "digest": "b8093c5db4f33759",
       "first_line": "#define _PyCode_DEF(SIZE) {                                                    \\",
@@ -900,6 +910,21 @@
       "first_line": "| Slice(expr? lower, expr? upper, expr? step)",
       "lines": 1
     },
+    "Parser/action_helpers.c:1399-1411@v3.15.0rc1": {
+      "digest": "2a5b8e9a84cc4f91",
+      "first_line": "if (item->kind == Constant_kind) {",
+      "lines": 13
+    },
+    "Parser/action_helpers.c:1405-1407@v3.15.0rc1": {
+      "digest": "ab2c38310a730bfd",
+      "first_line": "/* Tokenizer emits string parts even when the underlying string",
+      "lines": 3
+    },
+    "Parser/action_helpers.c:1483-1499@v3.15.0rc1": {
+      "digest": "11880d1ab2a6b3be",
+      "first_line": "expr_ty _PyPegen_constant_from_token(Parser* p, Token* tok) {",
+      "lines": 17
+    },
     "Parser/asdl_c.py:1-2@v3.15.0rc1": {
       "digest": "47980500884e7b9d",
       "first_line": "#! /usr/bin/env python",
@@ -915,15 +940,45 @@
       "first_line": "def asdl_of(name, obj):",
       "lines": 15
     },
+    "Parser/lexer/lexer.c:1085-1087@v3.15.0rc1": {
+      "digest": "8c6194f2bd422a64",
+      "first_line": "if (tok->tok_mode_stack_index + 1 >= MAXFSTRINGLEVEL) {",
+      "lines": 3
+    },
     "Parser/lexer/lexer.c:1103-1128@v3.15.0rc1": {
       "digest": "9b7b6105c0e01602",
       "first_line": "enum string_kind_t string_kind = FSTRING;",
       "lines": 26
     },
+    "Parser/lexer/lexer.c:113-120@v3.15.0rc1": {
+      "digest": "d2033ef8c0300e35",
+      "first_line": "static int",
+      "lines": 8
+    },
     "Parser/lexer/lexer.c:1300-1310@v3.15.0rc1": {
       "digest": "b822c2d1b8b1e2b0",
       "first_line": "/* Keep track of parentheses nesting level */",
       "lines": 11
+    },
+    "Parser/lexer/lexer.c:1380-1384@v3.15.0rc1": {
+      "digest": "c4eb917f155c798f",
+      "first_line": "}",
+      "lines": 5
+    },
+    "Parser/lexer/lexer.c:1413-1416@v3.15.0rc1": {
+      "digest": "0bd4735c0a9e9668",
+      "first_line": "if (current_tok->curly_bracket_expr_start_depth >= MAX_EXPR_NESTING) {",
+      "lines": 4
+    },
+    "Parser/lexer/lexer.c:1441-1444@v3.15.0rc1": {
+      "digest": "4ea0b1af7bd545cb",
+      "first_line": "p_start = tok->start;",
+      "lines": 4
+    },
+    "Parser/lexer/lexer.c:1546-1570@v3.15.0rc1": {
+      "digest": "50d3880db658aec4",
+      "first_line": "} else if (c == '}') {",
+      "lines": 25
     },
     "Parser/lexer/lexer.c:1615-1624@v3.15.0rc1": {
       "digest": "362dbbaa0b1d4a60",
@@ -934,6 +989,11 @@
       "digest": "c0ff4cce5d8d021d",
       "first_line": "int",
       "lines": 10
+    },
+    "Parser/lexer/lexer.c:227-227@v3.15.0rc1": {
+      "digest": "8e99ee22f0b62fb8",
+      "first_line": "_PyLexer_update_ftstring_expr(struct tok_state *tok, char cur)",
+      "lines": 1
     },
     "Parser/lexer/lexer.c:434-443@v3.15.0rc1": {
       "digest": "6a1fb45708aba4db",
@@ -990,6 +1050,26 @@
       "first_line": "",
       "lines": 29
     },
+    "Parser/lexer/state.h:132-133@v3.15.0rc1": {
+      "digest": "8f92986096323965",
+      "first_line": "tokenizer_mode tok_mode_stack[MAXFSTRINGLEVEL];",
+      "lines": 2
+    },
+    "Parser/lexer/state.h:36-46@v3.15.0rc1": {
+      "digest": "b28f399f14a7000d",
+      "first_line": "enum tokenizer_mode_kind_t {",
+      "lines": 11
+    },
+    "Parser/lexer/state.h:41-44@v3.15.0rc1": {
+      "digest": "232bf980304df1b1",
+      "first_line": "enum string_kind_t {",
+      "lines": 4
+    },
+    "Parser/lexer/state.h:48-70@v3.15.0rc1": {
+      "digest": "1841a84501a9199e",
+      "first_line": "typedef struct _tokenizer_mode {",
+      "lines": 23
+    },
     "Parser/lexer/state.h:6-8@v3.15.0rc1": {
       "digest": "fa6e58129d4aeaea",
       "first_line": "#define MAXINDENT 100       /* Max indentation level */",
@@ -999,6 +1079,11 @@
       "digest": "37cffe43696b58c0",
       "first_line": "struct tok_state {",
       "lines": 39
+    },
+    "Parser/lexer/state.h:8-8@v3.15.0rc1": {
+      "digest": "8313f90519828917",
+      "first_line": "#define MAXFSTRINGLEVEL 150 /* Max f-string nesting level */",
+      "lines": 1
     },
     "Parser/lexer/state.h:88-107@v3.15.0rc1": {
       "digest": "676ce9672b82210d",
