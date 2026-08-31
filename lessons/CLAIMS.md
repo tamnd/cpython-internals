@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-213 claims across 23 lessons, 19 of them not observable from Python.
+218 claims across 24 lessons, 19 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -127,6 +127,16 @@ Without it the exception becomes the rule and this goes back to being a book.
 | adding stack effects up along the flat list gets the right answer until there is a handler | [`f07-15`](f07-the-list-becomes-a-graph/f07.ipynb) |
 | moving a cold block to the end leaves a jump behind where control used to fall through | [`f07-17`](f07-the-list-becomes-a-graph/f07.ipynb) |
 | nothing in the finished code object is a graph | [`f07-20`](f07-the-list-becomes-a-graph/f07.ipynb) |
+
+## F08. The optimizer
+
+| Claim | Proved by |
+| --- | --- |
+| whether an expression is folded depends on how big the answer would be, and the boundary is exact | [`f08-07`](f08-the-optimizer/f08.ipynb) |
+| a leftover constant survives if it happened to land in the first slot, and is removed otherwise | [`f08-09`](f08-the-optimizer/f08.ipynb) |
+| a small ending can be copied in place of a jump, so the same two instructions appear twice | [`f08-12`](f08-the-optimizer/f08.ipynb) |
+| a line break in the middle of an expression, or a sixteenth local variable, costs you a superinstruction | [`f08-15`](f08-the-optimizer/f08.ipynb) |
+| the same local, read twice in one function, can compile to a checked load and an unchecked one | [`f08-17`](f08-the-optimizer/f08.ipynb) |
 
 ## T01. One line, seven stages
 

@@ -1510,10 +1510,35 @@
       "first_line": "/* Delete unreachable instructions */",
       "lines": 7
     },
+    "Python/flowgraph.c:1218-1219@v3.15.0rc1": {
+      "digest": "69dc916de8fb2d09",
+      "first_line": "/* Maximum size of basic block that should be copied in optimizer */",
+      "lines": 2
+    },
+    "Python/flowgraph.c:1226-1240@v3.15.0rc1": {
+      "digest": "5b66d47316e9cbab",
+      "first_line": "static int",
+      "lines": 15
+    },
+    "Python/flowgraph.c:1276-1298@v3.15.0rc1": {
+      "digest": "a3ef1ceaccd02733",
+      "first_line": "// Attempt to eliminate jumps to jumps by updating inst to jump to",
+      "lines": 23
+    },
+    "Python/flowgraph.c:1740-1745@v3.15.0rc1": {
+      "digest": "39fe92bc837298ad",
+      "first_line": "/* Check whether the total number of items in the (possibly nested) collection obj exceeds",
+      "lines": 6
+    },
     "Python/flowgraph.c:1760-1763@v3.15.0rc1": {
       "digest": "a4299fad233d0a6b",
       "first_line": "#define MAX_INT_SIZE           128  /* bits */",
       "lines": 4
+    },
+    "Python/flowgraph.c:1810-1828@v3.15.0rc1": {
+      "digest": "f46d06837c7a4aad",
+      "first_line": "static PyObject *",
+      "lines": 19
     },
     "Python/flowgraph.c:1810-1829@v3.15.0rc1": {
       "digest": "932e258171623fab",
@@ -1534,6 +1559,36 @@
       "digest": "751c968706ad200c",
       "first_line": "static int",
       "lines": 33
+    },
+    "Python/flowgraph.c:2652-2666@v3.15.0rc1": {
+      "digest": "3d777aa41c94e4e1",
+      "first_line": "static void",
+      "lines": 15
+    },
+    "Python/flowgraph.c:2668-2698@v3.15.0rc1": {
+      "digest": "f5540dd2f3664cb2",
+      "first_line": "static int",
+      "lines": 31
+    },
+    "Python/flowgraph.c:2857-2857@v3.15.0rc1": {
+      "digest": "713ceb3e68c3aef8",
+      "first_line": "optimize_load_fast(cfg_builder *g)",
+      "lines": 1
+    },
+    "Python/flowgraph.c:3261-3293@v3.15.0rc1": {
+      "digest": "65ce621781b3ba17",
+      "first_line": "remove_unused_consts(basicblock *entryblock, PyObject *consts)",
+      "lines": 33
+    },
+    "Python/flowgraph.c:3278-3282@v3.15.0rc1": {
+      "digest": "0625037542323202",
+      "first_line": "for (Py_ssize_t i = 1; i < nconsts; i++) {",
+      "lines": 5
+    },
+    "Python/flowgraph.c:3362-3364@v3.15.0rc1": {
+      "digest": "493013f42654432f",
+      "first_line": "add_checks_for_loads_of_uninitialized_variables(basicblock *entryblock,",
+      "lines": 3
     },
     "Python/flowgraph.c:3362-3401@v3.15.0rc1": {
       "digest": "3ee44b6a56e3f872",
