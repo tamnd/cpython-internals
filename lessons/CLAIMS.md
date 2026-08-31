@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-157 claims across 13 lessons, 14 of them not observable from Python.
+161 claims across 14 lessons, 15 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -21,6 +21,15 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a CPython built with configure keeps the argument list it was given, and sysconfig hands it back at run time | [`b01-07`](b01-building-cpython/b01.ipynb) |
 | the python binary is a small program, and almost all of the interpreter lives in the library it links against | not observable from Python: the split between the binary and libpython is a link time arrangement, and Python is only ever handed the result |
 | sysconfig cannot see any macro in pyconfig.h whose name starts with an underscore, so _Py_TAIL_CALL_INTERP is missing from get_config_vars even on a build that defines it | [`b01-10`](b01-building-cpython/b01.ipynb) |
+
+## B02. Watching the interpreter stop
+
+| Claim | Proved by |
+| --- | --- |
+| pdb reads its commands from whatever you hand it as standard input, so a debugging session can be written down in advance, run, and read back later | [`b02-07`](b02-the-debugger/b02.ipynb) |
+| pdb is ordinary Python that asks the interpreter to call it back on every function call, line and return, which is a hook any program can install | [`b02-10`](b02-the-debugger/b02.ipynb) |
+| four nested Python calls run inside a single _PyEval_EvalFrameDefault frame, so the C stack does not grow one frame per Python call | not observable from Python: counting C frames means attaching a debugger to the process, and there is no second process in a browser tab |
+| small integers report a reference count of 3221225472, which is a marker meaning never free this rather than a count of references | [`b02-22`](b02-the-debugger/b02.ipynb) |
 
 ## T01. One line, seven stages
 

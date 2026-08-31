@@ -12,6 +12,7 @@ dependencies = [
     "bpcheck",
     "cpybuild",
     "distprobe",
+    "gdbrec",
     "nbbuild",
     "nbcheck",
     "nbdiagram",
@@ -52,6 +53,7 @@ members = [
     "tools/nbcheck",
     "tools/nbdiagram",
     "tools/nbversion",
+    "tools/gdbrec",
     "tools/refcheck",
     "tools/tier1",
     "tools/wasmprobe",
@@ -70,6 +72,7 @@ nbcheck = { workspace = true }
 nbdiagram = { workspace = true }
 nbversion = { workspace = true }
 pyxray = { workspace = true }
+gdbrec = { workspace = true }
 refcheck = { workspace = true }
 tier1 = { workspace = true }
 wasmprobe = { workspace = true }
@@ -88,6 +91,7 @@ testpaths = [
     "tools/nbcheck/tests",
     "tools/nbdiagram/tests",
     "tools/nbversion/tests",
+    "tools/gdbrec/tests",
     "tools/refcheck/tests",
     "tools/tier1/tests",
     "tools/wasmprobe/tests",
@@ -122,6 +126,7 @@ known-first-party = [
     "bpcheck",
     "cpybuild",
     "distprobe",
+    "gdbrec",
     "nbbuild",
     "nbcheck",
     "nbdiagram",
