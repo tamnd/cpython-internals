@@ -734,6 +734,15 @@ OBJECTS = Group(
             see=("object", "type object"),
             met="T08",
         ),
+        Term(
+            name="PyVarObject",
+            short="An object header with a length field welded on the end of it.",
+            long="Tuples, lists and bytes objects all hold a count of how many items they have, and rather than each of them inventing a field for it the header itself grows by one machine word called `ob_size`. It is the same trick as the header: put the thing everybody needs in a fixed place so that generic code can read it without knowing the type. Strings keep their length in the same place without being one of these, and integers used to and no longer do.",
+            cite="Include/object.h:174-178@v3.15.0rc1#PyVarObject",
+            also=("variable sized object", "`ob_size`"),
+            see=("object header", "object"),
+            met="O01",
+        ),
     ),
 )
 
@@ -822,6 +831,15 @@ MEMORY = Group(
             also=("`__del__`",),
             see=("deallocation", "cycle collector"),
             met="T09",
+        ),
+        Term(
+            name="GC pre header",
+            short="Two words allocated in front of an object, holding its place in the collector's list.",
+            long="Only the types the cycle collector tracks get one, and the object's own address points past it, so nothing that reads the header ever sees it. You can still measure it: `sys.getsizeof` adds it and the object's own `__sizeof__` does not, so the gap between those two is exactly this.",
+            cite="Include/internal/pycore_interp_structs.h:158-169@v3.15.0rc1#PyGC_Head",
+            also=("`PyGC_Head`",),
+            see=("cycle collector", "object header"),
+            met="O01",
         ),
     ),
 )

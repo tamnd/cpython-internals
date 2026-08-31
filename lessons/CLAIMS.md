@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-243 claims across 28 lessons, 19 of them not observable from Python.
+250 claims across 29 lessons, 20 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -182,6 +182,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a reader written here decodes a marshalled code object into the fields the interpreter reads | [`f12-21`](f12-what-ends-up-on-disk/f12.ipynb) |
 | a .pyc assembled by hand imports and runs with no source file on disk | [`f12-26`](f12-what-ends-up-on-disk/f12.ipynb) |
 | a wrong magic number raises and a wrong timestamp is fixed silently | [`f12-29`](f12-what-ends-up-on-disk/f12.ipynb) |
+
+## O01. The header, byte by byte
+
+| Claim | Proved by |
+| --- | --- |
+| id() is the address an object lives at, and the two machine words there are its reference count and a pointer to its type | [`o01-07`](o01-the-header-byte-by-byte/o01.ipynb) |
+| the reference count is thirty two bits wide, and the other half of that word holds two more fields | [`o01-10`](o01-the-header-byte-by-byte/o01.ipynb) |
+| an immortal object's count starts halfway between the immortality line and the top of the field, leaving about a billion of slack in each direction | [`o01-13`](o01-the-header-byte-by-byte/o01.ipynb) |
+| a string literal that happens to be one of CPython's own identifiers is immortal, and the same characters CPython does not use are not | [`o01-16`](o01-the-header-byte-by-byte/o01.ipynb) |
+| for a tuple, a list, a bytes and a str, the machine word after the header is the length | [`o01-19`](o01-the-header-byte-by-byte/o01.ipynb) |
+| sys.getsizeof reports two machine words more than an object's own __sizeof__ for the types the cycle collector tracks, and nothing extra for the types it does not | [`o01-21`](o01-the-header-byte-by-byte/o01.ipynb) |
+| the free threaded build gives every object a thirty two byte header, split so the owning thread can increment without an atomic instruction | not observable from Python: the fields only exist in a build configured with --disable-gil, and this notebook is not running one |
 
 ## T01. One line, seven stages
 
