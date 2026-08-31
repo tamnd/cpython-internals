@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-161 claims across 14 lessons, 15 of them not observable from Python.
+166 claims across 15 lessons, 16 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -30,6 +30,16 @@ Without it the exception becomes the rule and this goes back to being a book.
 | pdb is ordinary Python that asks the interpreter to call it back on every function call, line and return, which is a hook any program can install | [`b02-10`](b02-the-debugger/b02.ipynb) |
 | four nested Python calls run inside a single _PyEval_EvalFrameDefault frame, so the C stack does not grow one frame per Python call | not observable from Python: counting C frames means attaching a debugger to the process, and there is no second process in a browser tab |
 | small integers report a reference count of 3221225472, which is a marker meaning never free this rather than a count of references | [`b02-22`](b02-the-debugger/b02.ipynb) |
+
+## B03. Asking CPython whether it still works
+
+| Claim | Proved by |
+| --- | --- |
+| CPython's test suite is ordinary unittest, the same module you would use for your own project | [`b03-07`](b03-the-test-suite/b03.ipynb) |
+| A file in Lib/test is a test file if its name starts with test_, and that is the entire rule | [`b03-10`](b03-the-test-suite/b03.ipynb) |
+| A -m pattern matches if it matches the full test id or any single dotted part of it, so a bare method name finds that method in every class | [`b03-12`](b03-the-test-suite/b03.ipynb) |
+| sys.gettotalrefcount only exists on a debug build, which is why hunting leaks needs one | not observable from Python: the function is compiled in only when CPython is configured with --with-pydebug, so an ordinary interpreter has nothing to call |
+| A run is only reported as a leak when every counted repetition gained at least one reference, so a single noisy run is not enough | [`b03-16`](b03-the-test-suite/b03.ipynb) |
 
 ## T01. One line, seven stages
 

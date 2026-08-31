@@ -265,6 +265,66 @@
       "first_line": "define_rx = re.compile(\"#define ([A-Z][A-Za-z0-9_]+) (.*)\\n\")",
       "lines": 1
     },
+    "Lib/test/libregrtest/cmdline.py:410-418@v3.15.0rc1": {
+      "digest": "ab40ceace8f07682",
+      "first_line": "def huntrleaks(string):",
+      "lines": 9
+    },
+    "Lib/test/libregrtest/filter.py:52-77@v3.15.0rc1": {
+      "digest": "aff4ece4c01a4e16",
+      "first_line": "def _compile_match_function(patterns):",
+      "lines": 26
+    },
+    "Lib/test/libregrtest/findtests.py:40-63@v3.15.0rc1": {
+      "digest": "4b6a8ff92e0ccaa1",
+      "first_line": "def findtests(*, testdir: StrPath | None = None, exclude: Container[str] = (),",
+      "lines": 24
+    },
+    "Lib/test/libregrtest/main.py:793-796@v3.15.0rc1": {
+      "digest": "e2a090334a43919b",
+      "first_line": "def main(tests=None, _add_python_opts=False, **kwargs) -> NoReturn:",
+      "lines": 4
+    },
+    "Lib/test/libregrtest/main.py:94-100@v3.15.0rc1": {
+      "digest": "cc5e5e9327dc9d5f",
+      "first_line": "self.single_process: bool = ns.single_process",
+      "lines": 7
+    },
+    "Lib/test/libregrtest/refleak.py:164-166@v3.15.0rc1": {
+      "digest": "ae7f87f8e2daacc6",
+      "first_line": "rc_deltas[i] = get_pooled_int(rc_after - rc_before)",
+      "lines": 3
+    },
+    "Lib/test/libregrtest/refleak.py:196-209@v3.15.0rc1": {
+      "digest": "869aec32c3329e0f",
+      "first_line": "def check_rc_deltas(deltas):",
+      "lines": 14
+    },
+    "Lib/test/libregrtest/results.py:18-22@v3.15.0rc1": {
+      "digest": "2e112c114c5a2a06",
+      "first_line": "EXITCODE_BAD_TEST = 2",
+      "lines": 5
+    },
+    "Lib/test/libregrtest/save_env.py:62-76@v3.15.0rc1": {
+      "digest": "e71a8ffee1893562",
+      "first_line": "resources = ('sys.argv', 'cwd', 'sys.stdin', 'sys.stdout', 'sys.stderr',",
+      "lines": 15
+    },
+    "Lib/test/support/__init__.py:1354-1360@v3.15.0rc1": {
+      "digest": "b907a6953d2df652",
+      "first_line": "def requires_resource(resource):",
+      "lines": 7
+    },
+    "Lib/test/support/__init__.py:1362-1366@v3.15.0rc1": {
+      "digest": "f52d182f90c1e9b4",
+      "first_line": "def cpython_only(test):",
+      "lines": 5
+    },
+    "Lib/unittest/case.py:393-393@v3.15.0rc1": {
+      "digest": "a7181d309beb3e26",
+      "first_line": "class TestCase(object):",
+      "lines": 1
+    },
     "Makefile.pre.in:1004-1006@v3.15.0rc1": {
       "digest": "9466b29af9702a45",
       "first_line": "# Build the interpreter",

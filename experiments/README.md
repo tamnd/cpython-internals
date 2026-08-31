@@ -11,6 +11,7 @@ So those programs run somewhere else. They run in the images this project publis
 | Recording | Lesson | Build | Question |
 |---|---|---|---|
 | [t05-compiling-costs-nothing-that-lasts](tier1/t05-compiling-costs-nothing-that-lasts.md) | T05 | debug | Does compiling the same line over and over leave anything behind? |
+| [b03-a-leak-you-can-see](tier1/b03-a-leak-you-can-see.md) | B03 | debug | What does it look like when the test suite catches a reference leak? |
 
 ## The commands
 

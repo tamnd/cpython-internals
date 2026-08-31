@@ -133,7 +133,107 @@ print("compiling keeps the code object and nothing else, and dropping that gets 
 )
 
 
-EXPERIMENTS: tuple[Experiment, ...] = (COMPILING_COSTS_NOTHING_THAT_LASTS,)
+A_LEAK_YOU_CAN_SEE = Experiment(
+    slug="b03-a-leak-you-can-see",
+    lesson="B03",
+    title="What the leak hunter actually catches",
+    asks="What does it look like when the test suite catches a reference leak?",
+    needs=(
+        "the -R flag reads sys.gettotalrefcount(), which only exists in a build configured "
+        "with --with-pydebug, and regrtest refuses to hunt leaks without it"
+    ),
+    build="debug",
+    program='''"""Run two test files under the leak hunter, one written to leak and one not.
+
+B03 says `-R` runs a test a few times over and watches the interpreter's total reference
+count. This is that sentence run for real. The two test files do the same amount of work and
+differ in one line: one of them appends to a list that outlives the test, and the other
+appends to a list that does not.
+
+The interesting part is the row of dots and digits. Two warmup runs, then three counted ones,
+one character each, and the difference between the two files is visible at a glance.
+"""
+
+import re
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+LEAKY = \"\"\"import unittest
+
+KEPT = []
+
+
+class Leaky(unittest.TestCase):
+    def test_keeps_one_object(self):
+        KEPT.append(object())
+        self.assertEqual(1 + 1, 2)
+\"\"\"
+
+FINE = \"\"\"import unittest
+
+
+class Fine(unittest.TestCase):
+    def test_keeps_nothing(self):
+        kept = []
+        kept.append(object())
+        self.assertEqual(1 + 1, 2)
+\"\"\"
+
+#: The wall clock and the load average regrtest puts in front of its progress lines. Both are
+#: different on every run on every machine and neither says anything about the leak, so the
+#: prefix comes off and the rest of the line stays exactly as it was printed.
+STAMP = re.compile("^[0-9]+:[0-9][0-9]:[0-9][0-9] load avg: [0-9.]+ ")
+
+where = Path("/tmp/b03")
+where.mkdir(exist_ok=True)
+(where / "test_leaky.py").write_text(LEAKY)
+(where / "test_fine.py").write_text(FINE)
+
+command = [
+    sys.executable,
+    "-m",
+    "test",
+    "--testdir",
+    str(where),
+    "-R",
+    "3:3",
+    "test_fine",
+    "test_leaky",
+]
+print("$ python -m test --testdir /tmp/b03 -R 3:3 test_fine test_leaky")
+print()
+
+# The two streams are merged rather than kept apart. regrtest writes its progress to standard
+# output and the leak hunter writes to standard error, both flushed line by line, and reading
+# them separately would print the verdict in one block and the run it came from in another.
+started = time.monotonic()
+done = subprocess.run(
+    command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, cwd="/tmp"
+)
+took = time.monotonic() - started
+
+for line in done.stdout.splitlines():
+    if line.startswith(("Using random seed", "Total duration")):
+        continue
+    print(STAMP.sub("", line))
+
+print()
+print(f"~ how long the two files took together, in seconds: {took:.1f}")
+print(f"regrtest exited {done.returncode}, which is the code it uses for a test that failed")
+
+assert done.returncode == 2, done.stdout
+assert "test_leaky leaked [1, 1, 1] references" in done.stdout, done.stdout
+assert "test_fine leaked" not in done.stdout, done.stdout
+''',
+)
+
+
+EXPERIMENTS: tuple[Experiment, ...] = (
+    COMPILING_COSTS_NOTHING_THAT_LASTS,
+    A_LEAK_YOU_CAN_SEE,
+)
 
 
 def find(slug: str) -> Experiment:
