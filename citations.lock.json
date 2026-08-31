@@ -740,10 +740,70 @@
       "first_line": "add_operators(PyTypeObject *type)",
       "lines": 15
     },
+    "Objects/typeobject.c:12586-12614@v3.15.0rc1": {
+      "digest": "965f0e77a7064b66",
+      "first_line": "PyObject *",
+      "lines": 29
+    },
+    "Objects/typeobject.c:1278-1298@v3.15.0rc1": {
+      "digest": "e2e21d98952ebb7b",
+      "first_line": "static void",
+      "lines": 21
+    },
+    "Objects/typeobject.c:1798-1810@v3.15.0rc1": {
+      "digest": "d8630aee772bf39e",
+      "first_line": "mro_hierarchy_for_complete_type(PyTypeObject *type, PyObject *temp)",
+      "lines": 13
+    },
     "Objects/typeobject.c:2512-2531@v3.15.0rc1": {
       "digest": "9ac3593478808a3d",
       "first_line": "_PyType_AllocNoTrack(PyTypeObject *type, Py_ssize_t nitems)",
       "lines": 20
+    },
+    "Objects/typeobject.c:3246-3256@v3.15.0rc1": {
+      "digest": "73c31df6c43bee0c",
+      "first_line": "tail_contains(PyObject *tuple, Py_ssize_t whence, PyObject *o)",
+      "lines": 11
+    },
+    "Objects/typeobject.c:3270-3298@v3.15.0rc1": {
+      "digest": "2ec88f6f44bd8a6a",
+      "first_line": "check_duplicates(PyObject *tuple)",
+      "lines": 29
+    },
+    "Objects/typeobject.c:3309-3331@v3.15.0rc1": {
+      "digest": "2bb1be8360636ab0",
+      "first_line": "static void",
+      "lines": 23
+    },
+    "Objects/typeobject.c:3361-3400@v3.15.0rc1": {
+      "digest": "913155b71541437c",
+      "first_line": "pmerge(PyObject *acc, PyObject **to_merge, Py_ssize_t to_merge_size)",
+      "lines": 40
+    },
+    "Objects/typeobject.c:3431-3451@v3.15.0rc1": {
+      "digest": "087ba3b7f6fbf993",
+      "first_line": "mro_implementation_unlocked(PyTypeObject *type)",
+      "lines": 21
+    },
+    "Objects/typeobject.c:3453-3473@v3.15.0rc1": {
+      "digest": "7b880cb6bfeaf0a1",
+      "first_line": "if (n == 1) {",
+      "lines": 21
+    },
+    "Objects/typeobject.c:3480-3510@v3.15.0rc1": {
+      "digest": "8cb3a4a8df0d5132",
+      "first_line": "/* Find a superclass linearization that honors the constraints",
+      "lines": 31
+    },
+    "Objects/typeobject.c:3590-3609@v3.15.0rc1": {
+      "digest": "31f3540815b1fe10",
+      "first_line": "static PyObject *",
+      "lines": 20
+    },
+    "Objects/typeobject.c:6144-6180@v3.15.0rc1": {
+      "digest": "a16a8c9e914d75f2",
+      "first_line": "static int",
+      "lines": 37
     },
     "Objects/typeobject.c:7290-7295@v3.15.0rc1": {
       "digest": "e3fd1c7921a386a3",
