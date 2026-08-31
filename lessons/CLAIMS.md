@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-218 claims across 24 lessons, 19 of them not observable from Python.
+223 claims across 25 lessons, 19 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -137,6 +137,16 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a small ending can be copied in place of a jump, so the same two instructions appear twice | [`f08-12`](f08-the-optimizer/f08.ipynb) |
 | a line break in the middle of an expression, or a sixteenth local variable, costs you a superinstruction | [`f08-15`](f08-the-optimizer/f08.ipynb) |
 | the same local, read twice in one function, can compile to a checked load and an unchecked one | [`f08-17`](f08-the-optimizer/f08.ipynb) |
+
+## F09. Two bytes at a time
+
+| Claim | Proved by |
+| --- | --- |
+| the bytes of a small function are short enough to read one by one and match against the disassembly | [`f09-07`](f09-two-bytes-at-a-time/f09.ipynb) |
+| the gap between one instruction's offset and the next tells you how many cache slots it carries | [`f09-10`](f09-two-bytes-at-a-time/f09.ipynb) |
+| you can rebuild every jump target by hand from the argument and the size of the jump itself | [`f09-13`](f09-two-bytes-at-a-time/f09.ipynb) |
+| the step that first needs an EXTENDED_ARG is one pair bigger than every other step | [`f09-16`](f09-two-bytes-at-a-time/f09.ipynb) |
+| the same jump is a label before the assembler and a signed distance after it | [`f09-19`](f09-two-bytes-at-a-time/f09.ipynb) |
 
 ## T01. One line, seven stages
 

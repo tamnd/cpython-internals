@@ -1305,6 +1305,46 @@
       "first_line": "self->tok = _PyTokenizer_FromReadline(readline, encoding, 1, 1);",
       "lines": 1
     },
+    "Python/assemble.c:368-406@v3.15.0rc1": {
+      "digest": "08bbae3c3ba3a552",
+      "first_line": "static void",
+      "lines": 39
+    },
+    "Python/assemble.c:38-48@v3.15.0rc1": {
+      "digest": "ab852c295b086a88",
+      "first_line": "static int",
+      "lines": 11
+    },
+    "Python/assemble.c:432-457@v3.15.0rc1": {
+      "digest": "06ab69ca31534999",
+      "first_line": "static int",
+      "lines": 26
+    },
+    "Python/assemble.c:705-708@v3.15.0rc1": {
+      "digest": "75168c43621dfa26",
+      "first_line": "/* jump offsets are computed relative to",
+      "lines": 4
+    },
+    "Python/assemble.c:710-725@v3.15.0rc1": {
+      "digest": "c12ba34536a3c8e8",
+      "first_line": "if (OPCODE_HAS_JUMP(instr->i_opcode)) {",
+      "lines": 16
+    },
+    "Python/assemble.c:726-728@v3.15.0rc1": {
+      "digest": "2d16349cb40200da",
+      "first_line": "if (instr_size(instr) != isize) {",
+      "lines": 3
+    },
+    "Python/assemble.c:731-745@v3.15.0rc1": {
+      "digest": "07d4c97d84592d9d",
+      "first_line": "/* XXX: This is an awful hack that could hurt performance, but",
+      "lines": 15
+    },
+    "Python/assemble.c:749-777@v3.15.0rc1": {
+      "digest": "3894a14b54783d91",
+      "first_line": "static int",
+      "lines": 29
+    },
     "Python/assemble.c:779-802@v3.15.0rc1": {
       "digest": "1d1f376d310651cf",
       "first_line": "PyCodeObject *",
