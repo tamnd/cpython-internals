@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-223 claims across 25 lessons, 19 of them not observable from Python.
+229 claims across 26 lessons, 19 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -147,6 +147,17 @@ Without it the exception becomes the rule and this goes back to being a book.
 | you can rebuild every jump target by hand from the argument and the size of the jump itself | [`f09-13`](f09-two-bytes-at-a-time/f09.ipynb) |
 | the step that first needs an EXTENDED_ARG is one pair bigger than every other step | [`f09-16`](f09-two-bytes-at-a-time/f09.ipynb) |
 | the same jump is a label before the assembler and a signed distance after it | [`f09-19`](f09-two-bytes-at-a-time/f09.ipynb) |
+
+## F10. Inside a code object
+
+| Claim | Proved by |
+| --- | --- |
+| the code objects of a file form a tree, reachable through co_consts alone | [`f10-07`](f10-inside-a-code-object/f10.ipynb) |
+| a parameter that a nested function reads is tagged twice, so it appears in two tuples | [`f10-09`](f10-inside-a-code-object/f10.ipynb) |
+| a function whose parameter is captured starts with instructions that belong to no line of source | [`f10-11`](f10-inside-a-code-object/f10.ipynb) |
+| a module body and a class body have no flags set at all, and a function has several | [`f10-13`](f10-inside-a-code-object/f10.ipynb) |
+| the same source compiled from two different filenames gives two equal code objects | [`f10-15`](f10-inside-a-code-object/f10.ipynb) |
+| replace gives you a new code object and leaves the original alone | [`f10-17`](f10-inside-a-code-object/f10.ipynb) |
 
 ## T01. One line, seven stages
 
