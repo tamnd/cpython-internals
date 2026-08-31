@@ -13,6 +13,7 @@ tells the reader what still works, rather than raising something they cannot rea
 from __future__ import annotations
 
 from . import (
+    builds,
     bytecode,
     compiler,
     draw,
@@ -32,6 +33,7 @@ from .cite import link
 __all__ = [
     "Build",
     "banner",
+    "builds",
     "bytecode",
     "capabilities",
     "compiler",

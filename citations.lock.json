@@ -245,6 +245,21 @@
       "first_line": "def unparse(ast_obj):",
       "lines": 7
     },
+    "Lib/sysconfig/__init__.py:438-438@v3.15.0rc1": {
+      "digest": "01a0f7b6f0bc767c",
+      "first_line": "define_rx = re.compile(\"#define ([A-Z][A-Za-z0-9_]+) (.*)\\n\")",
+      "lines": 1
+    },
+    "Makefile.pre.in:1004-1006@v3.15.0rc1": {
+      "digest": "9466b29af9702a45",
+      "first_line": "# Build the interpreter",
+      "lines": 3
+    },
+    "Makefile.pre.in:1956-1962@v3.15.0rc1": {
+      "digest": "3efc2df806ea12da",
+      "first_line": "regen-all: regen-cases regen-slots \\",
+      "lines": 7
+    },
     "Makefile.pre.in:2056-2072@v3.15.0rc1": {
       "digest": "38e8e503bef0fb6b",
       "first_line": ".PHONY: regen-ast",
@@ -1164,6 +1179,21 @@
       "digest": "8780fbda3fa7cd5f",
       "first_line": "size_t",
       "lines": 16
+    },
+    "configure.ac:1771-1785@v3.15.0rc1": {
+      "digest": "21892982de568378",
+      "first_line": "# Check for --with-pydebug",
+      "lines": 15
+    },
+    "configure.ac:1847-1860@v3.15.0rc1": {
+      "digest": "9333bfe88b40cef8",
+      "first_line": "AC_MSG_CHECKING([for --enable-optimizations])",
+      "lines": 14
+    },
+    "configure.ac:7467-7489@v3.15.0rc1": {
+      "digest": "164821fc63867c1e",
+      "first_line": "# Check for --with-tail-call-interp",
+      "lines": 23
     }
   },
   "commit": "37e98da7c19a9e5892ee756d6dee08225422cd49",

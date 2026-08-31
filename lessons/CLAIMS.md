@@ -12,7 +12,15 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-154 claims across 12 lessons, 13 of them not observable from Python.
+157 claims across 13 lessons, 14 of them not observable from Python.
+
+## B01. Building CPython, and whether you need to
+
+| Claim | Proved by |
+| --- | --- |
+| a CPython built with configure keeps the argument list it was given, and sysconfig hands it back at run time | [`b01-07`](b01-building-cpython/b01.ipynb) |
+| the python binary is a small program, and almost all of the interpreter lives in the library it links against | not observable from Python: the split between the binary and libpython is a link time arrangement, and Python is only ever handed the result |
+| sysconfig cannot see any macro in pyconfig.h whose name starts with an underscore, so _Py_TAIL_CALL_INTERP is missing from get_config_vars even on a build that defines it | [`b01-10`](b01-building-cpython/b01.ipynb) |
 
 ## T01. One line, seven stages
 
