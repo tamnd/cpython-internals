@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-207 claims across 22 lessons, 19 of them not observable from Python.
+213 claims across 23 lessons, 19 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -116,6 +116,17 @@ Without it the exception becomes the rule and this goes back to being a book.
 | in `box[key] = value` the value runs before the target and before the key | [`f06-11`](f06-one-node-at-a-time/f06.ipynb) |
 | the code generator emits the dead branch of `if False` in full, and something later removes it | [`f06-16`](f06-one-node-at-a-time/f06.ipynb) |
 | some instructions in your function belong to no line of your source, and dis says so | [`f06-19`](f06-one-node-at-a-time/f06.ipynb) |
+
+## F07. The list becomes a graph
+
+| Claim | Proved by |
+| --- | --- |
+| the three leader rules are enough to split real bytecode into blocks | [`f07-07`](f07-the-list-becomes-a-graph/f07.ipynb) |
+| in a function with a try, the compiled instructions are not in source order | [`f07-10`](f07-the-list-becomes-a-graph/f07.ipynb) |
+| the code generator emits code that can never run, and the graph pass deletes it | [`f07-13`](f07-the-list-becomes-a-graph/f07.ipynb) |
+| adding stack effects up along the flat list gets the right answer until there is a handler | [`f07-15`](f07-the-list-becomes-a-graph/f07.ipynb) |
+| moving a cold block to the end leaves a jump behind where control used to fall through | [`f07-17`](f07-the-list-becomes-a-graph/f07.ipynb) |
+| nothing in the finished code object is a graph | [`f07-20`](f07-the-list-becomes-a-graph/f07.ipynb) |
 
 ## T01. One line, seven stages
 

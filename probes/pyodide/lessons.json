@@ -393,6 +393,50 @@
       ]
     },
     {
+      "slug": "f07-the-list-becomes-a-graph",
+      "cells": [
+        {
+          "name": "f07-03",
+          "status": "ok"
+        },
+        {
+          "name": "f07-05",
+          "status": "ok",
+          "printed": "cpython 3.14.2 on Emscripten wasm32, WebAssembly\n  note: this is 3.14, and everything here is written against 3.15, so bytecode and some object layouts will differ from the prose\n"
+        },
+        {
+          "name": "f07-07",
+          "status": "ok",
+          "printed": "  21 instructions fall into 6 blocks\n    block 1  RESUME LOAD_FAST_BORROW LOAD_SMALL_INT BINARY_OP STORE_FAST LOAD_FAST_BORROW GET_ITER\n    block 2  FOR_ITER\n    block 3  STORE_FAST LOAD_FAST_BORROW_LOAD_FAST_BORROW COMPARE_OP POP_JUMP_IF_TRUE\n    block 4  NOT_TAKEN JUMP_BACKWARD\n    block 5  LOAD_FAST STORE_FAST JUMP_BACKWARD\n    block 6  END_FOR POP_ITER LOAD_FAST_BORROW RETURN_VALUE\n"
+        },
+        {
+          "name": "f07-10",
+          "status": "ok",
+          "printed": "   4           RESUME                   0\n\n   5           NOP\n\n   6   L1:     LOAD_FAST_BORROW         0 (items)\n               LOAD_SMALL_INT           0\n               BINARY_OP               26 ([])\n               STORE_FAST               1 (first)\n\n   9   L2:     LOAD_FAST_BORROW         1 (first)\n               RETURN_VALUE\n\n  --   L3:     PUSH_EXC_INFO\n\n   7           LOAD_GLOBAL              0 (IndexError)\n               CHECK_EXC_MATCH\n               POP_JUMP_IF_FALSE        7 (to L5)\n               NOT_TAKEN\n               POP_TOP\n\n   8           LOAD_CONST               1 (None)\n               STORE_FAST               1 (first)\n       L4:     POP_EXCEPT\n\n   9           LOAD_FAST                1 (first)\n               RETURN_VALUE\n\n   7   L5:     RERAISE                  0\n\n  --   L6:     COPY                     3\n               POP_EXCEPT\n               RERAISE                  1\nExceptionTable:\n  L1 to L2 -> L3 [0]\n  L3 to L4 -> L6 [1] lasti\n  L5 to L6 -> L6 [1] lasti\n"
+        },
+        {
+          "name": "f07-13",
+          "status": "ok",
+          "printed": "  code written after a return\n      the generator emitted 11, the code object kept 3\n      what is left  ['RESUME', 'LOAD_SMALL_INT', 'RETURN_VALUE']\n  a loop whose test is always true\n      the generator emitted 8, the code object kept 3\n      what is left  ['RESUME', 'NOP', 'JUMP_BACKWARD']\n  a branch that can never be taken\n      the generator emitted 12, the code object kept 4\n      what is left  ['RESUME', 'NOP', 'LOAD_SMALL_INT', 'RETURN_VALUE']\n"
+        },
+        {
+          "name": "f07-15",
+          "status": "ok",
+          "printed": "  flat             co_stacksize 2   adding up in order 2\n  wide             co_stacksize 4   adding up in order 4\n  nested           co_stacksize 7   adding up in order 7\n  careful          co_stacksize 4   adding up in order 3\n"
+        },
+        {
+          "name": "f07-17",
+          "status": "ok",
+          "printed": "  careful        lines, in bytecode order  [4, 5, 6, 9, '--', 7, 8, 9, 7, '--']\n  two_returns    lines, in bytecode order  [4, 5, 6, '--', 7, 8, 7, '--', 9, 10]\n\n   4           RESUME                   0\n\n   5           NOP\n\n   6   L1:     LOAD_FAST_BORROW         0 (items)\n               LOAD_SMALL_INT           0\n               BINARY_OP               26 ([])\n       L2:     RETURN_VALUE\n\n  --   L3:     PUSH_EXC_INFO\n\n   7           LOAD_GLOBAL              0 (IndexError)\n               CHECK_EXC_MATCH\n               POP_JUMP_IF_FALSE        4 (to L5)\n               NOT_TAKEN\n               POP_TOP\n\n   8   L4:     POP_EXCEPT\n               JUMP_FORWARD             4 (to L7)\n\n   7   L5:     RERAISE                  0\n\n  --   L6:     COPY                     3\n               POP_EXCEPT\n               RERAISE                  1\n\n   9   L7:     LOAD_GLOBAL              3 (print + NULL)\n               LOAD_CONST               1 ('recovering')\n               CALL                     1\n               POP_TOP\n\n  10           LOAD_CONST               2 (None)\n               RETURN_VALUE\nExceptionTable:\n  L1 to L2 -> L3 [0]\n  L3 to L4 -> L6 [1] lasti\n  L5 to L6 -> L6 [1] lasti\n"
+        },
+        {
+          "name": "f07-20",
+          "status": "ok",
+          "printed": "  co_code            66 bytes, one flat run with no blocks in it\n  co_stacksize       4, the answer, with none of the working shown\n  co_exceptiontable  12 bytes, ranges rather than edges\n  co_linetable       50 bytes, and F11 is about that one\n\n  co_branches()      [(40, 46, 58)]\n"
+        }
+      ]
+    },
+    {
       "slug": "t01-one-line-seven-stages",
       "cells": [
         {
@@ -774,7 +818,7 @@
         {
           "name": "t04-30",
           "status": "ok",
-          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x18c0b00: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
+          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x1755820: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
         },
         {
           "name": "t04-33",
@@ -1051,7 +1095,7 @@
         {
           "name": "t07-38",
           "status": "ok",
-          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x1479450, file 't07-38', line 7, code make_one>\nits name: make_one\n"
+          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x159a1b0, file 't07-38', line 7, code make_one>\nits name: make_one\n"
         },
         {
           "name": "t07-40",
@@ -1085,12 +1129,12 @@
         {
           "name": "t08-11",
           "status": "ok",
-          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x121a490, 3 reference(s), 26 bytes, not tracked\nlist at 0x1488590, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x1826aa8, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x12d5ff0, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
+          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x1380018, 3 reference(s), 26 bytes, not tracked\nlist at 0x161c160, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x1633718, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x16a7688, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
         },
         {
           "name": "t08-14",
           "status": "ok",
-          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x1741ee8\nid(b) 0x14898f0\nid(c) 0x1741ee8\n"
+          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x125c9f8\nid(b) 0x17a08a0\nid(c) 0x125c9f8\n"
         },
         {
           "name": "t08-17",
@@ -1130,7 +1174,7 @@
         {
           "name": "t08-35",
           "status": "ok",
-          "printed": "dict at 0x13e7d58\ndict at 0x14863a0\nlist at 0x1864478\n"
+          "printed": "dict at 0x10f40a0\ndict at 0x14f7088\nlist at 0x161ba08\n"
         },
         {
           "name": "t08-37",
@@ -1189,7 +1233,7 @@
         {
           "name": "t09-21",
           "status": "ok",
-          "printed": "Node at 0x174b530 -> Node at 0x17bd398 -> Node at 0x1283fa0 -> Node at 0x174b530\n"
+          "printed": "Node at 0x181ef40 -> Node at 0x169ed58 -> Node at 0x18615a0 -> Node at 0x181ef40\n"
         },
         {
           "name": "t09-23",
@@ -1219,7 +1263,7 @@
         {
           "name": "t09-37",
           "status": "ok",
-          "printed": "first object was at  0x1273ec0\nsecond object is at  0x1273ec0\nsame address reused -> True\n"
+          "printed": "first object was at  0x1696348\nsecond object is at  0x1696348\nsame address reused -> True\n"
         }
       ]
     },
