@@ -19,7 +19,7 @@
 // own machine.
 {
   "name": "CPython 3.15.0rc1, debug build",
-  "image": "ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:de0d69b176872e99c63152b8ab4ebffac7bb131e5422c8eaebc7f455374ea824",
+  "image": "ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:7baea8f3dd4de2e4c3b020543729b147e636494ae9758dabffb4675793e37170",
 
   // gdb needs to attach to a process, and Docker's default seccomp profile blocks the call it
   // uses to do that. Without these two lines the debugger starts and then cannot run anything,
