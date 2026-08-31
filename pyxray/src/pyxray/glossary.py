@@ -764,6 +764,15 @@ OBJECTS = Group(
             met="O03",
         ),
         Term(
+            name="data descriptor",
+            short="An object on a type that has __set__ or __delete__ as well as __get__.",
+            long="The test is one line: `PyDescr_IsData` asks whether `tp_descr_set` is filled in. That one bit decides the whole precedence question, because attribute lookup calls a data descriptor before it ever looks in the instance dict and calls anything else after. `property` and the descriptors `__slots__` generates are data descriptors. A plain function is not, which is why you can shadow a method on one instance and cannot shadow a property.",
+            cite="Objects/descrobject.c:1028-1032@v3.15.0rc1#PyDescr_IsData",
+            also=("non data descriptor",),
+            see=("slot", "type object"),
+            met="O05",
+        ),
+        Term(
             name="MRO",
             short="The flat list of classes, in order, that a name is looked up in.",
             long="Every type carries one as `tp_mro`, computed once when the class is made and recomputed for the whole subtree if `__bases__` is later assigned. It always starts with the type itself and ends with `object`. Attribute lookup, `super`, and the slot table all read this list rather than walking `__bases__`, which is why multiple inheritance has one answer instead of a search.",
