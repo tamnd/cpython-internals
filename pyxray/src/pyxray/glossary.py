@@ -393,6 +393,22 @@ COMPILING = Group(
             met="T05",
         ),
         Term(
+            name="short circuiting",
+            short="Stopping an `and` or an `or` as soon as the answer is known.",
+            long="There is no instruction for either operator. The code generator emits a copy of the left hand value, a test, and a jump past everything after it, so the behaviour is decided at compile time and the interpreter never sees a boolean operator at all. The value you get back is one of the operands rather than True or False, which falls out of the same shape.",
+            cite="Python/codegen.c:3387-3413@v3.15.0rc1#codegen_boolop",
+            see=("code generation", "instruction", "dispatch"),
+            met="F06",
+        ),
+        Term(
+            name="evaluation order",
+            short="Which part of an expression or statement runs first.",
+            long="Not a rule written down anywhere separately. It is whatever order the code generator visits a node's children in, so it is readable off a few lines of C. Left before right for an operator, and for an assignment the value before the target, which is why `box[key] = value` runs the value first.",
+            cite="Python/codegen.c:3101-3113@v3.15.0rc1",
+            see=("code generation", "abstract syntax tree"),
+            met="F06",
+        ),
+        Term(
             name="control flow graph",
             short="The emitted instructions as blocks, with the jumps between them as edges.",
             long="This is the form the optimizer works on, because questions like is this code reachable and how deep does the stack get are questions about a graph and are awkward to ask about a flat list. It is turned back into a flat list at the end by the assembler.",

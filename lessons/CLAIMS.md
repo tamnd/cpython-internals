@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-202 claims across 21 lessons, 19 of them not observable from Python.
+207 claims across 22 lessons, 19 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -106,6 +106,16 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a name is local because of an assignment anywhere in the block, including one that comes after the use | [`f05-12`](f05-every-name-gets-a-number/f05.ipynb) |
 | co_cellvars and co_freevars on the code objects are the symbol table's answers, written down again | [`f05-14`](f05-every-name-gets-a-number/f05.ipynb) |
 | a method gets a __class__ free variable because the symbol table saw the name super, and a method that reaches super some other way does not get one | [`f05-16`](f05-every-name-gets-a-number/f05.ipynb) |
+
+## F06. One node at a time
+
+| Claim | Proved by |
+| --- | --- |
+| `and` and `or` produce no instruction of their own, only a jump | [`f06-07`](f06-one-node-at-a-time/f06.ipynb) |
+| the shape a node compiles to does not depend on where the node is, only on what kind of node it is | [`f06-09`](f06-one-node-at-a-time/f06.ipynb) |
+| in `box[key] = value` the value runs before the target and before the key | [`f06-11`](f06-one-node-at-a-time/f06.ipynb) |
+| the code generator emits the dead branch of `if False` in full, and something later removes it | [`f06-16`](f06-one-node-at-a-time/f06.ipynb) |
+| some instructions in your function belong to no line of your source, and dis says so | [`f06-19`](f06-one-node-at-a-time/f06.ipynb) |
 
 ## T01. One line, seven stages
 
