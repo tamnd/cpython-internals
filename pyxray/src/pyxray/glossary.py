@@ -426,6 +426,23 @@ COMPILING = Group(
             met="T05",
         ),
         Term(
+            name="cold block",
+            short="A block the compiler expects almost never to run, such as an exception handler.",
+            long="Marking one costs nothing and buys a tidier layout: every cold block is moved past the end of the function so the code that does run stays packed together, which is why the handler for line 6 turns up after the return on line 8. Where a cold block used to fall off its bottom into a warm one, the pass writes an explicit jump in place of the fallthrough.",
+            cite="Python/flowgraph.c:3492-3506@v3.15.0rc1#push_cold_blocks_to_end",
+            see=("basic block", "exception table"),
+            met="F07",
+        ),
+        Term(
+            name="stack depth",
+            short="How many slots a frame has to reserve for the value stack, worked out at compile time.",
+            long="It is the deepest path through the graph rather than the running total down the list, and the difference shows up as soon as there is an exception handler, because a handler starts one deeper than empty. The answer ends up in the code object as `co_stacksize` and the interpreter trusts it completely, so being wrong here is a crash rather than a slowdown.",
+            cite="Python/flowgraph.c:815-824@v3.15.0rc1#calculate_stackdepth",
+            also=("`co_stacksize`",),
+            see=("stack effect", "control flow graph", "value stack"),
+            met="F07",
+        ),
+        Term(
             name="constant folding",
             short="Working an expression out while compiling, so it does not have to be worked out later.",
             long="`6 * 7` becomes 42 in the compiled file and the multiply never reaches the interpreter. CPython does this twice, once on the tree and once on the graph, and it stops when the answer would be unreasonably large, so folding a giant power does not make an import take a second and a megabyte. The old operand often stays behind in the constants with nothing loading it, which is a good thing to notice.",

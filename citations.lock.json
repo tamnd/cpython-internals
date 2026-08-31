@@ -115,6 +115,11 @@
       "first_line": "struct _stmt {",
       "lines": 12
     },
+    "Include/internal/pycore_flowgraph.h:27-31@v3.15.0rc1": {
+      "digest": "5f318ca1d3438caa",
+      "first_line": "struct _PyCfgBuilder* _PyCfg_FromInstructionSequence(_PyInstructionSequence *seq);",
+      "lines": 5
+    },
     "Include/internal/pycore_interp_structs.h:271-286@v3.15.0rc1": {
       "digest": "84ddd939ee6f307f",
       "first_line": "#ifndef Py_GIL_DISABLED",
@@ -1490,10 +1495,20 @@
       "first_line": "static PyCodeObject *",
       "lines": 16
     },
+    "Python/flowgraph.c:1008-1043@v3.15.0rc1": {
+      "digest": "9e468968f05935f1",
+      "first_line": "static int",
+      "lines": 36
+    },
     "Python/flowgraph.c:1008-1044@v3.15.0rc1": {
       "digest": "682b8afdaf039dde",
       "first_line": "static int",
       "lines": 37
+    },
+    "Python/flowgraph.c:1046-1052@v3.15.0rc1": {
+      "digest": "7be4c528cbcb3380",
+      "first_line": "/* Delete unreachable instructions */",
+      "lines": 7
     },
     "Python/flowgraph.c:1760-1763@v3.15.0rc1": {
       "digest": "a4299fad233d0a6b",
@@ -1525,15 +1540,55 @@
       "first_line": "add_checks_for_loads_of_uninitialized_variables(basicblock *entryblock,",
       "lines": 40
     },
+    "Python/flowgraph.c:3442-3443@v3.15.0rc1": {
+      "digest": "337c1ebf0495a7a7",
+      "first_line": "static int",
+      "lines": 2
+    },
+    "Python/flowgraph.c:3492-3506@v3.15.0rc1": {
+      "digest": "bbfc9a3c5950271c",
+      "first_line": "static int",
+      "lines": 15
+    },
     "Python/flowgraph.c:3753-3757@v3.15.0rc1": {
       "digest": "a39b1dba71eee757",
       "first_line": "int",
       "lines": 5
     },
+    "Python/flowgraph.c:3759-3763@v3.15.0rc1": {
+      "digest": "add9b2f3568dd2c1",
+      "first_line": "/** Preprocessing **/",
+      "lines": 5
+    },
+    "Python/flowgraph.c:3793-3800@v3.15.0rc1": {
+      "digest": "f0a9f67950fe6e5c",
+      "first_line": "RETURN_IF_ERROR(remove_unused_consts(g->g_entryblock, consts));",
+      "lines": 8
+    },
+    "Python/flowgraph.c:3993-3993@v3.15.0rc1": {
+      "digest": "03b7246f7aff0014",
+      "first_line": "_PyCfg_FromInstructionSequence(_PyInstructionSequence *seq)",
+      "lines": 1
+    },
+    "Python/flowgraph.c:4058-4058@v3.15.0rc1": {
+      "digest": "6aa84e9302b71c23",
+      "first_line": "_PyCfg_ToInstructionSequence(cfg_builder *g, _PyInstructionSequence *seq)",
+      "lines": 1
+    },
+    "Python/flowgraph.c:41-76@v3.15.0rc1": {
+      "digest": "2195572fc12fb347",
+      "first_line": "typedef struct _PyCfgBasicblock {",
+      "lines": 36
+    },
     "Python/flowgraph.c:772-798@v3.15.0rc1": {
       "digest": "71ee8d057aa78fea",
       "first_line": "typedef struct {",
       "lines": 27
+    },
+    "Python/flowgraph.c:815-824@v3.15.0rc1": {
+      "digest": "a4b4d014ff977c7b",
+      "first_line": "/* Find the flow path that needs the largest stack.  We assume that",
+      "lines": 10
     },
     "Python/flowgraph.c:815-852@v3.15.0rc1": {
       "digest": "c7ded299b687e18b",
