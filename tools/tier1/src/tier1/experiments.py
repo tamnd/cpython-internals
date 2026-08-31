@@ -417,6 +417,72 @@ assert "this instruction was not here an hour ago" in cases.read_text()
 '''
 
 
+#: The program for f01-one-line-at-a-time.
+PROGRAM_THREE = r'''"""Watch the C tokenizer refill its buffer, one line at a time.
+
+A debug build compiled with -d prints a line to stderr every time the tokenizer runs out of
+input and asks its underflow function for more. Each of those lines is the whole of what the
+tokenizer is holding at that moment, plus the value of tok->done, which is 10 for E_OK and 11
+for E_EOF.
+
+Two files go through it. The first parses cleanly. The second has an unclosed bracket on line
+three, which is here to show that a failing parse reads the file more than once.
+"""
+
+import re
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+
+GOOD = "a = 1\nb = 2\nc = 3\nd = 4\ne = 5\n"
+BAD = "a = 1\nb = 2\nc = ((\nd = 4\ne = 5\n"
+
+#: The shape of the trace line, which is written by the fprintf in Parser/lexer/lexer.c.
+TRACE = re.compile(r'^line\[(\d+)\] = "(.*)"  tok->done = (\d+)$')
+
+
+def trace(source):
+    """Run one file under -d and return the tokenizer's refill lines, in order.
+
+    Once the parse of our own file is over, the interpreter goes on to compile other things
+    while it builds the traceback, and those show up in the same trace. So the walk stops at
+    the first refill whose text is not one of our own lines.
+    """
+    ours = {line + "\\n" for line in source.splitlines()} | {""}
+    with tempfile.NamedTemporaryFile("w", suffix=".py", delete=False) as handle:
+        handle.write(source)
+        path = handle.name
+    said = subprocess.run([sys.executable, "-d", path], capture_output=True, text=True).stderr
+    Path(path).unlink()
+    found = []
+    for line in said.splitlines():
+        seen = TRACE.match(line)
+        if not seen:
+            continue
+        if seen.group(2) not in ours:
+            break
+        found.append((int(seen.group(1)), seen.group(2), int(seen.group(3))))
+    return found
+
+
+started = time.monotonic()
+for label, source in (("five lines that parse", GOOD), ("line 3 opens a bracket", BAD)):
+    print(label)
+    print()
+    seen = trace(source)
+    for number, text, done in seen:
+        print(f'    line[{number}] = "{text}"  tok->done = {done}')
+    print()
+    print(f"    refills: {len(seen)}, for a file of {len(source.splitlines())} lines")
+    print()
+took = time.monotonic() - started
+
+print(f"~ how long the two runs took, in seconds: {took:.1f}")
+'''
+
+
 WHAT_A_SCRIPT_WROTE = Experiment(
     slug="b04-what-a-script-wrote",
     lesson="B04",
@@ -445,11 +511,26 @@ CHANGING_THE_SOURCE_OF_TRUTH = Experiment(
 )
 
 
+ONE_LINE_AT_A_TIME = Experiment(
+    slug="f01-one-line-at-a-time",
+    lesson="F01",
+    title="How much of your file the tokenizer is holding",
+    asks="How much of your file is in the tokenizer's memory while it is being read?",
+    needs=(
+        "the trace comes from an fprintf that is compiled out unless the interpreter was "
+        "built with Py_DEBUG, and it only prints when that build is given the -d flag"
+    ),
+    build="debug",
+    program=PROGRAM_THREE,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
     WHAT_A_SCRIPT_WROTE,
     CHANGING_THE_SOURCE_OF_TRUTH,
+    ONE_LINE_AT_A_TIME,
 )
 
 

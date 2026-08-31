@@ -224,6 +224,22 @@ FRONT_END = Group(
             see=("abstract syntax tree", "generated file"),
             met="T03",
         ),
+        Term(
+            name="coding cookie",
+            short="A comment in the first two lines that says what encoding the file is in.",
+            long="PEP 263 gave source files a way to declare their own encoding, and the tokenizer looks for it before it looks for anything else. It only means anything when the tokenizer was handed bytes. Hand it a `str` and the encoding question is already settled, so the line is treated as an ordinary comment.",
+            also=("encoding declaration",),
+            see=("tokenizer",),
+            met="F01",
+        ),
+        Term(
+            name="underflow",
+            short="The function the tokenizer calls when it has run out of input and wants another line.",
+            long="It is a field on `struct tok_state` rather than a fixed call, which is how one lexer reads from a file, a string, a bytes object or a Python callable without knowing which it got. Each of the four constructors sets it to its own version and then never comes up again.",
+            cite="Parser/lexer/lexer.c:74-82@v3.15.0rc1",
+            see=("tokenizer",),
+            met="F01",
+        ),
     ),
 )
 

@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-171 claims across 16 lessons, 17 of them not observable from Python.
+178 claims across 17 lessons, 18 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -50,6 +50,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a generated file says so in its own first few lines, and usually names the script that wrote it, so you can find every one of them in your own standard library with a search for a handful of phrases | [`b04-14`](b04-reading-the-tree/b04.ipynb) |
 | running those scripts against the unchanged input reproduces the committed files byte for byte, which is what makes generated a fact about a file rather than a comment in it | not observable from Python: the scripts live in Tools/ and read Python/bytecodes.c, and neither of those ships with an installed Python, so this is the recorded run below rather than a cell |
 | every commit in CPython names an issue number in the first line of its message, so any line of code leads to a discussion | [`b04-22`](b04-reading-the-tree/b04.ipynb) |
+
+## F01. The tokenizer, in C
+
+| Claim | Proved by |
+| --- | --- |
+| the token numbers in Lib/token.py are the line order of Grammar/Tokens, and the file says at the top that it was generated | [`f01-07`](f01-the-tokenizer-in-c/f01.ipynb) |
+| every operator arrives as the single type OP and the exact spelling is recovered afterwards from a table, rather than the tokenizer having a separate type for each one | [`f01-09`](f01-the-tokenizer-in-c/f01.ipynb) |
+| compiling the same source as bytes and as a str goes through two different tokenizer constructors, and the difference shows up as whether a coding cookie is obeyed or ignored | [`f01-11`](f01-the-tokenizer-in-c/f01.ipynb) |
+| the tokenizer holds one line of your file at a time, and a file that fails to parse gets read more than once | not observable from Python: the fprintf that prints this is inside an #ifdef Py_DEBUG, so a stock interpreter has no way to show it and the run below is a recording |
+| the deepest you can indent and the deepest you can nest brackets are both fixed at compile time, and you can find both numbers from Python without reading the header | [`f01-14`](f01-the-tokenizer-in-c/f01.ipynb) |
+| every DEDENT from the same line ending reports the same position and an empty string, because they are drained from a counter rather than matched against text | [`f01-17`](f01-the-tokenizer-in-c/f01.ipynb) |
+| some tokenizer errors carry their message from the lexer and others carry only a number that the parser turns into words, and which is which explains why a TabError and an unterminated string feel like they come from different places | [`f01-19`](f01-the-tokenizer-in-c/f01.ipynb) |
 
 ## T01. One line, seven stages
 
