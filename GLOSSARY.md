@@ -350,7 +350,7 @@ Also written `co_stacksize`. First met in F07. See also [stack effect](#stack-ef
 
 **Working an expression out while compiling, so it does not have to be worked out later.**
 
-`6 * 7` becomes 42 in the compiled file and the multiply never reaches the interpreter. CPython does this twice, once on the tree and once on the graph, and it stops when the answer would be unreasonably large, so folding a giant power does not make an import take a second and a megabyte. The old operand often stays behind in the constants with nothing loading it, which is a good thing to notice.
+`6 * 7` becomes 42 in the compiled file and the multiply never reaches the interpreter. It used to happen twice, once on the tree and once on the graph, but the tree pass is gone and all of it now runs on the graph. It stops when the answer would be unreasonably large, so folding a giant power does not make an import take a second and a megabyte. The old operand often stays behind in the constants with nothing loading it, which is a good thing to notice.
 
 First met in T05. See also [control flow graph](#control-flow-graph), [code object](#code-object). In the source: [`Python/flowgraph.c:1916-1948@v3.15.0rc1#fold_const_binop`](https://github.com/python/cpython/blob/v3.15.0rc1/Python/flowgraph.c#L1916-L1948).
 
