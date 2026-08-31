@@ -90,6 +90,26 @@
       "first_line": "typedef struct {",
       "lines": 18
     },
+    "Include/cpython/object.h:147-151@v3.15.0rc1": {
+      "digest": "5c8d29cfecbeeaa4",
+      "first_line": "// as well.",
+      "lines": 5
+    },
+    "Include/cpython/object.h:195-198@v3.15.0rc1": {
+      "digest": "ae8a6114205c2e70",
+      "first_line": "",
+      "lines": 4
+    },
+    "Include/cpython/object.h:210-213@v3.15.0rc1": {
+      "digest": "b21a9c4c34bf373d",
+      "first_line": "descrgetfunc tp_descr_get;",
+      "lines": 4
+    },
+    "Include/cpython/object.h:272-296@v3.15.0rc1": {
+      "digest": "b1508e0a85792a2c",
+      "first_line": "/* The *real* layout of a type object when allocated on the heap */",
+      "lines": 25
+    },
     "Include/cpython/pystate.h:121-140@v3.15.0rc1": {
       "digest": "beef1cfb6884fa83",
       "first_line": "/* Thread state (_Py_THREAD_ATTACHED, _Py_THREAD_DETACHED, _Py_THREAD_SUSPENDED).",
@@ -193,6 +213,16 @@
     "Include/internal/pycore_object.h:83-89@v3.15.0rc1": {
       "digest": "70fca12f791324cc",
       "first_line": "#if SIZEOF_VOID_P > 4",
+      "lines": 7
+    },
+    "Include/internal/pycore_object.h:852-861@v3.15.0rc1": {
+      "digest": "eb80b68ef66bcad0",
+      "first_line": "static inline size_t",
+      "lines": 10
+    },
+    "Include/internal/pycore_object.h:922-928@v3.15.0rc1": {
+      "digest": "71d50250d04db27a",
+      "first_line": "#ifdef Py_GIL_DISABLED",
       "lines": 7
     },
     "Include/internal/pycore_obmalloc.h:128-146@v3.15.0rc1": {
@@ -309,6 +339,11 @@
       "digest": "dc45c7bd6a91c2b3",
       "first_line": "// bpo-39573: The Py_SET_SIZE() function must be used to set an object size.",
       "lines": 8
+    },
+    "Include/object.h:501-506@v3.15.0rc1": {
+      "digest": "3df4e0ec30a6efe5",
+      "first_line": "",
+      "lines": 6
     },
     "Include/object.h:580-583@v3.15.0rc1": {
       "digest": "323df69ccd90ebf9",
@@ -635,6 +670,11 @@
       "first_line": "static PyObject *",
       "lines": 6
     },
+    "Objects/object.c:1573-1595@v3.15.0rc1": {
+      "digest": "c469a683fb938006",
+      "first_line": "_PyObject_ComputedDictPointer(PyObject *obj)",
+      "lines": 23
+    },
     "Objects/object.c:2773-2791@v3.15.0rc1": {
       "digest": "84c3b29a29ccb125",
       "first_line": "void",
@@ -654,6 +694,16 @@
       "digest": "35ed0214227df57e",
       "first_line": "void",
       "lines": 20
+    },
+    "Objects/typeobject.c:2512-2531@v3.15.0rc1": {
+      "digest": "9ac3593478808a3d",
+      "first_line": "_PyType_AllocNoTrack(PyTypeObject *type, Py_ssize_t nitems)",
+      "lines": 20
+    },
+    "Objects/typeobject.c:7290-7295@v3.15.0rc1": {
+      "digest": "e3fd1c7921a386a3",
+      "first_line": "PyTypeObject PyType_Type = {",
+      "lines": 6
     },
     "Objects/weakrefobject.c:1001-1024@v3.15.0rc1": {
       "digest": "2990efebc60f458b",
@@ -1534,6 +1584,11 @@
       "digest": "ad12c7f3b5ca677d",
       "first_line": "static int",
       "lines": 14
+    },
+    "Python/bltinmodule.c:102-108@v3.15.0rc1": {
+      "digest": "c6a6ff3b9639e1a3",
+      "first_line": "builtin___build_class__(PyObject *self, PyObject *const *args, Py_ssize_t nargs,",
+      "lines": 7
     },
     "Python/bytecodes.c:271-280@v3.15.0rc1": {
       "digest": "a63de5613d11a6e2",
