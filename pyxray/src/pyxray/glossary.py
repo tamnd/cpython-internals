@@ -289,6 +289,22 @@ FRONT_END = Group(
             see=("grammar", "PEG parser", "parser generator"),
             met="F03",
         ),
+        Term(
+            name="sum type",
+            short="A schema type written as a list of alternatives separated by bars.",
+            long="Every one of these becomes an abstract base class plus one concrete class per alternative, which is why `isinstance(node, ast.expr)` is a sensible thing to write. Python's whole syntax is two large sums, 29 kinds of expression and 28 kinds of statement, and a handful of small ones for the operators.",
+            cite="Parser/Python.asdl:104-105@v3.15.0rc1",
+            see=("ASDL", "product type", "abstract syntax tree"),
+            met="F04",
+        ),
+        Term(
+            name="product type",
+            short="A schema type written as one bracketed list of fields, with no alternatives.",
+            long="There is only ever one shape, so it becomes a single class with no base class of its own. Seven of them exist: `arguments`, `arg`, `keyword`, `alias`, `withitem`, `comprehension` and `match_case`. Telling them apart from the sums in Python is a matter of asking which classes have no subclasses.",
+            cite="Parser/Python.asdl:116-117@v3.15.0rc1",
+            see=("ASDL", "sum type"),
+            met="F04",
+        ),
     ),
 )
 
