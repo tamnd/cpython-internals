@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-250 claims across 29 lessons, 20 of them not observable from Python.
+257 claims across 30 lessons, 21 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -194,6 +194,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | for a tuple, a list, a bytes and a str, the machine word after the header is the length | [`o01-19`](o01-the-header-byte-by-byte/o01.ipynb) |
 | sys.getsizeof reports two machine words more than an object's own __sizeof__ for the types the cycle collector tracks, and nothing extra for the types it does not | [`o01-21`](o01-the-header-byte-by-byte/o01.ipynb) |
 | the free threaded build gives every object a thirty two byte header, split so the owning thread can increment without an atomic instruction | not observable from Python: the fields only exist in a build configured with --disable-gil, and this notebook is not running one |
+
+## O02. Following the type pointer
+
+| Claim | Proved by |
+| --- | --- |
+| the second word of an object is the address of its type object, and following it from any object reaches type in at most two steps, where it loops | [`o02-07`](o02-following-the-type-pointer/o02.ipynb) |
+| basicsize is the fixed part of an instance and itemsize is charged per element, and list has an itemsize of zero because its items live in a separate allocation | [`o02-09`](o02-following-the-type-pointer/o02.ipynb) |
+| basicsize plus itemsize times ob_size matches __sizeof__ for the variable sized types, and misses for list, whose reported size includes an array the type object knows nothing about | [`o02-12`](o02-following-the-type-pointer/o02.ipynb) |
+| the flags word distinguishes static types from heap types, and the same word is what makes int reject attribute assignment while a class you wrote accepts it | [`o02-15`](o02-following-the-type-pointer/o02.ipynb) |
+| a class statement sets tp_dictoffset to -1 and tp_weaklistoffset to minus four pointers, and the space those refer to sits in front of the object, which is why getsizeof reports more than __sizeof__ | [`o02-17`](o02-following-the-type-pointer/o02.ipynb) |
+| an instance of a class with a managed dict is allocated with room for its attribute values after the object, and that room is in neither of the numbers getsizeof adds together | not observable from Python: the inline values array is sized from a table on the type and no Python level call reports it |
+| a class statement compiles to a call to __build_class__, and calling type with a name, bases and a namespace produces a type with the same flags, size and mro | [`o02-20`](o02-following-the-type-pointer/o02.ipynb) |
 
 ## T01. One line, seven stages
 
