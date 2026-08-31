@@ -358,6 +358,24 @@ NAMES = Group(
             see=("cell", "free variable", "scope"),
             met="T04",
         ),
+        Term(
+            name="symbol table pass",
+            short="The walk over the tree that decides what every name means, before any code is emitted.",
+            long="It runs twice over each block. The first walk only collects what was written down, an assignment here, a parameter there, a `global` statement over there. The second walk turns that into one of five scopes per name. The compiler starts it on its first line and never reasons about scope again afterwards, it just reads the answers.",
+            cite="Python/symtable.c:415-416@v3.15.0rc1#_PySymtable_Build",
+            also=("symtable",),
+            see=("symbol table", "scope", "code generation"),
+            met="F05",
+        ),
+        Term(
+            name="class cell",
+            short="The `__class__` cell a method gets so that a bare `super()` can find its class.",
+            long="A method is an ordinary function and has no idea which class it was written in, so the symbol table adds the name for you. Reading the name `super` anywhere in a method body is the whole trigger, which is why a method that reaches the same builtin through the `builtins` module gets no cell and fails at run time.",
+            cite="Python/symtable.c:2651-2657@v3.15.0rc1",
+            also=("__classcell__",),
+            see=("cell", "free variable", "symbol table pass"),
+            met="F05",
+        ),
     ),
 )
 

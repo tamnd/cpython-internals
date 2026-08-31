@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-197 claims across 20 lessons, 19 of them not observable from Python.
+202 claims across 21 lessons, 19 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -96,6 +96,16 @@ Without it the exception becomes the rule and this goes back to being a book.
 | an optional field arrives as None and a sequence field arrives as an empty list, whether or not you wrote anything for it | [`f04-13`](f04-the-tree-is-generated-too/f04.ipynb) |
 | the tree keeps meaning and drops spelling, so parsing and unparsing is not a round trip | [`f04-15`](f04-the-tree-is-generated-too/f04.ipynb) |
 | a hand built tree is checked in C before the compiler sees it, and the two kinds of complaint come from two different places | [`f04-17`](f04-the-tree-is-generated-too/f04.ipynb) |
+
+## F05. Every name gets a number
+
+| Claim | Proved by |
+| --- | --- |
+| there are mistakes the parser accepts and the compiler refuses, and every one of them is about names | [`f05-07`](f05-every-name-gets-a-number/f05.ipynb) |
+| the symbol table sorts every name in every block into one of five scopes, and you can read the answers straight out of the symtable module | [`f05-10`](f05-every-name-gets-a-number/f05.ipynb) |
+| a name is local because of an assignment anywhere in the block, including one that comes after the use | [`f05-12`](f05-every-name-gets-a-number/f05.ipynb) |
+| co_cellvars and co_freevars on the code objects are the symbol table's answers, written down again | [`f05-14`](f05-every-name-gets-a-number/f05.ipynb) |
+| a method gets a __class__ free variable because the symbol table saw the name super, and a method that reaches super some other way does not get one | [`f05-16`](f05-every-name-gets-a-number/f05.ipynb) |
 
 ## T01. One line, seven stages
 

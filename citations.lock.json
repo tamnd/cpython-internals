@@ -200,10 +200,20 @@
       "first_line": "typedef union _PyStackRef {",
       "lines": 7
     },
+    "Include/internal/pycore_symtable.h:165-175@v3.15.0rc1": {
+      "digest": "bb8cb5dc41c4fe73",
+      "first_line": "#define DEF_GLOBAL 1             /* global stmt */",
+      "lines": 11
+    },
     "Include/internal/pycore_symtable.h:165-177@v3.15.0rc1": {
       "digest": "67a1765701591c2a",
       "first_line": "#define DEF_GLOBAL 1             /* global stmt */",
       "lines": 13
+    },
+    "Include/internal/pycore_symtable.h:187-191@v3.15.0rc1": {
+      "digest": "b2b64d6eaf4b314e",
+      "first_line": "#define LOCAL 1",
+      "lines": 5
     },
     "Include/internal/pycore_symtable.h:187-192@v3.15.0rc1": {
       "digest": "0ed710258d44157f",
@@ -1425,6 +1435,11 @@
       "first_line": "static PyCodeObject *",
       "lines": 39
     },
+    "Python/compile.c:148-148@v3.15.0rc1": {
+      "digest": "120e242af3d744ee",
+      "first_line": "c->c_st = _PySymtable_Build(mod, filename, &c->c_future);",
+      "lines": 1
+    },
     "Python/compile.c:1526-1540@v3.15.0rc1": {
       "digest": "50ec4f7c0b2ce56a",
       "first_line": "PyCodeObject *",
@@ -1535,6 +1550,31 @@
       "first_line": "analyze_block(PySTEntryObject *ste, PyObject *bound, PyObject *free,",
       "lines": 12
     },
+    "Python/symtable.c:1376-1380@v3.15.0rc1": {
+      "digest": "2ff0a1ad6449d733",
+      "first_line": "static int",
+      "lines": 5
+    },
+    "Python/symtable.c:21-22@v3.15.0rc1": {
+      "digest": "17661c40e20cefa5",
+      "first_line": "",
+      "lines": 2
+    },
+    "Python/symtable.c:2651-2657@v3.15.0rc1": {
+      "digest": "bb6003ec598d0ead",
+      "first_line": "/* Special-case super: it counts as a use of __class__ */",
+      "lines": 7
+    },
+    "Python/symtable.c:386-387@v3.15.0rc1": {
+      "digest": "db0da1f43d0aa634",
+      "first_line": "#define DUPLICATE_PARAMETER \\",
+      "lines": 2
+    },
+    "Python/symtable.c:415-416@v3.15.0rc1": {
+      "digest": "2331a4b30e8de38e",
+      "first_line": "struct symtable *",
+      "lines": 2
+    },
     "Python/symtable.c:415-418@v3.15.0rc1": {
       "digest": "e7e89dd474de9717",
       "first_line": "struct symtable *",
@@ -1549,6 +1589,11 @@
       "digest": "ad75696a832af002",
       "first_line": "analyze_name(PySTEntryObject *ste, PyObject *scopes, PyObject *name, long flags,",
       "lines": 40
+    },
+    "Python/symtable.c:688-702@v3.15.0rc1": {
+      "digest": "4fe0cd2b7b537c3b",
+      "first_line": "if (flags & DEF_NONLOCAL) {",
+      "lines": 15
     },
     "Python/sysmodule.c:1931-1946@v3.15.0rc1": {
       "digest": "8780fbda3fa7cd5f",
