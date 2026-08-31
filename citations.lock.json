@@ -65,10 +65,20 @@
       "first_line": "fstring_replacement_field[expr_ty]:",
       "lines": 3
     },
+    "Include/cpython/code.h:118-153@v3.15.0rc1": {
+      "digest": "796288f2efca9a8f",
+      "first_line": "#define CO_OPTIMIZED    0x0001",
+      "lines": 36
+    },
     "Include/cpython/code.h:45-84@v3.15.0rc1": {
       "digest": "b8093c5db4f33759",
       "first_line": "#define _PyCode_DEF(SIZE) {                                                    \\",
       "lines": 40
+    },
+    "Include/cpython/code.h:82-95@v3.15.0rc1": {
+      "digest": "6e0e3361dc8d74dd",
+      "first_line": "/* redundant values (derived from co_localsplusnames and                   \\",
+      "lines": 14
     },
     "Include/cpython/listobject.h:5-22@v3.15.0rc1": {
       "digest": "707b180de55e923a",
@@ -114,6 +124,11 @@
       "digest": "a282830350595a4f",
       "first_line": "struct _stmt {",
       "lines": 12
+    },
+    "Include/internal/pycore_code.h:192-199@v3.15.0rc1": {
+      "digest": "fc05fedf627a517c",
+      "first_line": "#define CO_FAST_ARG_POS (0x02)  // pos-only, pos-or-kw, varargs",
+      "lines": 8
     },
     "Include/internal/pycore_flowgraph.h:27-31@v3.15.0rc1": {
       "digest": "5f318ca1d3438caa",
@@ -474,6 +489,21 @@
       "digest": "c109b796d3aee235",
       "first_line": "static int",
       "lines": 22
+    },
+    "Objects/codeobject.c:2502-2541@v3.15.0rc1": {
+      "digest": "83840c731b19be0c",
+      "first_line": "code_richcompare(PyObject *self, PyObject *other, int op)",
+      "lines": 40
+    },
+    "Objects/codeobject.c:423-443@v3.15.0rc1": {
+      "digest": "9429e466c83d6c29",
+      "first_line": "static PyObject *",
+      "lines": 21
+    },
+    "Objects/codeobject.c:446-485@v3.15.0rc1": {
+      "digest": "ecced15598ef0f01",
+      "first_line": "_PyCode_Validate(struct _PyCodeConstructor *con)",
+      "lines": 40
     },
     "Objects/codeobject.c:510-519@v3.15.0rc1": {
       "digest": "da2de0ce00cbfa54",
@@ -1319,6 +1349,11 @@
       "digest": "06ab69ca31534999",
       "first_line": "static int",
       "lines": 26
+    },
+    "Python/assemble.c:516-528@v3.15.0rc1": {
+      "digest": "5891a4c578341344",
+      "first_line": "_PyLocals_Kind kind = CO_FAST_LOCAL | argvarkinds[i].kind;",
+      "lines": 13
     },
     "Python/assemble.c:705-708@v3.15.0rc1": {
       "digest": "75168c43621dfa26",
