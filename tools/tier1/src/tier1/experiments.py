@@ -525,12 +525,118 @@ ONE_LINE_AT_A_TIME = Experiment(
 )
 
 
+#: The program for f03-a-parser-nobody-wrote.
+PROGRAM_FOUR = r'''"""Run CPython's own parser generator, on a small grammar.
+
+Nobody writes Python's parser. `Tools/peg_generator` reads `Grammar/python.gram` and writes
+`Parser/parser.c`, and the same generator will write a parser in Python instead of C. That is
+what happens below, on a four rule grammar for arithmetic.
+
+The generator is not part of an installed Python. It lives in the source tree and nowhere
+else, which is why this is a recording rather than a cell you run yourself.
+"""
+
+import io
+import re
+import sys
+import tempfile
+import time
+import tokenize
+from pathlib import Path
+
+CPYTHON = Path("/usr/src/cpython")
+sys.path.insert(0, str(CPYTHON / "Tools" / "peg_generator"))
+
+from pegen.build import build_python_parser_and_generator  # noqa: E402
+from pegen.tokenizer import Tokenizer  # noqa: E402
+
+#: A rule definition starts at column zero, optionally names its return type in brackets,
+#: and ends in a colon. Everything else in the file is an alternative or a comment.
+RULE = re.compile(r"^[A-Za-z_]\w*(\[[^]]*\])?\s*(\(memo\))?\s*:")
+
+TOY = """start[object]: e=expr NEWLINE* ENDMARKER { e }
+expr[object]:
+    | a=expr '+' b=term { ("+", a, b) }
+    | a=expr '-' b=term { ("-", a, b) }
+    | term
+term[object]:
+    | a=term '*' b=atom { ("*", a, b) }
+    | atom
+atom[object]:
+    | NUMBER { int(number.string) }
+    | '(' e=expr ')' { e }
+"""
+
+grammar = (CPYTHON / "Grammar" / "python.gram").read_text().splitlines()
+rules = [line for line in grammar if RULE.match(line)]
+invalid = [line for line in rules if line.startswith("invalid_")]
+parser = (CPYTHON / "Parser" / "parser.c").read_text().splitlines()
+
+print("what the real grammar turns into")
+print()
+print(f"    Grammar/python.gram   {len(grammar):6} lines, holding {len(rules)} rules")
+print(f"    of those rules        {len(invalid):6} are invalid_, for error messages only")
+print(f"    Parser/parser.c       {len(parser):6} lines, none of them written by a person")
+print()
+
+work = Path(tempfile.mkdtemp())
+(work / "toy.gram").write_text(TOY)
+started = time.monotonic()
+build_python_parser_and_generator(str(work / "toy.gram"), str(work / "toy.py"))
+took = time.monotonic() - started
+written = (work / "toy.py").read_text().splitlines()
+
+print("the same generator, on a grammar of four rules")
+print()
+print(f"    {len(TOY.splitlines())} lines of grammar in, {len(written)} lines of Python out")
+print()
+print("    the rule for expr, as the generator wrote it")
+print()
+at = next(n for n, line in enumerate(written) if line.strip().startswith("def expr"))
+for line in written[at - 1 : at + 12]:
+    print(f"    {line}")
+print()
+
+sys.path.insert(0, str(work))
+from toy import GeneratedParser  # noqa: E402
+
+
+def parse(text):
+    """Run the generated parser over one line of arithmetic."""
+    reader = io.StringIO(text).readline
+    return GeneratedParser(Tokenizer(tokenize.generate_tokens(reader))).start()
+
+
+print("    and the parser it wrote, actually parsing")
+print()
+for text in ("1 + 2 + 3", "1 - 2 * 3", "(1 + 2) * 3"):
+    print(f"    {text:12} -> {parse(text)}")
+print()
+
+print(f"~ how long the generator took, in seconds: {took:.2f}")
+'''
+
+A_PARSER_NOBODY_WROTE = Experiment(
+    slug="f03-a-parser-nobody-wrote",
+    lesson="F03",
+    title="CPython's parser generator, run on a grammar you can read",
+    asks="What does the parser generator actually do, and what does it write?",
+    needs=(
+        "Tools/peg_generator is part of the CPython source tree and not part of an installed "
+        "Python, so there is no interpreter anywhere that can import it out of the box"
+    ),
+    build="debug",
+    program=PROGRAM_FOUR,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
     WHAT_A_SCRIPT_WROTE,
     CHANGING_THE_SOURCE_OF_TRUTH,
     ONE_LINE_AT_A_TIME,
+    A_PARSER_NOBODY_WROTE,
 )
 
 

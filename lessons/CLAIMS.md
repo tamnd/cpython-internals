@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-185 claims across 18 lessons, 18 of them not observable from Python.
+191 claims across 19 lessons, 19 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -74,6 +74,17 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a doubled brace produces two separate FSTRING_MIDDLE tokens with a one character gap between them, and that gap is the character the lexer threw away | [`f02-15`](f02-f-strings-in-the-lexer/f02.ipynb) |
 | the spacing you wrote inside an equals field survives exactly, including spaces a reconstruction would have normalised away | [`f02-17`](f02-f-strings-in-the-lexer/f02.ipynb) |
 | a t-string produces the same shape of token stream as an f-string with different token names, because the lexer runs the same code and only changes which name it stamps on the result | [`f02-19`](f02-f-strings-in-the-lexer/f02.ipynb) |
+
+## F03. The parser nobody wrote
+
+| Claim | Proved by |
+| --- | --- |
+| the keyword module in the standard library is generated from the grammar file, and it says so in its own docstring | [`f03-07`](f03-the-parser-nobody-wrote/f03.ipynb) |
+| the generator is a real program you can point at any grammar, and on a four rule grammar it writes a working parser in about a hundred lines | not observable from Python: Tools/peg_generator ships only in the CPython source tree, so no installed Python can import it and the run below is a recording |
+| associativity is not configured anywhere, it falls out of which side of the rule the rule names itself on | [`f03-10`](f03-the-parser-nobody-wrote/f03.ipynb) |
+| a soft keyword can be a keyword and an ordinary variable name in the same file, and a reserved word cannot | [`f03-12`](f03-the-parser-nobody-wrote/f03.ipynb) |
+| the wording of a syntax error is written in the grammar file, and code that no invalid_ rule matches falls back to a generic message | [`f03-15`](f03-the-parser-nobody-wrote/f03.ipynb) |
+| the node types you see from the ast module are named directly in the grammar's actions | [`f03-17`](f03-the-parser-nobody-wrote/f03.ipynb) |
 
 ## T01. One line, seven stages
 
