@@ -68,6 +68,24 @@ Every code cell has a markdown cell in front of it saying what it is about to sh
 
 No notebook has its outputs committed. Every lesson is executed end to end in continuous integration on CPython 3.15.0rc1 and on 3.14 before it is merged, so the numbers you see are the ones your own interpreter produced rather than somebody else's screenshot. Where the two versions disagree the lesson says so and prints what your build did.
 
+## The nine blocks
+
+Every lesson is the same nine blocks in the same order, so a reader four lessons in knows where they are without looking:
+
+1. A title and a hook under it, which is a question and something surprising the reader can run
+2. About the source references, generated
+3. Setup, generated, which installs the package and prints the build banner
+4. Which Python is this, so the reader knows which interpreter produced everything below
+5. The tour, which is the lesson itself and the only block whose headings are the author's to choose
+6. Try it yourself, the exercises
+7. Boss fight, when the lesson has one, so the reader has warmed up on the exercises first
+8. What just happened, the recap
+9. Where this goes next
+
+`nbcheck blocks` checks all of that by heading, and it also checks that the tour has at least one picture in it. It prints three word counts for every lesson as it goes: the hook, the tour, and the whole lesson. The caps are 150, 2500 and 3500 words of prose, where prose means everything except code cells, code fences, images, HTML and the generated front matter, so a lesson cannot buy room by adding a diagram.
+
+The first of those three is the number from the authoring guide and the other two are not. The guide asked for a 1500 word tour and a 2500 word lesson, and twelve lessons later nothing lands near that: the shortest tour is 1269 words and the median is over 2300. The caps are set where they bite on the longest lessons rather than where they would declare nine of twelve broken, and the reasoning is written out at the top of [blocks.py](../tools/nbcheck/src/nbcheck/blocks.py).
+
 ## How it is written
 
 Plain English, aimed at somebody who has written Python and has never opened a C file. A sentence explains the subject rather than the lesson, so "this is the part that catches everybody out" is fine and "now the part that catches everybody out" is not, because the second one is building suspense about a paragraph the reader has not read yet.

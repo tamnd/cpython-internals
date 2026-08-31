@@ -35,11 +35,11 @@ T07 ended with the interpreter loop pushing and popping things. This lesson is a
 
 {figure("where-we-are", "the eight stages of the pipeline with none of them highlighted")}
 
-Notice that nothing is lit up. The earlier lessons each owned one box in that picture. This one is about what travels along every arrow between them, which is the same kind of value at every stage: a `PyObject`.
+Nothing is lit up. Earlier lessons each owned a box; this one is about what travels along the arrows: the same kind of value at every stage, a `PyObject`.
 
-You have probably read the sentence "everything in Python is an object" and nodded at it, and it is more literal than it sounds. An integer is an {term("object")}, so is a string, so is a function, and so is the type of that function. The module you are in is an object, and so is the {term("frame")} you are running in. All of them start with the same two fields in memory, which is what lets one interpreter loop push any of them around without knowing what they are.
+The sentence "everything in Python is an object" is more literal than it sounds: an integer is an {term("object")}, so is a string, a function, the type of that function, and the {term("frame")} you are running in. They all begin with the same two fields, which is how one loop pushes any of them around without knowing what they are.
 
-By the end you will be able to answer four questions about any value on your screen, you will know why `257 is 257` says True for a reason that has nothing to do with the answer everybody gives, and you will know why `sys.getrefcount` started giving different answers for the same object in 3.14.
+By the end you will be able to answer four questions about any value on your screen, know why `257 is 257` says True for a reason nobody expects, and why `sys.getrefcount` changed its answer in 3.14.
 """)
 
 
@@ -128,7 +128,7 @@ print("[] is []        ->", first is second)
 lesson.md("""
 True, True, True, False.
 
-If you predicted False for the second one because you read somewhere that the cache stops at 256, you had the right idea and the wrong experiment. If you predicted True because you read that 3.15 raised the limit, you got the right answer for the wrong reason. We will come back to this once there is enough on the table to explain it properly.
+If you predicted False for the second because you read that the cache stops at 256, you had the right idea and the wrong experiment. If you predicted True because you read that 3.15 raised the limit, you got the right answer for the wrong reason. We come back to this once there is enough on the table to explain it.
 
 ## What every object starts with
 
@@ -139,11 +139,11 @@ Every value in a running Python has the same thing sitting in front of it.
 lesson.md(f"""
 {figure("the-header", "the object header as three stacked fields: refcount, type pointer, then the type specific data")}
 
-{lesson.claim("every object in a running Python starts with the same two fields, a reference count and a pointer to its type", unobservable="the two fields are members of a C struct, and Python only ever gets handed the object on the far side of them")}, and then whatever the specific type needs. Those two fields are the {term("object header")}, and the C for it is {cite("Include/object.h:127-150@v3.15.0rc1#_object")}, which is shorter than most people expect for the most important {term("struct")} in the codebase.
+{lesson.claim("every object in a running Python starts with the same two fields, a reference count and a pointer to its type", unobservable="the two fields are members of a C struct, and Python only ever gets handed the object on the far side of them")}, and then whatever the specific type needs. Those two fields are the {term("object header")}, and the C for it is {cite("Include/object.h:127-150@v3.15.0rc1#_object")}, shorter than most people expect for the most important {term("struct")} in the codebase.
 
-That shape is what makes the rest of it work. The {term("eval loop")} from T07 pushes and pops `PyObject *`, which is a {term("pointer")} to those two fields, so it never needs to know whether the thing on the end of the pointer is a dictionary or a socket. When it needs behaviour it follows `ob_type` and asks the type, and when it is done with a value it decrements `ob_refcnt`.
+That shape is what makes the rest work. The {term("eval loop")} from T07 pushes and pops `PyObject *`, a {term("pointer")} to those two fields, so it never needs to know whether the thing on the end is a dictionary or a socket. For behaviour it follows `ob_type` and asks the type, and when it is done with a value it decrements `ob_refcnt`.
 
-The free threaded build has a wider header, because a plain increment is not safe when two threads do it at once: {cite("Include/object.h:156-170@v3.15.0rc1#_object")}. It is the same idea with more fields in it. Everything below is about the ordinary build.
+The free threaded build has a wider header, because a plain increment is not safe when two threads do it at once: {cite("Include/object.h:156-170@v3.15.0rc1#_object")}. Same idea, more fields. Everything below is about the ordinary build.
 """)
 
 
@@ -171,7 +171,7 @@ for value in [None, 42, "hello", [1, 2, 3], {"a": 1}, obj.header]:
 lesson.md(f"""
 Look at the last line. `obj.header` is a function, and a function has an address, a type, a {term("reference count")} and a size just like a list does. That is the sentence "everything is an object" turned into something you can print.
 
-Two things in that output are worth pausing on. `None` reports that its reference count is parked rather than reporting a number, which we get to below. And the ints and the strings say they are not tracked by the {term("cycle collector")}, because an int cannot hold a reference to anything, so it can never be part of a cycle, and the collector does not carry the extra header for it. The collector is opt in per type rather than universal, and T09 is where that starts to matter.
+Two things in that output are worth pausing on. `None` reports its reference count as parked rather than as a number, which we get to below. And the ints and strings say they are not tracked by the {term("cycle collector")}: an int cannot hold a reference to anything, so it can never be part of a cycle, and the collector does not carry the extra header for it. Tracking is opt in per type, and T09 is where that matters.
 
 ## Two questions that look alike
 
@@ -186,7 +186,7 @@ lesson.md(f"""
 
 `is` compares two addresses. The {term("instruction")} is {cite("Python/bytecodes.c:3363-3370@v3.15.0rc1#_IS_OP")}, and the whole implementation is one call to `Py_Is`, which is a pointer comparison. No type is consulted and no method is called, which is why you cannot override it and why it is fast.
 
-So `a is b` is asking "are these two names pointing at the same object", and `a == b` is asking "do these two objects agree that they are equal". They are different questions and they can give different answers, and {lesson.claim("two lists built from the same three numbers are equal and are not the same object")}.
+So `a is b` asks whether two names point at the same object, and `a == b` asks whether two objects agree that they are equal. Different questions, and {lesson.claim("two lists built from the same three numbers are equal and are not the same object")}.
 """)
 
 
@@ -208,7 +208,7 @@ print("id(c)", hex(id(c)))
 lesson.md("""
 `c = a` did not copy anything. It bound a second name to the same object, which is why the two ids match, and why appending to `a` changes what `c` sees.
 
-The rule for which one to use is short. Use `is` for `None`, `True`, `False` and sentinel objects you made yourself, because for those you genuinely mean "this exact object". Use `==` for everything else.
+The rule is short. Use `is` for `None`, `True`, `False` and sentinels you made yourself, where you genuinely mean this exact object. Use `==` for everything else.
 
 ## The shelf
 
@@ -223,7 +223,7 @@ CPython builds a block of integer objects while it is starting up, before your c
 
 The size of the array is a number in a {term("header file")}: {cite("Include/internal/pycore_runtime_structs.h:96-98@v3.15.0rc1#_PY_NSMALLPOSINTS")}. That is where the famous 256 came from, and {lesson.claim("the top of the small integer cache moved in 3.15, so the 256 that every tutorial quotes is the old number")}.
 
-It exists because small integers are everywhere. Loop counters, list lengths, indexes, flags. Allocating a fresh object for every `i + 1` in a program would be a lot of allocation for a handful of distinct values.
+It exists because small integers are everywhere: loop counters, lengths, indexes, flags. Allocating a fresh object for every `i + 1` would be a lot of allocation for a handful of distinct values.
 
 Rather than trusting either number, ask your own interpreter: {lesson.claim("where the sharing stops can be measured from Python, by walking outward from zero until two equal integers stop being the same object")}. That is all `pyxray.obj.small_int_range` does.
 """)
@@ -246,7 +246,7 @@ for value in [-6, -5, 0, 255, 256, 257, 1024, 1025]:
 
 
 lesson.md("""
-Note how the probe builds its integers. It uses `int(str(n))` rather than writing the literal twice, and the next section is about why that matters.
+Note how the probe builds its integers: `int(str(n))` rather than the literal twice, and the next section is about why that matters.
 
 ## Two reasons to say True
 
@@ -303,13 +303,11 @@ print("int('99999') twice->", fresh("99999") is fresh("99999"))
 lesson.md(f"""
 That last block is measuring the shelf. On 3.15 the first two say True and the third says False. On 3.14 the first says False, because 257 is past the old limit.
 
-So `257 is 257` says True on both versions for a compiler reason, and it would still say True if the cache were deleted tomorrow. Every tutorial that uses it to demonstrate the cache is demonstrating the compiler instead.
-
-The practical lesson is the one the CPython docs have always stated: identity of immutable values is not something the language promises, and it is an implementation detail that has already changed once inside this project's own lifetime.
+So `257 is 257` says True on both versions for a compiler reason, and it would still say True if the cache were deleted tomorrow. Every tutorial that uses it to demonstrate the cache is demonstrating the compiler instead. The docs have always said the same thing: identity of immutable values is not something the language promises, and it has already changed once inside this project's lifetime.
 
 ## Strings get the same treatment, with a rule
 
-Strings have their own version of the shelf, called the intern table, and putting a string into it is called {term("interning")}. It is a hash table hanging off the interpreter state, at {cite("Include/internal/pycore_runtime_structs.h:91-94@v3.15.0rc1#_Py_cached_objects")}, and a string in it is shared by everything that asks for an equal string. Not every string goes in, and the rule is about what the string looks like.
+Strings have their own version of the shelf, the intern table, and putting a string into it is called {term("interning")}. It is a hash table hanging off the interpreter state, at {cite("Include/internal/pycore_runtime_structs.h:91-94@v3.15.0rc1#_Py_cached_objects")}, and a string in it is shared by everything that asks for an equal string. Not every string goes in, and the rule is about what the string looks like.
 """)
 
 
@@ -318,9 +316,9 @@ lesson.md(f"""
 
 The check is fifteen lines and it is what you would guess if you knew what interning was for: {cite("Objects/codeobject.c:116-137@v3.15.0rc1#should_intern_string")}. The string has to be ASCII with every character alphanumeric or an underscore, which is another way of saying strings shaped like identifiers.
 
-That is what the table is for. Attribute lookups, variable names, keyword arguments and dictionary keys are compared constantly while your program runs, and comparing two pointers is faster than comparing two sets of characters. Strings shaped like names get pooled because those are the ones the interpreter compares. A sentence with a space in it is not worth the table entry, so {lesson.claim("a string is interned only when it is ASCII and shaped like an identifier, which puts append and _private in the table and leaves hello world out of it")}.
+That is what the table is for. Attribute lookups, variable names, keyword arguments and dictionary keys get compared constantly while your program runs, and comparing two pointers is faster than comparing two sets of characters. A sentence with a space in it is not worth the table entry, so {lesson.claim("a string is interned only when it is ASCII and shaped like an identifier, which puts append and _private in the table and leaves hello world out of it")}.
 
-`pyxray.obj.is_interned` asks the question without changing the answer, which takes a little care: interning the string you were handed would put it in the table, and every call after the first would say True regardless of the truth.
+`pyxray.obj.is_interned` asks the question without changing the answer, which takes care: interning the string you were handed would put it in the table, and every call after the first would say True.
 """)
 
 
@@ -367,7 +365,7 @@ lesson.md(f"""
 
 `sys.getrefcount` is documented as reporting one more than you expect, because passing the object to the function creates a reference. Every tutorial written before 3.14 says to subtract one and move on.
 
-In 3.14 that stopped being reliable. `LOAD_FAST_BORROW` arrived, and loading a local variable now hands the interpreter a {term("borrowed reference")} rather than a counted one, since the frame is already holding the object and cannot stop holding it during the call. Loading a global still takes a real reference, because nothing guarantees the global survives.
+In 3.14 that stopped being reliable. `LOAD_FAST_BORROW` arrived, and loading a local now hands over a {term("borrowed reference")} rather than a counted one, because the frame is already holding the object. Loading a global still takes a real reference, since nothing guarantees the global survives.
 
 So the correction depends on the instruction that pushed the argument, and {lesson.claim("sys.getrefcount gives a different answer for a local and a global that each hold one list, because loading a local borrows the reference and loading a global takes one")}.
 """)
@@ -395,7 +393,7 @@ compare()
 lesson.md(f"""
 Both lists are held in exactly one place. The raw numbers disagree and the corrected ones do not.
 
-`pyxray.obj.refcount` gets there by disassembling the caller, looking at the instruction immediately before the call, and subtracting one only if that instruction took a real reference. That sounds like a lot of work for one number, and it is, but a lesson that shows a beginner 0 references for a variable they just bound is teaching them to distrust the number instead of understand it.
+`pyxray.obj.refcount` gets there by disassembling the caller, looking at the instruction immediately before the call, and subtracting one only if that instruction took a real reference. That is a lot of work for one number, and the alternative is showing a beginner 0 references for a variable they just bound.
 
 Here is the count moving as containers pick the object up and put it down again. {lesson.claim("every container holding an object holds a reference of its own, so putting one list inside another list twice raises its count by two and clearing that list drops it back")}.
 """)
@@ -433,9 +431,9 @@ watch()
 lesson.md(f"""
 One, three, four, two, one. Each container that holds the object holds a reference, and dropping the container drops the reference.
 
-The whole thing is wrapped in a function on purpose. At the top level of a notebook, a name lives in the module dictionary, and that dictionary holds a reference too, so every number above would be one higher and the first one would read 2 for a thing you just made. That is a good example of the trap in the third column of the table: the count is real, and working out which places it is counting is on you.
+The whole thing is wrapped in a function on purpose. At the top level of a notebook a name lives in the module dictionary, which holds a reference too, so every number above would be one higher and the first would read 2 for a thing you just made. The count is real, and working out which places it is counting is on you.
 
-You can also ask the other direction, which is what is holding this thing right now. {lesson.claim("Python can be asked which objects are holding a value, and at the top level of a notebook one of the answers is always the module's own namespace")}.
+You can also ask the other direction: what is holding this thing right now. {lesson.claim("Python can be asked which objects are holding a value, and at the top level of a notebook one of the answers is always the module's own namespace")}.
 """)
 
 
@@ -452,17 +450,17 @@ for holder in obj.referrers(target):
 
 
 lesson.md(f"""
-Two dicts and a list. The list and one of the dicts are the two containers the cell built. The other dict is the notebook's own namespace, which is holding `target` because `target` is a name at the top level, and that is the extra reference the previous cell went out of its way to avoid.
+Two dicts and a list. The list and one dict are the containers the cell built. The other dict is the notebook's own namespace, holding `target` because `target` is a name at the top level, which is the extra reference the previous cell went out of its way to avoid.
 
-`gc.get_referrers` is what does the work here, and `pyxray` filters out the frames, because the frame you are asking from is holding the object precisely because you are asking, and that is an artifact rather than an answer.
+`gc.get_referrers` does the work, and `pyxray` filters out the frames: the frame you are asking from is holding the object precisely because you are asking, which is an artifact rather than an answer.
 
 ## The objects that are never freed
 
 Some objects have their reference count parked at a value the interpreter never decrements. `None`, `True`, `False`, the small integers, the interned strings and every {term("type object")} are {term("immortal object", "immortal")}. The check is a sign test: {cite("Include/refcount.h:125-136@v3.15.0rc1#_Py_IsImmortal")}.
 
-The reason is threading. Incrementing a shared counter means writing to a cache line, and every core touching `None` a million times a second means those cores fighting over one cache line. Freezing the count for objects that will never be freed anyway makes the write unnecessary. This landed in 3.12 and it is what made the free threaded build plausible.
+The reason is threading. Incrementing a shared counter means writing to a cache line, so every core touching `None` a million times a second means those cores fighting over one line. Freezing the count for objects that will never be freed makes the write unnecessary. This landed in 3.12 and it is what made the free threaded build plausible.
 
-It also means {lesson.claim("None, True, the small integers and the type objects have their reference count parked, so sys.getrefcount reports an enormous number for them that is not counting anything")}, which is why `pyxray` reports nothing for those rather than printing it next to a paragraph about reference counting.
+It also means {lesson.claim("None, True, the small integers and the type objects have their reference count parked, so sys.getrefcount reports an enormous number for them that is not counting anything")}, which is why `pyxray` reports nothing for those.
 """)
 
 
@@ -508,9 +506,9 @@ Now watch a list fill up.
 lesson.md(f"""
 {figure("sizes-grow", "a bar chart of an empty list against lists of ten, a hundred and a thousand items")}
 
-{lesson.claim("a list costs one pointer per slot, so what an extra item adds is the size of an address on your machine and not the size of the thing you put in")}. A list stores pointers rather than values, so a thousand integers cost it a thousand pointers no matter how big those integers are.
+{lesson.claim("a list costs one pointer per slot, so what an extra item adds is the size of an address on your machine and not the size of the thing you put in")}.
 
-How big a word is depends on the machine and not on Python, so the next cell measures it rather than telling you.
+How big a word is depends on the machine, so the next cell measures it rather than telling you.
 """)
 
 
@@ -533,9 +531,7 @@ print("so one slot costs:", (ten - empty) // 10, "bytes")
 
 
 lesson.md(f"""
-On a laptop or a desktop that last line says eight, because the addresses are 64 bit. In a browser it says four, because the Python running there was compiled to WebAssembly as a 32 bit build, and the sizes in this whole section shrink with it.
-
-Neither number is a fact about Python. The fact about Python is one pointer per slot. This is one of the few places in the course where what you measure is the machine rather than the language, and it is worth knowing which one you are looking at.
+On a laptop or a desktop that last line says eight, because the addresses are 64 bit. In a browser it says four, because the Python running there is a 32 bit WebAssembly build, and the sizes in this whole section shrink with it. Neither number is a fact about Python: the fact about Python is one pointer per slot.
 
 That is also the trap in the fourth question: {lesson.claim("sys.getsizeof reports an object's own bytes and nothing it points at, so a list of three tiny integers and a list of three enormous ones come out the same size")}.
 """)
@@ -558,7 +554,7 @@ print("the second list really costs about", really, "bytes")
 
 
 lesson.md("""
-The two lists are the same size, because they are the same three pointers. Everything that makes the second one expensive is on the other end of those pointers, and `getsizeof` will not follow them for you. There is no function in the standard library that will, because "how big is this really" runs into shared objects and cycles and quickly stops having one answer.
+The two lists are the same size, because they are the same three pointers. Everything that makes the second expensive is on the other end of those pointers, and `getsizeof` will not follow them. Nothing in the standard library will, because "how big is this really" runs into shared objects and cycles and stops having one answer.
 
 ## Try it yourself
 

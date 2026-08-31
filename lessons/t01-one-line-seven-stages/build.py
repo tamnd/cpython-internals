@@ -29,15 +29,13 @@ lesson.md(f"""
 
 {badge}
 
-This lesson follows one line of Python, `answer = 6 * 7`, from the bytes in a file to the number 42 sitting in a namespace. Seven things happen in between, and you can watch all of them from inside Python. You do not need a C compiler and you do not need to build CPython yourself.
+This lesson follows one line of Python, `answer = 6 * 7`, from the bytes in a file to the number 42 sitting in a namespace. Seven things happen in between, and you can watch all of them from inside Python. You do not need a C compiler or a build of CPython.
 
 {figure("seven-stages", "eight boxes from your file to the answer, with the CPython source file under each one")}
 
 No C knowledge is assumed, and you do not need to already know what a compiler is. By the end you will have found the point where CPython does the multiplication in that line, which is earlier than most people expect, and you will know which source file does it.
 
-Everything below runs in continuous integration on CPython 3.15.0rc1 and on 3.14 before it reaches you. Where the two versions disagree the lesson says so and prints what your build actually did, so you are never asked to trust a number that was true on somebody else's machine.
-
-Words that turn up here and get used again later, like {term("code object")} and {term("bytecode")}, have one definition each in the [glossary](https://github.com/tamnd/cpython-internals/blob/main/GLOSSARY.md). Follow a link when a word is new to you, ignore it when it is not.
+Every cell below runs in continuous integration on 3.15.0rc1 and 3.14 before it reaches you, and where they disagree the lesson prints what your own build did. Words like {term("code object")} and {term("bytecode")} have one definition each in the [glossary](https://github.com/tamnd/cpython-internals/blob/main/GLOSSARY.md).
 """)
 
 
@@ -392,15 +390,6 @@ print(result.summary())
 )
 
 
-lesson.md("""
-## What just happened
-
-Source text was decoded and cut into tokens. Tokens were parsed into a tree. The tree was walked once to work out what every name meant, and walked again to emit instructions. The instructions became a graph, the graph was optimized, and the optimizer did your arithmetic for you. What was left was assembled into a code object, and the code object was executed.
-
-Seven stages for one line of Python, and only the last one runs when you run your program.
-""")
-
-
 lesson.md(r"""
 ## Try it yourself
 
@@ -428,6 +417,15 @@ print(compiler.what_the_optimizer_did(mine))
     differs=TRAILING_NONE,
     quiet=True,
 )
+
+
+lesson.md("""
+## What just happened
+
+Source text was decoded and cut into tokens. Tokens were parsed into a tree. The tree was walked once to work out what every name meant, and walked again to emit instructions. The instructions became a graph, the graph was optimized, and the optimizer did your arithmetic for you. What was left was assembled into a code object, and the code object was executed.
+
+Seven stages for one line of Python, and only the last one runs when you run your program.
+""")
 
 
 lesson.md("""

@@ -34,9 +34,9 @@ lesson.md(f"""
 
 {badge}
 
-T03 ended with a tree that knows a line says `answer` but not which `answer` that is, and it cannot work it out on its own, because the answer depends on the whole function the line sits in.
+T03 ended with a tree that knows a line says `answer` but not which `answer` that is. It cannot work that out on its own, because the answer depends on the whole function the line sits in.
 
-This lesson is about the pass that works it out. It walks the tree, decides what every name in every block means, and hands the answer on. It changes nothing in the tree, it only answers a question. What it produces is the {term("symbol table")}.
+This lesson is about the pass that works it out. It walks the tree, decides what every name in every block means, and hands the answer on, changing nothing. What it produces is the {term("symbol table")}.
 
 {figure("where-we-are", "the eight stages of running Python, with the symbol table highlighted")}
 
@@ -46,7 +46,7 @@ That sounds like bookkeeping, and then you find out it is the reason for the err
 UnboundLocalError: cannot access local variable 'answer' where it is not associated with a value
 ```
 
-By the end of this lesson you will know why that happens, you will have seen the two different instructions the compiler produced for one identical line of code, and you will be able to predict which one you get before you run anything.
+By the end you will know why that happens, you will have seen the two different instructions the compiler produced for one identical line, and you will be able to predict which one you get before running anything.
 
 No C required, and everything here runs on a normal Python.
 """)

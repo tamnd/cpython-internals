@@ -111,6 +111,7 @@ build-lessons:
 # worse than no lesson, because the reader assumes they broke it.
 notebooks:
     uv run nbcheck lint
+    uv run nbcheck blocks
     uv run nbcheck run
 
 # Run every lesson on both interpreters and check that the cells whose output differs are
@@ -127,8 +128,11 @@ versions:
     uv run nbversion compare build/versions/{{pinned_version}} build/versions/3.14
 
 # The structural checks on their own, with no kernel, for while you are still writing.
+# `blocks` prints the hook, tour and lesson word counts for all twelve whether or not any
+# of them is over, because the number worth knowing while writing is how much room is left.
 notebooks-lint:
     uv run nbcheck lint
+    uv run nbcheck blocks
 
 # Check the animations without a renderer: every storyboard is inside the ninety second
 # cap, every shape it draws is in the visual system, and the scene file, the committed GIF
