@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-178 claims across 17 lessons, 18 of them not observable from Python.
+185 claims across 18 lessons, 18 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -62,6 +62,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | the deepest you can indent and the deepest you can nest brackets are both fixed at compile time, and you can find both numbers from Python without reading the header | [`f01-14`](f01-the-tokenizer-in-c/f01.ipynb) |
 | every DEDENT from the same line ending reports the same position and an empty string, because they are drained from a counter rather than matched against text | [`f01-17`](f01-the-tokenizer-in-c/f01.ipynb) |
 | some tokenizer errors carry their message from the lexer and others carry only a number that the parser turns into words, and which is which explains why a TabError and an unterminated string feel like they come from different places | [`f01-19`](f01-the-tokenizer-in-c/f01.ipynb) |
+
+## F02. f-strings in the lexer
+
+| Claim | Proved by |
+| --- | --- |
+| a plain string is a single STRING token, and an f-string with the same characters is a start token, some middle tokens, the ordinary tokens of the expression, and an end token | [`f02-07`](f02-f-strings-in-the-lexer/f02.ipynb) |
+| f-strings have two separate nesting limits, one for f-strings inside f-strings and a far smaller one for fields inside a format spec, and you can find both from Python | [`f02-09`](f02-f-strings-in-the-lexer/f02.ipynb) |
+| the text of a format spec comes out as FSTRING_MIDDLE tokens, the same token type as literal text in the body of the f-string | [`f02-11`](f02-f-strings-in-the-lexer/f02.ipynb) |
+| the lexer does no escape decoding inside an f-string, so the token for a backslash n is two characters long and the parser is what turns it into one | [`f02-13`](f02-f-strings-in-the-lexer/f02.ipynb) |
+| a doubled brace produces two separate FSTRING_MIDDLE tokens with a one character gap between them, and that gap is the character the lexer threw away | [`f02-15`](f02-f-strings-in-the-lexer/f02.ipynb) |
+| the spacing you wrote inside an equals field survives exactly, including spaces a reconstruction would have normalised away | [`f02-17`](f02-f-strings-in-the-lexer/f02.ipynb) |
+| a t-string produces the same shape of token stream as an f-string with different token names, because the lexer runs the same code and only changes which name it stamps on the result | [`f02-19`](f02-f-strings-in-the-lexer/f02.ipynb) |
 
 ## T01. One line, seven stages
 
