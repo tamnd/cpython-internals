@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-257 claims across 30 lessons, 21 of them not observable from Python.
+263 claims across 31 lessons, 21 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -206,6 +206,17 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a class statement sets tp_dictoffset to -1 and tp_weaklistoffset to minus four pointers, and the space those refer to sits in front of the object, which is why getsizeof reports more than __sizeof__ | [`o02-17`](o02-following-the-type-pointer/o02.ipynb) |
 | an instance of a class with a managed dict is allocated with room for its attribute values after the object, and that room is in neither of the numbers getsizeof adds together | not observable from Python: the inline values array is sized from a table on the type and no Python level call reports it |
 | a class statement compiles to a call to __build_class__, and calling type with a name, bases and a namespace produces a type with the same flags, size and mro | [`o02-20`](o02-following-the-type-pointer/o02.ipynb) |
+
+## O03. Dunders and the slots behind them
+
+| Claim | Proved by |
+| --- | --- |
+| the dunder methods on a builtin type are slot wrappers generated from its C slots, and they are a different kind of object from both the plain methods on the same type and the functions you write in a class body | [`o03-07`](o03-dunders-and-slots/o03.ipynb) |
+| a dunder assigned to an instance is a real attribute you can call by name, and the built in function that would use it never sees it, because the slot looks the name up on the type | [`o03-11`](o03-dunders-and-slots/o03.ipynb) |
+| assigning a dunder to a class updates the slot at once, on that class and on every subclass of it, and deleting it puts the inherited behaviour back | [`o03-13`](o03-dunders-and-slots/o03.ipynb) |
+| a class defining only __getitem__ can be iterated over and used with in, because that one name fills the sq_item slot and the old sequence protocol is still what iteration falls back on | [`o03-15`](o03-dunders-and-slots/o03.ipynb) |
+| a subclass that defines __radd__ itself is called before the base class __add__, and an unrelated class defining __radd__ is not, because both names share one slot and the dispatcher checks the subclass relationship first | [`o03-17`](o03-dunders-and-slots/o03.ipynb) |
+| a class that defines __eq__ and not __hash__ ends up with a real None stored under __hash__ in its class dict, and putting a hash back is a one line assignment | [`o03-19`](o03-dunders-and-slots/o03.ipynb) |
 
 ## T01. One line, seven stages
 

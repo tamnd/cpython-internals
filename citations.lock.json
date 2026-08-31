@@ -695,6 +695,51 @@
       "first_line": "void",
       "lines": 20
     },
+    "Objects/typeobject.c:10524-10530@v3.15.0rc1": {
+      "digest": "bd97cf89d9d7c794",
+      "first_line": "#define SLOT0(FUNCNAME, DUNDER) \\",
+      "lines": 7
+    },
+    "Objects/typeobject.c:10573-10600@v3.15.0rc1": {
+      "digest": "88cff08be482a9fa",
+      "first_line": "#define SLOT1BINFULL(FUNCNAME, TESTFUNC, SLOTNAME, DUNDER, RDUNDER) \\",
+      "lines": 28
+    },
+    "Objects/typeobject.c:11522-11531@v3.15.0rc1": {
+      "digest": "4ad77fa864aa2cae",
+      "first_line": "/*",
+      "lines": 10
+    },
+    "Objects/typeobject.c:11546-11553@v3.15.0rc1": {
+      "digest": "0385bd444c1da88c",
+      "first_line": "#define TPSLOT(NAME, SLOT, FUNCTION, WRAPPER, DOC) \\",
+      "lines": 8
+    },
+    "Objects/typeobject.c:11584-11590@v3.15.0rc1": {
+      "digest": "f494591191e7ce56",
+      "first_line": "static pytype_slotdef slotdefs[] = {",
+      "lines": 7
+    },
+    "Objects/typeobject.c:11740-11753@v3.15.0rc1": {
+      "digest": "77bf33636ec9ffc9",
+      "first_line": "MPSLOT(__len__, mp_length, slot_mp_length, wrap_lenfunc,",
+      "lines": 14
+    },
+    "Objects/typeobject.c:12086-12096@v3.15.0rc1": {
+      "digest": "69170f42ee69fe8e",
+      "first_line": "/* Update the slots after assignment to a class (type) attribute. */",
+      "lines": 11
+    },
+    "Objects/typeobject.c:12129-12138@v3.15.0rc1": {
+      "digest": "9e6a8d9ad5b83628",
+      "first_line": "dict. */",
+      "lines": 10
+    },
+    "Objects/typeobject.c:12456-12470@v3.15.0rc1": {
+      "digest": "b3eb73a5e54ec845",
+      "first_line": "add_operators(PyTypeObject *type)",
+      "lines": 15
+    },
     "Objects/typeobject.c:2512-2531@v3.15.0rc1": {
       "digest": "9ac3593478808a3d",
       "first_line": "_PyType_AllocNoTrack(PyTypeObject *type, Py_ssize_t nitems)",
@@ -704,6 +749,16 @@
       "digest": "e3fd1c7921a386a3",
       "first_line": "PyTypeObject PyType_Type = {",
       "lines": 6
+    },
+    "Objects/typeobject.c:8808-8818@v3.15.0rc1": {
+      "digest": "42d8cbff41ef620b",
+      "first_line": "static int",
+      "lines": 11
+    },
+    "Objects/typeobject.c:9370-9391@v3.15.0rc1": {
+      "digest": "ff402e2b47b1287a",
+      "first_line": "tp_dict['__hash__'] equal to None.",
+      "lines": 22
     },
     "Objects/weakrefobject.c:1001-1024@v3.15.0rc1": {
       "digest": "2990efebc60f458b",
