@@ -264,6 +264,13 @@ jobs:
           enable-cache: true
       - run: uv sync --all-packages
 
+      # Asking what an index is made of needs a pull, and the parts are what #126 was about.
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Delete images nothing points at any more
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -273,11 +280,18 @@ jobs:
           KEEP: "120"
         run: |
           set -euo pipefail
-          uv run cpybuild protected > /tmp/protected.txt
-          wc -l < /tmp/protected.txt | xargs echo "digests a release or the lockfile points at:"
+          uv run cpybuild protected > /tmp/named.txt
+          wc -l < /tmp/named.txt | xargs echo "digests a release or the lockfile points at:"
           gh api --paginate \
             "/users/${{ github.repository_owner }}/packages/container/cpython-internals%2Fcpython/versions" \
             > /tmp/versions.json
+          # An index is a list of manifests and those manifests are versions in their own
+          # right, never tagged and never in the lockfile. Deleting one leaves an index that
+          # resolves and then points at nothing, so they have to be kept too. Issue #126.
+          uv run cpybuild expand \
+            --versions /tmp/versions.json \
+            --protected /tmp/named.txt \
+            > /tmp/protected.txt
           uv run cpybuild prune \
             --versions /tmp/versions.json \
             --protected /tmp/protected.txt \

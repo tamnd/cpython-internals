@@ -268,3 +268,50 @@ def test_the_committed_devcontainer_pulls_the_committed_debug_image():
     lock = Lock.load(images.LOCKFILE)
     said = images.DEVCONTAINER.read_text(encoding="utf-8")
     assert images.devcontainer_problems(lock, said) == []
+
+
+INDEX = """{
+  "mediaType": "application/vnd.oci.image.index.v1+json",
+  "manifests": [
+    {"digest": "sha256:aa", "platform": {"architecture": "amd64"}},
+    {"digest": "sha256:bb", "platform": {"architecture": "arm64"}}
+  ]
+}"""
+
+MANIFEST = """{
+  "mediaType": "application/vnd.oci.image.manifest.v1+json",
+  "config": {"digest": "sha256:cc"},
+  "layers": [{"digest": "sha256:dd"}]
+}"""
+
+
+def test_an_index_says_which_manifests_it_is_made_of():
+    assert images.members_in(INDEX) == ["sha256:aa", "sha256:bb"]
+
+
+def test_a_plain_manifest_is_made_of_no_other_manifests():
+    """It has layers, and a layer is a blob rather than a version the tidy up could delete."""
+    assert images.members_in(MANIFEST) == []
+
+
+def test_a_digest_the_registry_will_not_talk_about_reads_as_holding_nothing(capsys):
+    """Some of them genuinely do not resolve any more, and refusing to run would mean the tidy
+    up never runs again. The refusal lives in `cpybuild expand`, which can see how many failed."""
+
+    def refuse(reference: str) -> str:
+        raise images.Unreadable(f"{reference}: manifest unknown")
+
+    assert images.members_of("somewhere", refuse)(ONE) == []
+    assert "treating it as empty" in capsys.readouterr().err
+
+
+def test_the_lookup_asks_about_a_digest_and_never_about_a_tag():
+    """A tag can move between the walk and the delete, and a digest cannot."""
+    asked = []
+
+    def remember(reference: str) -> str:
+        asked.append(reference)
+        return INDEX
+
+    images.members_of("somewhere", remember)(ONE)
+    assert asked == [f"somewhere@{ONE}"]

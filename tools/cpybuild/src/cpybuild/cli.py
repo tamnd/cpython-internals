@@ -18,6 +18,7 @@ thing and nothing else.
     cpybuild record-index debug sha256:...
     cpybuild devcontainer --write       point the devcontainer at the lockfile's debug image
     cpybuild protected                  digests the tidy up is not allowed to delete
+    cpybuild expand --versions v.json --protected p.txt  those digests and their parts
     cpybuild prune --versions v.json --protected p.txt   version ids that can be deleted
 """
 
@@ -36,10 +37,12 @@ from .images import (
     DEVCONTAINER,
     DIGEST,
     LOCKFILE,
+    REGISTRY,
     Broken,
     Lock,
     devcontainer_problems,
     digests,
+    members_of,
     problems,
     protected,
     retarget,
@@ -206,6 +209,41 @@ def _protected(args: argparse.Namespace) -> int:
     return 0
 
 
+def _expand(args: argparse.Namespace) -> int:
+    """Print the protected digests and everything they are made of, one per line.
+
+    This is the answer to #126. What we call an image is an index naming an amd64 manifest, an
+    arm64 manifest and an attestation for each, and those parts are versions the registry will
+    happily delete on their own. Deleting one leaves an index pointing at nothing, which is
+    `manifest unknown` for everybody pulling it.
+
+    Refuses to print anything if the walk found no parts at all. Fifteen indexes have parts, so
+    zero means Docker is not there or the login did not take, and the useful thing to do with
+    an answer that is probably wrong is not hand it to something that deletes images.
+    """
+    body = json.loads(Path(args.versions).read_text(encoding="utf-8"))
+    versions = retention.read(body)
+    named = {
+        one.strip()
+        for one in Path(args.protected).read_text(encoding="utf-8").splitlines()
+        if one.strip()
+    }
+    roots = retention.anchors(versions, named)
+    found = retention.reachable(roots, members_of(args.registry))
+    parts = found - roots
+    if not parts:
+        print(
+            f"{len(roots)} digests to keep and not one of them is made of anything, "
+            "which cannot be right, so nothing is safe to delete",
+            file=sys.stderr,
+        )
+        return 1
+    print(f"{len(roots)} kept outright, and {len(parts)} more they are made of", file=sys.stderr)
+    for one in sorted(found):
+        print(one)
+    return 0
+
+
 def _prune(args: argparse.Namespace) -> int:
     """Print the id of every package version that can be deleted, one per line.
 
@@ -309,6 +347,12 @@ def build() -> argparse.ArgumentParser:
 
     safe = subs.add_parser("protected", help="digests the tidy up must not delete")
     safe.set_defaults(handler=_protected)
+
+    wider = subs.add_parser("expand", help="protected digests plus the parts they are made of")
+    wider.add_argument("--versions", required=True, help="the registry's version list as JSON")
+    wider.add_argument("--protected", required=True, help="digests to keep, one per line")
+    wider.add_argument("--registry", default=REGISTRY, help="where to ask what an index lists")
+    wider.set_defaults(handler=_expand)
 
     gone = subs.add_parser("prune", help="version ids that can be deleted")
     gone.add_argument("--versions", required=True, help="the registry's version list as JSON")

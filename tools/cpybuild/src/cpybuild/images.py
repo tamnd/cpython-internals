@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
+import sys
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from datetime import date
@@ -158,6 +159,61 @@ def digests(lock: Lock) -> set[str]:
     """
     found = {one.digest for builds in lock.images.values() for one in builds.values()}
     return found | {one.digest for one in lock.indexes.values()}
+
+
+class Unreadable(Broken):
+    """The registry would not say what an image is made of."""
+
+
+def members_in(text: str) -> list[str]:
+    """The digests an index lists, or nothing at all for a plain manifest.
+
+    A plain manifest has `layers` and no `manifests`, and an index has the other way round, so
+    the absent key is the answer rather than a case to detect.
+    """
+    body = json.loads(text)
+    listed = body.get("manifests") or []
+    return [str(one["digest"]) for one in listed if one.get("digest")]
+
+
+def _inspect(reference: str) -> str:
+    """What the registry has under a reference, as it stored it.
+
+    `--raw` rather than the pretty output, because the pretty output resolves an index into a
+    table of platforms and drops the attestation rows, and the attestations are versions the
+    tidy up would otherwise delete.
+    """
+    done = subprocess.run(
+        ["docker", "buildx", "imagetools", "inspect", "--raw", reference],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if done.returncode != 0:
+        raise Unreadable(f"{reference}: {done.stderr.strip() or 'inspect failed'}")
+    return done.stdout
+
+
+def members_of(
+    registry: str = REGISTRY,
+    inspect: Callable[[str], str] = _inspect,
+) -> Callable[[str], list[str]]:
+    """A lookup from one digest to the digests inside it, for the tidy up to walk.
+
+    A digest that will not resolve is reported and treated as holding nothing, because some of
+    them do not resolve any more and refusing to run would mean the tidy up never runs again.
+    The caller is the one that decides whether too many failed to be worth continuing, and
+    `cpybuild expand` does exactly that.
+    """
+
+    def look(digest: str) -> list[str]:
+        try:
+            return members_in(inspect(f"{registry}@{digest}"))
+        except (Unreadable, ValueError, TypeError, KeyError) as error:
+            print(f"cannot read {digest[:19]}, treating it as empty: {error}", file=sys.stderr)
+            return []
+
+    return look
 
 
 def _from_git(revision: str, path: str = str(LOCKFILE)) -> str | None:

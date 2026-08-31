@@ -192,7 +192,47 @@ def test_prune_prints_ids_on_stdout_and_the_reasoning_on_stderr(tmp_path, capsys
     )
     said = capsys.readouterr()
     assert said.out.split() == ["2"]
-    assert "1 pointed at by a release" in said.err
+    assert "1 named by a release or part of something named" in said.err
+
+
+def test_expand_adds_the_manifests_an_index_is_made_of(tmp_path, capsys, monkeypatch):
+    """Issue #126. The parts are versions the registry will delete on their own."""
+    part = "sha256:" + "1" * 64
+    versions = tmp_path / "versions.json"
+    versions.write_text(
+        json.dumps(
+            [
+                {
+                    "id": 1,
+                    "name": TWO,
+                    "created_at": "2026-08-01T00:00:00Z",
+                    "metadata": {"container": {"tags": ["debug"]}},
+                }
+            ]
+        )
+    )
+    safe = tmp_path / "protected.txt"
+    safe.write_text(f"{ONE}\n")
+    inside = {ONE: [part]}
+    monkeypatch.setattr("cpybuild.cli.members_of", lambda registry: lambda one: inside.get(one, []))
+    assert main(["expand", "--versions", str(versions), "--protected", str(safe)]) == 0
+    assert sorted(capsys.readouterr().out.split()) == sorted([ONE, TWO, part])
+
+
+def test_expand_refuses_when_nothing_turned_out_to_be_made_of_anything(
+    tmp_path, capsys, monkeypatch
+):
+    """Fifteen indexes have parts, so zero means Docker is missing or the login did not take,
+    and an answer that is probably wrong should not be handed to something that deletes."""
+    versions = tmp_path / "versions.json"
+    versions.write_text(json.dumps([]))
+    safe = tmp_path / "protected.txt"
+    safe.write_text(f"{ONE}\n")
+    monkeypatch.setattr("cpybuild.cli.members_of", lambda registry: lambda digest: [])
+    assert main(["expand", "--versions", str(versions), "--protected", str(safe)]) == 1
+    said = capsys.readouterr()
+    assert said.out == ""
+    assert "nothing is safe to delete" in said.err
 
 
 def test_prune_reads_a_protected_file_with_blank_lines_in_it(tmp_path, capsys):
