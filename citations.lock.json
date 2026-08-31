@@ -170,6 +170,21 @@
       "first_line": "static inline int",
       "lines": 6
     },
+    "Include/internal/pycore_dict.h:184-185@v3.15.0rc1": {
+      "digest": "1c99b541e59b4656",
+      "first_line": "#define DKIX_EMPTY (-1)",
+      "lines": 2
+    },
+    "Include/internal/pycore_dict.h:196-235@v3.15.0rc1": {
+      "digest": "f371282052e3ed7f",
+      "first_line": "struct _dictkeysobject {",
+      "lines": 40
+    },
+    "Include/internal/pycore_dict.h:79-90@v3.15.0rc1": {
+      "digest": "c3ccf876d4deb3d8",
+      "first_line": "",
+      "lines": 12
+    },
     "Include/internal/pycore_flowgraph.h:27-31@v3.15.0rc1": {
       "digest": "5f318ca1d3438caa",
       "first_line": "struct _PyCfgBuilder* _PyCfg_FromInstructionSequence(_PyInstructionSequence *seq);",
@@ -694,6 +709,71 @@
       "digest": "bc66e218dea859cc",
       "first_line": "static PyObject *",
       "lines": 37
+    },
+    "Objects/dictobject.c:1078-1101@v3.15.0rc1": {
+      "digest": "4385385afec4f891",
+      "first_line": "do_lookup(PyDictObject *mp, PyDictKeysObject *dk, PyObject *key, Py_hash_t hash,",
+      "lines": 24
+    },
+    "Objects/dictobject.c:2141-2175@v3.15.0rc1": {
+      "digest": "344810b229e48b6b",
+      "first_line": "dictresize(PyDictObject *mp,",
+      "lines": 35
+    },
+    "Objects/dictobject.c:2904-2941@v3.15.0rc1": {
+      "digest": "7a0ffae503ffbf9f",
+      "first_line": "delitem_common(PyDictObject *mp, Py_hash_t hash, Py_ssize_t ix,",
+      "lines": 38
+    },
+    "Objects/dictobject.c:329-329@v3.15.0rc1": {
+      "digest": "49bfe45f364ef798",
+      "first_line": "#define PERTURB_SHIFT 5",
+      "lines": 1
+    },
+    "Objects/dictobject.c:360-398@v3.15.0rc1": {
+      "digest": "725a960e3d558884",
+      "first_line": "The first half of collision resolution is to visit table indices via this",
+      "lines": 39
+    },
+    "Objects/dictobject.c:37-49@v3.15.0rc1": {
+      "digest": "3c2ccab161989419",
+      "first_line": "Size of indices is dk_size.  Type of each index in indices varies with dk_size:",
+      "lines": 13
+    },
+    "Objects/dictobject.c:581-581@v3.15.0rc1": {
+      "digest": "142bef72e1124e8d",
+      "first_line": "#define USABLE_FRACTION(n) (((n) << 1)/3)",
+      "lines": 1
+    },
+    "Objects/dictobject.c:584-604@v3.15.0rc1": {
+      "digest": "ad8228aa7b7cea82",
+      "first_line": "static inline uint8_t",
+      "lines": 21
+    },
+    "Objects/dictobject.c:606-615@v3.15.0rc1": {
+      "digest": "e05e8d8144b5bcd0",
+      "first_line": "/* estimate_keysize is reverse function of USABLE_FRACTION.",
+      "lines": 10
+    },
+    "Objects/dictobject.c:618-628@v3.15.0rc1": {
+      "digest": "96e2b280745dc3c5",
+      "first_line": "/* GROWTH_RATE. Growth rate upon hitting maximum load.",
+      "lines": 11
+    },
+    "Objects/dictobject.c:630-640@v3.15.0rc1": {
+      "digest": "3275c5fcfd6e274a",
+      "first_line": "/* This immutable, empty PyDictKeysObject is used for PyDict_Clear()",
+      "lines": 11
+    },
+    "Objects/dictobject.c:66-89@v3.15.0rc1": {
+      "digest": "dc6f596fb1dd0c0a",
+      "first_line": "There are four kinds of slots in the table (slot is index, and",
+      "lines": 24
+    },
+    "Objects/dictobject.c:91-106@v3.15.0rc1": {
+      "digest": "1049da1243d995b5",
+      "first_line": "/*",
+      "lines": 16
     },
     "Objects/funcobject.c:1264-1270@v3.15.0rc1": {
       "digest": "991dc84999f49f93",

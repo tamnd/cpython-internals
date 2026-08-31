@@ -539,7 +539,7 @@
         {
           "name": "f10-11",
           "status": "ok",
-          "printed": "  --           MAKE_CELL                0 (a)\n               MAKE_CELL                6 (n)\n\n   1           RESUME                   0\n\n   2           LOAD_SMALL_INT           0\n               STORE_DEREF              6 (n)\n\n   4           LOAD_FAST_BORROW         0 (a)\n               LOAD_FAST_BORROW         6 (n)\n               BUILD_TUPLE              2\n               LOAD_CONST               1 (<code object inner at 0x1808fc8, file \"f10-09\", line 4>)\n               MAKE_FUNCTION\n               SET_FUNCTION_ATTRIBUTE   8 (closure)\n               STORE_FAST               5 (inner)\n\n   7           LOAD_FAST_BORROW         5 (inner)\n               RETURN_VALUE\n\nDisassembly of <code object inner at 0x1808fc8, file \"f10-09\", line 4>:\n  --           COPY_FREE_VARS           2\n\n   4           RESUME                   0\n\n   5           LOAD_DEREF               0 (a)\n               LOAD_DEREF               1 (n)\n               BINARY_OP                0 (+)\n               RETURN_VALUE\n"
+          "printed": "  --           MAKE_CELL                0 (a)\n               MAKE_CELL                6 (n)\n\n   1           RESUME                   0\n\n   2           LOAD_SMALL_INT           0\n               STORE_DEREF              6 (n)\n\n   4           LOAD_FAST_BORROW         0 (a)\n               LOAD_FAST_BORROW         6 (n)\n               BUILD_TUPLE              2\n               LOAD_CONST               1 (<code object inner at 0x159a168, file \"f10-09\", line 4>)\n               MAKE_FUNCTION\n               SET_FUNCTION_ATTRIBUTE   8 (closure)\n               STORE_FAST               5 (inner)\n\n   7           LOAD_FAST_BORROW         5 (inner)\n               RETURN_VALUE\n\nDisassembly of <code object inner at 0x159a168, file \"f10-09\", line 4>:\n  --           COPY_FREE_VARS           2\n\n   4           RESUME                   0\n\n   5           LOAD_DEREF               0 (a)\n               LOAD_DEREF               1 (n)\n               BINARY_OP                0 (+)\n               RETURN_VALUE\n"
         },
         {
           "name": "f10-13",
@@ -631,12 +631,12 @@
         {
           "name": "f12-07",
           "status": "ok",
-          "printed": "  greet.py is 54 bytes of text\n  greet.cpython-314.pyc is 251 bytes\n\n  header    2b 0e 0d 0a 00 00 00 00 76 b0 95 6a 36 00 00 00\n  the rest  235 bytes, and marshal.loads gives back a\n            code object\n"
+          "printed": "  greet.py is 54 bytes of text\n  greet.cpython-314.pyc is 251 bytes\n\n  header    2b 0e 0d 0a 00 00 00 00 8c b3 95 6a 36 00 00 00\n  the rest  235 bytes, and marshal.loads gives back a\n            code object\n"
         },
         {
           "name": "f12-10",
           "status": "ok",
-          "printed": "  magic     168627755\n  flags             0\n  mtime    1788194934   source 1788194934\n  size             54   source 54\n"
+          "printed": "  magic     168627755\n  flags             0\n  mtime    1788195724   source 1788195724\n  size             54   source 54\n"
         },
         {
           "name": "f12-13",
@@ -670,7 +670,7 @@
         {
           "name": "f12-29",
           "status": "ok",
-          "printed": "  one bit flipped in the magic: bad magic number in 'broken': b'*\\x0e\\r\\n'\n\n  put a wrong mtime in greet.cpython-314.pyc: 1788194953\n  imported it with no complaint: 'hi world'\n  and the header now says        1788194953\n  the file was quietly rewritten: False\n"
+          "printed": "  one bit flipped in the magic: bad magic number in 'broken': b'*\\x0e\\r\\n'\n\n  put a wrong mtime in greet.cpython-314.pyc: 1788195699\n  imported it with no complaint: 'hi world'\n  and the header now says        1788195699\n  the file was quietly rewritten: False\n"
         }
       ]
     },
@@ -689,7 +689,7 @@
         {
           "name": "o01-07",
           "status": "ok",
-          "printed": "  a pointer here is 4 bytes, so the header is 8\n  it lives at 25455504\n\n  first word, read as a count             1\n  sys.getrefcount, less its own argument  1\n  the same number: True\n\n  second word                   23942736\n  id(Thing) is                  23942736\n  so the second word is the type pointer: True\n\n  after a second name, the count reads  2\n  after deleting that name, it reads    1\n"
+          "printed": "  a pointer here is 4 bytes, so the header is 8\n  it lives at 24640080\n\n  first word, read as a count             1\n  sys.getrefcount, less its own argument  1\n  the same number: True\n\n  second word                   25838136\n  id(Thing) is                  25838136\n  so the second word is the type pointer: True\n\n  after a second name, the count reads  2\n  after deleting that name, it reads    1\n"
         },
         {
           "name": "o01-10",
@@ -995,6 +995,59 @@
           "name": "o06-28",
           "status": "ok",
           "printed": "  the error   this name will not do\n  the note    Error calling __set_name__ on 'Fussy' instance 'field' in 'Doomed'\n"
+        }
+      ]
+    },
+    {
+      "slug": "o07-two-arrays-and-a-hash",
+      "cells": [
+        {
+          "name": "o07-03",
+          "status": "ok"
+        },
+        {
+          "name": "o07-05",
+          "status": "ok",
+          "printed": "cpython 3.14.2 on Emscripten wasm32, WebAssembly\n  note: this is 3.14, and everything here is written against 3.15, so bytecode and some object layouts will differ from the prose\n"
+        },
+        {
+          "name": "o07-08",
+          "status": "ok",
+          "printed": "  starting from a hash of 0  [0, 1, 6, 7, 4, 5, 2, 3, 0]\n  every slot exactly once    True\n  and then it wraps          True\n"
+        },
+        {
+          "name": "o07-10",
+          "status": "ok"
+        },
+        {
+          "name": "o07-12",
+          "status": "ok",
+          "printed": "  my table grew at    [6, 11, 22, 43, 86, 171]\n  the real one at     [1, 6, 11, 22, 43, 86, 171]\n  same iteration order  True\n"
+        },
+        {
+          "name": "o07-14",
+          "status": "ok",
+          "printed": "  same order after deletes  True\n  first six keys            ['k1', 'k2', 'k4', 'k5', 'k6', 'k7']\n  last key                  late\n"
+        },
+        {
+          "name": "o07-16",
+          "status": "ok",
+          "printed": "  five keys         108 bytes\n  after five swaps  156 bytes, still 5 keys\n  and in order     ['k5', 'k6', 'k7', 'k8', 'k9']\n"
+        },
+        {
+          "name": "o07-19",
+          "status": "ok",
+          "printed": "  popitem  ('e', None)\n  popitem  ('d', None)\n  left     ['a', 'b', 'c']\n"
+        },
+        {
+          "name": "o07-21",
+          "status": "ok",
+          "printed": "  two string keys  108 bytes\n  two int keys     128 bytes\n  after adding one int key to the string dict  128 bytes\n"
+        },
+        {
+          "name": "o07-24",
+          "status": "ok",
+          "printed": "  presized  20536 bytes\n  built up  20536 bytes\n  same size True\n  but the second one allocated and rehashed its way through eight smaller tables\n"
         }
       ]
     },
@@ -1380,7 +1433,7 @@
         {
           "name": "t04-30",
           "status": "ok",
-          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x16275b8: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
+          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x164ec08: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
         },
         {
           "name": "t04-33",
@@ -1657,7 +1710,7 @@
         {
           "name": "t07-38",
           "status": "ok",
-          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x1718a10, file 't07-38', line 7, code make_one>\nits name: make_one\n"
+          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x16eeeb8, file 't07-38', line 7, code make_one>\nits name: make_one\n"
         },
         {
           "name": "t07-40",
@@ -1691,12 +1744,12 @@
         {
           "name": "t08-11",
           "status": "ok",
-          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x14a7718, 3 reference(s), 26 bytes, not tracked\nlist at 0x16e7408, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x162e4d0, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x1557cf8, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
+          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x11417d0, 3 reference(s), 26 bytes, not tracked\nlist at 0x123e4e8, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x15ff1d0, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x1408088, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
         },
         {
           "name": "t08-14",
           "status": "ok",
-          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x16100a0\nid(b) 0x16e7468\nid(c) 0x16100a0\n"
+          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x12f1cc8\nid(b) 0x1843aa8\nid(c) 0x12f1cc8\n"
         },
         {
           "name": "t08-17",
@@ -1736,7 +1789,7 @@
         {
           "name": "t08-35",
           "status": "ok",
-          "printed": "dict at 0x11ef2a0\ndict at 0x1240240\nlist at 0x15a4b80\n"
+          "printed": "dict at 0x12650b8\ndict at 0x12f3c18\nlist at 0x1843990\n"
         },
         {
           "name": "t08-37",
@@ -1795,7 +1848,7 @@
         {
           "name": "t09-21",
           "status": "ok",
-          "printed": "Node at 0x16128d0 -> Node at 0x1592680 -> Node at 0x170d880 -> Node at 0x16128d0\n"
+          "printed": "Node at 0x182e450 -> Node at 0x17a01b0 -> Node at 0x18cac60 -> Node at 0x182e450\n"
         },
         {
           "name": "t09-23",
@@ -1825,7 +1878,7 @@
         {
           "name": "t09-37",
           "status": "ok",
-          "printed": "first object was at  0x1592330\nsecond object is at  0x1592330\nsame address reused -> True\n"
+          "printed": "first object was at  0x11fabd8\nsecond object is at  0x11fabd8\nsame address reused -> True\n"
         }
       ]
     },
