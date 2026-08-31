@@ -537,6 +537,31 @@ COMPILING = Group(
             see=("code object",),
             met="T06",
         ),
+        Term(
+            name="marshal",
+            short="The format a code object is written in when it goes to disk.",
+            long="One byte says what an object is, and whatever that kind of object needs follows it. The low seven bits of that byte are an ascii letter, which is why a `.pyc` in a hex dump is half readable, and the top bit means the object is worth numbering so that something later can point at it instead of repeating it. It is not a general purpose serialisation format and is not safe to point at untrusted bytes.",
+            cite="Python/marshal.c:460-495@v3.15.0rc1#w_object",
+            see=("code object", "pyc file"),
+            met="F12",
+        ),
+        Term(
+            name="pyc file",
+            short="A sixteen byte header and one marshalled code object.",
+            long="The header is a magic number, a flags word, and the source file's modification time and length. The last two are what makes a `.pyc` go stale: if either does not match the source, the file is thrown away and the source is compiled again. Everything after byte sixteen is one code object, with the code objects for every function in the file sitting in its constants.",
+            also=("`__pycache__`",),
+            cite="Lib/importlib/_bootstrap_external.py:413-444@v3.15.0rc1#_classify_pyc",
+            see=("marshal", "magic number", "code object"),
+            met="F12",
+        ),
+        Term(
+            name="magic number",
+            short="The four bytes at the front of a pyc that say which Python wrote it.",
+            long="Only the first two are the number, and it goes up whenever the bytecode changes, which is what stops a `.pyc` from one release being loaded by another. The other two bytes are a carriage return and a newline, put there so that anything copying the file in text mode corrupts those two bytes and fails the check loudly rather than loading something strange.",
+            cite="Include/internal/pycore_magic_number.h:313-318@v3.15.0rc1#PYC_MAGIC_NUMBER_TOKEN",
+            see=("pyc file",),
+            met="F12",
+        ),
     ),
 )
 

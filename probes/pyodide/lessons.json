@@ -70,7 +70,7 @@
         {
           "name": "b03-07",
           "status": "ok",
-          "printed": "test_adding (__main__.Arithmetic.test_adding) ... ok\ntest_dividing (__main__.Arithmetic.test_dividing) ... ok\ntest_powers (__main__.Arithmetic.test_powers) ... FAIL\n\n======================================================================\nFAIL: test_powers (__main__.Arithmetic.test_powers)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"b03-07\", line 13, in test_powers\nAssertionError: 1024 != 1000\n\n----------------------------------------------------------------------\nRan 3 tests in 0.002s\n\nFAILED (failures=1)\n\n3 tests run, 1 failed, 0 errored\n"
+          "printed": "test_adding (__main__.Arithmetic.test_adding) ... ok\ntest_dividing (__main__.Arithmetic.test_dividing) ... ok\ntest_powers (__main__.Arithmetic.test_powers) ... FAIL\n\n======================================================================\nFAIL: test_powers (__main__.Arithmetic.test_powers)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"b03-07\", line 13, in test_powers\nAssertionError: 1024 != 1000\n\n----------------------------------------------------------------------\nRan 3 tests in 0.001s\n\nFAILED (failures=1)\n\n3 tests run, 1 failed, 0 errored\n"
         },
         {
           "name": "b03-10",
@@ -539,7 +539,7 @@
         {
           "name": "f10-11",
           "status": "ok",
-          "printed": "  --           MAKE_CELL                0 (a)\n               MAKE_CELL                6 (n)\n\n   1           RESUME                   0\n\n   2           LOAD_SMALL_INT           0\n               STORE_DEREF              6 (n)\n\n   4           LOAD_FAST_BORROW         0 (a)\n               LOAD_FAST_BORROW         6 (n)\n               BUILD_TUPLE              2\n               LOAD_CONST               1 (<code object inner at 0x18117f8, file \"f10-09\", line 4>)\n               MAKE_FUNCTION\n               SET_FUNCTION_ATTRIBUTE   8 (closure)\n               STORE_FAST               5 (inner)\n\n   7           LOAD_FAST_BORROW         5 (inner)\n               RETURN_VALUE\n\nDisassembly of <code object inner at 0x18117f8, file \"f10-09\", line 4>:\n  --           COPY_FREE_VARS           2\n\n   4           RESUME                   0\n\n   5           LOAD_DEREF               0 (a)\n               LOAD_DEREF               1 (n)\n               BINARY_OP                0 (+)\n               RETURN_VALUE\n"
+          "printed": "  --           MAKE_CELL                0 (a)\n               MAKE_CELL                6 (n)\n\n   1           RESUME                   0\n\n   2           LOAD_SMALL_INT           0\n               STORE_DEREF              6 (n)\n\n   4           LOAD_FAST_BORROW         0 (a)\n               LOAD_FAST_BORROW         6 (n)\n               BUILD_TUPLE              2\n               LOAD_CONST               1 (<code object inner at 0x184e118, file \"f10-09\", line 4>)\n               MAKE_FUNCTION\n               SET_FUNCTION_ATTRIBUTE   8 (closure)\n               STORE_FAST               5 (inner)\n\n   7           LOAD_FAST_BORROW         5 (inner)\n               RETURN_VALUE\n\nDisassembly of <code object inner at 0x184e118, file \"f10-09\", line 4>:\n  --           COPY_FREE_VARS           2\n\n   4           RESUME                   0\n\n   5           LOAD_DEREF               0 (a)\n               LOAD_DEREF               1 (n)\n               BINARY_OP                0 (+)\n               RETURN_VALUE\n"
         },
         {
           "name": "f10-13",
@@ -613,6 +613,64 @@
           "name": "f11-31",
           "status": "ok",
           "printed": "       5   exception table 85               line table 05\n     100   exception table c1 24            line table 64 01\n    4000   exception table fe 20            line table 60 3e\n  100000   exception table d8 5a 20         line table 60 5a 18\n\n  same number, same six bit chunks, read from opposite ends\n"
+        }
+      ]
+    },
+    {
+      "slug": "f12-what-ends-up-on-disk",
+      "cells": [
+        {
+          "name": "f12-03",
+          "status": "ok"
+        },
+        {
+          "name": "f12-05",
+          "status": "ok",
+          "printed": "cpython 3.14.2 on Emscripten wasm32, WebAssembly\n  note: this is 3.14, and everything here is written against 3.15, so bytecode and some object layouts will differ from the prose\n"
+        },
+        {
+          "name": "f12-07",
+          "status": "ok",
+          "printed": "  greet.py is 54 bytes of text\n  greet.cpython-314.pyc is 251 bytes\n\n  header    2b 0e 0d 0a 00 00 00 00 5a 6e 95 6a 36 00 00 00\n  the rest  235 bytes, and marshal.loads gives back a\n            code object\n"
+        },
+        {
+          "name": "f12-10",
+          "status": "ok",
+          "printed": "  magic     168627755\n  flags             0\n  mtime    1788178010   source 1788178010\n  size             54   source 54\n"
+        },
+        {
+          "name": "f12-13",
+          "status": "ok",
+          "printed": "  the four bytes    2b 0e 0d 0a\n  as characters     b'+\\x0e\\r\\n'\n\n  the version part  3627\n  the last two      b'\\r\\n', which is a carriage return and a newline\n"
+        },
+        {
+          "name": "f12-16",
+          "status": "ok",
+          "printed": "  None         starts 0x4e  letter 'N'  in the table: no\n  True         starts 0x54  letter 'T'  in the table: no\n  7            starts 0xe9  letter 'i'  in the table: yes\n  'abc'        starts 0xda  letter 'Z'  in the table: yes\n  b'abc'       starts 0xf3  letter 's'  in the table: yes\n  (1, 2)       starts 0xa9  letter ')'  in the table: yes\n  1.5          starts 0xe7  letter 'g'  in the table: yes\n  [1]          starts 0xdb  letter '['  in the table: yes\n  {'a': 1}     starts 0xfb  letter '{'  in the table: yes\n"
+        },
+        {
+          "name": "f12-18",
+          "status": "ok",
+          "printed": "  ('abcd', 'abcd') is 13 bytes:  a9 02 da 04 61 62 63 64 72 01 00 00 00\n\n  a 66 character string, said twice       75 bytes\n  the same string and a different one    138 bytes\n  so the back reference saved 63 bytes on one string\n\n  the whole module marshals to      235 bytes\n  the same module with the function\n  written out a second time is      353 bytes\n"
+        },
+        {
+          "name": "f12-21",
+          "status": "ok"
+        },
+        {
+          "name": "f12-23",
+          "status": "ok",
+          "printed": "  argcount         0\n  posonlyargcount  0\n  kwonlyargcount   0\n  stacksize        1\n  flags            0\n  code             b'\\x80\\x00R\\x00\\x17\\x00t\\x00R\\x01t\\x01R\\x02#\\x00'\n  consts           ({'argcount': 1, 'posonlyargcount': 0, 'kwonlyargcount': 0\n  names            ('greet', 'WHO')\n  localsplusnames  ()\n  localspluskinds  b''\n  filename         'greet.py'\n  name             '<module>'\n  qualname         '<module>'\n  firstlineno      1\n  linetable        b'\\xf0\\x03\\x01\\x01\\x01\\xf2\\x02\\x01\\x01\\x17\\xf0\\x06\\x00\\x07\n  exceptiontable   b''\n\n  filename matches       True\n  bytecode matches       True\n  line table matches     True\n  the constants hold a nested code object: 'greet'\n"
+        },
+        {
+          "name": "f12-26",
+          "status": "ok",
+          "printed": "  wrote ghost.pyc, 251 bytes\n  is there a ghost.py next to it: False\n\n  imported it anyway, and it says: 'hi world'\n"
+        },
+        {
+          "name": "f12-29",
+          "status": "ok",
+          "printed": "  one bit flipped in the magic: bad magic number in 'broken': b'*\\x0e\\r\\n'\n\n  put a wrong mtime in greet.cpython-314.pyc: 1788178085\n  imported it with no complaint: 'hi world'\n  and the header now says        1788178085\n  the file was quietly rewritten: False\n"
         }
       ]
     },
@@ -998,7 +1056,7 @@
         {
           "name": "t04-30",
           "status": "ok",
-          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x14f6df0: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
+          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x1755f88: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
         },
         {
           "name": "t04-33",
@@ -1275,7 +1333,7 @@
         {
           "name": "t07-38",
           "status": "ok",
-          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x16bfa20, file 't07-38', line 7, code make_one>\nits name: make_one\n"
+          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x16506a8, file 't07-38', line 7, code make_one>\nits name: make_one\n"
         },
         {
           "name": "t07-40",
@@ -1309,12 +1367,12 @@
         {
           "name": "t08-11",
           "status": "ok",
-          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x1638f40, 3 reference(s), 26 bytes, not tracked\nlist at 0x135f4f0, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x17a4f70, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x18b2970, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
+          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x16ead00, 3 reference(s), 26 bytes, not tracked\nlist at 0x1786278, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x170f4f8, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x1658b10, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
         },
         {
           "name": "t08-14",
           "status": "ok",
-          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x1285510\nid(b) 0x17993c0\nid(c) 0x1285510\n"
+          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x14ebb00\nid(b) 0x1812d48\nid(c) 0x14ebb00\n"
         },
         {
           "name": "t08-17",
@@ -1354,7 +1412,7 @@
         {
           "name": "t08-35",
           "status": "ok",
-          "printed": "dict at 0x11f2548\ndict at 0x1342e70\nlist at 0x17992a8\n"
+          "printed": "dict at 0x134a068\ndict at 0xfe4bd0\nlist at 0x18bf170\n"
         },
         {
           "name": "t08-37",
@@ -1413,7 +1471,7 @@
         {
           "name": "t09-21",
           "status": "ok",
-          "printed": "Node at 0x113ad28 -> Node at 0x182c188 -> Node at 0x1597008 -> Node at 0x113ad28\n"
+          "printed": "Node at 0x1045240 -> Node at 0x1648a48 -> Node at 0x18bf560 -> Node at 0x1045240\n"
         },
         {
           "name": "t09-23",
@@ -1443,7 +1501,7 @@
         {
           "name": "t09-37",
           "status": "ok",
-          "printed": "first object was at  0x174a8e8\nsecond object is at  0x174a8e8\nsame address reused -> True\n"
+          "printed": "first object was at  0x14f6390\nsecond object is at  0x14f6390\nsame address reused -> True\n"
         }
       ]
     },
