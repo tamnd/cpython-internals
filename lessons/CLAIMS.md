@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-281 claims across 33 lessons, 22 of them not observable from Python.
+287 claims across 34 lessons, 22 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -245,6 +245,17 @@ Without it the exception becomes the rule and this goes back to being a book.
 | the cache and the version tag are not visible from Python at all, since nothing exposes tp_version_tag, the hit rate, or the cache contents | not observable from Python: the effect is only measurable as a timing difference, and the specialised bytecode in the next section is the closest observable proxy |
 | the same LOAD_ATTR instruction takes a different specialised form depending on whether the attribute lives in the instance values, in a slot, on a module, or is a method | [`o05-20`](o05-what-a-dot-does/o05.ipynb) |
 | assigning a property over an attribute the specialised instruction was relying on makes the guard fail, and the instruction goes back to the general form and then settles on a different specialised one | [`o05-22`](o05-what-a-dot-does/o05.ipynb) |
+
+## O06. What property actually is
+
+| Claim | Proved by |
+| --- | --- |
+| an object with __get__ and __set__ in a class dict intercepts both reads and writes of that attribute on every instance of the class | [`o06-07`](o06-what-property-actually-is/o06.ipynb) |
+| reading a method off an instance calls the function's __get__ and produces a new bound method object each time, while reading it off the class returns the plain function | [`o06-10`](o06-what-property-actually-is/o06.ipynb) |
+| classmethod produces a bound method whose __self__ is the class, and the class it binds to is the one the lookup started from rather than the one that defined the method | [`o06-14`](o06-what-property-actually-is/o06.ipynb) |
+| attributes defined from C appear as one of five descriptor types, and whether each is a data descriptor is decided by whether its type fills in tp_descr_set | [`o06-20`](o06-what-property-actually-is/o06.ipynb) |
+| a descriptor placed in an instance dict is returned as itself, because the lookup that would call __get__ only runs for objects found on the type | [`o06-24`](o06-what-property-actually-is/o06.ipynb) |
+| __set_name__ runs once for every entry in the class dict during class creation, and never runs again for later assignments to the class | [`o06-26`](o06-what-property-actually-is/o06.ipynb) |
 
 ## T01. One line, seven stages
 

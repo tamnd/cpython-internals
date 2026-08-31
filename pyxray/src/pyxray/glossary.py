@@ -764,6 +764,23 @@ OBJECTS = Group(
             met="O03",
         ),
         Term(
+            name="descriptor",
+            short="An object in a class dict whose type defines __get__, __set__ or __delete__.",
+            long="Reading an attribute that resolves to a descriptor calls `__get__` rather than handing the object back. There is nothing to inherit from and nothing to register, so having the method is the whole qualification. Functions are descriptors, which is where `self` comes from: `func_descr_get` returns the function on a class and a bound method on an instance. `property`, `classmethod`, `staticmethod`, every `__slots__` entry and most attributes defined from C are descriptors too. The protocol only applies to objects found on the type, so a descriptor sitting in an instance dict is an ordinary value.",
+            cite="Objects/funcobject.c:1264-1270@v3.15.0rc1#func_descr_get",
+            also=("descriptor protocol",),
+            see=("data descriptor", "slot"),
+            met="O06",
+        ),
+        Term(
+            name="bound method",
+            short="A small object holding a function and the instance it was read from.",
+            long="`PyMethod_New` allocates one with two pointers, `im_func` and `im_self`, and calling it inserts the instance as the first argument. That is all `self` is. A fresh one is built on every attribute read, so `obj.method is obj.method` is false, though the two compare equal. The allocation comes off a free list when one is available, and the interpreter specialises the common call shape so that reading and immediately calling a method skips building the object at all.",
+            cite="Objects/classobject.c:64-84@v3.15.0rc1#PyMethod_New",
+            see=("descriptor", "type object"),
+            met="O06",
+        ),
+        Term(
             name="data descriptor",
             short="An object on a type that has __set__ or __delete__ as well as __get__.",
             long="The test is one line: `PyDescr_IsData` asks whether `tp_descr_set` is filled in. That one bit decides the whole precedence question, because attribute lookup calls a data descriptor before it ever looks in the instance dict and calls anything else after. `property` and the descriptors `__slots__` generates are data descriptors. A plain function is not, which is why you can shadow a method on one instance and cannot shadow a property.",
