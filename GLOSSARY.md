@@ -8,7 +8,7 @@ This file is generated from `pyxray/src/pyxray/glossary.py`. Edit that and run `
 
 ## Index
 
-[ASDL](#asdl) | [Argument Clinic](#argument-clinic) | [EXTENDED_ARG](#extended_arg) | [JIT](#jit) | [PEG parser](#peg-parser) | [Pyodide](#pyodide) | [WebAssembly](#webassembly) | [abstract syntax tree](#abstract-syntax-tree) | [adaptive instruction](#adaptive-instruction) | [arena](#arena) | [assembler](#assembler) | [backtrace](#backtrace) | [basic block](#basic-block) | [binding](#binding) | [block](#block) | [borrowed reference](#borrowed-reference) | [bytecode](#bytecode) | [cell](#cell) | [closure](#closure) | [code generation](#code-generation) | [code object](#code-object) | [computed goto](#computed-goto) | [configure](#configure) | [constant folding](#constant-folding) | [control flow graph](#control-flow-graph) | [cycle collector](#cycle-collector) | [deallocation](#deallocation) | [debug build](#debug-build) | [deoptimization](#deoptimization) | [dispatch](#dispatch) | [environment changed](#environment-changed) | [eval loop](#eval-loop) | [exception table](#exception-table) | [finalizer](#finalizer) | [frame](#frame) | [free threaded build](#free-threaded-build) | [free variable](#free-variable) | [gdb](#gdb) | [generated file](#generated-file) | [generation](#generation) | [grammar](#grammar) | [header file](#header-file) | [immortal object](#immortal-object) | [indent and dedent](#indent-and-dedent) | [inline cache](#inline-cache) | [instance dictionary](#instance-dictionary) | [instruction](#instruction) | [interning](#interning) | [line table](#line-table) | [monitoring events](#monitoring-events) | [new reference](#new-reference) | [object](#object) | [object header](#object-header) | [obmalloc](#obmalloc) | [oparg](#oparg) | [opcode](#opcode) | [pdb](#pdb) | [pointer](#pointer) | [pool](#pool) | [profile guided optimization](#profile-guided-optimization) | [pseudo instruction](#pseudo-instruction) | [pyconfig](#pyconfig) | [reference count](#reference-count) | [reference cycle](#reference-cycle) | [reference leak](#reference-leak) | [regrtest](#regrtest) | [resource](#resource) | [scope](#scope) | [segmentation fault](#segmentation-fault) | [small integer cache](#small-integer-cache) | [specialization](#specialization) | [stack effect](#stack-effect) | [stolen reference](#stolen-reference) | [struct](#struct) | [symbol table](#symbol-table) | [test case](#test-case) | [tier one](#tier-one) | [tier two](#tier-two) | [token](#token) | [tokenizer](#tokenizer) | [trace function](#trace-function) | [type object](#type-object) | [value stack](#value-stack) | [weak reference](#weak-reference)
+[ASDL](#asdl) | [Argument Clinic](#argument-clinic) | [EXTENDED_ARG](#extended_arg) | [JIT](#jit) | [PEG parser](#peg-parser) | [Pyodide](#pyodide) | [WebAssembly](#webassembly) | [abstract syntax tree](#abstract-syntax-tree) | [adaptive instruction](#adaptive-instruction) | [arena](#arena) | [assembler](#assembler) | [backtrace](#backtrace) | [basic block](#basic-block) | [binding](#binding) | [block](#block) | [blurb](#blurb) | [borrowed reference](#borrowed-reference) | [bytecode](#bytecode) | [cell](#cell) | [closure](#closure) | [code generation](#code-generation) | [code object](#code-object) | [computed goto](#computed-goto) | [configure](#configure) | [constant folding](#constant-folding) | [control flow graph](#control-flow-graph) | [cycle collector](#cycle-collector) | [deallocation](#deallocation) | [debug build](#debug-build) | [deoptimization](#deoptimization) | [devguide](#devguide) | [dispatch](#dispatch) | [environment changed](#environment-changed) | [eval loop](#eval-loop) | [exception table](#exception-table) | [finalizer](#finalizer) | [frame](#frame) | [free threaded build](#free-threaded-build) | [free variable](#free-variable) | [gdb](#gdb) | [generated file](#generated-file) | [generation](#generation) | [grammar](#grammar) | [header file](#header-file) | [immortal object](#immortal-object) | [indent and dedent](#indent-and-dedent) | [inline cache](#inline-cache) | [instance dictionary](#instance-dictionary) | [instruction](#instruction) | [interning](#interning) | [line table](#line-table) | [monitoring events](#monitoring-events) | [new reference](#new-reference) | [object](#object) | [object header](#object-header) | [obmalloc](#obmalloc) | [oparg](#oparg) | [opcode](#opcode) | [pdb](#pdb) | [pointer](#pointer) | [pool](#pool) | [profile guided optimization](#profile-guided-optimization) | [pseudo instruction](#pseudo-instruction) | [pyconfig](#pyconfig) | [reference count](#reference-count) | [reference cycle](#reference-cycle) | [reference leak](#reference-leak) | [regen](#regen) | [regrtest](#regrtest) | [resource](#resource) | [scope](#scope) | [segmentation fault](#segmentation-fault) | [small integer cache](#small-integer-cache) | [specialization](#specialization) | [stack effect](#stack-effect) | [stolen reference](#stolen-reference) | [struct](#struct) | [symbol table](#symbol-table) | [test case](#test-case) | [tier one](#tier-one) | [tier two](#tier-two) | [token](#token) | [tokenizer](#tokenizer) | [trace function](#trace-function) | [type object](#type-object) | [value stack](#value-stack) | [weak reference](#weak-reference)
 
 ## Reading the source
 
@@ -677,6 +677,30 @@ Also written `bt`, stack trace. First met in B02. See also [gdb](#gdb), [frame](
 Not an exception. There is no interpreter left to build one, nothing is printed, and `try` and `except` never see it. You reach one through `ctypes` or through a C extension with a bug in it. A debugger attached to the corpse is the only thing that will tell you which line of Python was responsible, which is what `py-bt` is for.
 
 Also written SIGSEGV, segfault. First met in B02. See also [gdb](#gdb), [backtrace](#backtrace).
+
+### regen
+
+**The make targets that rewrite every generated file from its input.**
+
+`make regen-cases` rebuilds the twelve files that come out of `Python/bytecodes.c`, `make regen-all` does that and the rest, and the reason to know the names is that forgetting them is the classic wasted afternoon. You edit the input, you build, nothing changes, and the build was quietly using the generated files that were already there. The Makefile calls each generator directly, so you can run one on its own with the interpreter you already have.
+
+Also written `make regen-all`, `make regen-cases`. First met in B04. See also [generated file](#generated-file), [Argument Clinic](#argument-clinic).
+
+### blurb
+
+**One file per change under Misc/NEWS.d, naming the issue it came from.**
+
+A user visible change ships with a small file whose name carries the issue number, and at release time they are collected into one file per version. It exists so that a release note is written by the person who made the change rather than by somebody guessing afterwards, and it means every entry in a release note is a link back to the argument that produced it.
+
+First met in B04. See also [devguide](#devguide). In the source: [`Misc/NEWS.d/next/Core_and_Builtins/README.rst:1-3@v3.15.0rc1`](https://github.com/python/cpython/blob/v3.15.0rc1/Misc/NEWS.d/next/Core_and_Builtins/README.rst#L1-L3).
+
+### devguide
+
+**The separate repository that documents how to work on CPython.**
+
+Building, testing, the git workflow, what a core developer will ask you for and how long to expect to wait. It is written for a new contributor rather than for a reader, which makes it the wrong place to look for how the interpreter works and the right place to look for anything about the process around it. `InternalDocs/` in the main repository is the other half, and is the one written for somebody trying to understand the code.
+
+Also written devguide.python.org. First met in B04. See also [blurb](#blurb), [generated file](#generated-file).
 
 ## Checking that it still works
 

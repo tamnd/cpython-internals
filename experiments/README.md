@@ -12,6 +12,8 @@ So those programs run somewhere else. They run in the images this project publis
 |---|---|---|---|
 | [t05-compiling-costs-nothing-that-lasts](tier1/t05-compiling-costs-nothing-that-lasts.md) | T05 | debug | Does compiling the same line over and over leave anything behind? |
 | [b03-a-leak-you-can-see](tier1/b03-a-leak-you-can-see.md) | B03 | debug | What does it look like when the test suite catches a reference leak? |
+| [b04-what-a-script-wrote](tier1/b04-what-a-script-wrote.md) | B04 | debug | How much of the C in CPython was written by a script rather than by a person? |
+| [b04-changing-the-source-of-truth](tier1/b04-changing-the-source-of-truth.md) | B04 | debug | What happens to the generated C when you add an instruction to Python/bytecodes.c? |
 
 ## The commands
 
