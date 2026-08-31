@@ -640,6 +640,11 @@
       "first_line": "PyCodeObject *",
       "lines": 4
     },
+    "Objects/descrobject.c:1028-1032@v3.15.0rc1": {
+      "digest": "0bdba2c917b75359",
+      "first_line": "int",
+      "lines": 5
+    },
     "Objects/listobject.c:103-134@v3.15.0rc1": {
       "digest": "779a7953df231c11",
       "first_line": "static int",
@@ -675,6 +680,26 @@
       "first_line": "_PyObject_ComputedDictPointer(PyObject *obj)",
       "lines": 23
     },
+    "Objects/object.c:1887-1926@v3.15.0rc1": {
+      "digest": "e43f250aaa47532f",
+      "first_line": "_PyObject_GenericGetAttrWithDict(PyObject *obj, PyObject *name,",
+      "lines": 40
+    },
+    "Objects/object.c:1964-1979@v3.15.0rc1": {
+      "digest": "c36e1e221a8cd787",
+      "first_line": "if (dict != NULL) {",
+      "lines": 16
+    },
+    "Objects/object.c:1981-2002@v3.15.0rc1": {
+      "digest": "f2770e63b5eb1bdf",
+      "first_line": "if (f != NULL) {",
+      "lines": 22
+    },
+    "Objects/object.c:1996-2002@v3.15.0rc1": {
+      "digest": "aa9e41e294ee44d7",
+      "first_line": "if (!suppress) {",
+      "lines": 7
+    },
     "Objects/object.c:2773-2791@v3.15.0rc1": {
       "digest": "84c3b29a29ccb125",
       "first_line": "void",
@@ -705,6 +730,16 @@
       "first_line": "#define SLOT1BINFULL(FUNCNAME, TESTFUNC, SLOTNAME, DUNDER, RDUNDER) \\",
       "lines": 28
     },
+    "Objects/typeobject.c:10990-11026@v3.15.0rc1": {
+      "digest": "c607830bbd258217",
+      "first_line": "PyObject *",
+      "lines": 37
+    },
+    "Objects/typeobject.c:11002-11009@v3.15.0rc1": {
+      "digest": "6081f882f79f8ec6",
+      "first_line": "if (getattr == NULL) {",
+      "lines": 8
+    },
     "Objects/typeobject.c:11522-11531@v3.15.0rc1": {
       "digest": "4ad77fa864aa2cae",
       "first_line": "/*",
@@ -719,6 +754,11 @@
       "digest": "f494591191e7ce56",
       "first_line": "static pytype_slotdef slotdefs[] = {",
       "lines": 7
+    },
+    "Objects/typeobject.c:1166-1195@v3.15.0rc1": {
+      "digest": "f65ccc798f6a3cbd",
+      "first_line": "type_modified_unlocked(PyTypeObject *type)",
+      "lines": 30
     },
     "Objects/typeobject.c:11740-11753@v3.15.0rc1": {
       "digest": "77bf33636ec9ffc9",
@@ -749,6 +789,11 @@
       "digest": "e2e21d98952ebb7b",
       "first_line": "static void",
       "lines": 21
+    },
+    "Objects/typeobject.c:1389-1392@v3.15.0rc1": {
+      "digest": "7ed19048d6bc13f5",
+      "first_line": "#define MAX_VERSIONS_PER_CLASS 1000",
+      "lines": 4
     },
     "Objects/typeobject.c:1798-1810@v3.15.0rc1": {
       "digest": "d8630aee772bf39e",
@@ -800,10 +845,35 @@
       "first_line": "static PyObject *",
       "lines": 20
     },
+    "Objects/typeobject.c:44-58@v3.15.0rc1": {
+      "digest": "f718a74b28ee2783",
+      "first_line": "/* The cache can keep references to the names alive for longer than",
+      "lines": 15
+    },
     "Objects/typeobject.c:6144-6180@v3.15.0rc1": {
       "digest": "a16a8c9e914d75f2",
       "first_line": "static int",
       "lines": 37
+    },
+    "Objects/typeobject.c:6306-6345@v3.15.0rc1": {
+      "digest": "26beeb64230a5866",
+      "first_line": "_PyType_LookupStackRefAndVersion(PyTypeObject *type, PyObject *name, _PyStackRef *out)",
+      "lines": 40
+    },
+    "Objects/typeobject.c:6570-6600@v3.15.0rc1": {
+      "digest": "4e8db6ed47e730d6",
+      "first_line": "_PyStackRef",
+      "lines": 31
+    },
+    "Objects/typeobject.c:6600-6616@v3.15.0rc1": {
+      "digest": "7f7ce8c804fe44d1",
+      "first_line": "if (!PyStackRef_IsNull(meta_attribute_ref.ref)) {",
+      "lines": 17
+    },
+    "Objects/typeobject.c:6618-6650@v3.15.0rc1": {
+      "digest": "601da348b9cd58a9",
+      "first_line": "/* No data descriptor found on metatype. Look in tp_dict of this",
+      "lines": 33
     },
     "Objects/typeobject.c:7290-7295@v3.15.0rc1": {
       "digest": "e3fd1c7921a386a3",

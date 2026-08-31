@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-272 claims across 32 lessons, 21 of them not observable from Python.
+281 claims across 33 lessons, 22 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -231,6 +231,20 @@ Without it the exception becomes the rule and this goes back to being a book.
 | super in a method resolves against the MRO of the instance's type, so an unchanged method in Left can dispatch to Right when the instance is a Both, even though Left never refers to Right | [`o04-19`](o04-the-order-things-are-found-in/o04.ipynb) |
 | assigning to a class's __bases__ recomputes the MRO of that class and of every subclass, and instances that already exist pick up the new method at once | [`o04-22`](o04-the-order-things-are-found-in/o04.ipynb) |
 | a metaclass that overrides mro can return an order the C3 rules would never produce, and attribute lookup uses that order without complaint | [`o04-24`](o04-the-order-things-are-found-in/o04.ipynb) |
+
+## O05. What a dot does
+
+| Claim | Proved by |
+| --- | --- |
+| with the same name present on the type and in the instance dict, a data descriptor on the type wins and a non data descriptor loses, and the instance dict entry is untouched either way | [`o05-07`](o05-what-a-dot-does/o05.ipynb) |
+| __getattr__ runs only for names the normal lookup failed to find, while an overridden __getattribute__ runs for every name including __dict__ | [`o05-09`](o05-what-a-dot-does/o05.ipynb) |
+| assigning __getattr__ to an instance leaves it in the instance dict and has no effect on attribute lookup | [`o05-11`](o05-what-a-dot-does/o05.ipynb) |
+| a name defined on the metaclass is reachable through the class and not through an instance of it, and a descriptor found on a class is called with None where the instance would be | [`o05-13`](o05-what-a-dot-does/o05.ipynb) |
+| the AttributeError for an instance and for a class have different wording, and the exception carries the name and the object as attributes | [`o05-15`](o05-what-a-dot-does/o05.ipynb) |
+| the did you mean suggestion is not part of the exception message and only appears when a traceback is formatted, because it is computed from the obj attribute at that point | [`o05-17`](o05-what-a-dot-does/o05.ipynb) |
+| the cache and the version tag are not visible from Python at all, since nothing exposes tp_version_tag, the hit rate, or the cache contents | not observable from Python: the effect is only measurable as a timing difference, and the specialised bytecode in the next section is the closest observable proxy |
+| the same LOAD_ATTR instruction takes a different specialised form depending on whether the attribute lives in the instance values, in a slot, on a module, or is a method | [`o05-20`](o05-what-a-dot-does/o05.ipynb) |
+| assigning a property over an attribute the specialised instruction was relying on makes the guard fail, and the instruction goes back to the general form and then settles on a different specialised one | [`o05-22`](o05-what-a-dot-does/o05.ipynb) |
 
 ## T01. One line, seven stages
 
