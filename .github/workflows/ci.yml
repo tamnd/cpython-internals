@@ -250,6 +250,44 @@ jobs:
       # against a live interpreter every time this job does.
       - run: uv run tier1 verify
 
+  # The debugger sessions. Same shape as tier1 and for the same reason, with one difference
+  # that decides which runner this is on.
+  #
+  # A backtrace is not portable between architectures. Different frames survive the unwinder,
+  # arm64 marks pointer authenticated returns with [PAC], and the library paths carry the
+  # target triple. Normalising all that away would leave a transcript too thin to catch a
+  # regression in, so a transcript belongs to the architecture it was taken on. The committed
+  # ones are arm64, so this job is arm64. It skips any session with nothing recorded for the
+  # architecture it is running on rather than failing it, which is what makes adding an amd64
+  # transcript later a change to this repository and not to this file.
+  #
+  # SYS_PTRACE and an unconfined seccomp profile are passed to the container by gdbrec itself,
+  # because stopping another process and reading its memory is exactly what the default
+  # profile is there to prevent. Nothing else in this project asks for either.
+  gdb:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --all-packages
+      - run: uv run pytest tools/gdbrec/tests
+      # The offline half first, because it is milliseconds and it catches the failure that
+      # actually happens: somebody changed a session and left the old transcript underneath.
+      - run: uv run gdbrec check
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Line by line, including how many lines each command printed. Addresses, process ids
+      # and offsets into _PyRuntime may move. A frame that stopped appearing may not.
+      - run: uv run gdbrec verify
+
   boss:
     runs-on: ubuntu-latest
     strategy:

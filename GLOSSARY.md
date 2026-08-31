@@ -8,7 +8,7 @@ This file is generated from `pyxray/src/pyxray/glossary.py`. Edit that and run `
 
 ## Index
 
-[ASDL](#asdl) | [Argument Clinic](#argument-clinic) | [EXTENDED_ARG](#extended_arg) | [JIT](#jit) | [PEG parser](#peg-parser) | [Pyodide](#pyodide) | [WebAssembly](#webassembly) | [abstract syntax tree](#abstract-syntax-tree) | [adaptive instruction](#adaptive-instruction) | [arena](#arena) | [assembler](#assembler) | [basic block](#basic-block) | [binding](#binding) | [block](#block) | [borrowed reference](#borrowed-reference) | [bytecode](#bytecode) | [cell](#cell) | [closure](#closure) | [code generation](#code-generation) | [code object](#code-object) | [computed goto](#computed-goto) | [configure](#configure) | [constant folding](#constant-folding) | [control flow graph](#control-flow-graph) | [cycle collector](#cycle-collector) | [deallocation](#deallocation) | [debug build](#debug-build) | [deoptimization](#deoptimization) | [dispatch](#dispatch) | [eval loop](#eval-loop) | [exception table](#exception-table) | [finalizer](#finalizer) | [frame](#frame) | [free threaded build](#free-threaded-build) | [free variable](#free-variable) | [generated file](#generated-file) | [generation](#generation) | [grammar](#grammar) | [header file](#header-file) | [immortal object](#immortal-object) | [indent and dedent](#indent-and-dedent) | [inline cache](#inline-cache) | [instance dictionary](#instance-dictionary) | [instruction](#instruction) | [interning](#interning) | [line table](#line-table) | [new reference](#new-reference) | [object](#object) | [object header](#object-header) | [obmalloc](#obmalloc) | [oparg](#oparg) | [opcode](#opcode) | [pointer](#pointer) | [pool](#pool) | [profile guided optimization](#profile-guided-optimization) | [pseudo instruction](#pseudo-instruction) | [pyconfig](#pyconfig) | [reference count](#reference-count) | [reference cycle](#reference-cycle) | [scope](#scope) | [small integer cache](#small-integer-cache) | [specialization](#specialization) | [stack effect](#stack-effect) | [stolen reference](#stolen-reference) | [struct](#struct) | [symbol table](#symbol-table) | [tier one](#tier-one) | [tier two](#tier-two) | [token](#token) | [tokenizer](#tokenizer) | [type object](#type-object) | [value stack](#value-stack) | [weak reference](#weak-reference)
+[ASDL](#asdl) | [Argument Clinic](#argument-clinic) | [EXTENDED_ARG](#extended_arg) | [JIT](#jit) | [PEG parser](#peg-parser) | [Pyodide](#pyodide) | [WebAssembly](#webassembly) | [abstract syntax tree](#abstract-syntax-tree) | [adaptive instruction](#adaptive-instruction) | [arena](#arena) | [assembler](#assembler) | [backtrace](#backtrace) | [basic block](#basic-block) | [binding](#binding) | [block](#block) | [borrowed reference](#borrowed-reference) | [bytecode](#bytecode) | [cell](#cell) | [closure](#closure) | [code generation](#code-generation) | [code object](#code-object) | [computed goto](#computed-goto) | [configure](#configure) | [constant folding](#constant-folding) | [control flow graph](#control-flow-graph) | [cycle collector](#cycle-collector) | [deallocation](#deallocation) | [debug build](#debug-build) | [deoptimization](#deoptimization) | [dispatch](#dispatch) | [eval loop](#eval-loop) | [exception table](#exception-table) | [finalizer](#finalizer) | [frame](#frame) | [free threaded build](#free-threaded-build) | [free variable](#free-variable) | [gdb](#gdb) | [generated file](#generated-file) | [generation](#generation) | [grammar](#grammar) | [header file](#header-file) | [immortal object](#immortal-object) | [indent and dedent](#indent-and-dedent) | [inline cache](#inline-cache) | [instance dictionary](#instance-dictionary) | [instruction](#instruction) | [interning](#interning) | [line table](#line-table) | [monitoring events](#monitoring-events) | [new reference](#new-reference) | [object](#object) | [object header](#object-header) | [obmalloc](#obmalloc) | [oparg](#oparg) | [opcode](#opcode) | [pdb](#pdb) | [pointer](#pointer) | [pool](#pool) | [profile guided optimization](#profile-guided-optimization) | [pseudo instruction](#pseudo-instruction) | [pyconfig](#pyconfig) | [reference count](#reference-count) | [reference cycle](#reference-cycle) | [scope](#scope) | [segmentation fault](#segmentation-fault) | [small integer cache](#small-integer-cache) | [specialization](#specialization) | [stack effect](#stack-effect) | [stolen reference](#stolen-reference) | [struct](#struct) | [symbol table](#symbol-table) | [tier one](#tier-one) | [tier two](#tier-two) | [token](#token) | [tokenizer](#tokenizer) | [trace function](#trace-function) | [type object](#type-object) | [value stack](#value-stack) | [weak reference](#weak-reference)
 
 ## Reading the source
 
@@ -625,3 +625,55 @@ Also written wasm. First met in B01. See also [Pyodide](#pyodide).
 This is what runs when you open one of these lessons in a browser without a local Python. It is a genuine CPython build, so `dis`, `gc` and `sys.monitoring` all work, but it is not the same build as the one on your laptop and a few things are missing from it. Every lesson opens with a banner that says which of the two you are on, for exactly this reason.
 
 First met in B01. See also [WebAssembly](#webassembly).
+
+## Stopping a running interpreter
+
+The words for looking at a program that is halfway through doing something. Most of them come from B02, and about half are things you already have on your machine without knowing it.
+
+### pdb
+
+**The debugger that ships with Python, written in Python.**
+
+It is a subclass of `bdb.Bdb` and `cmd.Cmd`, which is to say a trace hook with a command prompt bolted on. Because the prompt is just a pair of streams, you can hand it a list of commands instead of a keyboard and get the whole session back as text, which is how this project shows one. `breakpoint()` is the short way in.
+
+Also written `breakpoint()`, `python -m pdb`. First met in B02. See also [trace function](#trace-function), [gdb](#gdb). In the source: [`Lib/pdb.py:488@v3.15.0rc1#Pdb`](https://github.com/python/cpython/blob/v3.15.0rc1/Lib/pdb.py#L488).
+
+### trace function
+
+**A function the interpreter calls back on every call, line and return.**
+
+Install one with `sys.settrace` and the interpreter will tell you about everything your program does, one event at a time. Every Python debugger, coverage tool and line profiler is built on this hook or on the newer `sys.monitoring`. It is also expensive, because it turns every line into a Python call, which is why nothing has it on by default.
+
+Also written `sys.settrace`. First met in B02. See also [pdb](#pdb), [monitoring events](#monitoring-events). In the source: [`Lib/bdb.py:232-236@v3.15.0rc1#start_trace`](https://github.com/python/cpython/blob/v3.15.0rc1/Lib/bdb.py#L232-L236).
+
+### monitoring events
+
+**The newer, cheaper way to be told what a running program is doing.**
+
+Added in 3.12, and what pdb prefers when it can get it. A trace function is called for every event whether you wanted it or not, while `sys.monitoring` lets a tool register for only the events it cares about, so an unwatched line costs nothing. Several tools can watch at once without fighting over the one hook.
+
+Also written `sys.monitoring`, PEP 669. First met in B02. See also [trace function](#trace-function).
+
+### gdb
+
+**A debugger that works on a process from outside it, rather than from inside.**
+
+gdb attaches to a running program, or starts one under its control, and can stop it anywhere and read its memory. That is what makes it able to answer questions pdb cannot, because it does not need the program to still be running Python, or running at all. CPython ships a script for it, `Tools/gdb/libpython.py`, which teaches gdb what a Python frame looks like and adds the `py-bt` command.
+
+Also written `py-bt`, lldb. First met in B02. See also [pdb](#pdb), [backtrace](#backtrace), [debug build](#debug-build).
+
+### backtrace
+
+**The list of calls that were in progress when a program stopped.**
+
+A Python traceback and a C backtrace are the same idea at two levels, and a stopped interpreter has both at once. They do not have the same length: four nested Python calls can sit inside a single `_PyEval_EvalFrameDefault` frame, because the eval loop reuses one C frame for a whole chain of Python ones. `py-bt` is the command that reads the second out of the first.
+
+Also written `bt`, stack trace. First met in B02. See also [gdb](#gdb), [frame](#frame), [eval loop](#eval-loop).
+
+### segmentation fault
+
+**The kernel taking a process away for touching memory that is not its own.**
+
+Not an exception. There is no interpreter left to build one, nothing is printed, and `try` and `except` never see it. You reach one through `ctypes` or through a C extension with a bug in it. A debugger attached to the corpse is the only thing that will tell you which line of Python was responsible, which is what `py-bt` is for.
+
+Also written SIGSEGV, segfault. First met in B02. See also [gdb](#gdb), [backtrace](#backtrace).

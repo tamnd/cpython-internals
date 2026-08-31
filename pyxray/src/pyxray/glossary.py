@@ -736,6 +736,63 @@ BUILDING = Group(
 )
 
 
+DEBUGGING = Group(
+    "Stopping a running interpreter",
+    "The words for looking at a program that is halfway through doing something. Most of them come from B02, and about half are things you already have on your machine without knowing it.",
+    (
+        Term(
+            name="pdb",
+            short="The debugger that ships with Python, written in Python.",
+            long="It is a subclass of `bdb.Bdb` and `cmd.Cmd`, which is to say a trace hook with a command prompt bolted on. Because the prompt is just a pair of streams, you can hand it a list of commands instead of a keyboard and get the whole session back as text, which is how this project shows one. `breakpoint()` is the short way in.",
+            cite="Lib/pdb.py:488@v3.15.0rc1#Pdb",
+            also=("`breakpoint()`", "`python -m pdb`"),
+            see=("trace function", "gdb"),
+            met="B02",
+        ),
+        Term(
+            name="trace function",
+            short="A function the interpreter calls back on every call, line and return.",
+            long="Install one with `sys.settrace` and the interpreter will tell you about everything your program does, one event at a time. Every Python debugger, coverage tool and line profiler is built on this hook or on the newer `sys.monitoring`. It is also expensive, because it turns every line into a Python call, which is why nothing has it on by default.",
+            cite="Lib/bdb.py:232-236@v3.15.0rc1#start_trace",
+            also=("`sys.settrace`",),
+            see=("pdb", "monitoring events"),
+            met="B02",
+        ),
+        Term(
+            name="monitoring events",
+            short="The newer, cheaper way to be told what a running program is doing.",
+            long="Added in 3.12, and what pdb prefers when it can get it. A trace function is called for every event whether you wanted it or not, while `sys.monitoring` lets a tool register for only the events it cares about, so an unwatched line costs nothing. Several tools can watch at once without fighting over the one hook.",
+            also=("`sys.monitoring`", "PEP 669"),
+            see=("trace function",),
+            met="B02",
+        ),
+        Term(
+            name="gdb",
+            short="A debugger that works on a process from outside it, rather than from inside.",
+            long="gdb attaches to a running program, or starts one under its control, and can stop it anywhere and read its memory. That is what makes it able to answer questions pdb cannot, because it does not need the program to still be running Python, or running at all. CPython ships a script for it, `Tools/gdb/libpython.py`, which teaches gdb what a Python frame looks like and adds the `py-bt` command.",
+            also=("`py-bt`", "lldb"),
+            see=("pdb", "backtrace", "debug build"),
+            met="B02",
+        ),
+        Term(
+            name="backtrace",
+            short="The list of calls that were in progress when a program stopped.",
+            long="A Python traceback and a C backtrace are the same idea at two levels, and a stopped interpreter has both at once. They do not have the same length: four nested Python calls can sit inside a single `_PyEval_EvalFrameDefault` frame, because the eval loop reuses one C frame for a whole chain of Python ones. `py-bt` is the command that reads the second out of the first.",
+            also=("`bt`", "stack trace"),
+            see=("gdb", "frame", "eval loop"),
+            met="B02",
+        ),
+        Term(
+            name="segmentation fault",
+            short="The kernel taking a process away for touching memory that is not its own.",
+            long="Not an exception. There is no interpreter left to build one, nothing is printed, and `try` and `except` never see it. You reach one through `ctypes` or through a C extension with a bug in it. A debugger attached to the corpse is the only thing that will tell you which line of Python was responsible, which is what `py-bt` is for.",
+            also=("SIGSEGV", "segfault"),
+            see=("gdb", "backtrace"),
+            met="B02",
+        ),
+    ),
+)
+
 #: The groups, in the order a reader meets them, which is also the order of the lessons.
 GROUPS: tuple[Group, ...] = (
     READING,
@@ -746,6 +803,7 @@ GROUPS: tuple[Group, ...] = (
     OBJECTS,
     MEMORY,
     BUILDING,
+    DEBUGGING,
 )
 
 #: Every term, flattened.

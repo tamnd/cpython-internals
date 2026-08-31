@@ -27,7 +27,7 @@ vendor:
     git -C "{{cpython_src}}" rev-parse HEAD
 
 # The full local check, in the order that fails fastest.
-check: lint test citations claims blueprints diagrams lessons notebooks probe dist images animations tier1 boss
+check: lint test citations claims blueprints diagrams lessons notebooks probe dist images animations tier1 gdb boss
 
 lint:
     uv run ruff check .
@@ -227,6 +227,25 @@ build-tier1:
 # the same image, and a check that goes red for that is a check somebody deletes.
 verify-tier1:
     uv run tier1 verify
+
+# Read the committed gdb transcripts and say whether they still belong to the sessions that
+# produced them, the image this project pins, and the lesson that shows them. Instant and
+# offline: it never starts a container, because the transcript exists so that nobody has to.
+gdb:
+    uv run gdbrec check
+
+# Run every gdb session in the debug image and rewrite the transcripts. Needs Docker and a
+# machine of the architecture you are recording, because a backtrace is not portable and the
+# transcripts are stored one per architecture. Read the diff: addresses move every run and
+# mean nothing, and any other line changing is a finding.
+build-gdb:
+    uv run gdbrec record
+
+# The same run without writing anything, which is what CI does. Sessions with no transcript
+# for the architecture this is running on are skipped rather than failed, because there is no
+# honest way to check an arm64 backtrace from an amd64 runner.
+verify-gdb:
+    uv run gdbrec verify
 
 # Check every boss fight is still assembled, then run each grader against the submission that
 # should pass and the one that should fail. Both halves matter. A grader nobody has watched
