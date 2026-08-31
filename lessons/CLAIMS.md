@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-236 claims across 27 lessons, 19 of them not observable from Python.
+243 claims across 28 lessons, 19 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -170,6 +170,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | some instructions in a normal function have no source location at all | [`f11-23`](f11-two-tables-on-the-side/f11.ipynb) |
 | a hand written decoder reproduces co_positions() for every code object in a standard library module | [`f11-26`](f11-two-tables-on-the-side/f11.ipynb) |
 | the two tables encode integers with their chunks in opposite orders | [`f11-31`](f11-two-tables-on-the-side/f11.ipynb) |
+
+## F12. What ends up on disk
+
+| Claim | Proved by |
+| --- | --- |
+| a .pyc is a sixteen byte header followed by one marshalled object and nothing else | [`f12-07`](f12-what-ends-up-on-disk/f12.ipynb) |
+| half of the magic number is a carriage return and a newline put there to catch text mode copying | [`f12-13`](f12-what-ends-up-on-disk/f12.ipynb) |
+| the first byte of any marshalled object is an ascii letter naming its type | [`f12-16`](f12-what-ends-up-on-disk/f12.ipynb) |
+| a value that shows up twice is written once and pointed at the second time | [`f12-18`](f12-what-ends-up-on-disk/f12.ipynb) |
+| a reader written here decodes a marshalled code object into the fields the interpreter reads | [`f12-21`](f12-what-ends-up-on-disk/f12.ipynb) |
+| a .pyc assembled by hand imports and runs with no source file on disk | [`f12-26`](f12-what-ends-up-on-disk/f12.ipynb) |
+| a wrong magic number raises and a wrong timestamp is fixed silently | [`f12-29`](f12-what-ends-up-on-disk/f12.ipynb) |
 
 ## T01. One line, seven stages
 
