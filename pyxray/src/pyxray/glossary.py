@@ -1049,6 +1049,23 @@ MEMORY = Group(
             see=("free list", "type object", "heap type"),
             met="O12",
         ),
+        Term(
+            name="weakref offset",
+            short="Where in an object the interpreter looks for its list of weak references.",
+            long="Every type carries this number and Python shows it as `__weakrefoffset__`. Zero means the type has no room for the pointer, so you cannot take a weak reference to one of its instances, which is why `list` and `int` refuse. Static types put a real field in the struct and get a positive number. A class you write in Python gets minus thirty two instead, because the pointer lives in a pre header allocated in front of the object rather than inside it.",
+            cite="Include/internal/pycore_object.h:922-928@v3.15.0rc1#MANAGED_WEAKREF_OFFSET",
+            also=("`tp_weaklistoffset`", "`__weakrefoffset__`"),
+            see=("weak reference", "GC pre header", "static type"),
+            met="O13",
+        ),
+        Term(
+            name="weakref callback",
+            short="A function attached to a weak reference, run just after the object dies.",
+            long="It is handed the weak reference rather than the object, and by the time it runs every weak reference to that object has already been broken, so calling it gives you `None`. That is deliberate. It means a callback has no way to make the doomed object reachable again. If the callback raises, the exception is reported as unraisable and does not propagate, because there is no caller to propagate it to.",
+            cite="Objects/weakrefobject.c:987-999@v3.15.0rc1#handle_callback",
+            see=("weak reference", "finalizer", "deallocation"),
+            met="O13",
+        ),
     ),
 )
 

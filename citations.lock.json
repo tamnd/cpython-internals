@@ -195,6 +195,16 @@
       "first_line": "/* Character size:",
       "lines": 23
     },
+    "Include/cpython/weakrefobject.h:25-31@v3.15.0rc1": {
+      "digest": "db6788571b529060",
+      "first_line": "/* If wr_object is weakly referenced, wr_object has a doubly-linked NULL-",
+      "lines": 7
+    },
+    "Include/cpython/weakrefobject.h:8-18@v3.15.0rc1": {
+      "digest": "9ff8f5ece8c049ee",
+      "first_line": "struct _PyWeakReference {",
+      "lines": 11
+    },
     "Include/errcode.h:23-24@v3.15.0rc1": {
       "digest": "a5b984e92c1cb0d5",
       "first_line": "#define E_EOF            11      /* End Of File */",
@@ -290,6 +300,11 @@
       "first_line": "#  define PyTuple_MAXSAVESIZE 20     // Largest tuple to save on freelist",
       "lines": 23
     },
+    "Include/internal/pycore_freelist_state.h:33-33@v3.15.0rc1": {
+      "digest": "d2a1a5b67d1f269c",
+      "first_line": "#  define Py_pymethodobjects_MAXFREELIST 20",
+      "lines": 1
+    },
     "Include/internal/pycore_freelist_state.h:36-44@v3.15.0rc1": {
       "digest": "7c03cab3b4f55911",
       "first_line": "struct _Py_freelist {",
@@ -349,6 +364,11 @@
       "digest": "eb80b68ef66bcad0",
       "first_line": "static inline size_t",
       "lines": 10
+    },
+    "Include/internal/pycore_object.h:871-874@v3.15.0rc1": {
+      "digest": "d07bc57e4c32e9a1",
+      "first_line": "// Test if a type supports weak references",
+      "lines": 4
     },
     "Include/internal/pycore_object.h:922-928@v3.15.0rc1": {
       "digest": "71d50250d04db27a",
@@ -1315,6 +1335,11 @@
       "first_line": "/* The cache can keep references to the names alive for longer than",
       "lines": 15
     },
+    "Objects/typeobject.c:4688-4692@v3.15.0rc1": {
+      "digest": "d00edf674dc71dbb",
+      "first_line": "if (ctx->add_weak) {",
+      "lines": 5
+    },
     "Objects/typeobject.c:6144-6180@v3.15.0rc1": {
       "digest": "a16a8c9e914d75f2",
       "first_line": "static int",
@@ -1414,6 +1439,31 @@
       "digest": "2990efebc60f458b",
       "first_line": "/* This function is called by the tp_dealloc handler to clear weak references.",
       "lines": 24
+    },
+    "Objects/weakrefobject.c:1007-1044@v3.15.0rc1": {
+      "digest": "fa19a61f08f2751c",
+      "first_line": "void",
+      "lines": 38
+    },
+    "Objects/weakrefobject.c:1077-1083@v3.15.0rc1": {
+      "digest": "315b556c0078dbcb",
+      "first_line": "for (Py_ssize_t i = 0; i < num_items; i += 2) {",
+      "lines": 7
+    },
+    "Objects/weakrefobject.c:326-353@v3.15.0rc1": {
+      "digest": "c5f1bd14aedda2f1",
+      "first_line": "/* See if we can reuse either the basic ref or proxy in list instead of",
+      "lines": 28
+    },
+    "Objects/weakrefobject.c:373-397@v3.15.0rc1": {
+      "digest": "13e6225049b4b740",
+      "first_line": "/* Insert `newref` in the appropriate position in `list` */",
+      "lines": 25
+    },
+    "Objects/weakrefobject.c:987-999@v3.15.0rc1": {
+      "digest": "fe04f2b4425a6f16",
+      "first_line": "static void",
+      "lines": 13
     },
     "Parser/Python.asdl:100-100@v3.15.0rc1": {
       "digest": "ea36297e42edfc56",
@@ -2639,6 +2689,16 @@
       "digest": "ec0b2854fab4f304",
       "first_line": "/* Move the unreachable objects from young to unreachable.  After this,",
       "lines": 18
+    },
+    "Python/gc.c:781-787@v3.15.0rc1": {
+      "digest": "102c56f2410892ad",
+      "first_line": "* Weakrefs with callbacks always need to be cleared before executing the",
+      "lines": 7
+    },
+    "Python/gc.c:861-890@v3.15.0rc1": {
+      "digest": "57a053f14db0fa41",
+      "first_line": "/* Headache time.  `op` is going away, and is weakly referenced by",
+      "lines": 30
     },
     "Python/gc_gil.c:6-15@v3.15.0rc1": {
       "digest": "ff88abe1b50962f4",

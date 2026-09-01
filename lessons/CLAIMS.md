@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-320 claims across 40 lessons, 23 of them not observable from Python.
+328 claims across 41 lessons, 23 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -319,6 +319,19 @@ Without it the exception becomes the rule and this goes back to being a book.
 | tuples of one to twenty items each have their own free list, so two neighbouring sizes in that range never share memory even when the allocator would let them, while two neighbouring sizes above twenty do | [`o12-24`](o12-the-objects-that-come-back/o12.ipynb) |
 | only exact instances of a type go on its free list, so a subclass of list or float is freed normally and the stash stays empty | [`o12-27`](o12-the-objects-that-come-back/o12.ipynb) |
 | free lists are emptied by the cycle collector only when it collects the oldest generation, so gc.collect(0) leaves them full and a bare gc.collect() empties them | [`o12-30`](o12-the-objects-that-come-back/o12.ipynb) |
+
+## O13. Pointing at something without holding it
+
+| Claim | Proved by |
+| --- | --- |
+| creating a weak reference to an object leaves its reference count exactly where it was, while binding an ordinary name adds one | [`o13-07`](o13-pointing-without-holding/o13.ipynb) |
+| a type supports weak references exactly when its __weakrefoffset__ is not zero, which is why list, dict, tuple, int and str all refuse | [`o13-09`](o13-pointing-without-holding/o13.ipynb) |
+| adding __weakref__ to a class with __slots__ costs sixteen bytes rather than eight, because the pointer lives in a pre header that is allocated two words at a time | [`o13-12`](o13-pointing-without-holding/o13.ipynb) |
+| asking twice for a weak reference with no callback gives you the same object back, while two with callbacks are always two separate objects | [`o13-15`](o13-pointing-without-holding/o13.ipynb) |
+| by the time a weakref callback runs, every weak reference to the object has already been broken, so calling the reference it is handed always gives None | [`o13-17`](o13-pointing-without-holding/o13.ipynb) |
+| a dropped bound method leaves its memory on a free list, so the next one lands on the same address, while a weak reference to the old one correctly reports it gone | [`o13-19`](o13-pointing-without-holding/o13.ipynb) |
+| a weakref callback runs when the weak reference outlives the object, and is skipped when the weak reference is part of the same garbage being collected | [`o13-21`](o13-pointing-without-holding/o13.ipynb) |
+| an exception raised inside a weakref callback is reported through sys.unraisablehook and does not propagate to whatever was running at the time | [`o13-23`](o13-pointing-without-holding/o13.ipynb) |
 
 ## T01. One line, seven stages
 
