@@ -1033,6 +1033,22 @@ MEMORY = Group(
             see=("cycle collector", "object header"),
             met="O01",
         ),
+        Term(
+            name="free list",
+            short="A small stash of dead objects of one type, kept so the next one can skip the allocator.",
+            long="When an object of a type that has one is freed, it is not handed back to the allocator, it is pushed onto a chain of dead objects of exactly that type. The next request pops it off and reuses the memory. The chain is threaded through the objects themselves, using the first word of each dead one to point at the next, so the stash costs nothing beyond a head pointer and a count. There is a cap per type, and the cycle collector empties every one of them, but only when it collects the oldest generation.",
+            cite="Include/internal/pycore_freelist.h:52-63@v3.15.0rc1#_PyFreeList_Push",
+            see=("obmalloc", "deallocation", "generation"),
+            met="O12",
+        ),
+        Term(
+            name="exact type check",
+            short="A test that a value is that type and not a subclass of it.",
+            long="`PyList_Check` says yes to anything that inherits from `list` and `PyList_CheckExact` says yes only to `list` itself. Fast paths and caches use the exact form, because a subclass can have extra fields, a different size and a different deallocation function, so recycling one as if it were the base type would be wrong. This is why a subclass often quietly loses an optimisation the base type gets.",
+            cite="Include/listobject.h:24-26@v3.15.0rc1#PyList_CheckExact",
+            see=("free list", "type object", "heap type"),
+            met="O12",
+        ),
     ),
 )
 
