@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-352 claims across 44 lessons, 25 of them not observable from Python.
+358 claims across 45 lessons, 25 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -77,6 +77,17 @@ Without it the exception becomes the rule and this goes back to being a book.
 | pseudo instructions are numbered above 255 so that they cannot fit in the one byte opcode field of a code unit | [`e02-19`](e02-two-bytes-at-a-time/e02.ipynb) |
 | which of the three dispatch strategies a CPython was built with is recorded in its build configuration and can differ between two installs of the same version | [`e02-22`](e02-two-bytes-at-a-time/e02.ipynb) |
 | co_code is reconstructed from the running bytecode by undoing specialization and zeroing caches, so it differs from _co_code_adaptive once an instruction has specialized | [`e02-25`](e02-two-bytes-at-a-time/e02.ipynb) |
+
+## E03. Where a running function lives
+
+| Claim | Proved by |
+| --- | --- |
+| sys._getframe returns the same object each time it is called in one frame, and the frame it returns keeps working after the function has returned | [`e03-07`](e03-where-a-running-function-lives/e03.ipynb) |
+| a local variable is a numbered slot in the frame rather than an entry in a dictionary, and the argument to LOAD_FAST is that number | [`e03-10`](e03-where-a-running-function-lives/e03.ipynb) |
+| frame.f_locals inside a function is a write through proxy over the frame slots, so assigning through it changes the local variable | [`e03-12`](e03-where-a-running-function-lives/e03.ipynb) |
+| a generator object contains its frame, so its size grows by exactly eight bytes for every extra local variable or value stack slot | [`e03-14`](e03-where-a-running-function-lives/e03.ipynb) |
+| a Python function calling a Python function uses no C stack, while the same recursion routed through a C function costs hundreds or thousands of bytes per level | [`e03-17`](e03-where-a-running-function-lives/e03.ipynb) |
+| sys.setrecursionlimit changes only the counter, so raising it lets pure Python recursion go further and leaves recursion through C stopping at the same depth for the same reason | [`e03-20`](e03-where-a-running-function-lives/e03.ipynb) |
 
 ## F01. The tokenizer, in C
 

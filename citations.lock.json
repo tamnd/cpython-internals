@@ -145,6 +145,11 @@
       "first_line": "/* Unique thread state id. */",
       "lines": 10
     },
+    "Include/cpython/pystate.h:65-65@v3.15.0rc1": {
+      "digest": "cea23497543dc7ba",
+      "first_line": "#define _PY_DATA_STACK_CHUNK_SIZE (16*1024)",
+      "lines": 1
+    },
     "Include/cpython/pystate.h:66-101@v3.15.0rc1": {
       "digest": "4c1cb716c3268888",
       "first_line": "struct _ts {",
@@ -340,10 +345,30 @@
       "first_line": "struct _is {",
       "lines": 39
     },
+    "Include/internal/pycore_interpframe.h:307-320@v3.15.0rc1": {
+      "digest": "f05f19112c3df29f",
+      "first_line": "/* Gets the PyFrameObject for this frame, lazily",
+      "lines": 14
+    },
     "Include/internal/pycore_interpframe_structs.h:29-53@v3.15.0rc1": {
       "digest": "0f12951337d13d71",
       "first_line": "struct _PyInterpreterFrame {",
       "lines": 25
+    },
+    "Include/internal/pycore_interpframe_structs.h:36-36@v3.15.0rc1": {
+      "digest": "c73f710324fa1b71",
+      "first_line": "PyFrameObject *frame_obj; /* Strong reference, may be NULL. Only valid if not on C stack */",
+      "lines": 1
+    },
+    "Include/internal/pycore_interpframe_structs.h:51-53@v3.15.0rc1": {
+      "digest": "9785b0ab011cfd71",
+      "first_line": "/* Locals and stack */",
+      "lines": 3
+    },
+    "Include/internal/pycore_interpframe_structs.h:56-73@v3.15.0rc1": {
+      "digest": "74f58ba468dde9c2",
+      "first_line": "/* _PyGenObject_HEAD defines the initial segment of generator",
+      "lines": 18
     },
     "Include/internal/pycore_list.h:36-54@v3.15.0rc1": {
       "digest": "2bd7a09b0ff20224",
@@ -439,6 +464,16 @@
       "digest": "c6671958ae6c8ac8",
       "first_line": "PyAPI_FUNC(void*) _PyArena_Malloc(PyArena *, size_t size);",
       "lines": 1
+    },
+    "Include/internal/pycore_pystate.h:330-341@v3.15.0rc1": {
+      "digest": "87187b0442160919",
+      "first_line": "static inline intptr_t",
+      "lines": 12
+    },
+    "Include/internal/pycore_pythonrun.h:55-67@v3.15.0rc1": {
+      "digest": "5582657bc0b8a96a",
+      "first_line": "#define _PyOS_STACK_MARGIN (1 << _PyOS_LOG2_STACK_MARGIN)",
+      "lines": 13
     },
     "Include/internal/pycore_runtime_structs.h:134-170@v3.15.0rc1": {
       "digest": "ada3da14c486fca9",
@@ -2450,6 +2485,11 @@
       "first_line": "inst(LOAD_FAST_CHECK, (-- value)) {",
       "lines": 10
     },
+    "Python/bytecodes.c:283-286@v3.15.0rc1": {
+      "digest": "c41a9159c7286377",
+      "first_line": "replicate(8) pure inst(LOAD_FAST, (-- value)) {",
+      "lines": 4
+    },
     "Python/bytecodes.c:305-310@v3.15.0rc1": {
       "digest": "78fedc8f2e29ef4d",
       "first_line": "inst(LOAD_FAST_BORROW_LOAD_FAST_BORROW, ( -- value1, value2)) {",
@@ -2505,6 +2545,11 @@
       "first_line": "pure op(_BINARY_OP_MULTIPLY_INT, (left, right -- res, l, r)) {",
       "lines": 14
     },
+    "Python/ceval.c:1014-1032@v3.15.0rc1": {
+      "digest": "c5ee6367cc3dda2d",
+      "first_line": "PyThreadState *tstate)",
+      "lines": 19
+    },
     "Python/ceval.c:1212-1218@v3.15.0rc1": {
       "digest": "09b5726b4931d812",
       "first_line": "PyObject* _Py_HOT_FUNCTION DONT_SLP_VECTORIZE",
@@ -2514,6 +2559,11 @@
       "digest": "f816c4c48d43b078",
       "first_line": "_PyEval_EvalFrameDefault(PyThreadState *tstate, _PyInterpreterFrame *frame, int throwflag)",
       "lines": 1
+    },
+    "Python/ceval.c:306-322@v3.15.0rc1": {
+      "digest": "4390314e2832e359",
+      "first_line": "if (tstate->recursion_headroom) {",
+      "lines": 17
     },
     "Python/ceval.c:661-690@v3.15.0rc1": {
       "digest": "fc120747f28c3b59",
@@ -2574,6 +2624,11 @@
       "digest": "de6abf86f0026b15",
       "first_line": "/* JUMPBY makes the generator identify the instruction as a jump. SKIP_OVER is",
       "lines": 6
+    },
+    "Python/ceval_macros.h:284-284@v3.15.0rc1": {
+      "digest": "f0a6d197ce5a8681",
+      "first_line": "#define GETLOCAL(i)     (frame->localsplus[i])",
+      "lines": 1
     },
     "Python/ceval_macros.h:82-97@v3.15.0rc1": {
       "digest": "41ca9bcd9ea44543",
@@ -2830,6 +2885,11 @@
       "first_line": "/* Find the flow path that needs the largest stack.  We assume that",
       "lines": 38
     },
+    "Python/frame.c:47-68@v3.15.0rc1": {
+      "digest": "f3d72ac7ac359d9c",
+      "first_line": "static void",
+      "lines": 22
+    },
     "Python/gc.c:1041-1074@v3.15.0rc1": {
       "digest": "3d19617d23da0777",
       "first_line": "/* Run first-time finalizers (if any) on all the objects in collectable.",
@@ -2934,6 +2994,11 @@
       "digest": "332183fc478125a5",
       "first_line": "PyStatus",
       "lines": 31
+    },
+    "Python/pystate.c:3097-3131@v3.15.0rc1": {
+      "digest": "16efa884926fc1e2",
+      "first_line": "static PyObject **",
+      "lines": 35
     },
     "Python/pystate.c:3133-3143@v3.15.0rc1": {
       "digest": "a9bbfecf998bd05a",
