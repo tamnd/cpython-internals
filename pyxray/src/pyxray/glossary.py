@@ -919,6 +919,22 @@ OBJECTS = Group(
             see=("string kind", "interning"),
             met="O10",
         ),
+        Term(
+            name="over allocation",
+            short="Asking for more room than is needed right now, so the next few asks are free.",
+            long="A list keeps two sizes: `ob_size`, how many items you can see, and `allocated`, how many slots the array behind it has. `list_resize` asks for the new size plus an eighth of it plus six, rounded down to a multiple of four, which gives the sequence 4, 8, 16, 24, 32, 40, 52, 64, 76, 92. Growing by a fraction of the current size is what makes a long run of appends cheap on average: a hundred thousand appends cost about sixty six reallocations rather than a hundred thousand. The same function shrinks the array, but only once the length drops below half of what is allocated.",
+            cite="Objects/listobject.c:119-129@v3.15.0rc1",
+            see=("cached hash",),
+            met="O11",
+        ),
+        Term(
+            name="cached hash",
+            short="A hash computed on the first ask and kept in the object from then on.",
+            long="Strings and tuples both do this, and both can only do it because they cannot change. The field starts at -1 and the hash function returns early if it is anything else. This is the real reason a tuple can be a dict key and a list cannot: a container that can change has no stable hash to offer. It is also why a recycled tuple taken off a free list has to have the field cleared before it is handed out again.",
+            cite="Objects/tupleobject.c:371-404@v3.15.0rc1#tuple_hash",
+            see=("over allocation", "compact string"),
+            met="O11",
+        ),
     ),
 )
 

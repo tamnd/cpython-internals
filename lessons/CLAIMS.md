@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-309 claims across 38 lessons, 23 of them not observable from Python.
+313 claims across 39 lessons, 23 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -298,6 +298,15 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a string's hash is the hash of its raw storage buffer, so it equals the hash of the same text encoded in whichever fixed width encoding matches the string's kind | [`o10-22`](o10-one-string-four-layouts/o10.ipynb) |
 | a non-ASCII string can grow after it is created, because the first time C code asks for it as UTF-8 the encoded copy is stored on the object and counted by sys.getsizeof | [`o10-25`](o10-one-string-four-layouts/o10.ipynb) |
 | string constants are interned only if they are ASCII and look like identifiers, while every name in co_names is interned and immortal | [`o10-28`](o10-one-string-four-layouts/o10.ipynb) |
+
+## O11. Two sizes and a growth curve
+
+| Claim | Proved by |
+| --- | --- |
+| a list is a fixed size object holding a pointer to a separately allocated array of item pointers, while a tuple holds its items inside the object itself | [`o11-07`](o11-two-sizes-and-a-growth-curve/o11.ipynb) |
+| appending to a list allocates room for about an eighth more than it needs plus six, rounded down to a multiple of four, so the array is reallocated a logarithmic number of times rather than once per append | [`o11-11`](o11-two-sizes-and-a-growth-curve/o11.ipynb) |
+| shrinking a list reallocates its array only when the new length falls below half of what is allocated, so deleting exactly half the items of a full list frees nothing | [`o11-20`](o11-two-sizes-and-a-growth-curve/o11.ipynb) |
+| a tuple's hash is xxHash over the hashes of its items, computed once and cached in the object, which is what makes a tuple usable as a dict key | [`o11-24`](o11-two-sizes-and-a-growth-curve/o11.ipynb) |
 
 ## T01. One line, seven stages
 
