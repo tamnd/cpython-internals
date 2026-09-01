@@ -663,6 +663,32 @@ RUNNING = Group(
             see=("tier two",),
             met="T07",
         ),
+        Term(
+            name="instruction DSL",
+            short="The small language that `Python/bytecodes.c` is written in.",
+            long="It looks like C and is not. Each definition opens with a line saying what kind of thing it is, what it is called, and what it takes off the stack and leaves behind, and only the body after that is ordinary C. That first line is what lets one file produce the eval loop, the stack effect tables, the cache sizes and the opcode numbers, because all of it is stated once in a form a program can read.",
+            cite="Python/bytecodes.c:1-7@v3.15.0rc1",
+            also=("the DSL", "`bytecodes.c`"),
+            see=("cases generator", "generated file", "stack effect", "eval loop"),
+            met="E01",
+        ),
+        Term(
+            name="cases generator",
+            short="The set of scripts under `Tools/cases_generator` that read the DSL and write C.",
+            long="There is a shared parser and then one script per output file, so adding an instruction means editing one definition and running `make regen-all`. Every file it writes opens with the same four line banner naming the script and the input and ending in `Do not edit!`, which is the quickest way to tell a generated file from a written one.",
+            cite="Tools/cases_generator/generators_common.py:66-75@v3.15.0rc1#write_header",
+            see=("instruction DSL", "generated file", "regen"),
+            met="E01",
+        ),
+        Term(
+            name="specialization family",
+            short="A base opcode and the faster versions it can turn into, declared as a group.",
+            long="The declaration is one line in the DSL naming the base instruction, its cache size and its members. Everything downstream comes from that: the table mapping a specialized opcode back to its base, the `_specializations` dict in `_opcode_metadata`, and the checks that every member has the same stack effect and cache layout as the base. There is no separate list to keep in step.",
+            cite="Python/bytecodes.c:484-491@v3.15.0rc1#family",
+            also=("`family`",),
+            see=("specialization", "adaptive instruction", "inline cache", "instruction DSL"),
+            met="E01",
+        ),
     ),
 )
 
