@@ -395,7 +395,7 @@ The third is the tagged integer. It is deliberately hard to see, so try to catch
 
 ## What just happened
 
-A frame slot does not hold an object pointer. It holds a pointer with the bottom two bits used as a tag, which is free because every object address is a multiple of eight.
+A frame slot does not hold an object pointer. It holds a pointer with the bottom two bits used as a tag, which is free because every object address is a multiple of four.
 
 Tag 00 means the slot owns a counted reference and releasing it should decrement. Tag 01 means the slot is only borrowing, and releasing it does nothing. Tag 11 means the word is not a pointer at all.
 

@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-365 claims across 46 lessons, 26 of them not observable from Python.
+374 claims across 47 lessons, 26 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -100,6 +100,20 @@ Without it the exception becomes the rule and this goes back to being a book.
 | the reference count of an immortal object is a fixed marker that does not move no matter how many references you take | [`e04-16`](e04-owned-borrowed-or-not-a-pointer/e04.ipynb) |
 | a for loop needs one more value stack slot in 3.15 than in 3.14, and the extra slot holds the loop position as a number rather than an object | [`e04-19`](e04-owned-borrowed-or-not-a-pointer/e04.ipynb) |
 | in the free threaded build a counted reference is an atomic operation, which is why avoiding one on every local load matters more there than it does under the GIL | not observable from Python: You would need a free threaded build and a machine with several cores to see the difference, and this notebook is running on neither. |
+
+## E05. The try that costs nothing
+
+| Claim | Proved by |
+| --- | --- |
+| the instructions for the guarded line are the same as the instructions for the unguarded line, so entering a try block executes nothing | [`e05-07`](e05-the-try-that-costs-nothing/e05.ipynb) |
+| a try block adds bytes to the code object, but all of them are the handler and none of them are on the path a successful call takes | [`e05-09`](e05-the-try-that-costs-nothing/e05.ipynb) |
+| every entry in the exception table carries a target, a stack depth and a lasti flag as well as the range it covers | [`e05-12`](e05-the-try-that-costs-nothing/e05.ipynb) |
+| the exception table can be decoded by hand from the raw bytes, and a hand written decoder gives the same answer as the one in dis | [`e05-15`](e05-the-try-that-costs-nothing/e05.ipynb) |
+| a loop with a try around its body runs at about the same speed as the same loop without one, and faster than the same loop checking a returned value instead | [`e05-18`](e05-the-try-that-costs-nothing/e05.ipynb) |
+| raising and catching in the same frame costs a few hundred nanoseconds, and each extra frame the exception has to travel through adds roughly the same amount again | [`e05-21`](e05-the-try-that-costs-nothing/e05.ipynb) |
+| the traceback points at the instruction that raised, not at the finally block that re-raised, because the raising offset was saved on the stack and put back | [`e05-24`](e05-the-try-that-costs-nothing/e05.ipynb) |
+| the body of a finally block appears in the bytecode more than once, one copy per way out of the try it guards | [`e05-27`](e05-the-try-that-costs-nothing/e05.ipynb) |
+| a for loop has no exception table at all, and the same loop written with next and a try does, and is slower | [`e05-29`](e05-the-try-that-costs-nothing/e05.ipynb) |
 
 ## F01. The tokenizer, in C
 
