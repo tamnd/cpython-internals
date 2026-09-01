@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-296 claims across 36 lessons, 22 of them not observable from Python.
+304 claims across 37 lessons, 23 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -275,6 +275,19 @@ Without it the exception becomes the rule and this goes back to being a book.
 | an instance sharing its keys with its class costs roughly a third of what the same instance costs once it has a dict of its own | [`o08-12`](o08-where-attributes-really-live/o08.ipynb) |
 | a class shares up to 30 attribute names when they are known when the class is created, and only 29 when they are discovered later, because creating the first instance reserves one slot | [`o08-15`](o08-where-attributes-really-live/o08.ipynb) |
 | reading an attribute on an instance with inline values specialises to a different instruction than reading one on an instance whose dict has been materialised | [`o08-18`](o08-where-attributes-really-live/o08.ipynb) |
+
+## O09. Arrays of thirty bit digits
+
+| Claim | Proved by |
+| --- | --- |
+| an int object grows by one fixed size digit at a time, and the size steps exactly at the powers of two that need another digit | [`o09-07`](o09-arrays-of-thirty-bit-digits/o09.ipynb) |
+| the digits of an int can be extracted with a mask and a shift and summed back into the original number, because that is exactly what the storage format is | [`o09-10`](o09-arrays-of-thirty-bit-digits/o09.ipynb) |
+| the digit count, the sign and the shared int flag are packed into one machine word so that a single comparison can decide whether the fast path applies | not observable from Python: lv_tag is not reachable from Python, and pyxray does not read raw struct fields. What the lesson can show is the consequence: everything below one digit behaves differently from everything above it. |
+| integers in a fixed low range are shared objects rather than fresh allocations, so two separate computations that land on the same small value produce the same object | [`o09-12`](o09-arrays-of-thirty-bit-digits/o09.ipynb) |
+| shared integers are immortal, so their reference count never changes, while an integer outside the range is refcounted normally | [`o09-15`](o09-arrays-of-thirty-bit-digits/o09.ipynb) |
+| the two multiplication algorithms cost the same at the cutoff and diverge above it, which is why the cutoff sits where it does | [`o09-20`](o09-arrays-of-thirty-bit-digits/o09.ipynb) |
+| converting a very long decimal string to an int, or the reverse, raises rather than running, and the limit can be raised at runtime | [`o09-22`](o09-arrays-of-thirty-bit-digits/o09.ipynb) |
+| the hash of an integer is its remainder modulo a prime one less than a power of two, which is why a number equal to that modulus hashes to zero | [`o09-24`](o09-arrays-of-thirty-bit-digits/o09.ipynb) |
 
 ## T01. One line, seven stages
 

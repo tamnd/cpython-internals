@@ -868,6 +868,32 @@ OBJECTS = Group(
             see=("split table", "instance dictionary"),
             met="O08",
         ),
+        Term(
+            name="digit array",
+            short="The array of base 2**30 digits an int is made of, least significant first.",
+            long="A digit is a `uint32_t` carrying 30 bits, so two bits in every four bytes go unused. That is deliberate: the product of two digits fits in 64 bits with enough headroom left to accumulate carries before anything has to be done about overflow. Two rules hold everywhere in the source and every operation is allowed to assume them, that no digit is ever at or above the base, and that the most significant digit is never zero. The second is why almost everything ends by calling `long_normalize`.",
+            cite="Include/cpython/longintrepr.h:64-91@v3.15.0rc1",
+            also=("ob_digit",),
+            see=("compact int",),
+            met="O09",
+        ),
+        Term(
+            name="compact int",
+            short="An int small enough to be a sign and one digit, with a fast path all its own.",
+            long="The sign, the digit count and one flag share a single word called `lv_tag`, packed so that a tag below 16 means the digit count is 0 or 1 and the sign is not negative. `_PyLong_IsCompact` is that one unsigned comparison, and the value comes back out with a multiply and no branches. Anything from 0 up to 2**30 - 1 qualifies on an ordinary build, which is most of the integers a program actually handles, so the fast path is taken constantly.",
+            cite="Include/cpython/longintrepr.h:121-125@v3.15.0rc1#_PyLong_IsCompact",
+            see=("digit array", "small int cache"),
+            met="O09",
+        ),
+        Term(
+            name="small int cache",
+            short="The fixed array of int objects built at startup and handed out rather than allocated.",
+            long="Every operation whose result lands in the range returns the object from the array instead of making a new one, so two separate computations that reach the same small value give you the same object. They are immortal, because an object handed to everybody forever cannot usefully be reference counted. The range runs from -5 up to a ceiling that was 256 through 3.14 and is 1024 from 3.15, which is why using `is` on integers is a bug waiting for a version bump.",
+            cite="Include/internal/pycore_runtime_structs.h:97-98@v3.15.0rc1#_PY_NSMALLPOSINTS",
+            also=("small ints",),
+            see=("compact int", "immortal object"),
+            met="O09",
+        ),
     ),
 )
 

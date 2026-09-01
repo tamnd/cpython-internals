@@ -539,7 +539,7 @@
         {
           "name": "f10-11",
           "status": "ok",
-          "printed": "  --           MAKE_CELL                0 (a)\n               MAKE_CELL                6 (n)\n\n   1           RESUME                   0\n\n   2           LOAD_SMALL_INT           0\n               STORE_DEREF              6 (n)\n\n   4           LOAD_FAST_BORROW         0 (a)\n               LOAD_FAST_BORROW         6 (n)\n               BUILD_TUPLE              2\n               LOAD_CONST               1 (<code object inner at 0x176f9b0, file \"f10-09\", line 4>)\n               MAKE_FUNCTION\n               SET_FUNCTION_ATTRIBUTE   8 (closure)\n               STORE_FAST               5 (inner)\n\n   7           LOAD_FAST_BORROW         5 (inner)\n               RETURN_VALUE\n\nDisassembly of <code object inner at 0x176f9b0, file \"f10-09\", line 4>:\n  --           COPY_FREE_VARS           2\n\n   4           RESUME                   0\n\n   5           LOAD_DEREF               0 (a)\n               LOAD_DEREF               1 (n)\n               BINARY_OP                0 (+)\n               RETURN_VALUE\n"
+          "printed": "  --           MAKE_CELL                0 (a)\n               MAKE_CELL                6 (n)\n\n   1           RESUME                   0\n\n   2           LOAD_SMALL_INT           0\n               STORE_DEREF              6 (n)\n\n   4           LOAD_FAST_BORROW         0 (a)\n               LOAD_FAST_BORROW         6 (n)\n               BUILD_TUPLE              2\n               LOAD_CONST               1 (<code object inner at 0x1626390, file \"f10-09\", line 4>)\n               MAKE_FUNCTION\n               SET_FUNCTION_ATTRIBUTE   8 (closure)\n               STORE_FAST               5 (inner)\n\n   7           LOAD_FAST_BORROW         5 (inner)\n               RETURN_VALUE\n\nDisassembly of <code object inner at 0x1626390, file \"f10-09\", line 4>:\n  --           COPY_FREE_VARS           2\n\n   4           RESUME                   0\n\n   5           LOAD_DEREF               0 (a)\n               LOAD_DEREF               1 (n)\n               BINARY_OP                0 (+)\n               RETURN_VALUE\n"
         },
         {
           "name": "f10-13",
@@ -631,12 +631,12 @@
         {
           "name": "f12-07",
           "status": "ok",
-          "printed": "  greet.py is 54 bytes of text\n  greet.cpython-314.pyc is 251 bytes\n\n  header    2b 0e 0d 0a 00 00 00 00 ef 9e 96 6a 36 00 00 00\n  the rest  235 bytes, and marshal.loads gives back a\n            code object\n"
+          "printed": "  greet.py is 54 bytes of text\n  greet.cpython-314.pyc is 251 bytes\n\n  header    2b 0e 0d 0a 00 00 00 00 b1 a3 96 6a 36 00 00 00\n  the rest  235 bytes, and marshal.loads gives back a\n            code object\n"
         },
         {
           "name": "f12-10",
           "status": "ok",
-          "printed": "  magic     168627755\n  flags             0\n  mtime    1788255983   source 1788255983\n  size             54   source 54\n"
+          "printed": "  magic     168627755\n  flags             0\n  mtime    1788257201   source 1788257201\n  size             54   source 54\n"
         },
         {
           "name": "f12-13",
@@ -670,7 +670,7 @@
         {
           "name": "f12-29",
           "status": "ok",
-          "printed": "  one bit flipped in the magic: bad magic number in 'broken': b'*\\x0e\\r\\n'\n\n  put a wrong mtime in greet.cpython-314.pyc: 1788255760\n  imported it with no complaint: 'hi world'\n  and the header now says        1788255760\n  the file was quietly rewritten: False\n"
+          "printed": "  one bit flipped in the magic: bad magic number in 'broken': b'*\\x0e\\r\\n'\n\n  put a wrong mtime in greet.cpython-314.pyc: 1788257102\n  imported it with no complaint: 'hi world'\n  and the header now says        1788257102\n  the file was quietly rewritten: False\n"
         }
       ]
     },
@@ -689,7 +689,7 @@
         {
           "name": "o01-07",
           "status": "ok",
-          "printed": "  a pointer here is 4 bytes, so the header is 8\n  it lives at 25256248\n\n  first word, read as a count             1\n  sys.getrefcount, less its own argument  1\n  the same number: True\n\n  second word                   25322824\n  id(Thing) is                  25322824\n  so the second word is the type pointer: True\n\n  after a second name, the count reads  2\n  after deleting that name, it reads    1\n"
+          "printed": "  a pointer here is 4 bytes, so the header is 8\n  it lives at 24248160\n\n  first word, read as a count             1\n  sys.getrefcount, less its own argument  1\n  the same number: True\n\n  second word                   23287080\n  id(Thing) is                  23287080\n  so the second word is the type pointer: True\n\n  after a second name, the count reads  2\n  after deleting that name, it reads    1\n"
         },
         {
           "name": "o01-10",
@@ -1096,6 +1096,60 @@
       ]
     },
     {
+      "slug": "o09-arrays-of-thirty-bit-digits",
+      "cells": [
+        {
+          "name": "o09-03",
+          "status": "ok"
+        },
+        {
+          "name": "o09-05",
+          "status": "ok",
+          "printed": "cpython 3.14.2 on Emscripten wasm32, WebAssembly\n  note: this is 3.14, and everything here is written against 3.15, so bytecode and some object layouts will differ from the prose\n"
+        },
+        {
+          "name": "o09-07",
+          "status": "ok",
+          "printed": "  a digit holds 30 bits in 4 bytes\n\n  0           16 bytes\n  1           16 bytes\n  2**29       16 bytes\n  2**30       20 bytes\n  2**60       24 bytes\n  2**90       28 bytes\n"
+        },
+        {
+          "name": "o09-10",
+          "status": "ok",
+          "printed": "  digits, least significant first  [12345, 0, 0, 1024]\n  how many                         4\n  every one under the base         True\n  the top one is never zero        True\n  and it adds back up              True\n"
+        },
+        {
+          "name": "o09-12",
+          "status": "ok",
+          "printed": "  shared from   -5\n  shared up to  256\n  pyxray agrees True\n"
+        },
+        {
+          "name": "o09-15",
+          "status": "ok",
+          "printed": "             0  immortal True \n             5  immortal True \n           256  immortal True \n          1024  immortal False\n          4096  immortal False\n    1000000000  immortal False\n"
+        },
+        {
+          "name": "o09-18",
+          "status": "ok",
+          "printed": "  matches True   for a 4 digit and a 4 digit number\n  matches True   for a 3 digit and a 1 digit number\n  matches True   for a 0 digit and a 1 digit number\n  matches True   for a 1 digit and a 7 digit number\n"
+        },
+        {
+          "name": "o09-20",
+          "status": "ok",
+          "printed": "  digits   schoolbook   karatsuba   saving\n      70         4900        4900   1.00x\n     140        19600       13690   1.43x\n     280        78400       40131   1.95x\n     560       313600      118444   2.65x\n    1120      1254400      352444   3.56x\n"
+        },
+        {
+          "name": "o09-22",
+          "status": "ok",
+          "printed": "  the default limit  4300\n  going to a string  Exceeds the limit (4300 digits) for integer string conversio\n  coming from one    Exceeds the limit (4300 digits) for integer string conversio\n  but hex is fine    4155 characters, no complaint\n  and so is the size 16610 bits\n  after raising it   5001 digits\n"
+        },
+        {
+          "name": "o09-24",
+          "status": "ok",
+          "printed": "  the modulus        2147483647\n  which is 2**31 - 1  True\n  hash of it         0\n\n  7                       hash equals value % modulus  True\n  a 31 digit number       hash equals value % modulus  True\n  a 61 digit number       hash equals value % modulus  True\n"
+        }
+      ]
+    },
+    {
       "slug": "t01-one-line-seven-stages",
       "cells": [
         {
@@ -1477,7 +1531,7 @@
         {
           "name": "t04-30",
           "status": "ok",
-          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x16f1820: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
+          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x14b68c8: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
         },
         {
           "name": "t04-33",
@@ -1754,7 +1808,7 @@
         {
           "name": "t07-38",
           "status": "ok",
-          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x11e88b8, file 't07-38', line 7, code make_one>\nits name: make_one\n"
+          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x18c17c0, file 't07-38', line 7, code make_one>\nits name: make_one\n"
         },
         {
           "name": "t07-40",
@@ -1788,12 +1842,12 @@
         {
           "name": "t08-11",
           "status": "ok",
-          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x1639378, 3 reference(s), 26 bytes, not tracked\nlist at 0x14d45a0, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x1650308, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x17ffc18, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
+          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x1029218, 3 reference(s), 26 bytes, not tracked\nlist at 0x1755f58, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x176b2c8, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x1146d00, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
         },
         {
           "name": "t08-14",
           "status": "ok",
-          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x1646a40\nid(b) 0x150d7d0\nid(c) 0x1646a40\n"
+          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x15190e0\nid(b) 0x17d4248\nid(c) 0x15190e0\n"
         },
         {
           "name": "t08-17",
@@ -1833,7 +1887,7 @@
         {
           "name": "t08-35",
           "status": "ok",
-          "printed": "dict at 0x11a0898\ndict at 0xfbdf20\nlist at 0x18655a8\n"
+          "printed": "dict at 0x16101b0\ndict at 0xe528a0\nlist at 0x139ede8\n"
         },
         {
           "name": "t08-37",
@@ -1892,7 +1946,7 @@
         {
           "name": "t09-21",
           "status": "ok",
-          "printed": "Node at 0x13ab5b8 -> Node at 0x150bc30 -> Node at 0x1611278 -> Node at 0x13ab5b8\n"
+          "printed": "Node at 0x179b478 -> Node at 0x16e0f78 -> Node at 0x16b6f48 -> Node at 0x179b478\n"
         },
         {
           "name": "t09-23",
@@ -1922,7 +1976,7 @@
         {
           "name": "t09-37",
           "status": "ok",
-          "printed": "first object was at  0x139f600\nsecond object is at  0x139f600\nsame address reused -> True\n"
+          "printed": "first object was at  0x16a6d98\nsecond object is at  0x16a6d98\nsame address reused -> True\n"
         }
       ]
     },
