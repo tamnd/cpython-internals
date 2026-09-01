@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-407 claims across 51 lessons, 26 of them not observable from Python.
+414 claims across 52 lessons, 26 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -167,6 +167,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a loop that reads a global and calls a global function contains no name lookups in its trace | [`e09-22`](e09-the-optimizer-that-runs-your-loop-without-running-it/e09.ipynb) |
 | rebinding a global that a trace depends on marks the executor invalid and detaches it | [`e09-25`](e09-the-optimizer-that-runs-your-loop-without-running-it/e09.ipynb) |
 | the amount of bookkeeping left in a trace tracks how many operations in it could run other code | [`e09-28`](e09-the-optimizer-that-runs-your-loop-without-running-it/e09.ipynb) |
+
+## E10. The compiler that finished before you started
+
+| Claim | Proved by |
+| --- | --- |
+| an executor hands back its compiled machine code as bytes, rounded up to a whole page | [`e10-07`](e10-the-compiler-that-finished-before-you-started/e10.ipynb) |
+| machine code size grows by a fixed amount for each micro operation added to the trace | [`e10-10`](e10-the-compiler-that-finished-before-you-started/e10.ipynb) |
+| different loop bodies produce a similar number of machine code bytes per micro operation | [`e10-13`](e10-the-compiler-that-finished-before-you-started/e10.ipynb) |
+| the address of a baked in constant appears literally inside the compiled machine code | [`e10-16`](e10-the-compiler-that-finished-before-you-started/e10.ipynb) |
+| two loops differing only in which constant they use compile to almost identical machine code | [`e10-19`](e10-the-compiler-that-finished-before-you-started/e10.ipynb) |
+| two different loops that share a prefix of micro operations share most of their opening bytes | [`e10-22`](e10-the-compiler-that-finished-before-you-started/e10.ipynb) |
+| the memory an executor is given is a whole number of pages, most of it unused for a short trace | [`e10-25`](e10-the-compiler-that-finished-before-you-started/e10.ipynb) |
 
 ## F01. The tokenizer, in C
 

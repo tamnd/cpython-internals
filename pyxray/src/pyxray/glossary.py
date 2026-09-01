@@ -888,6 +888,23 @@ RUNNING = Group(
             see=("executor", "abstract interpreter", "trace", "deoptimization"),
             met="E09",
         ),
+        Term(
+            name="stencil",
+            short="A chunk of machine code for one micro operation, compiled when CPython was built.",
+            long="The build writes a tiny C file for each micro operation, containing that one operation and nothing else, and compiles it. What comes out is a run of finished instructions with a few blanks in it where addresses have to go. Nothing about your program is in there, which is exactly why it could be made months before your program existed.",
+            cite="Tools/jit/template.c:123-133@v3.15.0rc1#_JIT_ENTRY",
+            see=("copy and patch", "micro operation", "JIT", "generated file"),
+            met="E10",
+        ),
+        Term(
+            name="copy and patch",
+            short="Building machine code by pasting prebuilt chunks together and filling in the blanks.",
+            long="It is how CPython's JIT works and why it is fast enough to run while your program is waiting. For each micro operation in a trace it copies the chunk that was compiled at build time, then writes the addresses that only exist now into the blanks that chunk was left with. There is no instruction selection and no register allocation, so the size of the output is known before any of it is written.",
+            also=("copy-and-patch",),
+            cite="InternalDocs/jit.md:123-138@v3.15.0rc1",
+            see=("stencil", "JIT", "executor", "trace"),
+            met="E10",
+        ),
     ),
 )
 
