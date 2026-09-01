@@ -850,6 +850,24 @@ OBJECTS = Group(
             see=("compact dict",),
             met="O07",
         ),
+        Term(
+            name="split table",
+            short="A dict whose keys are owned by a type and shared by every instance of it.",
+            long="The keys array is marked `DICT_KEYS_SPLIT` and hangs off the type rather than off any one instance, so the attribute names of a class are stored once instead of once per object. Each instance carries only an array of value pointers. `_PyDict_NewKeysForClass` builds the shared array when the class is created and prefills it from `__static_attributes__`, and `insert_split_key` adds any name discovered later. There is room for 30 names, or 29 if they are not known when the class is made, because creating the first instance reserves a slot.",
+            cite="Objects/dictobject.c:7210-7238@v3.15.0rc1#_PyDict_NewKeysForClass",
+            also=("shared keys",),
+            see=("inline values", "compact dict"),
+            met="O08",
+        ),
+        Term(
+            name="inline values",
+            short="The array of attribute values stored inside an instance, with no dict at all.",
+            long="An instance of a class with a split table has its values allocated as part of the object, past whatever fields the type declared. Four bytes of bookkeeping come first, then one pointer per possible attribute, then one byte per attribute actually set recording which slot it went into, which is how per instance insertion order survives a shared keys array. `obj.__dict__` builds a real dict object on demand that points at the same values, and asking for it makes the instance permanently bigger and stops its attribute reads specialising.",
+            cite="Objects/dictobject.c:7241-7274@v3.15.0rc1#_PyObject_InitInlineValues",
+            also=("managed dict",),
+            see=("split table", "instance dictionary"),
+            met="O08",
+        ),
     ),
 )
 
