@@ -700,6 +700,21 @@
       "first_line": "",
       "lines": 11
     },
+    "InternalDocs/exception_handling.md:109-117@v3.15.0rc1": {
+      "digest": "0a440a1a189fd1c9",
+      "first_line": "Conceptually, the exception table consists of a sequence of 5-tuples:",
+      "lines": 9
+    },
+    "InternalDocs/exception_handling.md:140-146@v3.15.0rc1": {
+      "digest": "668d230ce4cb0bc4",
+      "first_line": "We need a marker for the start of the entry, so the first byte of entry will have the most significant bit set.",
+      "lines": 7
+    },
+    "InternalDocs/exception_handling.md:48-53@v3.15.0rc1": {
+      "digest": "f47ec0bcaa9ea26c",
+      "first_line": "`SETUP_FINALLY` and `POP_BLOCK` have no effect when no exceptions",
+      "lines": 6
+    },
     "InternalDocs/exception_handling.md:80-95@v3.15.0rc1": {
       "digest": "a6db4c383b0c66af",
       "first_line": "`PyTraceBack_Here()`, which is in [Python/traceback.c](../Python/traceback.c).",
@@ -759,6 +774,11 @@
       "digest": "2a887676a05f80f5",
       "first_line": "def start_trace(self):",
       "lines": 5
+    },
+    "Lib/dis.py:745-759@v3.15.0rc1": {
+      "digest": "fef74be9406a6683",
+      "first_line": "def _parse_exception_table(code):",
+      "lines": 15
     },
     "Lib/importlib/_bootstrap_external.py:413-444@v3.15.0rc1": {
       "digest": "10d980231fcac381",
@@ -2405,6 +2425,11 @@
       "first_line": "assemble_emit_exception_table_entry(struct assembler *a, int start, int end,",
       "lines": 24
     },
+    "Python/assemble.c:157-188@v3.15.0rc1": {
+      "digest": "50ec60f4b238feb3",
+      "first_line": "static int",
+      "lines": 32
+    },
     "Python/assemble.c:158-190@v3.15.0rc1": {
       "digest": "976fe9d268bf6d82",
       "first_line": "assemble_exception_table(struct assembler *a, instr_sequence *instrs)",
@@ -2515,6 +2540,11 @@
       "first_line": "// This file contains instruction definitions.",
       "lines": 7
     },
+    "Python/bytecodes.c:1920-1931@v3.15.0rc1": {
+      "digest": "a4fc0b9745863823",
+      "first_line": "tier1 inst(RERAISE, (values[oparg], exc_st -- values[oparg])) {",
+      "lines": 12
+    },
     "Python/bytecodes.c:271-280@v3.15.0rc1": {
       "digest": "a63de5613d11a6e2",
       "first_line": "inst(LOAD_FAST_CHECK, (-- value)) {",
@@ -2585,6 +2615,26 @@
       "first_line": "tier1 inst(RESERVED, (--)) {",
       "lines": 4
     },
+    "Python/bytecodes.c:6507-6514@v3.15.0rc1": {
+      "digest": "4443cbf980840f0a",
+      "first_line": "/* Log traceback info. */",
+      "lines": 8
+    },
+    "Python/bytecodes.c:6509-6514@v3.15.0rc1": {
+      "digest": "50e46dd09d9e24e5",
+      "first_line": "if (!_PyFrame_IsIncomplete(frame)) {",
+      "lines": 6
+    },
+    "Python/bytecodes.c:6519-6558@v3.15.0rc1": {
+      "digest": "4b8ef879838932e4",
+      "first_line": "spilled label(exception_unwind) {",
+      "lines": 40
+    },
+    "Python/bytecodes.c:6546-6550@v3.15.0rc1": {
+      "digest": "0d72ffe45e3e62e0",
+      "first_line": "if (lasti) {",
+      "lines": 5
+    },
     "Python/bytecodes.c:657-670@v3.15.0rc1": {
       "digest": "87d05e234c7ad72d",
       "first_line": "pure op(_BINARY_OP_MULTIPLY_INT, (left, right -- res, l, r)) {",
@@ -2619,6 +2669,16 @@
       "digest": "ab7807756cb3110a",
       "first_line": "static inline unsigned char *",
       "lines": 5
+    },
+    "Python/ceval.h:440-452@v3.15.0rc1": {
+      "digest": "a5d0833a96c12750",
+      "first_line": "static inline unsigned char *",
+      "lines": 13
+    },
+    "Python/ceval.h:455-455@v3.15.0rc1": {
+      "digest": "82eedf57a23bfa8c",
+      "first_line": "#define MAX_LINEAR_SEARCH 40",
+      "lines": 1
     },
     "Python/ceval.h:457-490@v3.15.0rc1": {
       "digest": "7b8f661400efec41",
