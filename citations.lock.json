@@ -150,6 +150,11 @@
       "first_line": "struct _ts {",
       "lines": 36
     },
+    "Include/cpython/tupleobject.h:5-13@v3.15.0rc1": {
+      "digest": "7ee3a3e61010d0df",
+      "first_line": "typedef struct {",
+      "lines": 9
+    },
     "Include/cpython/unicodeobject.h:114-124@v3.15.0rc1": {
       "digest": "33523206460d58d5",
       "first_line": "- compact ascii:",
@@ -264,6 +269,11 @@
       "digest": "5f318ca1d3438caa",
       "first_line": "struct _PyCfgBuilder* _PyCfg_FromInstructionSequence(_PyInstructionSequence *seq);",
       "lines": 5
+    },
+    "Include/internal/pycore_freelist_state.h:11-12@v3.15.0rc1": {
+      "digest": "71a846e1d01fa8bc",
+      "first_line": "#  define PyTuple_MAXSAVESIZE 20     // Largest tuple to save on freelist",
+      "lines": 2
     },
     "Include/internal/pycore_global_strings.h:30-38@v3.15.0rc1": {
       "digest": "6e8ba9cbf4bb5ee4",
@@ -424,6 +434,16 @@
       "digest": "0ed710258d44157f",
       "first_line": "#define LOCAL 1",
       "lines": 6
+    },
+    "Include/internal/pycore_tuple.h:50-57@v3.15.0rc1": {
+      "digest": "899c9e2fe49f0259",
+      "first_line": "static inline void",
+      "lines": 8
+    },
+    "Include/internal/pycore_tuple.h:65-75@v3.15.0rc1": {
+      "digest": "e27da64c71bafa78",
+      "first_line": "#if SIZEOF_PY_UHASH_T > 4",
+      "lines": 11
     },
     "Include/object.h:127-149@v3.15.0rc1": {
       "digest": "c7e17988b3729573",
@@ -950,6 +970,21 @@
       "first_line": "static int",
       "lines": 32
     },
+    "Objects/listobject.c:103-137@v3.15.0rc1": {
+      "digest": "cc5a3a9436a12947",
+      "first_line": "static int",
+      "lines": 35
+    },
+    "Objects/listobject.c:109-117@v3.15.0rc1": {
+      "digest": "9e5e8468653eb48e",
+      "first_line": "/* Bypass realloc() when a previous overallocation is large enough",
+      "lines": 9
+    },
+    "Objects/listobject.c:119-129@v3.15.0rc1": {
+      "digest": "19d58359fdabe4d2",
+      "first_line": "/* This over-allocates proportional to the list size, making room",
+      "lines": 11
+    },
     "Objects/listobject.c:1221-1233@v3.15.0rc1": {
       "digest": "76bbc0637a5817f2",
       "first_line": "/*[clinic input]",
@@ -960,10 +995,35 @@
       "first_line": "static PyObject *",
       "lines": 9
     },
+    "Objects/listobject.c:1242-1259@v3.15.0rc1": {
+      "digest": "be820334c8c5fb30",
+      "first_line": "list_extend_fast(PyListObject *self, PyObject *iterable)",
+      "lines": 18
+    },
+    "Objects/listobject.c:129-129@v3.15.0rc1": {
+      "digest": "f5f894c1b0db0ad5",
+      "first_line": "new_allocated = ((size_t)newsize + (newsize >> 3) + 6) & ~(size_t)3;",
+      "lines": 1
+    },
+    "Objects/listobject.c:130-134@v3.15.0rc1": {
+      "digest": "f1601f1e7ec39c82",
+      "first_line": "/* Do not overallocate if the new size is closer to overallocated size",
+      "lines": 5
+    },
     "Objects/listobject.c:1585-1617@v3.15.0rc1": {
       "digest": "1f7fb7d5acfb9a80",
       "first_line": "static PyObject *",
       "lines": 33
+    },
+    "Objects/listobject.c:197-209@v3.15.0rc1": {
+      "digest": "3bffd02a2c699957",
+      "first_line": "static int",
+      "lines": 13
+    },
+    "Objects/listobject.c:3578-3592@v3.15.0rc1": {
+      "digest": "244e925d459ab317",
+      "first_line": "static PyObject *",
+      "lines": 15
     },
     "Objects/listobject.c:580-599@v3.15.0rc1": {
       "digest": "4bbde8dbb78397f0",
@@ -1064,6 +1124,21 @@
       "digest": "35ed0214227df57e",
       "first_line": "void",
       "lines": 20
+    },
+    "Objects/tupleobject.c:36-62@v3.15.0rc1": {
+      "digest": "f34cb653c115854b",
+      "first_line": "static PyTupleObject *",
+      "lines": 27
+    },
+    "Objects/tupleobject.c:371-404@v3.15.0rc1": {
+      "digest": "dcbe676b3add1140",
+      "first_line": "static Py_hash_t",
+      "lines": 34
+    },
+    "Objects/tupleobject.c:64-72@v3.15.0rc1": {
+      "digest": "11fb3d67868a57e4",
+      "first_line": "// The empty tuple singleton is not tracked by the GC.",
+      "lines": 9
     },
     "Objects/typeobject.c:10524-10530@v3.15.0rc1": {
       "digest": "bd97cf89d9d7c794",
