@@ -770,6 +770,16 @@
       "first_line": "## The JIT",
       "lines": 39
     },
+    "InternalDocs/jit.md:123-138@v3.15.0rc1": {
+      "digest": "fac3dea6573481ea",
+      "first_line": "The generation of the jitted functions uses the copy-and-patch technique",
+      "lines": 16
+    },
+    "InternalDocs/jit.md:140-149@v3.15.0rc1": {
+      "digest": "84fa7616ea89f4cb",
+      "first_line": "Each of the `.c` files is compiled by LLVM, to produce an object file",
+      "lines": 10
+    },
     "InternalDocs/jit.md:37-48@v3.15.0rc1": {
       "digest": "1d6ec82c5df1fc92",
       "first_line": "During tracing mode, after each interpreter instruction's `DISPATCH()`,",
@@ -3200,6 +3210,21 @@
       "first_line": "/* Return 1 if DISABLE returned, -1 if error, 0 otherwise */",
       "lines": 24
     },
+    "Python/jit.c:116-143@v3.15.0rc1": {
+      "digest": "a51ea8629fdfb193",
+      "first_line": "static unsigned char *",
+      "lines": 28
+    },
+    "Python/jit.c:163-188@v3.15.0rc1": {
+      "digest": "c6523f42c6a296d1",
+      "first_line": "static int",
+      "lines": 26
+    },
+    "Python/jit.c:644-659@v3.15.0rc1": {
+      "digest": "cc4becee6f0fbfe9",
+      "first_line": "_PyJIT_Compile(_PyExecutorObject *executor, const _PyUOpInstruction trace[], size_t length)",
+      "lines": 16
+    },
     "Python/legacy_tracing.c:129-149@v3.15.0rc1": {
       "digest": "f2b643b4093c5e73",
       "first_line": "static int",
@@ -3399,6 +3424,36 @@
       "digest": "cfc7eb2cf0c1f884",
       "first_line": "class PyBacktrace(gdb.Command):",
       "lines": 10
+    },
+    "Tools/jit/_stencils.py:106-128@v3.15.0rc1": {
+      "digest": "967c12b63f98133e",
+      "first_line": "# Translate HoleValues to C expressions:",
+      "lines": 23
+    },
+    "Tools/jit/_stencils.py:149-172@v3.15.0rc1": {
+      "digest": "c2093d78c8f43a52",
+      "first_line": "@dataclasses.dataclass",
+      "lines": 24
+    },
+    "Tools/jit/_targets.py:212-229@v3.15.0rc1": {
+      "digest": "a446b9c0ab9368b2",
+      "first_line": "# -O2 and -O3 include some optimizations that make sense for",
+      "lines": 18
+    },
+    "Tools/jit/_targets.py:322-330@v3.15.0rc1": {
+      "digest": "13f7476019545fb7",
+      "first_line": "template = TOOLS_JIT_TEMPLATE_C.read_text()",
+      "lines": 9
+    },
+    "Tools/jit/jit.h:6-8@v3.15.0rc1": {
+      "digest": "de39d29a46a20703",
+      "first_line": "#define PATCH_VALUE(TYPE, NAME, ALIAS) \\",
+      "lines": 3
+    },
+    "Tools/jit/template.c:123-133@v3.15.0rc1": {
+      "digest": "a3d2bb13691fa4ce",
+      "first_line": "__attribute__((preserve_none)) _Py_CODEUNIT *",
+      "lines": 11
     },
     "configure.ac:1771-1785@v3.15.0rc1": {
       "digest": "21892982de568378",
