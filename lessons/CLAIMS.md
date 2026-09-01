@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-358 claims across 45 lessons, 25 of them not observable from Python.
+365 claims across 46 lessons, 26 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -88,6 +88,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a generator object contains its frame, so its size grows by exactly eight bytes for every extra local variable or value stack slot | [`e03-14`](e03-where-a-running-function-lives/e03.ipynb) |
 | a Python function calling a Python function uses no C stack, while the same recursion routed through a C function costs hundreds or thousands of bytes per level | [`e03-17`](e03-where-a-running-function-lives/e03.ipynb) |
 | sys.setrecursionlimit changes only the counter, so raising it lets pure Python recursion go further and leaves recursion through C stopping at the same depth for the same reason | [`e03-20`](e03-where-a-running-function-lives/e03.ipynb) |
+
+## E04. Owned, borrowed, or not a pointer
+
+| Claim | Proved by |
+| --- | --- |
+| sys.getrefcount answers 1 for a local variable, without the extra one for the asking, because handing a local to a function does not create a reference | [`e04-07`](e04-owned-borrowed-or-not-a-pointer/e04.ipynb) |
+| every object address is a multiple of four, so the bottom two bits of an object pointer are always zero and free to be used for something else | [`e04-09`](e04-owned-borrowed-or-not-a-pointer/e04.ipynb) |
+| the compiler picks LOAD_FAST or LOAD_FAST_BORROW for each use of a local, so the same variable can be loaded both ways in one function | [`e04-12`](e04-owned-borrowed-or-not-a-pointer/e04.ipynb) |
+| a value loaded borrowed and then stored in a container gains a counted reference at the moment it is stored, and loses it again when the container drops it | [`e04-14`](e04-owned-borrowed-or-not-a-pointer/e04.ipynb) |
+| the reference count of an immortal object is a fixed marker that does not move no matter how many references you take | [`e04-16`](e04-owned-borrowed-or-not-a-pointer/e04.ipynb) |
+| a for loop needs one more value stack slot in 3.15 than in 3.14, and the extra slot holds the loop position as a number rather than an object | [`e04-19`](e04-owned-borrowed-or-not-a-pointer/e04.ipynb) |
+| in the free threaded build a counted reference is an atomic operation, which is why avoiding one on every local load matters more there than it does under the GIL | not observable from Python: You would need a free threaded build and a machine with several cores to see the difference, and this notebook is running on neither. |
 
 ## F01. The tokenizer, in C
 
