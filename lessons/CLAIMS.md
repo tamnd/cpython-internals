@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-291 claims across 35 lessons, 22 of them not observable from Python.
+296 claims across 36 lessons, 22 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -265,6 +265,16 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a dict grows when its entry array is full rather than when its length crosses a threshold, so the resize points fall at 6, 11, 22, 43 and 86 keys | [`o07-10`](o07-two-arrays-and-a-hash/o07.ipynb) |
 | a dict that is deleted from and inserted into in equal measure still resizes, because the entry array only ever gets compacted by a resize | [`o07-16`](o07-two-arrays-and-a-hash/o07.ipynb) |
 | a dict with only exact str keys uses a smaller entry layout, and putting one non string key in converts the whole table to the larger one | [`o07-21`](o07-two-arrays-and-a-hash/o07.ipynb) |
+
+## O08. Where attributes really live
+
+| Claim | Proved by |
+| --- | --- |
+| the compiler records every attribute assigned to self inside a class body and stores the names on the class as __static_attributes__ | [`o08-07`](o08-where-attributes-really-live/o08.ipynb) |
+| two instances of the same class keep their own attribute order even though the names themselves are stored once, on the type | [`o08-10`](o08-where-attributes-really-live/o08.ipynb) |
+| an instance sharing its keys with its class costs roughly a third of what the same instance costs once it has a dict of its own | [`o08-12`](o08-where-attributes-really-live/o08.ipynb) |
+| a class shares up to 30 attribute names when they are known when the class is created, and only 29 when they are discovered later, because creating the first instance reserves one slot | [`o08-15`](o08-where-attributes-really-live/o08.ipynb) |
+| reading an attribute on an instance with inline values specialises to a different instruction than reading one on an instance whose dict has been materialised | [`o08-18`](o08-where-attributes-really-live/o08.ipynb) |
 
 ## T01. One line, seven stages
 

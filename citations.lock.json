@@ -180,6 +180,16 @@
       "first_line": "struct _dictkeysobject {",
       "lines": 40
     },
+    "Include/internal/pycore_dict.h:242-258@v3.15.0rc1": {
+      "digest": "b1664fc1fa7329a4",
+      "first_line": "/* This must be no more than 250, for the prefix size to fit in one byte. */",
+      "lines": 17
+    },
+    "Include/internal/pycore_dict.h:326-342@v3.15.0rc1": {
+      "digest": "207ee1260b625d38",
+      "first_line": "static inline uint8_t *",
+      "lines": 17
+    },
     "Include/internal/pycore_dict.h:79-90@v3.15.0rc1": {
       "digest": "c3ccf876d4deb3d8",
       "first_line": "",
@@ -239,6 +249,16 @@
       "digest": "71d50250d04db27a",
       "first_line": "#ifdef Py_GIL_DISABLED",
       "lines": 7
+    },
+    "Include/internal/pycore_object.h:922-939@v3.15.0rc1": {
+      "digest": "dad47d87763a1d9c",
+      "first_line": "#ifdef Py_GIL_DISABLED",
+      "lines": 18
+    },
+    "Include/internal/pycore_object.h:948-956@v3.15.0rc1": {
+      "digest": "610dc75958afbc89",
+      "first_line": "static inline PyDictValues *",
+      "lines": 9
     },
     "Include/internal/pycore_obmalloc.h:128-146@v3.15.0rc1": {
       "digest": "2b3a0f329f4a22fe",
@@ -354,6 +374,16 @@
       "digest": "dc45c7bd6a91c2b3",
       "first_line": "// bpo-39573: The Py_SET_SIZE() function must be used to set an object size.",
       "lines": 8
+    },
+    "Include/object.h:472-472@v3.15.0rc1": {
+      "digest": "bb374c4fc7f47f09",
+      "first_line": "#define Py_TPFLAGS_INLINE_VALUES (1 << 2)",
+      "lines": 1
+    },
+    "Include/object.h:482-482@v3.15.0rc1": {
+      "digest": "b659a7b28232ef5c",
+      "first_line": "#define Py_TPFLAGS_MANAGED_DICT (1 << 4)",
+      "lines": 1
     },
     "Include/object.h:501-506@v3.15.0rc1": {
       "digest": "3df4e0ec30a6efe5",
@@ -715,6 +745,11 @@
       "first_line": "do_lookup(PyDictObject *mp, PyDictKeysObject *dk, PyObject *key, Py_hash_t hash,",
       "lines": 24
     },
+    "Objects/dictobject.c:1908-1936@v3.15.0rc1": {
+      "digest": "c390c0045047d340",
+      "first_line": "insert_split_key(PyDictKeysObject *keys, PyObject *key, Py_hash_t hash)",
+      "lines": 29
+    },
     "Objects/dictobject.c:2141-2175@v3.15.0rc1": {
       "digest": "344810b229e48b6b",
       "first_line": "dictresize(PyDictObject *mp,",
@@ -738,6 +773,11 @@
     "Objects/dictobject.c:37-49@v3.15.0rc1": {
       "digest": "3c2ccab161989419",
       "first_line": "Size of indices is dk_size.  Type of each index in indices varies with dk_size:",
+      "lines": 13
+    },
+    "Objects/dictobject.c:53-65@v3.15.0rc1": {
+      "digest": "63c8d482c3c76959",
+      "first_line": "/*",
       "lines": 13
     },
     "Objects/dictobject.c:581-581@v3.15.0rc1": {
@@ -769,6 +809,31 @@
       "digest": "dc6f596fb1dd0c0a",
       "first_line": "There are four kinds of slots in the table (slot is index, and",
       "lines": 24
+    },
+    "Objects/dictobject.c:7210-7238@v3.15.0rc1": {
+      "digest": "34d85c5b6a44533d",
+      "first_line": "PyDictKeysObject *",
+      "lines": 29
+    },
+    "Objects/dictobject.c:7241-7274@v3.15.0rc1": {
+      "digest": "5eca1fcc2f094297",
+      "first_line": "_PyObject_InitInlineValues(PyObject *obj, PyTypeObject *tp)",
+      "lines": 34
+    },
+    "Objects/dictobject.c:7259-7262@v3.15.0rc1": {
+      "digest": "ff21b9d51b4e9001",
+      "first_line": "if (keys->dk_usable > 1) {",
+      "lines": 4
+    },
+    "Objects/dictobject.c:7276-7290@v3.15.0rc1": {
+      "digest": "e2a98adae471cdba",
+      "first_line": "static PyDictObject *",
+      "lines": 15
+    },
+    "Objects/dictobject.c:7292-7311@v3.15.0rc1": {
+      "digest": "4fa6e663f6135cc2",
+      "first_line": "PyDictObject *",
+      "lines": 20
     },
     "Objects/dictobject.c:91-106@v3.15.0rc1": {
       "digest": "1049da1243d995b5",
@@ -2000,6 +2065,11 @@
       "first_line": "/* JUMPBY makes the generator identify the instruction as a jump. SKIP_OVER is",
       "lines": 6
     },
+    "Python/codegen.c:1614-1624@v3.15.0rc1": {
+      "digest": "a7d3d7b726d154c4",
+      "first_line": "/* compile the body proper */",
+      "lines": 11
+    },
     "Python/codegen.c:3101-3113@v3.15.0rc1": {
       "digest": "5f861ef490e10a9e",
       "first_line": "case Assign_kind:",
@@ -2079,6 +2149,11 @@
       "digest": "62dbcc2065eaa65b",
       "first_line": "static PyCodeObject *",
       "lines": 16
+    },
+    "Python/compile.c:992-1006@v3.15.0rc1": {
+      "digest": "f542ff62ac503f64",
+      "first_line": "_PyCompile_StaticAttributesAsTuple(compiler *c)",
+      "lines": 15
     },
     "Python/flowgraph.c:1008-1043@v3.15.0rc1": {
       "digest": "9e468968f05935f1",
