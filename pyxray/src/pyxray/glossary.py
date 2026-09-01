@@ -894,6 +894,31 @@ OBJECTS = Group(
             see=("compact int", "immortal object"),
             met="O09",
         ),
+        Term(
+            name="code point",
+            short="The number Unicode assigns to a character, from 0 up to 0x10FFFF.",
+            long="A Python string is a sequence of code points, not of bytes, and `len` counts code points. This is the thing that makes strings portable and it is also the thing that makes them expensive, because the largest code point present decides how many bytes every character in the string takes. `ord` gives you the code point of a character and `chr` goes back the other way.",
+            cite="Include/cpython/unicodeobject.h:66-88@v3.15.0rc1",
+            see=("string kind", "compact string"),
+            met="O10",
+        ),
+        Term(
+            name="string kind",
+            short="Whether a string stores each character in 1, 2 or 4 bytes.",
+            long="The kind is set once when the string is created, from the largest code point in it, and it never changes afterwards because strings are immutable. One byte if nothing goes above 255, two if nothing goes above 65535, four otherwise. There is a fourth case that is not a kind value but behaves like one: a string where everything is ASCII gets a smaller struct as well as one byte characters. Adding a single wide character to a narrow string rewrites every character in it at the wider size.",
+            cite="Objects/unicodeobject.c:1272-1311@v3.15.0rc1#PyUnicode_New",
+            also=("kind",),
+            see=("code point", "compact string"),
+            met="O10",
+        ),
+        Term(
+            name="compact string",
+            short="A string whose characters sit in the same allocation as its header.",
+            long="One `PyObject_Malloc` covers the struct, the characters and a trailing zero byte, so there is no second block and no pointer to follow. That trailing zero is why the buffer can be handed straight to C functions expecting a null terminated string. The alternative, called the legacy form in the source, keeps the characters in a separate block and only shows up for subclasses of `str`, which have their own fields to store.",
+            cite="Objects/unicodeobject.c:1322-1336@v3.15.0rc1",
+            see=("string kind", "interning"),
+            met="O10",
+        ),
     ),
 )
 
