@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-313 claims across 39 lessons, 23 of them not observable from Python.
+320 claims across 40 lessons, 23 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -307,6 +307,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | appending to a list allocates room for about an eighth more than it needs plus six, rounded down to a multiple of four, so the array is reallocated a logarithmic number of times rather than once per append | [`o11-11`](o11-two-sizes-and-a-growth-curve/o11.ipynb) |
 | shrinking a list reallocates its array only when the new length falls below half of what is allocated, so deleting exactly half the items of a full list frees nothing | [`o11-20`](o11-two-sizes-and-a-growth-curve/o11.ipynb) |
 | a tuple's hash is xxHash over the hashes of its items, computed once and cached in the object, which is what makes a tuple usable as a dict key | [`o11-24`](o11-two-sizes-and-a-growth-curve/o11.ipynb) |
+
+## O12. The objects that come back
+
+| Claim | Proved by |
+| --- | --- |
+| dropping an object and immediately building another of the same type usually hands you the same memory, because the type keeps a stash of dead objects rather than returning them to the allocator | [`o12-07`](o12-the-objects-that-come-back/o12.ipynb) |
+| the reuse is per type rather than per size, so a dropped list can be reused as another list but never as a tuple of the same number of bytes | [`o12-09`](o12-the-objects-that-come-back/o12.ipynb) |
+| each free list has a fixed cap, and a float free list fills to exactly a hundred no matter how many floats you drop | [`o12-15`](o12-the-objects-that-come-back/o12.ipynb) |
+| the cap on a free list can be measured from Python, as the number of dropped objects a different type of the same size can reach | [`o12-19`](o12-the-objects-that-come-back/o12.ipynb) |
+| tuples of one to twenty items each have their own free list, so two neighbouring sizes in that range never share memory even when the allocator would let them, while two neighbouring sizes above twenty do | [`o12-24`](o12-the-objects-that-come-back/o12.ipynb) |
+| only exact instances of a type go on its free list, so a subclass of list or float is freed normally and the stash stays empty | [`o12-27`](o12-the-objects-that-come-back/o12.ipynb) |
+| free lists are emptied by the cycle collector only when it collects the oldest generation, so gc.collect(0) leaves them full and a bare gc.collect() empties them | [`o12-30`](o12-the-objects-that-come-back/o12.ipynb) |
 
 ## T01. One line, seven stages
 

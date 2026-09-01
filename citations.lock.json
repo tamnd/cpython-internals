@@ -270,10 +270,30 @@
       "first_line": "struct _PyCfgBuilder* _PyCfg_FromInstructionSequence(_PyInstructionSequence *seq);",
       "lines": 5
     },
+    "Include/internal/pycore_freelist.h:52-63@v3.15.0rc1": {
+      "digest": "2d11ba75c1eb90c5",
+      "first_line": "static inline int",
+      "lines": 12
+    },
+    "Include/internal/pycore_freelist.h:86-95@v3.15.0rc1": {
+      "digest": "4670022e5e166fb1",
+      "first_line": "static inline PyObject *",
+      "lines": 10
+    },
     "Include/internal/pycore_freelist_state.h:11-12@v3.15.0rc1": {
       "digest": "71a846e1d01fa8bc",
       "first_line": "#  define PyTuple_MAXSAVESIZE 20     // Largest tuple to save on freelist",
       "lines": 2
+    },
+    "Include/internal/pycore_freelist_state.h:11-33@v3.15.0rc1": {
+      "digest": "ffbcfa3333ed5419",
+      "first_line": "#  define PyTuple_MAXSAVESIZE 20     // Largest tuple to save on freelist",
+      "lines": 23
+    },
+    "Include/internal/pycore_freelist_state.h:36-44@v3.15.0rc1": {
+      "digest": "7c03cab3b4f55911",
+      "first_line": "struct _Py_freelist {",
+      "lines": 9
     },
     "Include/internal/pycore_global_strings.h:30-38@v3.15.0rc1": {
       "digest": "6e8ba9cbf4bb5ee4",
@@ -444,6 +464,11 @@
       "digest": "e27da64c71bafa78",
       "first_line": "#if SIZEOF_PY_UHASH_T > 4",
       "lines": 11
+    },
+    "Include/listobject.h:24-26@v3.15.0rc1": {
+      "digest": "368c90b3fdaf5cd5",
+      "first_line": "#define PyList_Check(op) \\",
+      "lines": 3
     },
     "Include/object.h:127-149@v3.15.0rc1": {
       "digest": "c7e17988b3729573",
@@ -950,6 +975,16 @@
       "first_line": "/*",
       "lines": 16
     },
+    "Objects/floatobject.c:124-137@v3.15.0rc1": {
+      "digest": "239faa1613f8b404",
+      "first_line": "PyObject *",
+      "lines": 14
+    },
+    "Objects/floatobject.c:229-234@v3.15.0rc1": {
+      "digest": "1d31c14a0f0c42bd",
+      "first_line": "void",
+      "lines": 6
+    },
     "Objects/funcobject.c:1264-1270@v3.15.0rc1": {
       "digest": "991dc84999f49f93",
       "first_line": "func_descr_get(PyObject *func, PyObject *obj, PyObject *type)",
@@ -1024,6 +1059,11 @@
       "digest": "244e925d459ab317",
       "first_line": "static PyObject *",
       "lines": 15
+    },
+    "Objects/listobject.c:565-578@v3.15.0rc1": {
+      "digest": "b7da5fd21e3f1bbf",
+      "first_line": "i = Py_SIZE(op);",
+      "lines": 14
     },
     "Objects/listobject.c:580-599@v3.15.0rc1": {
       "digest": "4bbde8dbb78397f0",
@@ -2580,6 +2620,11 @@
       "first_line": "/* Run first-time finalizers (if any) on all the objects in collectable.",
       "lines": 34
     },
+    "Python/gc.c:1607-1612@v3.15.0rc1": {
+      "digest": "7c32a1ea37f8a39c",
+      "first_line": "",
+      "lines": 6
+    },
     "Python/gc.c:393-412@v3.15.0rc1": {
       "digest": "4ec4d8fcac6f2fbf",
       "first_line": "/* Set all gc_refs = ob_refcnt.  After this, gc_refs is > 0 and",
@@ -2594,6 +2639,11 @@
       "digest": "ec0b2854fab4f304",
       "first_line": "/* Move the unreachable objects from young to unreachable.  After this,",
       "lines": 18
+    },
+    "Python/gc_gil.c:6-15@v3.15.0rc1": {
+      "digest": "ff88abe1b50962f4",
+      "first_line": "/* Clear all free lists",
+      "lines": 10
     },
     "Python/generated_cases.c.h:1-4@v3.15.0rc1": {
       "digest": "ba813570c0ea70eb",
