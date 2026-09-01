@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-399 claims across 50 lessons, 26 of them not observable from Python.
+407 claims across 51 lessons, 26 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -154,6 +154,19 @@ Without it the exception becomes the rule and this goes back to being a book.
 | two monitoring tools can watch the same function at the same time, each receiving only the events it registered for | [`e08-16`](e08-watching-without-slowing-it-down/e08.ipynb) |
 | instrumenting a warm function un-specializes its instructions, and they specialize again once the instrumentation is removed and the function runs | [`e08-19`](e08-watching-without-slowing-it-down/e08.ipynb) |
 | sys.settrace is implemented on top of monitoring, so installing a trace function puts instrumented instructions into the functions it runs | [`e08-21`](e08-watching-without-slowing-it-down/e08.ipynb) |
+
+## E09. The optimizer that runs your loop without running it
+
+| Claim | Proved by |
+| --- | --- |
+| an executor can be fetched from Python and read as a list of micro operation names | [`e09-07`](e09-the-optimizer-that-runs-your-loop-without-running-it/e09.ipynb) |
+| a trace with three reads of the same attribute contains one type check, not three | [`e09-10`](e09-the-optimizer-that-runs-your-loop-without-running-it/e09.ipynb) |
+| the number of guards in the trace does not grow as more additions are added to the loop body | [`e09-13`](e09-the-optimizer-that-runs-your-loop-without-running-it/e09.ipynb) |
+| a guard whose type question is already answered comes out as a narrower check on the remaining question | [`e09-16`](e09-the-optimizer-that-runs-your-loop-without-running-it/e09.ipynb) |
+| one loop body produces three different pop instructions depending on what is known about each value | [`e09-19`](e09-the-optimizer-that-runs-your-loop-without-running-it/e09.ipynb) |
+| a loop that reads a global and calls a global function contains no name lookups in its trace | [`e09-22`](e09-the-optimizer-that-runs-your-loop-without-running-it/e09.ipynb) |
+| rebinding a global that a trace depends on marks the executor invalid and detaches it | [`e09-25`](e09-the-optimizer-that-runs-your-loop-without-running-it/e09.ipynb) |
+| the amount of bookkeeping left in a trace tracks how many operations in it could run other code | [`e09-28`](e09-the-optimizer-that-runs-your-loop-without-running-it/e09.ipynb) |
 
 ## F01. The tokenizer, in C
 

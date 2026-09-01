@@ -872,6 +872,22 @@ RUNNING = Group(
             see=("monitoring events", "instrumented instruction", "tool id"),
             met="E08",
         ),
+        Term(
+            name="abstract interpreter",
+            short="The pass that walks a trace holding a description of each value instead of the value.",
+            long="It steps through the recorded micro operations the way the interpreter would, but its stack holds notes like `this is an int` or `this is exactly that object` rather than real objects. Nothing runs, so nothing can be observed, and the only thing it produces is a shorter list of operations. Every deletion tier two makes comes out of one of those notes being specific enough to answer a question the trace was about to ask.",
+            cite="Python/optimizer_analysis.c:803-829@v3.15.0rc1#_Py_uop_analyze_and_optimize",
+            see=("trace", "micro operation", "guard", "tier two"),
+            met="E09",
+        ),
+        Term(
+            name="watcher",
+            short="A callback the runtime fires when a dictionary or a type is modified.",
+            long="It is how the optimizer is allowed to assume things. A trace that baked in the value of a global asks to be told if that module dictionary ever changes, and a trace that checked a type asks to be told if that type is patched. When the callback fires it throws away every executor that depended on the thing, so monkeypatching still works and simply costs you the optimized code. You can see the result from Python, because the executor's `is_valid` flips to False.",
+            cite="Python/optimizer_analysis.c:140-158@v3.15.0rc1#globals_watcher_callback",
+            see=("executor", "abstract interpreter", "trace", "deoptimization"),
+            met="E09",
+        ),
     ),
 )
 
