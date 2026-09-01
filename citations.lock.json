@@ -90,6 +90,31 @@
       "first_line": "typedef struct {",
       "lines": 18
     },
+    "Include/cpython/longintrepr.h:121-125@v3.15.0rc1": {
+      "digest": "7a2855658e347cd6",
+      "first_line": "static inline int",
+      "lines": 5
+    },
+    "Include/cpython/longintrepr.h:129-142@v3.15.0rc1": {
+      "digest": "e2496413d9f8989a",
+      "first_line": "static inline Py_ssize_t",
+      "lines": 14
+    },
+    "Include/cpython/longintrepr.h:43-47@v3.15.0rc1": {
+      "digest": "7ce96425bd49aeea",
+      "first_line": "typedef uint32_t digit;",
+      "lines": 5
+    },
+    "Include/cpython/longintrepr.h:64-91@v3.15.0rc1": {
+      "digest": "fcf035974d50bf41",
+      "first_line": "/* Long integer representation.",
+      "lines": 28
+    },
+    "Include/cpython/longintrepr.h:93-101@v3.15.0rc1": {
+      "digest": "b345490b62b5451b",
+      "first_line": "typedef struct _PyLongValue {",
+      "lines": 9
+    },
     "Include/cpython/object.h:147-151@v3.15.0rc1": {
       "digest": "5c8d29cfecbeeaa4",
       "first_line": "// as well.",
@@ -230,6 +255,11 @@
       "first_line": "static inline int",
       "lines": 19
     },
+    "Include/internal/pycore_long.h:40-45@v3.15.0rc1": {
+      "digest": "bb59a011105352e0",
+      "first_line": "* fits a ~2126 bit decimal number.",
+      "lines": 6
+    },
     "Include/internal/pycore_magic_number.h:313-318@v3.15.0rc1": {
       "digest": "bec5b6831965f61c",
       "first_line": "#define PYC_MAGIC_NUMBER 3666",
@@ -314,6 +344,11 @@
       "digest": "d1fded49261136ef",
       "first_line": "// These would be in pycore_long.h if it weren't for an include cycle.",
       "lines": 3
+    },
+    "Include/internal/pycore_runtime_structs.h:97-98@v3.15.0rc1": {
+      "digest": "970172adc6a77744",
+      "first_line": "#define _PY_NSMALLPOSINTS           1025",
+      "lines": 2
     },
     "Include/internal/pycore_structs.h:17-32@v3.15.0rc1": {
       "digest": "efbb83aabdcb7853",
@@ -880,9 +915,54 @@
       "first_line": "static PyObject *",
       "lines": 20
     },
+    "Objects/longobject.c:126-142@v3.15.0rc1": {
+      "digest": "5e34282136dfdfcc",
+      "first_line": "long_normalize(PyLongObject *v)",
+      "lines": 17
+    },
+    "Objects/longobject.c:2128-2134@v3.15.0rc1": {
+      "digest": "cda23e8ad898830c",
+      "first_line": "int max_str_digits = _Py_atomic_load_int(&interp->long_state.max_str_digits);",
+      "lines": 7
+    },
+    "Objects/longobject.c:251-270@v3.15.0rc1": {
+      "digest": "ef2887bd4889b213",
+      "first_line": "_PyLong_FromMedium(sdigit x)",
+      "lines": 20
+    },
+    "Objects/longobject.c:3670-3684@v3.15.0rc1": {
+      "digest": "ef3e1009b72bd0a5",
+      "first_line": "static Py_hash_t",
+      "lines": 15
+    },
+    "Objects/longobject.c:3746-3775@v3.15.0rc1": {
+      "digest": "4e3a7f7fe8eda27f",
+      "first_line": "x_add(PyLongObject *a, PyLongObject *b)",
+      "lines": 30
+    },
+    "Objects/longobject.c:3931-3942@v3.15.0rc1": {
+      "digest": "418473296fc8a41a",
+      "first_line": "x_mul(PyLongObject *a, PyLongObject *b)",
+      "lines": 12
+    },
+    "Objects/longobject.c:4070-4090@v3.15.0rc1": {
+      "digest": "e8229fcb696be8b5",
+      "first_line": "k_mul(PyLongObject *a, PyLongObject *b)",
+      "lines": 21
+    },
+    "Objects/longobject.c:4340-4354@v3.15.0rc1": {
+      "digest": "6fbbfbda6d7f43e4",
+      "first_line": "long_mul(PyLongObject *a, PyLongObject *b)",
+      "lines": 15
+    },
     "Objects/longobject.c:60-65@v3.15.0rc1": {
       "digest": "cbd279b0c7890bfe",
       "first_line": "static PyObject *",
+      "lines": 6
+    },
+    "Objects/longobject.c:80-85@v3.15.0rc1": {
+      "digest": "869444282f9614d7",
+      "first_line": "/* For int multiplication, use the O(N**2) school algorithm unless",
       "lines": 6
     },
     "Objects/object.c:1573-1595@v3.15.0rc1": {
