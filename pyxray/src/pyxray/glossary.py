@@ -789,6 +789,30 @@ RUNNING = Group(
             see=("exception table", "line table", "assembler"),
             met="E05",
         ),
+        Term(
+            name="adaptive counter",
+            short="Two bytes of cache saying how much longer to wait before rewriting this instruction.",
+            long="It sits in the first cache slot after an instruction that can specialize, and it is a number packed together with a backoff exponent. A cold instruction starts at one, so the second execution triggers a specialization attempt. Once specialized it is reset to fifty two, so it takes fifty three failures before the instruction gives up and tries something else. Both numbers are named constants you can read.",
+            cite="Include/internal/pycore_code.h:450-464@v3.15.0rc1#ADAPTIVE_WARMUP_VALUE",
+            see=("adaptive instruction", "inline cache", "specialization", "deoptimization"),
+            met="E06",
+        ),
+        Term(
+            name="guard",
+            short="The check at the top of a specialized instruction that says whether it may run.",
+            long="`BINARY_OP_ADD_INT` is really two type checks followed by an addition that skips every other question. If a check fails the instruction bails out to the general form instead of being wrong, which is why specializing is safe: the fast path never has to be correct in general, it only has to notice when it does not apply.",
+            cite="Python/bytecodes.c:635-643@v3.15.0rc1#_GUARD_TOS_INT",
+            see=("specialization", "deoptimization", "adaptive instruction"),
+            met="E06",
+        ),
+        Term(
+            name="quickening",
+            short="Taking a private copy of the bytecode so it can be rewritten without touching the original.",
+            long="`co_code` is what the compiler produced and never changes. The interpreter runs a separate copy, reachable as `_co_code_adaptive`, and that copy is what specialized instructions get written into. It is why disassembling a function gives one answer by default and a different one with `adaptive=True`, and why marshalling a warmed up function to a `.pyc` file still writes the cold version.",
+            cite="Python/specialize.c:63-70@v3.15.0rc1#_PyCode_Quicken",
+            see=("specialization", "code object", "bytecode", "inline cache"),
+            met="E06",
+        ),
     ),
 )
 

@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-374 claims across 47 lessons, 26 of them not observable from Python.
+385 claims across 48 lessons, 26 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -114,6 +114,22 @@ Without it the exception becomes the rule and this goes back to being a book.
 | the traceback points at the instruction that raised, not at the finally block that re-raised, because the raising offset was saved on the stack and put back | [`e05-24`](e05-the-try-that-costs-nothing/e05.ipynb) |
 | the body of a finally block appears in the bytecode more than once, one copy per way out of the try it guards | [`e05-27`](e05-the-try-that-costs-nothing/e05.ipynb) |
 | a for loop has no exception table at all, and the same loop written with next and a try does, and is slower | [`e05-29`](e05-the-try-that-costs-nothing/e05.ipynb) |
+
+## E06. The instruction that rewrites itself
+
+| Claim | Proved by |
+| --- | --- |
+| disassembling the same unmodified function before and after calling it twice gives two different instruction names | [`e06-07`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
+| BINARY_OP is not one instruction but a family, and the whole set of families is listed in a module you can import | [`e06-09`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
+| five copies of the same source compile to the same bytecode and then specialize into different instructions based only on the values passed in | [`e06-12`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
+| the number of cache slots after each instruction is a fixed property of that instruction and can be read out of dis | [`e06-15`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
+| the countdown that controls specialization can be read directly out of the running bytecode and watched change | [`e06-18`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
+| an instruction specializes on exactly the second execution, and a specialized instruction survives exactly fifty two failures and gives up on the fifty third | [`e06-21`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
+| an instruction that keeps missing does not return to the general form permanently, it re-specializes for whatever it is now seeing | [`e06-23`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
+| the same attribute lookup specializes into different instructions depending only on the shape of the object it is reading from | [`e06-26`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
+| calls specialize into different instructions depending on what is being called, not just on the arguments | [`e06-28`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
+| a loop over mixed types is slower than the same loop over either type alone, purely because the instruction cannot stay specialized | [`e06-31`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
+| in a real module only a small fraction of specializable instructions ever specialize, because most code does not run often enough | [`e06-34`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
 
 ## F01. The tokenizer, in C
 
