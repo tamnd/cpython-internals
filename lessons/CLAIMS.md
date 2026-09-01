@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-392 claims across 49 lessons, 26 of them not observable from Python.
+399 claims across 50 lessons, 26 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -142,6 +142,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | the optimizer deletes guards it can prove cannot fail, so a trace runs far fewer checks than the instructions it came from | [`e07-19`](e07-the-loop-that-gets-its-own-program/e07.ipynb) |
 | a trace recorded from a loop containing a function call includes the body of that function, so the call boundary is gone from the hot path | [`e07-22`](e07-the-loop-that-gets-its-own-program/e07.ipynb) |
 | turning the JIT on changes how long the same loop takes, by enough to measure from Python | [`e07-25`](e07-the-loop-that-gets-its-own-program/e07.ipynb) |
+
+## E08. Watching without slowing it down
+
+| Claim | Proved by |
+| --- | --- |
+| the interpreter offers a fixed set of numbered monitoring events and a fixed number of tool slots, and both are readable from Python | [`e08-07`](e08-watching-without-slowing-it-down/e08.ipynb) |
+| switching a monitoring event on for one function replaces instructions in its bytecode, and switching the event off puts the original instructions back | [`e08-09`](e08-watching-without-slowing-it-down/e08.ipynb) |
+| a monitoring callback that returns DISABLE leaves the watched loop running at close to full speed, while the same callback returning None makes it several times slower | [`e08-11`](e08-watching-without-slowing-it-down/e08.ipynb) |
+| a callback returning DISABLE is called once per instruction rather than once per execution, so a loop of a thousand turns produces a handful of calls | [`e08-14`](e08-watching-without-slowing-it-down/e08.ipynb) |
+| two monitoring tools can watch the same function at the same time, each receiving only the events it registered for | [`e08-16`](e08-watching-without-slowing-it-down/e08.ipynb) |
+| instrumenting a warm function un-specializes its instructions, and they specialize again once the instrumentation is removed and the function runs | [`e08-19`](e08-watching-without-slowing-it-down/e08.ipynb) |
+| sys.settrace is implemented on top of monitoring, so installing a trace function puts instrumented instructions into the functions it runs | [`e08-21`](e08-watching-without-slowing-it-down/e08.ipynb) |
 
 ## F01. The tokenizer, in C
 

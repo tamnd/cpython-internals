@@ -350,6 +350,16 @@
       "first_line": "#define _Py_LATIN1_CHR(CH) \\",
       "lines": 4
     },
+    "Include/internal/pycore_instruments.h:20-27@v3.15.0rc1": {
+      "digest": "31173036f85e6fbd",
+      "first_line": "#define PY_MONITORING_DEBUGGER_ID 0",
+      "lines": 8
+    },
+    "Include/internal/pycore_instruments.h:71-77@v3.15.0rc1": {
+      "digest": "1d6a614720a560bb",
+      "first_line": "/* Total tool ids available */",
+      "lines": 7
+    },
     "Include/internal/pycore_interp_structs.h:158-169@v3.15.0rc1": {
       "digest": "dfd8f4ee4f87e6a6",
       "first_line": "",
@@ -2645,6 +2655,21 @@
       "first_line": "specializing op(_SPECIALIZE_TO_BOOL, (counter/1, value -- value)) {",
       "lines": 20
     },
+    "Python/bytecodes.c:5987-6015@v3.15.0rc1": {
+      "digest": "c9ed3cc5580de68a",
+      "first_line": "inst(INSTRUMENTED_LINE, ( -- )) {",
+      "lines": 29
+    },
+    "Python/bytecodes.c:6017-6028@v3.15.0rc1": {
+      "digest": "b6af9808b6ea062f",
+      "first_line": "inst(INSTRUMENTED_INSTRUCTION, ( -- )) {",
+      "lines": 12
+    },
+    "Python/bytecodes.c:6038-6041@v3.15.0rc1": {
+      "digest": "6e93de5ccc1995fc",
+      "first_line": "inst(INSTRUMENTED_NOT_TAKEN, ( -- )) {",
+      "lines": 4
+    },
     "Python/bytecodes.c:6092-6098@v3.15.0rc1": {
       "digest": "4432bf6918bcccf7",
       "first_line": "tier1 inst(EXTENDED_ARG, ( -- )) {",
@@ -3139,6 +3164,31 @@
       "digest": "aa2c5254b5b419e9",
       "first_line": "TARGET(BINARY_OP_MULTIPLY_INT) {",
       "lines": 17
+    },
+    "Python/instrumentation.c:1190-1216@v3.15.0rc1": {
+      "digest": "cea5143d2a582d2a",
+      "first_line": "size_t nargsf = (size_t) nargs | PY_VECTORCALL_ARGUMENTS_OFFSET;",
+      "lines": 27
+    },
+    "Python/instrumentation.c:676-705@v3.15.0rc1": {
+      "digest": "1956c0b5a827ed04",
+      "first_line": "static void",
+      "lines": 30
+    },
+    "Python/instrumentation.c:757-784@v3.15.0rc1": {
+      "digest": "50fcc71fbfbe99c7",
+      "first_line": "static void",
+      "lines": 28
+    },
+    "Python/instrumentation.c:971-994@v3.15.0rc1": {
+      "digest": "59e866a4a43454c3",
+      "first_line": "/* Return 1 if DISABLE returned, -1 if error, 0 otherwise */",
+      "lines": 24
+    },
+    "Python/legacy_tracing.c:129-149@v3.15.0rc1": {
+      "digest": "f2b643b4093c5e73",
+      "first_line": "static int",
+      "lines": 21
     },
     "Python/marshal.c:1566-1600@v3.15.0rc1": {
       "digest": "3e134ea28c5275b8",
