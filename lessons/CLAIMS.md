@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-328 claims across 41 lessons, 23 of them not observable from Python.
+335 claims across 42 lessons, 23 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -332,6 +332,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a dropped bound method leaves its memory on a free list, so the next one lands on the same address, while a weak reference to the old one correctly reports it gone | [`o13-19`](o13-pointing-without-holding/o13.ipynb) |
 | a weakref callback runs when the weak reference outlives the object, and is skipped when the weak reference is part of the same garbage being collected | [`o13-21`](o13-pointing-without-holding/o13.ipynb) |
 | an exception raised inside a weakref callback is reported through sys.unraisablehook and does not propagate to whatever was running at the time | [`o13-23`](o13-pointing-without-holding/o13.ipynb) |
+
+## O14. The last thing an object does
+
+| Claim | Proved by |
+| --- | --- |
+| a __del__ method runs with every attribute of the object still set, because clearing happens after finalizers rather than before | [`o14-07`](o14-the-last-thing-an-object-does/o14.ipynb) |
+| a weakref callback runs after __del__ when the reference count reached zero, and before __del__ when the cycle collector did the freeing | [`o14-09`](o14-the-last-thing-an-object-does/o14.ipynb) |
+| a weak reference with no callback still finds the object during __del__ on the reference count path, and on 3.15 it does on the collector path too, which is a change from 3.14 | [`o14-11`](o14-the-last-thing-an-object-does/o14.ipynb) |
+| a __del__ method that stores self cancels the deallocation, and the object is never finalized again because the finalized bit is set before the call rather than after | [`o14-14`](o14-the-last-thing-an-object-does/o14.ipynb) |
+| a reference cycle whose objects have __del__ methods is collected normally, every finalizer runs, and gc.garbage stays empty | [`o14-16`](o14-the-last-thing-an-object-does/o14.ipynb) |
+| if the finalizers in a cycle store self, that collection frees nothing, and a later one frees the objects without calling any finalizer again | [`o14-18`](o14-the-last-thing-an-object-does/o14.ipynb) |
+| dropping a half consumed generator runs its finally block, and weakref.finalize gives the same effect for an ordinary object without defining __del__ | [`o14-20`](o14-the-last-thing-an-object-does/o14.ipynb) |
 
 ## T01. One line, seven stages
 

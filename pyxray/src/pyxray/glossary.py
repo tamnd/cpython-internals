@@ -1066,6 +1066,23 @@ MEMORY = Group(
             see=("weak reference", "finalizer", "deallocation"),
             met="O13",
         ),
+        Term(
+            name="resurrection",
+            short="A finalizer storing `self`, which cancels the deallocation that called it.",
+            long="`__del__` is handed the object as `self`, and `self` is an ordinary reference, so putting it in a list somewhere makes the object reachable again and the interpreter stops freeing it. This is expected rather than an error. Deallocation bumps the count before calling the finalizer and checks afterwards whether anything else took a reference, and if the object came out of a cycle the collector moves it to the old generation instead of freeing it.",
+            cite="Objects/object.c:594-630@v3.15.0rc1#PyObject_CallFinalizerFromDealloc",
+            see=("finalizer", "finalized bit", "cycle collector"),
+            met="O14",
+        ),
+        Term(
+            name="finalized bit",
+            short="One bit on an object saying its finalizer has already been called.",
+            long="It is set before the finalizer runs rather than after, which is what guarantees a finalizer is called at most once even if it resurrects the object or raises. `gc.is_finalized` reads it. Setting it first is also why a finalizer that fails halfway is not retried: as far as the interpreter is concerned that object has had its turn.",
+            cite="Include/internal/pycore_gc.h:166-181@v3.15.0rc1#_PyGC_SET_FINALIZED",
+            also=("`gc.is_finalized`",),
+            see=("finalizer", "resurrection"),
+            met="O14",
+        ),
     ),
 )
 
