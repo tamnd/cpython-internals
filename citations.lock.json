@@ -490,6 +490,11 @@
       "first_line": "/* Values used as the oparg for LOAD_COMMON_CONSTANT */",
       "lines": 14
     },
+    "Include/internal/pycore_optimizer_types.h:33-48@v3.15.0rc1": {
+      "digest": "d6cfb81b71cdd80c",
+      "first_line": "typedef enum _JitSymType {",
+      "lines": 16
+    },
     "Include/internal/pycore_pyarena.h:56-56@v3.15.0rc1": {
       "digest": "c6671958ae6c8ac8",
       "first_line": "PyAPI_FUNC(void*) _PyArena_Malloc(PyArena *, size_t size);",
@@ -2730,6 +2735,16 @@
       "first_line": "pure op(_BINARY_OP_ADD_INT, (left, right -- res, l, r)) {",
       "lines": 14
     },
+    "Python/bytecodes.c:705-706@v3.15.0rc1": {
+      "digest": "226fc0eaee4720b1",
+      "first_line": "macro(BINARY_OP_ADD_INT) =",
+      "lines": 2
+    },
+    "Python/bytecodes.c:711-722@v3.15.0rc1": {
+      "digest": "4a18d035d958fac4",
+      "first_line": "// Inplace compact int ops: mutate the uniquely-referenced operand",
+      "lines": 12
+    },
     "Python/ceval.c:1014-1032@v3.15.0rc1": {
       "digest": "c5ee6367cc3dda2d",
       "first_line": "PyThreadState *tstate)",
@@ -3220,10 +3235,50 @@
       "first_line": "/* Returns 1 if optimized, 0 if not optimized, and -1 for an error.",
       "lines": 17
     },
+    "Python/optimizer.c:1641-1664@v3.15.0rc1": {
+      "digest": "2ea4aaef30256dbe",
+      "first_line": "static int",
+      "lines": 24
+    },
+    "Python/optimizer_analysis.c:140-158@v3.15.0rc1": {
+      "digest": "8da4896f30decffd",
+      "first_line": "static int",
+      "lines": 19
+    },
+    "Python/optimizer_analysis.c:182-209@v3.15.0rc1": {
+      "digest": "ce0447a38c3eef68",
+      "first_line": "convert_global_to_const(_PyUOpInstruction *inst, PyObject *obj)",
+      "lines": 28
+    },
+    "Python/optimizer_analysis.c:433-454@v3.15.0rc1": {
+      "digest": "f9e47594e995df2f",
+      "first_line": "static void",
+      "lines": 22
+    },
+    "Python/optimizer_analysis.c:723-749@v3.15.0rc1": {
+      "digest": "d0ddc1928882ced8",
+      "first_line": "static int",
+      "lines": 27
+    },
     "Python/optimizer_analysis.c:800-829@v3.15.0rc1": {
       "digest": "7c29d0604254a6e4",
       "first_line": "//  0 - failure, no error raised, just fall back to Tier 1",
       "lines": 30
+    },
+    "Python/optimizer_analysis.c:803-829@v3.15.0rc1": {
+      "digest": "82f6ec7e9d736dda",
+      "first_line": "int",
+      "lines": 27
+    },
+    "Python/optimizer_bytecodes.c:207-229@v3.15.0rc1": {
+      "digest": "812c5f9a5769f65b",
+      "first_line": "op(_GUARD_TOS_INT, (value -- value)) {",
+      "lines": 23
+    },
+    "Python/optimizer_symbols.c:23-46@v3.15.0rc1": {
+      "digest": "c1776f8ba6e05181",
+      "first_line": "Logically, all symbols begin as UNKNOWN, and can transition downwards along the",
+      "lines": 24
     },
     "Python/pylifecycle.c:1609-1639@v3.15.0rc1": {
       "digest": "332183fc478125a5",
