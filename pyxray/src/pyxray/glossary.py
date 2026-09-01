@@ -706,6 +706,31 @@ RUNNING = Group(
             see=("code unit", "dispatch", "eval loop", "frame"),
             met="E02",
         ),
+        Term(
+            name="data stack",
+            short="The memory the interpreter allocates frames from, which is not the C stack.",
+            long="It is a linked list of chunks, sixteen kilobytes each by default, owned by the thread state. Calling a Python function takes the next few slots off the top, and returning hands them straight back, so a call is a pointer bump rather than an allocation. This is the reason a hundred thousand deep Python recursion works while the same depth routed through a C function does not.",
+            cite="Python/pystate.c:3133-3143@v3.15.0rc1#_PyThreadState_PushFrame",
+            also=("datastack",),
+            see=("frame", "frame object", "C stack"),
+            met="E03",
+        ),
+        Term(
+            name="frame object",
+            short="The Python level `frame` you can hold, which is not the frame the interpreter uses.",
+            long="The interpreter runs on a bare struct with no reference count and no type. The `frame` object is made only when something asks for one, which `sys._getframe`, a traceback and any debugger all do. Once made it is cached on the interpreter frame, so asking twice gives the same object, and if the call returns while somebody still holds it the object takes ownership of the contents rather than leaving a dangling view.",
+            cite="Include/internal/pycore_interpframe_structs.h:36-36@v3.15.0rc1#frame_obj",
+            also=("`PyFrameObject`",),
+            see=("frame", "data stack", "trace function"),
+            met="E03",
+        ),
+        Term(
+            name="C stack",
+            short="The machine stack the thread actually runs on, with a size fixed when it starts.",
+            long="Python calls do not use it, but any call that goes out through C and back into Python does, and each one of those costs somewhere between hundreds of bytes and several kilobytes. CPython checks how much room is left rather than counting calls, which is why the resulting `RecursionError` says how many kilobytes were used instead of what the limit was.",
+            see=("data stack", "frame", "eval loop"),
+            met="E03",
+        ),
     ),
 )
 
