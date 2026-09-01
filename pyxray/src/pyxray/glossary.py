@@ -846,6 +846,32 @@ RUNNING = Group(
             see=("trace", "guard", "deoptimization", "executor"),
             met="E07",
         ),
+        Term(
+            name="instrumented instruction",
+            short="An opcode swapped into the bytecode so that running it also calls a tool back.",
+            long="Every instruction a monitoring tool can be told about has a paired form whose name starts with `INSTRUMENTED_`. Switching an event on writes those paired forms over the ordinary ones, and switching it off writes the ordinary ones back, so a function you are not watching runs exactly the bytecode it always did. It is the same trick as specialization pointed the other way: rewrite the instruction rather than test a flag inside it.",
+            cite="Python/instrumentation.c:757-784@v3.15.0rc1#instrument",
+            see=("monitoring events", "tool id", "specialization", "bytecode"),
+            met="E08",
+        ),
+        Term(
+            name="tool id",
+            short="One of the numbered slots a monitoring tool claims before it can ask for events.",
+            long="There are eight in the C code and six you can use, because the last two are held for `sys.settrace` and `sys.setprofile`. Claiming one is how a debugger and a coverage tool stay out of each other's way: each registers its own callbacks and asks for its own events, and the interpreter keeps a separate set of them per slot rather than one hook everybody has to share.",
+            also=("`sys.monitoring.use_tool_id`",),
+            cite="Include/internal/pycore_instruments.h:71-77@v3.15.0rc1#PY_MONITORING_TOOL_IDS",
+            see=("monitoring events", "instrumented instruction", "trace function"),
+            met="E08",
+        ),
+        Term(
+            name="DISABLE",
+            short="What a monitoring callback returns to stop being called at that one place.",
+            long="Returning it does not switch the event off everywhere. It removes the instrumentation from the single instruction that fired, so the rest of the program keeps reporting and that one line goes back to full speed. This is what makes a coverage tool cheap: it only ever needs to be told about a line once, so almost every line disables itself on its first execution and the loop around it runs as if nothing were watching.",
+            also=("`sys.monitoring.DISABLE`",),
+            cite="Python/instrumentation.c:971-994@v3.15.0rc1#call_one_instrument",
+            see=("monitoring events", "instrumented instruction", "tool id"),
+            met="E08",
+        ),
     ),
 )
 
