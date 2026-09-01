@@ -731,6 +731,31 @@ RUNNING = Group(
             see=("data stack", "frame", "eval loop"),
             met="E03",
         ),
+        Term(
+            name="stack reference",
+            short="What a frame slot holds, which is a pointer with the bottom bits used for something.",
+            long="Every slot in a frame, both the locals and the value stack, holds one of these rather than a plain object pointer. The bottom two bits say whether the slot owns a counted reference, is only borrowing one, or is not holding a pointer at all. Everything that used to be an unconditional increment or decrement is now a test on those two bits first.",
+            cite="Include/internal/pycore_stackref.h:533-537@v3.15.0rc1#PyStackRef_Borrow",
+            also=("`_PyStackRef`",),
+            see=("tagged pointer", "borrowed reference", "reference count", "frame"),
+            met="E04",
+        ),
+        Term(
+            name="tagged pointer",
+            short="A pointer with extra information hidden in the bits that are always zero.",
+            long="Objects are aligned in memory, so the bottom two bits of any object pointer are zero and can be used to carry a flag. CPython uses one of them to mean this reference was not counted, so releasing it should do nothing. The flag that marks an object immortal is deliberately the same bit value, which is why building the tagged reference is a single AND with no branch.",
+            cite="Include/internal/pycore_stackref.h:53-58@v3.15.0rc1#Py_TAG_REFCNT",
+            see=("stack reference", "immortal object", "pointer"),
+            met="E04",
+        ),
+        Term(
+            name="tagged integer",
+            short="A small number living in a stack slot with no object anywhere.",
+            long="The bottom bits can also say that the rest of the word is not a pointer but a number shifted up by two. From 3.15 the interpreter uses this for the position a `for` loop has reached in a list or a tuple, so the counter sits on the value stack with nothing allocated for it. It is why a loop over a list needs one more stack slot in 3.15 than it did in 3.14.",
+            cite="Include/internal/pycore_stackref.h:432-438@v3.15.0rc1#PyStackRef_TagInt",
+            see=("stack reference", "tagged pointer", "value stack"),
+            met="E04",
+        ),
     ),
 )
 
