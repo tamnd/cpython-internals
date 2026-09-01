@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-304 claims across 37 lessons, 23 of them not observable from Python.
+309 claims across 38 lessons, 23 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -288,6 +288,16 @@ Without it the exception becomes the rule and this goes back to being a book.
 | the two multiplication algorithms cost the same at the cutoff and diverge above it, which is why the cutoff sits where it does | [`o09-20`](o09-arrays-of-thirty-bit-digits/o09.ipynb) |
 | converting a very long decimal string to an int, or the reverse, raises rather than running, and the limit can be raised at runtime | [`o09-22`](o09-arrays-of-thirty-bit-digits/o09.ipynb) |
 | the hash of an integer is its remainder modulo a prime one less than a power of two, which is why a number equal to that modulus hashes to zero | [`o09-24`](o09-arrays-of-thirty-bit-digits/o09.ipynb) |
+
+## O10. One string, four layouts
+
+| Claim | Proved by |
+| --- | --- |
+| a string stores its characters in 1, 2 or 4 bytes each, chosen by the largest code point in the string, so adding one wide character widens every character in it | [`o10-07`](o10-one-string-four-layouts/o10.ipynb) |
+| the characters of an ordinary string are stored inside the object, in the same allocation as the header, with a fixed overhead of 40 bytes for ASCII and 56 for everything else | [`o10-16`](o10-one-string-four-layouts/o10.ipynb) |
+| a string's hash is the hash of its raw storage buffer, so it equals the hash of the same text encoded in whichever fixed width encoding matches the string's kind | [`o10-22`](o10-one-string-four-layouts/o10.ipynb) |
+| a non-ASCII string can grow after it is created, because the first time C code asks for it as UTF-8 the encoded copy is stored on the object and counted by sys.getsizeof | [`o10-25`](o10-one-string-four-layouts/o10.ipynb) |
+| string constants are interned only if they are ASCII and look like identifiers, while every name in co_names is interned and immortal | [`o10-28`](o10-one-string-four-layouts/o10.ipynb) |
 
 ## T01. One line, seven stages
 
