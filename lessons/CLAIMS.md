@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-344 claims across 43 lessons, 24 of them not observable from Python.
+352 claims across 44 lessons, 25 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -64,6 +64,19 @@ Without it the exception becomes the rule and this goes back to being a book.
 | every instruction is two bytes plus two per cache slot, so the declared sizes add up to the exact length of a code object | [`e01-21`](e01-the-interpreter-nobody-wrote/e01.ipynb) |
 | dis.opname is built entirely from opmap and _specialized_opmap in the generated module, and rebuilding it the same way gives an identical list | [`e01-24`](e01-the-interpreter-nobody-wrote/e01.ipynb) |
 | the list of common constants is written by hand in Lib/opcode.py and grew from five entries to twelve between 3.14 and 3.15 | [`e01-27`](e01-the-interpreter-nobody-wrote/e01.ipynb) |
+
+## E02. Two bytes at a time
+
+| Claim | Proved by |
+| --- | --- |
+| the same sixteen bits in a code object are read as an opcode and argument pair, as a cache slot, or as a countdown counter, with nothing in the word saying which | not observable from Python: the union is a C type, so the three readings are quoted from the pinned tree rather than measured from Python |
+| a code object holds more sixteen bit words than dis reports instructions, because the extra words are cache slots belonging to the instruction in front of them | [`e02-07`](e02-two-bytes-at-a-time/e02.ipynb) |
+| walking co_code two bytes at a time, folding EXTENDED_ARG and skipping cache slots by their declared count, reproduces dis.get_instructions exactly | [`e02-10`](e02-two-bytes-at-a-time/e02.ipynb) |
+| the interpreter never stops on a cache slot, so the offsets it visits jump by more than two after an instruction that carries a cache | [`e02-13`](e02-two-bytes-at-a-time/e02.ipynb) |
+| an argument bigger than 255 is carried by an EXTENDED_ARG instruction in front of the real one, and dis folds the pair into a single number | [`e02-16`](e02-two-bytes-at-a-time/e02.ipynb) |
+| pseudo instructions are numbered above 255 so that they cannot fit in the one byte opcode field of a code unit | [`e02-19`](e02-two-bytes-at-a-time/e02.ipynb) |
+| which of the three dispatch strategies a CPython was built with is recorded in its build configuration and can differ between two installs of the same version | [`e02-22`](e02-two-bytes-at-a-time/e02.ipynb) |
+| co_code is reconstructed from the running bytecode by undoing specialization and zeroing caches, so it differs from _co_code_adaptive once an instruction has specialized | [`e02-25`](e02-two-bytes-at-a-time/e02.ipynb) |
 
 ## F01. The tokenizer, in C
 

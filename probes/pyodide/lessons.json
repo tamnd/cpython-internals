@@ -188,6 +188,55 @@
       ]
     },
     {
+      "slug": "e02-two-bytes-at-a-time",
+      "cells": [
+        {
+          "name": "e02-03",
+          "status": "ok"
+        },
+        {
+          "name": "e02-05",
+          "status": "ok",
+          "printed": "cpython 3.14.2 on Emscripten wasm32, WebAssembly\n  note: this is 3.14, and everything here is written against 3.15, so bytecode and some object layouts will differ from the prose\n"
+        },
+        {
+          "name": "e02-07",
+          "status": "ok",
+          "printed": "  bytes in the code object   22\n  words, at two bytes each   11\n  instructions dis reports   6\n\n    0   128    0   RESUME\n    2    87    1   LOAD_FAST_BORROW_LOAD_FAST_BORROW\n    4    44    0   BINARY_OP\n    6     0    0   CACHE\n    8     0    0   CACHE\n   10     0    0   CACHE\n   12     0    0   CACHE\n   14     0    0   CACHE\n   16   112    2   STORE_FAST\n   18    86    2   LOAD_FAST_BORROW\n   20    35    0   RETURN_VALUE\n"
+        },
+        {
+          "name": "e02-10",
+          "status": "ok",
+          "printed": "    0  RESUME                               0\n    2  LOAD_FAST_BORROW_LOAD_FAST_BORROW    1\n    4  BINARY_OP                            0\n   16  STORE_FAST                           2\n   18  LOAD_FAST_BORROW                     2\n   20  RETURN_VALUE                         0\n\n  matches dis.get_instructions   True\n"
+        },
+        {
+          "name": "e02-13",
+          "status": "ok",
+          "printed": "  offsets it stopped at   [2, 4, 16, 18, 20]\n  gaps between them       [2, 12, 2, 2]\n"
+        },
+        {
+          "name": "e02-16",
+          "status": "ok",
+          "printed": "  locals in the function     300\n  EXTENDED_ARG instructions  44\n\n  the first one is at offset 1028\n    the word there      69    1   EXTENDED_ARG\n    the word after it  112    0   STORE_FAST\n    together they say 256\n  and dis prints it as       STORE_FAST 256 at offset 1030\n"
+        },
+        {
+          "name": "e02-19",
+          "status": "ok",
+          "printed": "  the biggest number one byte holds     255\n  where the instrumented copies start   234\n  how many numbers that leaves for them 22\n  the last two before the ceiling       INSTRUMENTED_LINE, ENTER_EXECUTOR\n\n  CACHE is opcode number                0, and running one is fatal\n  numbers handed out above 255          11\n    256  ANNOTATIONS_PLACEHOLDER\n    257  JUMP\n    258  JUMP_IF_FALSE\n    259  JUMP_IF_TRUE\n    260  JUMP_NO_INTERRUPT\n    261  LOAD_CLOSURE\n    262  POP_BLOCK\n    263  SETUP_CLEANUP\n    264  SETUP_FINALLY\n    265  SETUP_WITH\n    266  STORE_FAST_MAYBE_NULL\n"
+        },
+        {
+          "name": "e02-22",
+          "status": "ok",
+          "printed": "  HAVE_COMPUTED_GOTOS    0\n  USE_COMPUTED_GOTOS     0\n  Py_TAIL_CALL_INTERP    0\n"
+        },
+        {
+          "name": "e02-25",
+          "status": "ok",
+          "printed": "  same number of bytes  True\n  identical bytes       False\n\n    0 -> RESUME                               RESUME_CHECK\n    2    LOAD_FAST_BORROW_LOAD_FAST_BORROW    LOAD_FAST_BORROW_LOAD_FAST_BORROW\n    4 -> BINARY_OP                            BINARY_OP_ADD_INT\n   16    STORE_FAST                           STORE_FAST\n   18    LOAD_FAST_BORROW                     LOAD_FAST_BORROW\n   20    RETURN_VALUE                         RETURN_VALUE\n"
+        }
+      ]
+    },
+    {
       "slug": "f01-the-tokenizer-in-c",
       "cells": [
         {
@@ -593,7 +642,7 @@
         {
           "name": "f10-11",
           "status": "ok",
-          "printed": "  --           MAKE_CELL                0 (a)\n               MAKE_CELL                6 (n)\n\n   1           RESUME                   0\n\n   2           LOAD_SMALL_INT           0\n               STORE_DEREF              6 (n)\n\n   4           LOAD_FAST_BORROW         0 (a)\n               LOAD_FAST_BORROW         6 (n)\n               BUILD_TUPLE              2\n               LOAD_CONST               1 (<code object inner at 0x184b318, file \"f10-09\", line 4>)\n               MAKE_FUNCTION\n               SET_FUNCTION_ATTRIBUTE   8 (closure)\n               STORE_FAST               5 (inner)\n\n   7           LOAD_FAST_BORROW         5 (inner)\n               RETURN_VALUE\n\nDisassembly of <code object inner at 0x184b318, file \"f10-09\", line 4>:\n  --           COPY_FREE_VARS           2\n\n   4           RESUME                   0\n\n   5           LOAD_DEREF               0 (a)\n               LOAD_DEREF               1 (n)\n               BINARY_OP                0 (+)\n               RETURN_VALUE\n"
+          "printed": "  --           MAKE_CELL                0 (a)\n               MAKE_CELL                6 (n)\n\n   1           RESUME                   0\n\n   2           LOAD_SMALL_INT           0\n               STORE_DEREF              6 (n)\n\n   4           LOAD_FAST_BORROW         0 (a)\n               LOAD_FAST_BORROW         6 (n)\n               BUILD_TUPLE              2\n               LOAD_CONST               1 (<code object inner at 0x182c8d8, file \"f10-09\", line 4>)\n               MAKE_FUNCTION\n               SET_FUNCTION_ATTRIBUTE   8 (closure)\n               STORE_FAST               5 (inner)\n\n   7           LOAD_FAST_BORROW         5 (inner)\n               RETURN_VALUE\n\nDisassembly of <code object inner at 0x182c8d8, file \"f10-09\", line 4>:\n  --           COPY_FREE_VARS           2\n\n   4           RESUME                   0\n\n   5           LOAD_DEREF               0 (a)\n               LOAD_DEREF               1 (n)\n               BINARY_OP                0 (+)\n               RETURN_VALUE\n"
         },
         {
           "name": "f10-13",
@@ -685,12 +734,12 @@
         {
           "name": "f12-07",
           "status": "ok",
-          "printed": "  greet.py is 54 bytes of text\n  greet.cpython-314.pyc is 251 bytes\n\n  header    2b 0e 0d 0a 00 00 00 00 36 be 96 6a 36 00 00 00\n  the rest  235 bytes, and marshal.loads gives back a\n            code object\n"
+          "printed": "  greet.py is 54 bytes of text\n  greet.cpython-314.pyc is 251 bytes\n\n  header    2b 0e 0d 0a 00 00 00 00 96 c4 96 6a 36 00 00 00\n  the rest  235 bytes, and marshal.loads gives back a\n            code object\n"
         },
         {
           "name": "f12-10",
           "status": "ok",
-          "printed": "  magic     168627755\n  flags             0\n  mtime    1788263990   source 1788263990\n  size             54   source 54\n"
+          "printed": "  magic     168627755\n  flags             0\n  mtime    1788265622   source 1788265622\n  size             54   source 54\n"
         },
         {
           "name": "f12-13",
@@ -724,7 +773,7 @@
         {
           "name": "f12-29",
           "status": "ok",
-          "printed": "  one bit flipped in the magic: bad magic number in 'broken': b'*\\x0e\\r\\n'\n\n  put a wrong mtime in greet.cpython-314.pyc: 1788264137\n  imported it with no complaint: 'hi world'\n  and the header now says        1788264137\n  the file was quietly rewritten: False\n"
+          "printed": "  one bit flipped in the magic: bad magic number in 'broken': b'*\\x0e\\r\\n'\n\n  put a wrong mtime in greet.cpython-314.pyc: 1788265577\n  imported it with no complaint: 'hi world'\n  and the header now says        1788265577\n  the file was quietly rewritten: False\n"
         }
       ]
     },
@@ -743,7 +792,7 @@
         {
           "name": "o01-07",
           "status": "ok",
-          "printed": "  a pointer here is 4 bytes, so the header is 8\n  it lives at 20317640\n\n  first word, read as a count             1\n  sys.getrefcount, less its own argument  1\n  the same number: True\n\n  second word                   23742008\n  id(Thing) is                  23742008\n  so the second word is the type pointer: True\n\n  after a second name, the count reads  2\n  after deleting that name, it reads    1\n"
+          "printed": "  a pointer here is 4 bytes, so the header is 8\n  it lives at 24716128\n\n  first word, read as a count             1\n  sys.getrefcount, less its own argument  1\n  the same number: True\n\n  second word                   25238056\n  id(Thing) is                  25238056\n  so the second word is the type pointer: True\n\n  after a second name, the count reads  2\n  after deleting that name, it reads    1\n"
         },
         {
           "name": "o01-10",
@@ -1860,7 +1909,7 @@
         {
           "name": "t04-30",
           "status": "ok",
-          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x18b8fd8: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
+          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x17210f0: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
         },
         {
           "name": "t04-33",
@@ -2137,7 +2186,7 @@
         {
           "name": "t07-38",
           "status": "ok",
-          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x15641e0, file 't07-38', line 7, code make_one>\nits name: make_one\n"
+          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x1860578, file 't07-38', line 7, code make_one>\nits name: make_one\n"
         },
         {
           "name": "t07-40",
@@ -2171,12 +2220,12 @@
         {
           "name": "t08-11",
           "status": "ok",
-          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x16413e8, 3 reference(s), 26 bytes, not tracked\nlist at 0x1606418, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x1530290, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x129c8a0, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
+          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x172ea40, 3 reference(s), 26 bytes, not tracked\nlist at 0x17ddf38, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x12bfa50, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x1300f20, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
         },
         {
           "name": "t08-14",
           "status": "ok",
-          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x1270420\nid(b) 0x1606180\nid(c) 0x1270420\n"
+          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x13a6fe8\nid(b) 0x17734f0\nid(c) 0x13a6fe8\n"
         },
         {
           "name": "t08-17",
@@ -2216,7 +2265,7 @@
         {
           "name": "t08-35",
           "status": "ok",
-          "printed": "dict at 0x11f0400\ndict at 0x1412438\nlist at 0x16414a8\n"
+          "printed": "dict at 0x12110e8\ndict at 0x13339a8\nlist at 0x1773468\n"
         },
         {
           "name": "t08-37",
@@ -2275,7 +2324,7 @@
         {
           "name": "t09-21",
           "status": "ok",
-          "printed": "Node at 0x159f520 -> Node at 0x14ac1f8 -> Node at 0x176e6f8 -> Node at 0x159f520\n"
+          "printed": "Node at 0x17c86d8 -> Node at 0x185f2a8 -> Node at 0x182ee08 -> Node at 0x17c86d8\n"
         },
         {
           "name": "t09-23",
@@ -2305,7 +2354,7 @@
         {
           "name": "t09-37",
           "status": "ok",
-          "printed": "first object was at  0x16c04c0\nsecond object is at  0x16c04c0\nsame address reused -> True\n"
+          "printed": "first object was at  0x16c36c8\nsecond object is at  0x16c36c8\nsame address reused -> True\n"
         }
       ]
     },
