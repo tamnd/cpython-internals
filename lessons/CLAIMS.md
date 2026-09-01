@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-335 claims across 42 lessons, 23 of them not observable from Python.
+344 claims across 43 lessons, 24 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -50,6 +50,20 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a generated file says so in its own first few lines, and usually names the script that wrote it, so you can find every one of them in your own standard library with a search for a handful of phrases | [`b04-14`](b04-reading-the-tree/b04.ipynb) |
 | running those scripts against the unchanged input reproduces the committed files byte for byte, which is what makes generated a fact about a file rather than a comment in it | not observable from Python: the scripts live in Tools/ and read Python/bytecodes.c, and neither of those ships with an installed Python, so this is the recorded run below rather than a cell |
 | every commit in CPython names an issue number in the first line of its message, so any line of code leads to a discussion | [`b04-22`](b04-reading-the-tree/b04.ipynb) |
+
+## E01. The interpreter nobody wrote by hand
+
+| Claim | Proved by |
+| --- | --- |
+| Lib/_opcode_metadata.py ships with every CPython install, and its first four lines say which script generated it and from which file | [`e01-07`](e01-the-interpreter-nobody-wrote/e01.ipynb) |
+| the six line definition of UNARY_NOT becomes a seventeen line case in the generated eval loop plus four more in the tier two interpreter, and only three lines were written by a person | not observable from Python: the generated C is not shipped in an install, so it is quoted from the pinned tree rather than measured here |
+| the stack effect of an instruction is the count of names after the arrow minus the count before it, and _opcode.stack_effect agrees | [`e01-10`](e01-the-interpreter-nobody-wrote/e01.ipynb) |
+| opcode._specializations is the family declarations from Python/bytecodes.c, with one entry per family and one name per member | [`e01-13`](e01-the-interpreter-nobody-wrote/e01.ipynb) |
+| the number of families and the number of specialized opcodes are both properties of this build, and both changed between 3.14 and 3.15 | [`e01-15`](e01-the-interpreter-nobody-wrote/e01.ipynb) |
+| the cache slots after an instruction are the numbered slots in its definition added up, and dis reports the same totals the C table holds | [`e01-18`](e01-the-interpreter-nobody-wrote/e01.ipynb) |
+| every instruction is two bytes plus two per cache slot, so the declared sizes add up to the exact length of a code object | [`e01-21`](e01-the-interpreter-nobody-wrote/e01.ipynb) |
+| dis.opname is built entirely from opmap and _specialized_opmap in the generated module, and rebuilding it the same way gives an identical list | [`e01-24`](e01-the-interpreter-nobody-wrote/e01.ipynb) |
+| the list of common constants is written by hand in Lib/opcode.py and grew from five entries to twelve between 3.14 and 3.15 | [`e01-27`](e01-the-interpreter-nobody-wrote/e01.ipynb) |
 
 ## F01. The tokenizer, in C
 
