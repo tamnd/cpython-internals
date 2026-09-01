@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-385 claims across 48 lessons, 26 of them not observable from Python.
+392 claims across 49 lessons, 26 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -130,6 +130,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | calls specialize into different instructions depending on what is being called, not just on the arguments | [`e06-28`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
 | a loop over mixed types is slower than the same loop over either type alone, purely because the instruction cannot stay specialized | [`e06-31`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
 | in a real module only a small fraction of specializable instructions ever specialize, because most code does not run often enough | [`e06-34`](e06-the-instruction-that-rewrites-itself/e06.ipynb) |
+
+## E07. The loop that gets its own program
+
+| Claim | Proved by |
+| --- | --- |
+| the JIT is a build option and a startup flag rather than something a running program can turn on | [`e07-07`](e07-the-loop-that-gets-its-own-program/e07.ipynb) |
+| the backward jump in a loop specializes into one of two named forms depending on whether the JIT is switched on | [`e07-10`](e07-the-loop-that-gets-its-own-program/e07.ipynb) |
+| a loop needs a few thousand iterations before it grows a trace, and the exact number is findable by searching for it | [`e07-13`](e07-the-loop-that-gets-its-own-program/e07.ipynb) |
+| the trace attached to a hot loop is a readable object, and every micro operation in it can be printed from Python | [`e07-16`](e07-the-loop-that-gets-its-own-program/e07.ipynb) |
+| the optimizer deletes guards it can prove cannot fail, so a trace runs far fewer checks than the instructions it came from | [`e07-19`](e07-the-loop-that-gets-its-own-program/e07.ipynb) |
+| a trace recorded from a loop containing a function call includes the body of that function, so the call boundary is gone from the hot path | [`e07-22`](e07-the-loop-that-gets-its-own-program/e07.ipynb) |
+| turning the JIT on changes how long the same loop takes, by enough to measure from Python | [`e07-25`](e07-the-loop-that-gets-its-own-program/e07.ipynb) |
 
 ## F01. The tokenizer, in C
 

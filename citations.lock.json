@@ -235,6 +235,11 @@
       "first_line": "struct _stmt {",
       "lines": 12
     },
+    "Include/internal/pycore_backoff.h:120-136@v3.15.0rc1": {
+      "digest": "81189073471906a2",
+      "first_line": "// Must be larger than ADAPTIVE_COOLDOWN_VALUE, otherwise when JIT code is",
+      "lines": 17
+    },
     "Include/internal/pycore_backoff.h:37-57@v3.15.0rc1": {
       "digest": "fb1a01630691f60d",
       "first_line": "#define BACKOFF_BITS 3",
@@ -744,6 +749,16 @@
       "digest": "91df9ada60567bac",
       "first_line": "Since 3.11, the `CALL` instruction special-cases function objects to \"inline\"",
       "lines": 6
+    },
+    "InternalDocs/jit.md:111-149@v3.15.0rc1": {
+      "digest": "6fda45494a00b726",
+      "first_line": "## The JIT",
+      "lines": 39
+    },
+    "InternalDocs/jit.md:37-48@v3.15.0rc1": {
+      "digest": "1d6ec82c5df1fc92",
+      "first_line": "During tracing mode, after each interpreter instruction's `DISPATCH()`,",
+      "lines": 12
     },
     "InternalDocs/stack_protection.md:33-38@v3.15.0rc1": {
       "digest": "18061efa7557d342",
@@ -2590,6 +2605,21 @@
       "first_line": "op(_IS_OP, (left, right -- b, l, r)) {",
       "lines": 8
     },
+    "Python/bytecodes.c:3539-3554@v3.15.0rc1": {
+      "digest": "edc4782a05b22ee4",
+      "first_line": "family(JUMP_BACKWARD, 1) = {",
+      "lines": 16
+    },
+    "Python/bytecodes.c:3556-3583@v3.15.0rc1": {
+      "digest": "4e15227cd6841efe",
+      "first_line": "tier1 op(_JIT, (--)) {",
+      "lines": 28
+    },
+    "Python/bytecodes.c:3591-3600@v3.15.0rc1": {
+      "digest": "5ff50098fed3f656",
+      "first_line": "macro(JUMP_BACKWARD_NO_JIT) =",
+      "lines": 10
+    },
     "Python/bytecodes.c:3777-3787@v3.15.0rc1": {
       "digest": "9450974ed7fa08d0",
       "first_line": "op(_GET_ITER, (iterable -- iter, index_or_null)) {",
@@ -2629,6 +2659,16 @@
       "digest": "35991922ce47cc89",
       "first_line": "tier1 inst(RESERVED, (--)) {",
       "lines": 4
+    },
+    "Python/bytecodes.c:6161-6167@v3.15.0rc1": {
+      "digest": "c18948d61708b9a2",
+      "first_line": "op(_JUMP_TO_TOP, (--)) {",
+      "lines": 7
+    },
+    "Python/bytecodes.c:6183-6196@v3.15.0rc1": {
+      "digest": "e447269fa4dc2061",
+      "first_line": "tier2 op(_EXIT_TRACE, (exit_p/4 --)) {",
+      "lines": 14
     },
     "Python/bytecodes.c:635-643@v3.15.0rc1": {
       "digest": "da8771ed060b8433",
@@ -3124,6 +3164,16 @@
       "digest": "1e469cc6f9bf653e",
       "first_line": "#if !_Py_TAIL_CALL_INTERP",
       "lines": 12
+    },
+    "Python/optimizer.c:124-140@v3.15.0rc1": {
+      "digest": "362201e69944a998",
+      "first_line": "/* Returns 1 if optimized, 0 if not optimized, and -1 for an error.",
+      "lines": 17
+    },
+    "Python/optimizer_analysis.c:800-829@v3.15.0rc1": {
+      "digest": "7c29d0604254a6e4",
+      "first_line": "//  0 - failure, no error raised, just fall back to Tier 1",
+      "lines": 30
     },
     "Python/pylifecycle.c:1609-1639@v3.15.0rc1": {
       "digest": "332183fc478125a5",
