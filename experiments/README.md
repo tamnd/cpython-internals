@@ -21,6 +21,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [m08-no-lists-to-be-in](tier1/m08-no-lists-to-be-in.md) | M08 | freethreaded | Which generation is an object in on a build that does not keep generation lists? |
 | [m08-the-count-another-thread-cannot-see](tier1/m08-the-count-another-thread-cannot-see.md) | M08 | freethreaded | How stale is the collector's count when another thread is the one doing the allocating? |
 | [m08-nothing-runs-while-it-walks](tier1/m08-nothing-runs-while-it-walks.md) | M08 | freethreaded | How much time does a thread with no interest in the collector lose to a collection? |
+| [c01-the-same-work-without-the-lock](tier1/c01-the-same-work-without-the-lock.md) | C01 | freethreaded | What does the same two thread benchmark do when there is no lock to take? |
+| [c01-nothing-to-wait-for](tier1/c01-nothing-to-wait-for.md) | C01 | freethreaded | How much does another thread get done during one long C call when there is no GIL? |
 
 ## The commands
 

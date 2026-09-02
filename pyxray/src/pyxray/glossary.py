@@ -1525,6 +1525,50 @@ MEMORY = Group(
 )
 
 
+CONCURRENCY = Group(
+    "Threads",
+    "The words for what happens when more than one thread wants to run Python at the same time. C01 is the lesson, and most of them are about one lock.",
+    (
+        Term(
+            name="GIL",
+            short="One lock per interpreter, and you have to be holding it to run Python.",
+            long="The struct behind the name is six fields: a boolean saying whether anybody holds it, a mutex and a condition variable to wait on, the number of microseconds a waiting thread stays patient, which thread had it last, and a count of how many times it has changed hands. Everything surprising about threads in CPython comes out of when a running thread is willing to let go of it.",
+            cite="Include/internal/pycore_gil.h:22-61@v3.15.0rc1#_gil_runtime_state",
+            also=("global interpreter lock",),
+            see=("switch interval", "eval breaker", "free threaded build"),
+            met="C01",
+        ),
+        Term(
+            name="switch interval",
+            short="How long a thread waiting for the GIL waits before it asks for it.",
+            long="Five milliseconds by default, readable and writable from Python as `sys.getswitchinterval` and `sys.setswitchinterval`. It is not how often threads take turns and it is not a fairness dial. It is how long a waiter sits on the condition variable before it decides nobody is going to hand the lock over voluntarily and sets the drop request bit.",
+            cite="Python/ceval_gil.c:147-153@v3.15.0rc1#DEFAULT_INTERVAL",
+            also=("`sys.setswitchinterval`",),
+            see=("GIL", "eval breaker"),
+            met="C01",
+        ),
+        Term(
+            name="eval breaker",
+            short="A word of bits on the thread state that the eval loop checks between instructions.",
+            long="Several unrelated things need to interrupt a running thread: a signal arrived, a callback is pending, an async exception is waiting, the collector wants to run, another thread wants the lock. Rather than check five conditions, the eval loop checks one word and only looks at the individual bits when it is not zero. `_PY_GIL_DROP_REQUEST_BIT` is bit zero of it.",
+            cite="Include/internal/pycore_ceval.h:345-352@v3.15.0rc1#_PY_GIL_DROP_REQUEST_BIT",
+            also=("`tstate->eval_breaker`",),
+            see=("GIL", "periodic check"),
+            met="C01",
+        ),
+        Term(
+            name="periodic check",
+            short="The one place in the eval loop where a thread can be made to give up the GIL.",
+            long="Backward jumps and function resumes run a `_CHECK_PERIODIC` instruction, which reads the eval breaker and calls `_Py_HandlePending` if any bit is set. That is the only route from running code to releasing the lock, which is why a single long call into C cannot be interrupted no matter what the switch interval says.",
+            cite="Python/ceval_macros.h:520-528@v3.15.0rc1#check_periodics",
+            also=("`_CHECK_PERIODIC`",),
+            see=("eval breaker", "GIL"),
+            met="C01",
+        ),
+    ),
+)
+
+
 BUILDING = Group(
     "Building the interpreter",
     "The words that turn out to be about the binary rather than about the language. B01 through B04 are the lessons, and several numbers in the earlier lessons move when the build does.",
@@ -1735,6 +1779,7 @@ GROUPS: tuple[Group, ...] = (
     RUNNING,
     OBJECTS,
     MEMORY,
+    CONCURRENCY,
     BUILDING,
     DEBUGGING,
     TESTING,

@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-501 claims across 63 lessons, 38 of them not observable from Python.
+508 claims across 64 lessons, 40 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -50,6 +50,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a generated file says so in its own first few lines, and usually names the script that wrote it, so you can find every one of them in your own standard library with a search for a handful of phrases | [`b04-14`](b04-reading-the-tree/b04.ipynb) |
 | running those scripts against the unchanged input reproduces the committed files byte for byte, which is what makes generated a fact about a file rather than a comment in it | not observable from Python: the scripts live in Tools/ and read Python/bytecodes.c, and neither of those ships with an installed Python, so this is the recorded run below rather than a cell |
 | every commit in CPython names an issue number in the first line of its message, so any line of code leads to a discussion | [`b04-22`](b04-reading-the-tree/b04.ipynb) |
+
+## C01. One lock, one interpreter
+
+| Claim | Proved by |
+| --- | --- |
+| sys._is_gil_enabled() is True on an ordinary build and the switch interval is five thousandths of a second | [`c01-07`](c01-one-lock-one-interpreter/c01.ipynb) |
+| The same work on two threads takes about as long as doing it twice in a row, and often a little longer | [`c01-10`](c01-one-lock-one-interpreter/c01.ipynb) |
+| Two threads that sleep take about half as long as sleeping twice in a row | [`c01-13`](c01-one-lock-one-interpreter/c01.ipynb) |
+| A loop written in Python lets the other thread in many times over, while one call to list.sort holds the lock for almost the entire call | [`c01-18`](c01-one-lock-one-interpreter/c01.ipynb) |
+| Turning the switch interval down to a microsecond costs roughly half the total work, and turning it up to half a second means one of the two threads never runs | [`c01-21`](c01-one-lock-one-interpreter/c01.ipynb) |
+| On the free threaded build the same two thread benchmark comes out about twice as fast | not observable from Python: the build has to be configured with --disable-gil, which is a different interpreter rather than a runtime setting |
+| On the free threaded build the second thread keeps running all the way through somebody else's long C call | not observable from Python: the same reason, since on any build with a GIL the answer is decided by the lock rather than by the machine |
 
 ## E01. The interpreter nobody wrote by hand
 
