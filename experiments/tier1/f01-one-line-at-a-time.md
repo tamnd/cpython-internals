@@ -6,9 +6,9 @@ How much of your file is in the tokenizer's memory while it is being read?
 
 - Lesson: F01
 - Build: debug
-- Image: ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:de0d69b176872e99c63152b8ab4ebffac7bb131e5422c8eaebc7f455374ea824
+- Image: ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:7baea8f3dd4de2e4c3b020543729b147e636494ae9758dabffb4675793e37170
 - Interpreter: 3.15.0rc1 (37e98da:37e98da, Aug 29 2026, 09:24:21) [GCC 14.2.0]
-- Recorded: 2026-08-31
+- Recorded: 2026-09-02
 
 Why this needs the debug build: the trace comes from an fprintf that is compiled out unless the interpreter was built with Py_DEBUG, and it only prints when that build is given the -d flag.
 
@@ -108,5 +108,5 @@ line 3 opens a bracket
 
     refills: 10, for a file of 5 lines
 
-~ how long the two runs took, in seconds: 0.7
+~ how long the two runs took, in seconds: 0.6
 ```

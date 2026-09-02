@@ -6,9 +6,9 @@ What does it look like when the test suite catches a reference leak?
 
 - Lesson: B03
 - Build: debug
-- Image: ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:de0d69b176872e99c63152b8ab4ebffac7bb131e5422c8eaebc7f455374ea824
+- Image: ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:7baea8f3dd4de2e4c3b020543729b147e636494ae9758dabffb4675793e37170
 - Interpreter: 3.15.0rc1 (37e98da:37e98da, Aug 29 2026, 09:24:21) [GCC 14.2.0]
-- Recorded: 2026-08-31
+- Recorded: 2026-09-02
 
 Why this needs the debug build: the -R flag reads sys.gettotalrefcount(), which only exists in a build configured with --with-pydebug, and regrtest refuses to hunt leaks without it.
 
@@ -130,6 +130,6 @@ Total tests: run=2
 Total test files: run=2/2 failed=1
 Result: FAILURE
 
-~ how long the two files took together, in seconds: 0.6
+~ how long the two files took together, in seconds: 0.4
 regrtest exited 2, which is the code it uses for a test that failed
 ```
