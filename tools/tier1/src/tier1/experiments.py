@@ -1287,6 +1287,144 @@ NOTHING_RUNS_WHILE_IT_WALKS = Experiment(
 )
 
 
+PROGRAM_TEN = r'''"""The same two thread benchmark, on a build with no lock to take.
+
+On any interpreter with a GIL, two threads adding numbers finish in the time two threads adding
+numbers would take one after the other, because only one of them is ever running. That is the
+measurement the lesson makes and it is the whole reason threads have the reputation they have.
+
+This program runs the identical benchmark on a build configured with --disable-gil, and adds a
+four thread version so the shape is visible rather than just the one number. The baseline is one
+run of the work on its own, so a perfect result would be one thread's time no matter how many
+threads are doing it.
+
+Everything here is the best of five runs after a warmup, because this image runs under emulation
+on a virtual machine with a handful of shared cores and a single cold run of anything comes out
+far too slow to compare against.
+"""
+
+import sys
+import threading
+import time
+
+
+def spin(n):
+    total = 0
+    for i in range(n):
+        total += i
+    return total
+
+
+WORK = 2_000_000
+ROUNDS = 5
+
+
+def best(count):
+    """Fastest wall clock time out of ROUNDS runs of the work on `count` threads."""
+    times = []
+    for _ in range(ROUNDS):
+        threads = [threading.Thread(target=spin, args=(WORK,)) for _ in range(count)]
+        start = time.perf_counter()
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+        times.append(time.perf_counter() - start)
+    return min(times)
+
+
+print(f"sys._is_gil_enabled() reports: {sys._is_gil_enabled()}")
+print(f"sys.getswitchinterval() still answers: {sys.getswitchinterval()}")
+print()
+
+spin(WORK)
+one = best(1)
+print(f"~ one run of the work on one thread: {one * 1000:.0f} ms")
+
+for count in (2, 4):
+    took = best(count)
+    print(f"~ {count} runs of that work on {count} threads: {took * 1000:.0f} ms")
+    print(f"~ speedup over doing those {count} runs in a row: {count * one / took:.2f}x")
+'''
+
+
+PROGRAM_ELEVEN = r'''"""What a second thread manages to get done during one long C call.
+
+The lesson measures this on a build with a GIL and the answer is close to nothing. list.sort is
+one call into C with no bytecode in it, so the eval loop never reaches a periodic check, so the
+GIL is never dropped, so a waiting thread waits for the whole sort no matter what the switch
+interval says.
+
+This program runs the same shape on a build configured with --disable-gil. There is no lock for
+the sorting thread to be holding, so the counting thread should keep counting the whole way
+through. The number to compare against the lesson is how many times the other thread ran.
+"""
+
+import sys
+import threading
+import time
+
+ticks = []
+stop = False
+
+
+def ticker():
+    while not stop:
+        ticks.append(time.perf_counter())
+
+
+print(f"sys._is_gil_enabled() reports: {sys._is_gil_enabled()}")
+
+helper = threading.Thread(target=ticker)
+helper.start()
+time.sleep(0.05)
+
+data = [(i * 2654435761) % 4000037 for i in range(1_000_000)]
+ticks.clear()
+start = time.perf_counter()
+data.sort()
+took = time.perf_counter() - start
+seen = ticks[:]
+stop = True
+helper.join()
+
+gaps = [b - a for a, b in zip(seen, seen[1:], strict=False)]
+print(f"~ how long the one C call took: {took * 1000:.0f} ms")
+print(f"~ how many times the other thread ran during it: {len(seen)}")
+print(f"~ longest single pause the other thread saw: {max(gaps) * 1000:.1f} ms")
+'''
+
+
+THE_SAME_WORK_WITHOUT_THE_LOCK = Experiment(
+    slug="c01-the-same-work-without-the-lock",
+    lesson="C01",
+    title="Two threads adding numbers, on a build with no GIL",
+    asks="What does the same two thread benchmark do when there is no lock to take?",
+    needs=(
+        "every build that is not configured with --disable-gil answers this question the same "
+        "way, which is that the two threads take as long as doing the work in a row, so there "
+        "is nothing to see without the other build"
+    ),
+    build="freethreaded",
+    program=PROGRAM_TEN,
+)
+
+
+NOTHING_TO_WAIT_FOR = Experiment(
+    slug="c01-nothing-to-wait-for",
+    lesson="C01",
+    title="A second thread running through somebody else's long C call",
+    asks="How much does another thread get done during one long C call when there is no GIL?",
+    needs=(
+        "on a build with a GIL the answer is fixed by the lock rather than by the machine, so "
+        "the only way to see what the hardware would have allowed is a build configured with "
+        "--disable-gil"
+    ),
+    build="freethreaded",
+    program=PROGRAM_ELEVEN,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -1299,6 +1437,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     NO_LISTS_TO_BE_IN,
     THE_COUNT_ANOTHER_THREAD_CANNOT_SEE,
     NOTHING_RUNS_WHILE_IT_WALKS,
+    THE_SAME_WORK_WITHOUT_THE_LOCK,
+    NOTHING_TO_WAIT_FOR,
 )
 
 
