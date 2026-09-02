@@ -1645,6 +1645,33 @@ CONCURRENCY = Group(
             see=("subinterpreter", "immortal object"),
             met="C04",
         ),
+        Term(
+            name="pending call",
+            short="A C function left for a thread to run the next time it reaches a periodic check.",
+            long="The caller does not run anything. It puts a function pointer on a small ring buffer, sets a bit on the eval breaker, and returns. `Py_AddPendingCall` always leaves the work for the main thread of the main interpreter, which is how a signal arriving on any thread ends up being handled on the one thread that is allowed to handle it.",
+            cite="Python/ceval_gil.c:810-825@v3.15.0rc1#Py_AddPendingCall",
+            also=("`_PY_CALLS_TO_DO_BIT`", "`_PyEval_AddPendingCall`"),
+            see=("eval breaker", "periodic check"),
+            met="C05",
+        ),
+        Term(
+            name="asynchronous exception",
+            short="An exception set on one thread by another, raised when the target next looks.",
+            long="`PyThreadState_SetAsyncExc` finds the thread state with a matching id, stores the exception class on it and sets a bit. The target raises it at its next periodic check, so a thread spinning in Python stops almost at once and a thread inside one long C call carries on until that call returns.",
+            cite="Python/pystate.c:2544-2580@v3.15.0rc1#PyThreadState_SetAsyncExc",
+            also=("`tstate->async_exc`", "`_PY_ASYNC_EXCEPTION_BIT`"),
+            see=("thread state", "periodic check"),
+            met="C05",
+        ),
+        Term(
+            name="signal handler",
+            short="A Python function the operating system cannot call, so the runtime calls it later.",
+            long="The C handler the kernel actually runs does almost nothing: it records which signal arrived and sets a bit on the main thread's eval breaker. The Python function registered with `signal.signal` runs from the periodic check afterwards, always on the main thread of the main interpreter, no matter which thread the operating system delivered the signal to.",
+            cite="Modules/signalmodule.c:80-101@v3.15.0rc1#signal",
+            also=("`signal.signal`", "`_PyEval_SignalReceived`"),
+            see=("eval breaker", "pending call"),
+            met="C05",
+        ),
     ),
 )
 

@@ -28,6 +28,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [c03-the-daemon-that-never-came-back](tier1/c03-the-daemon-that-never-came-back.md) | C03 | freethreaded | Does a daemon thread still get hung at shutdown on a build that has no lock to hang it with? |
 | [c04-four-cores-with-the-lock](tier1/c04-four-cores-with-the-lock.md) | C04 | release | How much does giving each job its own interpreter buy on a build that has a GIL? |
 | [c04-four-cores-without-the-lock](tier1/c04-four-cores-without-the-lock.md) | C04 | freethreaded | Does giving each job its own interpreter still buy anything once there is no GIL? |
+| [c05-the-message-that-waited](tier1/c05-the-message-that-waited.md) | C05 | release | How late can an injected script be when the target never reaches a periodic check? |
+| [c05-the-same-message-without-the-lock](tier1/c05-the-same-message-without-the-lock.md) | C05 | freethreaded | Does taking the GIL away change how late an injected script can be? |
 
 ## The commands
 

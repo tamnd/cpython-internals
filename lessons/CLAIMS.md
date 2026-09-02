@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-529 claims across 67 lessons, 45 of them not observable from Python.
+536 claims across 68 lessons, 47 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -98,6 +98,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | Inside a subinterpreter an ordinary thread and a nested interpreter are allowed, while a daemon thread, os.fork, os.execv and importing readline all raise | [`c04-19`](c04-more-than-one-interpreter/c04.ipynb) |
 | Four counting jobs in four threads and four interpreters finish in noticeably less wall time than the same four jobs in four threads and one interpreter, on a build that has a GIL | [`c04-22`](c04-more-than-one-interpreter/c04.ipynb) |
 | On a free threaded build the same two arrangements land close together, because four threads in one interpreter were already running on four cores | not observable from Python: it needs a build configured with --disable-gil, which is not something a reader can switch on in the interpreter they already have |
+
+## C05. The bit that interrupts a running thread
+
+| Claim | Proved by |
+| --- | --- |
+| An ordinary while loop compiles to JUMP_BACKWARD and a yield from loop compiles to JUMP_BACKWARD_NO_INTERRUPT, and a module built around delegation has more of the second kind than the first | [`c05-07`](c05-the-bit-that-interrupts/c05.ipynb) |
+| A signal raised while the main thread is inside a single call to list.sort is not handled until that call returns, and the Python handler runs on the main thread even though a worker thread raised the signal | [`c05-09`](c05-the-bit-that-interrupts/c05.ipynb) |
+| An exception set on another thread is raised at that thread's next periodic check, so a thread spinning in Python stops almost immediately and a thread inside one call to time.sleep does not stop until the sleep is over | [`c05-12`](c05-the-bit-that-interrupts/c05.ipynb) |
+| A pending call scheduled from a worker thread runs on the main thread, because Py_AddPendingCall always leaves the work for the main thread of the main interpreter | [`c05-15`](c05-the-bit-that-interrupts/c05.ipynb) |
+| Building the same sixty thousand dictionaries from C runs the cycle collector far fewer times than building them from Python, because a single C call never reaches a periodic check | [`c05-18`](c05-the-bit-that-interrupts/c05.ipynb) |
+| An injected script arrives about a thousand times later when the target is inside one long call into C than when it is running ordinary bytecode | not observable from Python: macOS refuses to let one process do this to another without root or a special entitlement, so a reader on a Mac cannot run it at all |
+| Removing the GIL changes none of this, because the lock is one bit out of eight and the periodic check is what the other seven are waiting for | not observable from Python: it needs a build configured with --disable-gil, which is not something a reader can switch on in the interpreter they already have |
 
 ## E01. The interpreter nobody wrote by hand
 
