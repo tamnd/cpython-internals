@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-474 claims across 60 lessons, 35 of them not observable from Python.
+483 claims across 61 lessons, 35 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -411,6 +411,20 @@ Without it the exception becomes the rule and this goes back to being a book.
 | Shifting a shared count field right by two gives the reference count and masking the bottom two bits gives the flags, which is enough to read any of these fields by hand | [`m06-19`](m06-two-counts-one-object/m06.ipynb) |
 | on a free threaded build a reference taken by the thread that made the object goes into the local count, one taken by any other thread goes into the shared count four at a time, and the reference count you get back is the two added together | not observable from Python: the split only exists in a build configured with --disable-gil, so on any other interpreter these offsets point at other fields entirely and reading them proves nothing |
 | Whether an object pays for the wider header depends on a flag on its type rather than on whether the collector is tracking that object right now | [`m06-22`](m06-two-counts-one-object/m06.ipynb) |
+
+## M07. The collector nobody calls
+
+| Claim | Proved by |
+| --- | --- |
+| The first number gc.get_count returns goes up when you make an object the collector tracks and comes back down when that object is freed, so it counts what is alive rather than what has been made | [`m07-07`](m07-the-collector-nobody-calls/m07.ipynb) |
+| When the first count passes the threshold the collector runs, the first count drops back to almost nothing, and the second count goes up by exactly one | [`m07-10`](m07-the-collector-nobody-calls/m07.ipynb) |
+| An object starts in generation 0, moves up every time it survives a collection, never moves back down, and ends up in generation 2 where it stays | [`m07-13`](m07-the-collector-nobody-calls/m07.ipynb) |
+| A cycle made a moment ago is freed by a pass over generation 0, and an identical cycle that has already survived a few passes is not freed until a full pass runs | [`m07-16`](m07-the-collector-nobody-calls/m07.ipynb) |
+| With sixty thousand long lived objects sitting in the old generation, hundreds of passes over generation 1 produce only a handful of full passes rather than one per two, which is what the threshold on its own would give | [`m07-18`](m07-the-collector-nobody-calls/m07.ipynb) |
+| A tuple of integers is never tracked, a tuple nested five deep starts with four of its five layers tracked, and each collection untracks exactly one more layer | [`m07-21`](m07-the-collector-nobody-calls/m07.ipynb) |
+| Appending a function to gc.callbacks gets it called twice per collection, once with the phase start and once with stop, and the info it is handed says which generation ran | [`m07-24`](m07-the-collector-nobody-calls/m07.ipynb) |
+| gc.get_stats returns one dictionary per generation, and on 3.15 each one carries a candidates count and a duration that 3.14 does not have | [`m07-26`](m07-the-collector-nobody-calls/m07.ipynb) |
+| gc.freeze moves every tracked object into a generation the collector ignores, gc.get_freeze_count reports how many, and gc.unfreeze puts them all back | [`m07-29`](m07-the-collector-nobody-calls/m07.ipynb) |
 
 ## O01. The header, byte by byte
 
