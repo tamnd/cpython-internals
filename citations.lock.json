@@ -455,6 +455,11 @@
       "first_line": "#ifdef Py_GIL_DISABLED",
       "lines": 15
     },
+    "Include/internal/pycore_object.h:24-28@v3.15.0rc1": {
+      "digest": "953631d5d535a8f0",
+      "first_line": "// non-deferred reference count drops to zero.",
+      "lines": 5
+    },
     "Include/internal/pycore_object.h:83-89@v3.15.0rc1": {
       "digest": "70fca12f791324cc",
       "first_line": "#if SIZEOF_VOID_P > 4",
@@ -705,6 +710,16 @@
       "first_line": "struct _object {",
       "lines": 24
     },
+    "Include/object.h:139-149@v3.15.0rc1": {
+      "digest": "efc5945e62da4364",
+      "first_line": "uint16_t ob_flags;",
+      "lines": 11
+    },
+    "Include/object.h:150-154@v3.15.0rc1": {
+      "digest": "96ad1518a2de5562",
+      "first_line": "#else",
+      "lines": 5
+    },
     "Include/object.h:156-167@v3.15.0rc1": {
       "digest": "5dfbd32621883aa8",
       "first_line": "struct _object {",
@@ -819,6 +834,16 @@
       "digest": "4b12e8e078a88f82",
       "first_line": "// Create a new strong reference to an object:",
       "lines": 12
+    },
+    "Include/refcount.h:71-75@v3.15.0rc1": {
+      "digest": "41168cfca91fa0c1",
+      "first_line": "// Py_GIL_DISABLED builds indicate immortal objects using `ob_ref_local`, which is",
+      "lines": 5
+    },
+    "Include/refcount.h:78-93@v3.15.0rc1": {
+      "digest": "18f8f170f88aef23",
+      "first_line": "#ifdef Py_GIL_DISABLED",
+      "lines": 16
     },
     "InternalDocs/exception_handling.md:108-118@v3.15.0rc1": {
       "digest": "e46da0c84e413233",
@@ -1350,6 +1375,11 @@
       "first_line": "static PyObject *",
       "lines": 6
     },
+    "Objects/funcobject.c:224-236@v3.15.0rc1": {
+      "digest": "21dc345c689c77df",
+      "first_line": "op->vectorcall = _PyFunction_Vectorcall;",
+      "lines": 13
+    },
     "Objects/genobject.c:210-218@v3.15.0rc1": {
       "digest": "6ae39f90c800ccb3",
       "first_line": "_PyObject_GC_UNTRACK(gen);",
@@ -1480,6 +1510,11 @@
       "first_line": "/* For int multiplication, use the O(N**2) school algorithm unless",
       "lines": 6
     },
+    "Objects/moduleobject.c:227-234@v3.15.0rc1": {
+      "digest": "21b58141819ca6bc",
+      "first_line": "static void",
+      "lines": 8
+    },
     "Objects/object.c:1573-1595@v3.15.0rc1": {
       "digest": "c469a683fb938006",
       "first_line": "_PyObject_ComputedDictPointer(PyObject *obj)",
@@ -1509,6 +1544,16 @@
       "digest": "84c3b29a29ccb125",
       "first_line": "void",
       "lines": 19
+    },
+    "Objects/object.c:2802-2812@v3.15.0rc1": {
+      "digest": "886883d0d297507a",
+      "first_line": "void",
+      "lines": 11
+    },
+    "Objects/object.c:2814-2848@v3.15.0rc1": {
+      "digest": "fc6ca133e2a360ee",
+      "first_line": "int",
+      "lines": 35
     },
     "Objects/object.c:3282-3300@v3.15.0rc1": {
       "digest": "6b3a6c6e934a76fc",

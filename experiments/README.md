@@ -16,6 +16,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [b04-changing-the-source-of-truth](tier1/b04-changing-the-source-of-truth.md) | B04 | debug | What happens to the generated C when you add an instruction to Python/bytecodes.c? |
 | [f01-one-line-at-a-time](tier1/f01-one-line-at-a-time.md) | F01 | debug | How much of your file is in the tokenizer's memory while it is being read? |
 | [f03-a-parser-nobody-wrote](tier1/f03-a-parser-nobody-wrote.md) | F03 | debug | What does the parser generator actually do, and what does it write? |
+| [m06-the-count-that-is-not-there](tier1/m06-the-count-that-is-not-there.md) | M06 | freethreaded | What does sys.getrefcount return for an object the interpreter has stopped counting? |
+| [m06-one-count-each-way](tier1/m06-one-count-each-way.md) | M06 | freethreaded | Where does a reference go when the thread taking it is not the one that made the object? |
 
 ## The commands
 

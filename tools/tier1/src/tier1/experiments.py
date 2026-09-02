@@ -895,6 +895,10 @@ print(f"    a string you just built:      {read(id(built))[1] == IMMORTAL}")
 print(f"    the same after sys.intern:    {read(id(sys.intern(built)))[1] == IMMORTAL}")
 print()
 
+#: Py_TPFLAGS_HAVE_GC. A type with this flag gets a collector pre header in front of every
+#: instance on an ordinary build, and no pre header at all on this one.
+HAVE_GC = 1 << 14
+
 print("what the wider header costs")
 print()
 for label, obj in [
@@ -904,11 +908,12 @@ for label, obj in [
     ("an empty list", []),
     ("an empty dict", {}),
 ]:
-    print(f"    {label:24} {sys.getsizeof(obj)} bytes")
+    collectable = bool(type(obj).__flags__ & HAVE_GC)
+    print(f"    {label:24} {sys.getsizeof(obj):>3} bytes   collectable type: {collectable}")
 print()
-print("    an object the collector does not track pays the whole 16 bytes.")
-print("    one it does track pays nothing, because this build dropped the separate")
-print("    collector header and put those bits in the object header instead.")
+print("    an object whose type is not collectable pays the whole 16 bytes.")
+print("    one whose type is collectable pays nothing, because this build dropped the")
+print("    separate collector header and put those bits in the object header instead.")
 print()
 
 started = time.monotonic()
