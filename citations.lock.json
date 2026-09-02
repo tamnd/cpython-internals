@@ -265,6 +265,11 @@
       "first_line": "#define BACKOFF_BITS 3",
       "lines": 21
     },
+    "Include/internal/pycore_ceval.h:348-353@v3.15.0rc1": {
+      "digest": "862c1b93137ae68a",
+      "first_line": "#define _PY_CALLS_TO_DO_BIT (1U << 2)",
+      "lines": 6
+    },
     "Include/internal/pycore_code.h:192-199@v3.15.0rc1": {
       "digest": "fc05fedf627a517c",
       "first_line": "#define CO_FAST_ARG_POS (0x02)  // pos-only, pos-or-kw, varargs",
@@ -360,6 +365,11 @@
       "first_line": "static inline int _PyGC_FINALIZED(PyObject *op) {",
       "lines": 16
     },
+    "Include/internal/pycore_gc.h:39-45@v3.15.0rc1": {
+      "digest": "350df2e24919c323",
+      "first_line": "#  define _PyGC_BITS_TRACKED        (1<<0)     // Tracked by the GC",
+      "lines": 7
+    },
     "Include/internal/pycore_gc.h:85-93@v3.15.0rc1": {
       "digest": "ecc9ac61ef853997",
       "first_line": "static inline int _PyObject_GC_MAY_BE_TRACKED(PyObject *obj) {",
@@ -395,6 +405,11 @@
       "first_line": "struct gc_generation {",
       "lines": 6
     },
+    "Include/internal/pycore_interp_structs.h:228-234@v3.15.0rc1": {
+      "digest": "765e116f65e87f0d",
+      "first_line": "/* linked lists of container objects */",
+      "lines": 7
+    },
     "Include/internal/pycore_interp_structs.h:271-278@v3.15.0rc1": {
       "digest": "3f61892d7656427e",
       "first_line": "#ifndef Py_GIL_DISABLED",
@@ -404,6 +419,11 @@
       "digest": "84ddd939ee6f307f",
       "first_line": "#ifndef Py_GIL_DISABLED",
       "lines": 16
+    },
+    "Include/internal/pycore_interp_structs.h:279-286@v3.15.0rc1": {
+      "digest": "e1b09b83e52a073c",
+      "first_line": "#else",
+      "lines": 8
     },
     "Include/internal/pycore_interp_structs.h:842-880@v3.15.0rc1": {
       "digest": "35744f6ec72c8dcf",
@@ -1124,6 +1144,11 @@
       "digest": "29d437453c61c8cb",
       "first_line": "Put news entry `blurb`_ files for the *Core and Builtins* section in this directory.",
       "lines": 3
+    },
+    "Modules/gcmodule.c:215-240@v3.15.0rc1": {
+      "digest": "4052c86f7bd5bcf1",
+      "first_line": "gc_get_count_impl(PyObject *module)",
+      "lines": 26
     },
     "Modules/gcmodule.c:336-349@v3.15.0rc1": {
       "digest": "dc41383493a980b4",
@@ -3515,10 +3540,70 @@
       "first_line": "/* Headache time.  `op` is going away, and is weakly referenced by",
       "lines": 30
     },
+    "Python/gc_free_threading.c:1376-1401@v3.15.0rc1": {
+      "digest": "a549c05dccc52f98",
+      "first_line": "static int",
+      "lines": 26
+    },
+    "Python/gc_free_threading.c:1995-2015@v3.15.0rc1": {
+      "digest": "5eb7b22722d4891c",
+      "first_line": "static bool",
+      "lines": 21
+    },
+    "Python/gc_free_threading.c:2017-2037@v3.15.0rc1": {
+      "digest": "85963e24c6282428",
+      "first_line": "static void",
+      "lines": 21
+    },
+    "Python/gc_free_threading.c:2039-2062@v3.15.0rc1": {
+      "digest": "fbb84872e74fb851",
+      "first_line": "static void",
+      "lines": 24
+    },
+    "Python/gc_free_threading.c:2064-2078@v3.15.0rc1": {
+      "digest": "e433886113261980",
+      "first_line": "static void",
+      "lines": 15
+    },
+    "Python/gc_free_threading.c:2099-2116@v3.15.0rc1": {
+      "digest": "58fb81072497ca7d",
+      "first_line": "#ifdef GC_ENABLE_MARK_ALIVE",
+      "lines": 18
+    },
+    "Python/gc_free_threading.c:2141-2161@v3.15.0rc1": {
+      "digest": "7ecb7b93955c2918",
+      "first_line": "_PyEval_StartTheWorld(interp);",
+      "lines": 21
+    },
+    "Python/gc_free_threading.c:2435-2451@v3.15.0rc1": {
+      "digest": "f727705e0fd9ec99",
+      "first_line": "_PyGC_GetObjects(PyInterpreterState *interp, int generation)",
+      "lines": 17
+    },
+    "Python/gc_free_threading.c:2453-2462@v3.15.0rc1": {
+      "digest": "3119184f94234270",
+      "first_line": "static bool",
+      "lines": 10
+    },
+    "Python/gc_free_threading.c:368-395@v3.15.0rc1": {
+      "digest": "b4da556ae7d0a65d",
+      "first_line": "gc_visit_heaps_lock_held(PyInterpreterState *interp, mi_block_visit_fun *visitor,",
+      "lines": 28
+    },
     "Python/gc_free_threading.c:381-399@v3.15.0rc1": {
       "digest": "0c17d494d2a8f663",
       "first_line": "// visit each thread's heaps for GC objects",
       "lines": 19
+    },
+    "Python/gc_free_threading.c:44-46@v3.15.0rc1": {
+      "digest": "04dbf2a689198f0e",
+      "first_line": "// the global count.",
+      "lines": 3
+    },
+    "Python/gc_free_threading.c:445-478@v3.15.0rc1": {
+      "digest": "0b2727ad21b28e88",
+      "first_line": "// Add 1 to the gc_refs for every deferred reference on each thread's stack.",
+      "lines": 34
     },
     "Python/gc_gil.c:6-15@v3.15.0rc1": {
       "digest": "ff88abe1b50962f4",
@@ -3664,6 +3749,16 @@
       "digest": "332183fc478125a5",
       "first_line": "PyStatus",
       "lines": 31
+    },
+    "Python/pystate.c:2385-2406@v3.15.0rc1": {
+      "digest": "03513f8b0c2b30b0",
+      "first_line": "park_detached_threads(struct _stoptheworld_state *stw)",
+      "lines": 22
+    },
+    "Python/pystate.c:2408-2443@v3.15.0rc1": {
+      "digest": "f93ae39f0d3619f9",
+      "first_line": "static void",
+      "lines": 36
     },
     "Python/pystate.c:3097-3131@v3.15.0rc1": {
       "digest": "16efa884926fc1e2",

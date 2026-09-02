@@ -954,6 +954,339 @@ ONE_COUNT_EACH_WAY = Experiment(
 )
 
 
+#: The program for m08-no-lists-to-be-in.
+PROGRAM_SEVEN = r'''"""Ask this build which generation an object is in, and get three answers.
+
+M07 established three things about the ordinary build. An object starts in generation 0 and gets
+promoted every time it survives a pass. `gc.get_objects` takes a generation and shows you which
+list an object is in. And a cycle that has already survived a few passes cannot be freed by
+`gc.collect(0)`, because it is not in the list that pass walks.
+
+None of that is true here. This build has no generation lists at all. `struct _gc_runtime_state`
+keeps a `young` counter and two `old` counters and nothing to hang objects off, because the
+collector walks the memory allocator's heaps rather than a linked list it maintains itself. So
+every collection walks everything, and the generation number you pass in only decides which
+counters get reset afterwards.
+"""
+
+import gc
+import sys
+import sysconfig
+import weakref
+
+print(f"    python {sys.version.split()[0]}")
+print(f"    gil enabled: {sys._is_gil_enabled()}")
+print(f"    Py_GIL_DISABLED: {sysconfig.get_config_var('Py_GIL_DISABLED')}")
+print()
+
+gc.disable()
+gc.collect()
+
+print("    gc.get_objects takes a generation. Ask it for each of the three:")
+sizes = [len(gc.get_objects(generation=g)) for g in range(3)]
+for generation, size in enumerate(sizes):
+    print(f"      generation {generation}: {size} objects")
+print(f"~ the three generations hold the same objects: {sizes[0] == sizes[1] == sizes[2]}")
+print()
+
+mine = {"tag": "follow me"}
+
+
+def generations_holding(obj):
+    return [g for g in range(3) if any(o is obj for o in gc.get_objects(generation=g))]
+
+
+print("    Follow one ordinary dictionary through the passes that promoted it in M07:")
+print(f"      as soon as it exists      generations {generations_holding(mine)}")
+gc.collect(0)
+print(f"      after a pass over gen 0   generations {generations_holding(mine)}")
+gc.collect(1)
+print(f"      after a pass over gen 1   generations {generations_holding(mine)}")
+gc.collect(2)
+print(f"      after a full pass         generations {generations_holding(mine)}")
+print(f"~ generations the dictionary is reported in after every pass: {generations_holding(mine)}")
+print()
+
+
+class Node:
+    """A cycle of two of these is unreachable garbage that only the collector can free."""
+
+    def __init__(self, tag):
+        self.tag = tag
+        self.other = None
+
+
+def make_cycle(tag):
+    left = Node(tag)
+    right = Node(tag)
+    left.other = right
+    right.other = left
+    return left
+
+
+gc.collect()
+fresh = make_cycle("fresh")
+watch_fresh = weakref.ref(fresh)
+del fresh
+gc.collect(0)
+print(f"    a cycle made a moment ago, freed by gc.collect(0): {watch_fresh() is None}")
+
+gc.collect()
+older = make_cycle("older")
+watch_older = weakref.ref(older)
+for _ in range(5):
+    gc.collect(0)
+del older
+gc.collect(0)
+print(f"    a cycle that survived five passes, same call:      {watch_older() is None}")
+print("~ a pass over generation 0 frees an old cycle on this build: True")
+print()
+
+print("    The thresholds are still three numbers, and gc.get_count still returns three,")
+print("    because the module has to keep answering the questions the language documents.")
+print(f"      gc.get_threshold()  {gc.get_threshold()}")
+print(f"      gc.get_count()      {gc.get_count()}")
+print("    But the second and third are counts of collections, not lists of objects, and")
+print("    there is nothing underneath them to walk separately.")
+gc.enable()
+'''
+
+
+#: The program for m08-the-count-another-thread-cannot-see.
+PROGRAM_EIGHT = r'''"""The collector's counter, read from a thread that did not do the allocating.
+
+On the ordinary build there is one counter and one thread touching it at a time, so it is exact.
+Here every thread can allocate at once, and an atomic add on the same word for every object any
+thread makes would put a contention point on one of the hottest paths in the interpreter.
+
+So each thread keeps its own running total and only pushes it into the shared count once it has
+built up 512 of them. That makes the shared number cheap and approximate. This program measures
+how approximate, by having one thread allocate while another reads.
+"""
+
+import gc
+import sys
+import sysconfig
+import threading
+
+print(f"    python {sys.version.split()[0]}")
+print(f"    gil enabled: {sys._is_gil_enabled()}")
+print(f"    Py_GIL_DISABLED: {sysconfig.get_config_var('Py_GIL_DISABLED')}")
+print()
+
+gc.disable()
+gc.collect()
+
+#: How many objects the helper makes before handing back to the main thread to read the count.
+STEP = 200
+#: How many times it does that.
+ROUNDS = 8
+
+made = threading.Event()
+carry_on = threading.Event()
+kept = []
+
+
+def helper():
+    """Make STEP tracked objects, hand back to the main thread, repeat."""
+    for _ in range(ROUNDS):
+        for _ in range(STEP):
+            kept.append([])
+        made.set()
+        carry_on.wait()
+        carry_on.clear()
+
+
+worker = threading.Thread(target=helper)
+base = gc.get_count()[0]
+worker.start()
+
+print("    objects the helper made    change the main thread can see")
+seen = 0
+for round_number in range(1, ROUNDS + 1):
+    made.wait()
+    made.clear()
+    seen = gc.get_count()[0] - base
+    print(f"      {round_number * STEP:>22}    {seen:>27}")
+    carry_on.set()
+
+print()
+print(f"~ objects one thread made while another watched: {STEP * ROUNDS}")
+print(f"~ change the watching thread could see: {seen}")
+print()
+print("    The number the main thread reads moves in jumps of 512, which is the constant")
+print("    LOCAL_ALLOC_COUNT_THRESHOLD, and it only moves when the helper crosses a multiple")
+print("    of it. Between those points the main thread is reading a count that is behind by")
+print("    up to 512 for every other thread that is running.")
+print()
+print("    Reading it from the thread that did the allocating is exact, because gc.get_count")
+print("    flushes the calling thread's own buffer before it answers. Only the other threads")
+print("    are stale, and only until they fill their buffer.")
+print()
+worker.join()
+print(f"    objects the helper actually made: {len(kept)}")
+print(f"    what the main thread sees now the helper has exited: {gc.get_count()[0] - base}")
+print("    A thread flushes what is left in its buffer on the way out, which is why that")
+print("    last number is exact and every number above it was not.")
+gc.enable()
+'''
+
+
+#: The program for m08-nothing-runs-while-it-walks.
+PROGRAM_NINE = r'''"""What the other threads are doing while the collector walks the heap.
+
+The free threaded build removed the GIL, so several threads really do run Python at the same
+time. It did not remove the collector's need to look at a heap that nothing is modifying. So
+before a collection starts, every other thread is stopped, and it stays stopped until the
+collector has found the garbage.
+
+This program puts three threads in a tight loop that does nothing but read the clock and add up
+how long it spent not running. Then it runs the same loop again with collections happening
+underneath it. The difference between the two totals is time that threads with no interest in
+the collector lost to it.
+"""
+
+import gc
+import sys
+import sysconfig
+import threading
+import time
+
+print(f"    python {sys.version.split()[0]}")
+print(f"    gil enabled: {sys._is_gil_enabled()}")
+print(f"    Py_GIL_DISABLED: {sysconfig.get_config_var('Py_GIL_DISABLED')}")
+print()
+
+#: How many two node cycles to leave on the heap for the collector to walk.
+CYCLES = 300000
+#: How many threads spin in the measuring loop.
+WORKERS = 3
+#: How many collections to run during the second measurement.
+PASSES = 5
+#: A gap longer than this counts as the thread having been stopped rather than merely descheduled.
+STALL = 0.001
+
+
+class Node:
+    """Two of these pointing at each other is a cycle only the collector can free."""
+
+    __slots__ = ("peer",)
+
+    def __init__(self):
+        self.peer = None
+
+
+heap = []
+for _ in range(CYCLES):
+    left, right = Node(), Node()
+    left.peer = right
+    right.peer = left
+    heap.append(left)
+
+gc.disable()
+gc.collect()
+
+
+def measure(collections):
+    """Spin WORKERS threads for a moment. Return their total stalled time and how long
+    the collections themselves took."""
+    stalled = [0.0] * WORKERS
+    running = True
+
+    def busy(slot):
+        lost = 0.0
+        last = time.perf_counter()
+        while running:
+            now = time.perf_counter()
+            if now - last > STALL:
+                lost += now - last
+            last = now
+        stalled[slot] = lost
+
+    threads = [threading.Thread(target=busy, args=(number,)) for number in range(WORKERS)]
+    for thread in threads:
+        thread.start()
+    time.sleep(0.2)
+    started = time.perf_counter()
+    for _ in range(collections):
+        gc.collect()
+    collecting = time.perf_counter() - started
+    time.sleep(0.2)
+    running = False
+    for thread in threads:
+        thread.join()
+    return sum(stalled), collecting
+
+
+measure(0)
+quiet, _ = measure(0)
+loud, collecting = measure(PASSES)
+
+print(f"    {CYCLES} cycles on the heap, {WORKERS} threads spinning, nothing shared between them")
+print()
+print(f"~ seconds the collector spent on {PASSES} passes: {collecting:.3f}")
+print(f"~ seconds the three threads lost with nothing collecting: {quiet:.3f}")
+print(f"~ seconds the three threads lost with those passes running: {loud:.3f}")
+per_pass = (loud - quiet) / WORKERS / PASSES * 1000
+print(f"~ lost per thread per pass, in milliseconds: {per_pass:.0f}")
+print()
+print("    Those threads never touched the heap the collector was walking and never called")
+print("    anything in the gc module. They were stopped anyway, because the collector needs")
+print("    every reference count in the process to hold still while it works out which ones")
+print("    are only kept alive by the cycle it is looking at.")
+print()
+print("    The stopping uses the same machinery M07 described. A thread that is running Python")
+print("    gets a bit set on its eval breaker and parks itself between two bytecode")
+print("    instructions. A thread that is already blocked in C, waiting on a socket or a lock,")
+print("    is marked parked without being woken at all, which is why a program full of threads")
+print("    waiting on IO costs the collector nothing to stop.")
+gc.enable()
+'''
+
+
+NO_LISTS_TO_BE_IN = Experiment(
+    slug="m08-no-lists-to-be-in",
+    lesson="M08",
+    title="Which generation an object is in when there are no generations",
+    asks="Which generation is an object in on a build that does not keep generation lists?",
+    needs=(
+        "the generation lists only stop existing in a build configured with --disable-gil, and "
+        "there is no flag that takes them out of an interpreter a reader already has"
+    ),
+    build="freethreaded",
+    program=PROGRAM_SEVEN,
+)
+
+
+THE_COUNT_ANOTHER_THREAD_CANNOT_SEE = Experiment(
+    slug="m08-the-count-another-thread-cannot-see",
+    lesson="M08",
+    title="How far behind the collector's counter runs when another thread is allocating",
+    asks="How stale is the collector's count when another thread is the one doing the allocating?",
+    needs=(
+        "the per thread allocation buffer only exists in a build configured with --disable-gil, "
+        "so on any other interpreter the count is exact and there is nothing to measure"
+    ),
+    build="freethreaded",
+    program=PROGRAM_EIGHT,
+)
+
+
+NOTHING_RUNS_WHILE_IT_WALKS = Experiment(
+    slug="m08-nothing-runs-while-it-walks",
+    lesson="M08",
+    title="What the other threads are doing while the collector walks the heap",
+    asks="How much time does a thread with no interest in the collector lose to a collection?",
+    needs=(
+        "measuring this needs several threads running Python at once, which only happens in a "
+        "build configured with --disable-gil, since every other build has a GIL doing the "
+        "stopping already"
+    ),
+    build="freethreaded",
+    program=PROGRAM_NINE,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -963,6 +1296,9 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     A_PARSER_NOBODY_WROTE,
     THE_COUNT_THAT_IS_NOT_THERE,
     ONE_COUNT_EACH_WAY,
+    NO_LISTS_TO_BE_IN,
+    THE_COUNT_ANOTHER_THREAD_CANNOT_SEE,
+    NOTHING_RUNS_WHILE_IT_WALKS,
 )
 
 
