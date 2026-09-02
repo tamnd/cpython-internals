@@ -460,6 +460,11 @@
       "first_line": "/*",
       "lines": 19
     },
+    "Include/internal/pycore_obmalloc.h:137-146@v3.15.0rc1": {
+      "digest": "ff0cffc88cb87f73",
+      "first_line": "#if SIZEOF_VOID_P > 4",
+      "lines": 10
+    },
     "Include/internal/pycore_obmalloc.h:153-164@v3.15.0rc1": {
       "digest": "42d1e9479d73daea",
       "first_line": "* Note: a size threshold of 512 guarantees that newly created dictionaries",
@@ -479,6 +484,21 @@
       "digest": "15889a76c582778b",
       "first_line": "/*",
       "lines": 10
+    },
+    "Include/internal/pycore_obmalloc.h:249-252@v3.15.0rc1": {
+      "digest": "eb0593eb5ba22d0e",
+      "first_line": "#define MAX_POOLS_IN_ARENA  (ARENA_SIZE / POOL_SIZE)",
+      "lines": 4
+    },
+    "Include/internal/pycore_obmalloc.h:263-274@v3.15.0rc1": {
+      "digest": "cf6f41107d869dc1",
+      "first_line": "/* Pool for small blocks. */",
+      "lines": 12
+    },
+    "Include/internal/pycore_obmalloc.h:319-327@v3.15.0rc1": {
+      "digest": "1e56b10a624419ee",
+      "first_line": "#define POOL_OVERHEAD   _Py_SIZE_ROUND_UP(sizeof(struct pool_header), ALIGNMENT)",
+      "lines": 9
     },
     "Include/internal/pycore_opcode_metadata.h:1822-1845@v3.15.0rc1": {
       "digest": "b5d43b34cb533a10",
@@ -1445,6 +1465,11 @@
       "first_line": "static void",
       "lines": 14
     },
+    "Objects/obmalloc.c:2626-2643@v3.15.0rc1": {
+      "digest": "e42b5026908143f4",
+      "first_line": "/* All the rest is arena management.  We just freed",
+      "lines": 18
+    },
     "Objects/obmalloc.c:3088-3097@v3.15.0rc1": {
       "digest": "46a40dbe01dd5d3d",
       "first_line": "/* Layout: [SSSS IFFF CCCC...CCCC FFFF NNNN]",
@@ -1464,6 +1489,16 @@
       "digest": "337aa181a73f6987",
       "first_line": "nbytes = read_size_t(q - 2*SST);",
       "lines": 8
+    },
+    "Objects/obmalloc.c:3781-3796@v3.15.0rc1": {
+      "digest": "c47d6bf59ba2ce66",
+      "first_line": "for (i = 0; i < numclasses; ++i) {",
+      "lines": 16
+    },
+    "Objects/obmalloc.c:3816-3827@v3.15.0rc1": {
+      "digest": "ac1b46cbcae79177",
+      "first_line": "total = printone(out, \"# bytes in allocated blocks\", allocated_bytes);",
+      "lines": 12
     },
     "Objects/obmalloc.c:681-700@v3.15.0rc1": {
       "digest": "35ed0214227df57e",

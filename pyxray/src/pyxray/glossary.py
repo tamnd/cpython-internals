@@ -1244,6 +1244,22 @@ MEMORY = Group(
             met="T09",
         ),
         Term(
+            name="size class",
+            short="One of the 32 block sizes obmalloc serves, sixteen bytes apart.",
+            long="A request is rounded up to the next multiple of sixteen and served from a pool holding only that size, so 16, 32, 48 and so on up to 512. Nothing in between exists. Asking for 17 bytes gets you 32 and the other fifteen are not given back to anyone until you free the block.",
+            cite="Include/internal/pycore_obmalloc.h:137-146@v3.15.0rc1#INDEX2SIZE",
+            see=("block", "pool", "obmalloc"),
+            met="M02",
+        ),
+        Term(
+            name="pool header",
+            short="The 48 bytes at the front of every pool that say what the pool is holding.",
+            long="It records how many blocks are in use, where the free list starts, which size class the pool serves, which arena it belongs to, and the two pointers linking it to the other pools of the same class. Those 48 bytes are why a pool holds 1021 sixteen byte blocks rather than 1024.",
+            cite="Include/internal/pycore_obmalloc.h:263-274@v3.15.0rc1#pool_header",
+            see=("pool", "block", "arena"),
+            met="M02",
+        ),
+        Term(
             name="allocator domain",
             short="One of the three entrances to CPython's heap, each with its own set of functions.",
             long="Raw is for work that happens outside an interpreter and has to be safe to call with no lock held, mem is for buffers that belong to an object, and obj is for the objects themselves. They are not interchangeable. Each domain is four function pointers a program embedding Python may replace, and under the debug hooks each one writes a different letter in front of every block it hands out.",
