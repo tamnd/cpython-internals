@@ -1145,10 +1145,35 @@
       "first_line": "Put news entry `blurb`_ files for the *Core and Builtins* section in this directory.",
       "lines": 3
     },
+    "Modules/_functoolsmodule.c:1237-1256@v3.15.0rc1": {
+      "digest": "f30e36435cb581d3",
+      "first_line": "lru_cache_make_key(PyObject *kwd_mark, PyObject *args,",
+      "lines": 20
+    },
+    "Modules/_functoolsmodule.c:1309-1330@v3.15.0rc1": {
+      "digest": "50cde35ef432b866",
+      "first_line": "static PyObject *",
+      "lines": 22
+    },
     "Modules/gcmodule.c:215-240@v3.15.0rc1": {
       "digest": "4052c86f7bd5bcf1",
       "first_line": "gc_get_count_impl(PyObject *module)",
       "lines": 26
+    },
+    "Modules/gcmodule.c:242-260@v3.15.0rc1": {
+      "digest": "a9c9895f694102f9",
+      "first_line": "/*[clinic input]",
+      "lines": 19
+    },
+    "Modules/gcmodule.c:262-288@v3.15.0rc1": {
+      "digest": "e48972723566bbde",
+      "first_line": "/* Append obj to list; return true if error (out of memory), false if OK. */",
+      "lines": 27
+    },
+    "Modules/gcmodule.c:290-322@v3.15.0rc1": {
+      "digest": "6d0eb17e264c9548",
+      "first_line": "/*[clinic input]",
+      "lines": 33
     },
     "Modules/gcmodule.c:336-349@v3.15.0rc1": {
       "digest": "dc41383493a980b4",
@@ -3435,6 +3460,11 @@
       "first_line": "static void",
       "lines": 22
     },
+    "Python/gc.c:1011-1039@v3.15.0rc1": {
+      "digest": "63bcba6da6794191",
+      "first_line": "/* Handle uncollectable garbage (cycles with tp_del slots, and stuff reachable",
+      "lines": 29
+    },
     "Python/gc.c:1041-1074@v3.15.0rc1": {
       "digest": "3d19617d23da0777",
       "first_line": "/* Run first-time finalizers (if any) on all the objects in collectable.",
@@ -3444,6 +3474,11 @@
       "digest": "8d80020d59a966fb",
       "first_line": "/* Run first-time finalizers (if any) on all the objects in collectable.",
       "lines": 36
+    },
+    "Python/gc.c:1082-1110@v3.15.0rc1": {
+      "digest": "44a99abf9040db70",
+      "first_line": "static void",
+      "lines": 29
     },
     "Python/gc.c:1221-1236@v3.15.0rc1": {
       "digest": "dc27d9361032699d",
@@ -3485,6 +3520,16 @@
       "first_line": "",
       "lines": 6
     },
+    "Python/gc.c:1665-1684@v3.15.0rc1": {
+      "digest": "7ab1da2aa5c61b1b",
+      "first_line": "static int",
+      "lines": 20
+    },
+    "Python/gc.c:1686-1702@v3.15.0rc1": {
+      "digest": "b7de98be2558e91e",
+      "first_line": "PyObject *",
+      "lines": 17
+    },
     "Python/gc.c:1735-1743@v3.15.0rc1": {
       "digest": "d3a69824bc92bd2e",
       "first_line": "void",
@@ -3524,6 +3569,11 @@
       "digest": "9bfd1d625dc37d90",
       "first_line": "untrack_tuples(PyGC_Head *head)",
       "lines": 12
+    },
+    "Python/gc.c:678-683@v3.15.0rc1": {
+      "digest": "6ed0a693f24c88ea",
+      "first_line": "/* Return true if object has a pre-PEP 442 finalization method. */",
+      "lines": 6
     },
     "Python/gc.c:781-787@v3.15.0rc1": {
       "digest": "102c56f2410892ad",
@@ -3869,6 +3919,31 @@
       "digest": "2aa5d7a83af6b2ee",
       "first_line": "/*[clinic input]",
       "lines": 19
+    },
+    "Python/sysmodule.c:2051-2064@v3.15.0rc1": {
+      "digest": "d81388db40b354de",
+      "first_line": "/*[clinic input]",
+      "lines": 14
+    },
+    "Python/traceback.c:311-330@v3.15.0rc1": {
+      "digest": "9bb9eee832e371b9",
+      "first_line": "_PyTraceBack_FromFrame(PyObject *tb_next, PyFrameObject *frame)",
+      "lines": 20
+    },
+    "Python/traceback.c:79-98@v3.15.0rc1": {
+      "digest": "dad56361db49f457",
+      "first_line": "static PyObject *",
+      "lines": 20
+    },
+    "Python/tracemalloc.c:499-530@v3.15.0rc1": {
+      "digest": "ab24412fb1db25e3",
+      "first_line": "static void*",
+      "lines": 32
+    },
+    "Python/tracemalloc.c:805-840@v3.15.0rc1": {
+      "digest": "76e605558f4b7595",
+      "first_line": "int",
+      "lines": 36
     },
     "Tools/cases_generator/README.md:14-34@v3.15.0rc1": {
       "digest": "fb06409a976b7a51",

@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-492 claims across 62 lessons, 38 of them not observable from Python.
+501 claims across 63 lessons, 38 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -439,6 +439,20 @@ Without it the exception becomes the rule and this goes back to being a book.
 | A full pass over a heap with two hundred thousand cycles on it takes a measurable number of milliseconds, and a pass over the same heap once those cycles are gone takes almost none | [`m08-17`](m08-stop-the-world/m08.ipynb) |
 | Three threads spinning in a loop that touches nothing lose almost exactly three times the time the collector spends, which is what being stopped for the whole pass looks like | not observable from Python: measuring this needs several threads running Python at once, which only happens in a build configured with --disable-gil |
 | gc.get_stats reports a candidates count on 3.15, and after a full pass over a large heap that count is at least as large as the number of objects the collector is tracking | [`m08-20`](m08-stop-the-world/m08.ipynb) |
+
+## M09. What will not go away
+
+| Claim | Proved by |
+| --- | --- |
+| Making a hundred thousand objects and then dropping them puts sys.getallocatedblocks back within a handful of where it started | [`m09-07`](m09-what-will-not-go-away/m09.ipynb) |
+| A parent holding a list of children that each point back at it is unreachable garbage the moment the function returns, and one collection frees five objects | [`m09-10`](m09-what-will-not-go-away/m09.ipynb) |
+| With DEBUG_SAVEALL set, the same collection leaves five objects in gc.garbage, and they are the parent, its list, and the three children | [`m09-12`](m09-what-will-not-go-away/m09.ipynb) |
+| A cycle of two objects whose class defines __del__ is collected normally and leaves gc.garbage empty | [`m09-14`](m09-what-will-not-go-away/m09.ipynb) |
+| A tuple that is still tracked turns up in gc.get_referrers for the object it holds, and an untracked tuple holding the same object does not | [`m09-16`](m09-what-will-not-go-away/m09.ipynb) |
+| gc.get_referents on a long string returns nothing at all, even though the string is holding a large amount of memory | [`m09-19`](m09-what-will-not-go-away/m09.ipynb) |
+| An object that only exists as a local variable in a function that raised is still alive afterwards if the exception was saved, and dies as soon as the exception is dropped | [`m09-21`](m09-what-will-not-go-away/m09.ipynb) |
+| An instance whose cached method has been called once stays alive after every reference to it is dropped, and the referrer holding it is a tuple | [`m09-23`](m09-what-will-not-go-away/m09.ipynb) |
+| Comparing two tracemalloc snapshots taken either side of an allocation reports the line that did it, with a size close to what was allocated | [`m09-25`](m09-what-will-not-go-away/m09.ipynb) |
 
 ## O01. The header, byte by byte
 
