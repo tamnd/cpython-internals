@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-414 claims across 52 lessons, 26 of them not observable from Python.
+422 claims across 53 lessons, 29 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -179,6 +179,19 @@ Without it the exception becomes the rule and this goes back to being a book.
 | two loops differing only in which constant they use compile to almost identical machine code | [`e10-19`](e10-the-compiler-that-finished-before-you-started/e10.ipynb) |
 | two different loops that share a prefix of micro operations share most of their opening bytes | [`e10-22`](e10-the-compiler-that-finished-before-you-started/e10.ipynb) |
 | the memory an executor is given is a whole number of pages, most of it unused for a short trace | [`e10-25`](e10-the-compiler-that-finished-before-you-started/e10.ipynb) |
+
+## E11. One function per opcode
+
+| Claim | Proved by |
+| --- | --- |
+| the dispatch style chosen at configure time is recorded as a macro in the shipped pyconfig.h | [`e11-07`](e11-one-function-per-opcode/e11.ipynb) |
+| the same generated C file becomes a switch, a jump table or a set of separate functions depending only on which macros are defined around it | not observable from Python: the three versions are produced by the C preprocessor at build time, and only one of them exists in the binary you are running |
+| the opcode numbering fills most of the 256 available slots, and the leftovers shrink as opcodes are added | [`e11-10`](e11-one-function-per-opcode/e11.ipynb) |
+| each opcode function ends by calling the next one and the compiler is required to turn that call into a jump | not observable from Python: whether a call reused the stack frame is a property of the machine code, and Python has no way to look at the C stack |
+| a single function containing eighty thousand bytecode instructions runs in one frame without trouble | [`e11-13`](e11-one-function-per-opcode/e11.ipynb) |
+| adding one more bytecode instruction to a hot loop costs a roughly fixed amount of time | [`e11-15`](e11-one-function-per-opcode/e11.ipynb) |
+| the time three different loops take tracks the number of instructions they run, at close to the same rate | [`e11-18`](e11-one-function-per-opcode/e11.ipynb) |
+| the speed comes from the compiler handling small functions better, not from calls being cheap | not observable from Python: register allocation happens inside the C compiler, and nothing about it survives into anything Python can inspect |
 
 ## F01. The tokenizer, in C
 

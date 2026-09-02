@@ -765,6 +765,11 @@
       "first_line": "Since 3.11, the `CALL` instruction special-cases function objects to \"inline\"",
       "lines": 6
     },
+    "InternalDocs/interpreter.md:510-528@v3.15.0rc1": {
+      "digest": "60da5ac51ce7906d",
+      "first_line": "## Interpreter types",
+      "lines": 19
+    },
     "InternalDocs/jit.md:111-149@v3.15.0rc1": {
       "digest": "6fda45494a00b726",
       "first_line": "## The JIT",
@@ -2810,6 +2815,11 @@
       "first_line": "#elif USE_COMPUTED_GOTOS",
       "lines": 14
     },
+    "Python/ceval_macros.h:128-145@v3.15.0rc1": {
+      "digest": "001a471ea86a2d78",
+      "first_line": "#elif USE_COMPUTED_GOTOS",
+      "lines": 18
+    },
     "Python/ceval_macros.h:138-145@v3.15.0rc1": {
       "digest": "85afcab295421490",
       "first_line": "#else",
@@ -2850,10 +2860,20 @@
       "first_line": "#define GETLOCAL(i)     (frame->localsplus[i])",
       "lines": 1
     },
+    "Python/ceval_macros.h:74-80@v3.15.0rc1": {
+      "digest": "e866a42b60196877",
+      "first_line": "#ifdef Py_STATS",
+      "lines": 7
+    },
     "Python/ceval_macros.h:82-97@v3.15.0rc1": {
       "digest": "41ca9bcd9ea44543",
       "first_line": "#if _Py_TAIL_CALL_INTERP",
       "lines": 16
+    },
+    "Python/ceval_macros.h:99-127@v3.15.0rc1": {
+      "digest": "44f4a0a632c7c0b2",
+      "first_line": "#   define DISPATCH_TABLE_VAR instruction_funcptr_table",
+      "lines": 29
     },
     "Python/codegen.c:1614-1624@v3.15.0rc1": {
       "digest": "a7d3d7b726d154c4",
@@ -3190,6 +3210,11 @@
       "first_line": "TARGET(BINARY_OP_MULTIPLY_INT) {",
       "lines": 17
     },
+    "Python/generated_cases.c.h:9369-9384@v3.15.0rc1": {
+      "digest": "08b16a0b876d1642",
+      "first_line": "TARGET(LOAD_FAST) {",
+      "lines": 16
+    },
     "Python/instrumentation.c:1190-1216@v3.15.0rc1": {
       "digest": "cea5143d2a582d2a",
       "first_line": "size_t nargsf = (size_t) nargs | PY_VECTORCALL_ARGUMENTS_OFFSET;",
@@ -3414,6 +3439,16 @@
       "digest": "13e1e00aeff61ae9",
       "first_line": "def generate_specializations(analysis: Analysis, out: CWriter) -> None:",
       "lines": 12
+    },
+    "Tools/cases_generator/target_generator.py:74-82@v3.15.0rc1": {
+      "digest": "ae640c987c537937",
+      "first_line": "# Emit the dispatch table.",
+      "lines": 9
+    },
+    "Tools/cases_generator/tier1_generator.py:221-236@v3.15.0rc1": {
+      "digest": "ec097a447eeba9ac",
+      "first_line": "def generate_tier1_cases(",
+      "lines": 16
     },
     "Tools/gdb/libpython.py:1778-1791@v3.15.0rc1": {
       "digest": "e6e5fbf4aa73f0dd",
