@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-422 claims across 53 lessons, 29 of them not observable from Python.
+429 claims across 54 lessons, 29 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -192,6 +192,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | adding one more bytecode instruction to a hot loop costs a roughly fixed amount of time | [`e11-15`](e11-one-function-per-opcode/e11.ipynb) |
 | the time three different loops take tracks the number of instructions they run, at close to the same rate | [`e11-18`](e11-one-function-per-opcode/e11.ipynb) |
 | the speed comes from the compiler handling small functions better, not from calls being cheap | not observable from Python: register allocation happens inside the C compiler, and nothing about it survives into anything Python can inspect |
+
+## E12. One plus sign, all the way down
+
+| Claim | Proved by |
+| --- | --- |
+| BINARY_OP occupies twelve bytes in a code object, two for the instruction and ten for five cache slots | [`e12-07`](e12-one-plus-sign-all-the-way-down/e12.ipynb) |
+| the instructions in a loop are replaced by narrower ones after the loop has run enough times | [`e12-10`](e12-one-plus-sign-all-the-way-down/e12.ipynb) |
+| the same expression specializes to different instructions depending on the types that turn up at run time | [`e12-12`](e12-one-plus-sign-all-the-way-down/e12.ipynb) |
+| adding strings specializes differently depending on whether the result is stored back into the left operand | [`e12-15`](e12-one-plus-sign-all-the-way-down/e12.ipynb) |
+| the micro operations a specialized instruction expands to are visible in the trace an executor holds | [`e12-17`](e12-one-plus-sign-all-the-way-down/e12.ipynb) |
+| adding floats produces a different guard, a different addition and a different pop than adding ints | [`e12-20`](e12-one-plus-sign-all-the-way-down/e12.ipynb) |
+| one plus sign in a loop can be followed from its instruction through its cache slots and micro operations to its machine code | [`e12-23`](e12-one-plus-sign-all-the-way-down/e12.ipynb) |
 
 ## F01. The tokenizer, in C
 
