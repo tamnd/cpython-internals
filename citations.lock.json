@@ -170,6 +170,11 @@
       "first_line": "/* Thread state (_Py_THREAD_ATTACHED, _Py_THREAD_DETACHED, _Py_THREAD_SUSPENDED).",
       "lines": 20
     },
+    "Include/cpython/pystate.h:161-172@v3.15.0rc1": {
+      "digest": "8c63fc566fb5409e",
+      "first_line": "PyObject *dict;  /* Stores per-thread state */",
+      "lines": 12
+    },
     "Include/cpython/pystate.h:196-205@v3.15.0rc1": {
       "digest": "48fc9a0ac70e001b",
       "first_line": "/* Unique thread state id. */",
@@ -470,6 +475,11 @@
       "first_line": "struct _is {",
       "lines": 39
     },
+    "Include/internal/pycore_interp_structs.h:867-881@v3.15.0rc1": {
+      "digest": "52538987effd73e2",
+      "first_line": "struct pythreads {",
+      "lines": 15
+    },
     "Include/internal/pycore_interpframe.h:307-320@v3.15.0rc1": {
       "digest": "f05f19112c3df29f",
       "first_line": "/* Gets the PyFrameObject for this frame, lazily",
@@ -649,6 +659,11 @@
       "digest": "ecdb4784c1120715",
       "first_line": "- PYMEM_CLEANBYTE: clean (newly allocated) memory",
       "lines": 10
+    },
+    "Include/internal/pycore_pystate.h:20-49@v3.15.0rc1": {
+      "digest": "a2fe85a0bd050627",
+      "first_line": "// `--disable-gil` builds, multiple threads may be \"attached\" to the same",
+      "lines": 30
     },
     "Include/internal/pycore_pystate.h:330-341@v3.15.0rc1": {
       "digest": "87187b0442160919",
@@ -1200,6 +1215,16 @@
       "first_line": "static PyObject *",
       "lines": 22
     },
+    "Modules/_threadmodule.c:1376-1388@v3.15.0rc1": {
+      "digest": "86fee8dd578fa284",
+      "first_line": "Each thread-state holds two separate localdummy objects:",
+      "lines": 13
+    },
+    "Modules/_threadmodule.c:1600-1623@v3.15.0rc1": {
+      "digest": "f5b772596d44acec",
+      "first_line": "/* Create the TLS key and sentinel if they don't exist */",
+      "lines": 24
+    },
     "Modules/gcmodule.c:215-240@v3.15.0rc1": {
       "digest": "4052c86f7bd5bcf1",
       "first_line": "gc_get_count_impl(PyObject *module)",
@@ -1699,6 +1724,11 @@
       "digest": "fc6ca133e2a360ee",
       "first_line": "int",
       "lines": 35
+    },
+    "Objects/object.c:3106-3137@v3.15.0rc1": {
+      "digest": "71d52b867249604d",
+      "first_line": "int",
+      "lines": 32
     },
     "Objects/object.c:3282-3300@v3.15.0rc1": {
       "digest": "6b3a6c6e934a76fc",
@@ -3270,6 +3300,11 @@
       "first_line": "void _PyEval_SetSwitchInterval(unsigned long microseconds)",
       "lines": 15
     },
+    "Python/ceval_gil.c:642-663@v3.15.0rc1": {
+      "digest": "721114938825007e",
+      "first_line": "PyThreadState *",
+      "lines": 22
+    },
     "Python/ceval_macros.h:128-137@v3.15.0rc1": {
       "digest": "701b347136955ca4",
       "first_line": "#elif USE_COMPUTED_GOTOS",
@@ -3960,6 +3995,61 @@
       "first_line": "PyStatus",
       "lines": 31
     },
+    "Python/pystate.c:1618-1630@v3.15.0rc1": {
+      "digest": "aa02a4a252b76641",
+      "first_line": "static void",
+      "lines": 13
+    },
+    "Python/pystate.c:162-192@v3.15.0rc1": {
+      "digest": "936cfbc67879c154",
+      "first_line": "static void",
+      "lines": 31
+    },
+    "Python/pystate.c:1632-1671@v3.15.0rc1": {
+      "digest": "75893712c0ae3bbf",
+      "first_line": "static PyThreadState *",
+      "lines": 40
+    },
+    "Python/pystate.c:2101-2108@v3.15.0rc1": {
+      "digest": "025135be4cda0f27",
+      "first_line": "PyThreadState_GetDict(void)",
+      "lines": 8
+    },
+    "Python/pystate.c:2135-2140@v3.15.0rc1": {
+      "digest": "7253adc8f2074a69",
+      "first_line": "uint64_t",
+      "lines": 6
+    },
+    "Python/pystate.c:2178-2191@v3.15.0rc1": {
+      "digest": "f54891ef5f771d6a",
+      "first_line": "static int",
+      "lines": 14
+    },
+    "Python/pystate.c:2204-2223@v3.15.0rc1": {
+      "digest": "2edeed51f004f6ad",
+      "first_line": "static void",
+      "lines": 20
+    },
+    "Python/pystate.c:2225-2251@v3.15.0rc1": {
+      "digest": "fd8d7cde899ee5f0",
+      "first_line": "void",
+      "lines": 27
+    },
+    "Python/pystate.c:2284-2300@v3.15.0rc1": {
+      "digest": "bbdb4de2ce879567",
+      "first_line": "static void",
+      "lines": 17
+    },
+    "Python/pystate.c:2302-2306@v3.15.0rc1": {
+      "digest": "f115b3c9b9c0f56f",
+      "first_line": "void",
+      "lines": 5
+    },
+    "Python/pystate.c:2341-2348@v3.15.0rc1": {
+      "digest": "79ba0d7a99dc5e0e",
+      "first_line": "void",
+      "lines": 8
+    },
     "Python/pystate.c:2385-2406@v3.15.0rc1": {
       "digest": "03513f8b0c2b30b0",
       "first_line": "park_detached_threads(struct _stoptheworld_state *stw)",
@@ -3970,6 +4060,16 @@
       "first_line": "static void",
       "lines": 36
     },
+    "Python/pystate.c:2671-2679@v3.15.0rc1": {
+      "digest": "04be80044118a6db",
+      "first_line": "PyThreadState *",
+      "lines": 9
+    },
+    "Python/pystate.c:2691-2730@v3.15.0rc1": {
+      "digest": "88beff31e74f60bb",
+      "first_line": "PyObject *",
+      "lines": 40
+    },
     "Python/pystate.c:3097-3131@v3.15.0rc1": {
       "digest": "16efa884926fc1e2",
       "first_line": "static PyObject **",
@@ -3979,6 +4079,16 @@
       "digest": "a9bbfecf998bd05a",
       "first_line": "_PyInterpreterFrame *",
       "lines": 11
+    },
+    "Python/pystate.c:3191-3204@v3.15.0rc1": {
+      "digest": "809cf4deb35c676c",
+      "first_line": "// Check if a Python thread must call _PyThreadState_HangThread(), rather than",
+      "lines": 14
+    },
+    "Python/pystate.c:3199-3212@v3.15.0rc1": {
+      "digest": "68b89e071f972bf7",
+      "first_line": "int",
+      "lines": 14
     },
     "Python/pythonrun.c:1556-1590@v3.15.0rc1": {
       "digest": "b3ee366172fc1041",

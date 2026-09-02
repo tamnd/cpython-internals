@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-516 claims across 65 lessons, 43 of them not observable from Python.
+522 claims across 66 lessons, 44 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -75,6 +75,17 @@ Without it the exception becomes the rule and this goes back to being a book.
 | Without the GIL, four threads appending to four lists get real speedup while four threads appending to one list are slower than one thread doing all of it | not observable from Python: both halves of this only differ on a build configured with --disable-gil, and on any other build they are the same measurement taken twice |
 | On an ordinary build, -X gil=1 is accepted and does nothing while -X gil=0 refuses to start the interpreter at all | [`c02-22`](c02-what-the-lock-was-protecting/c02.ipynb) |
 | The same free threaded binary started with -X gil=1 gets the exact answer for the plain counter back, and still loses increments for the other two shapes | not observable from Python: only a build configured with --disable-gil accepts the flag at all, so the two halves cannot be run on one ordinary interpreter |
+
+## C03. Every thread gets a struct
+
+| Claim | Proved by |
+| --- | --- |
+| Every thread has its own PyThreadState, the interpreter keeps them all on one linked list with the newest at the front, and a state leaves the list when its thread finishes | [`c03-07`](c03-every-thread-gets-a-struct/c03.ipynb) |
+| A thread state id is never handed out twice, while threading.get_ident() is, so the same ident can name two different threads over the life of one program | [`c03-10`](c03-every-thread-gets-a-struct/c03.ipynb) |
+| The keys of sys._current_frames() are exactly the idents of the live threads, because the dict is built by walking the same list of thread states | [`c03-13`](c03-every-thread-gets-a-struct/c03.ipynb) |
+| The threading.local values, the scratch dict and the exception being handled all live on the thread state, so one thread never sees another thread's | [`c03-16`](c03-every-thread-gets-a-struct/c03.ipynb) |
+| Py_BEGIN_ALLOW_THREADS is a detach of the thread state and Py_END_ALLOW_THREADS is an attach, which is why releasing the GIL and detaching are the same operation | not observable from Python: both macros are C, and the only thing visible from Python is that a C function which uses them lets other threads run |
+| A daemon thread still running at shutdown is hung at its next periodic check, and its finally blocks do not run | [`c03-20`](c03-every-thread-gets-a-struct/c03.ipynb) |
 
 ## E01. The interpreter nobody wrote by hand
 

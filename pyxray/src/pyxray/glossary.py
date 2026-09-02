@@ -1591,6 +1591,33 @@ CONCURRENCY = Group(
             see=("per object lock", "free threaded build"),
             met="C02",
         ),
+        Term(
+            name="thread state",
+            short="The struct the interpreter keeps for one thread, holding everything only that thread has.",
+            long="A `PyThreadState` carries the frame the thread is running, the exception it is handling, how much recursion it has left, a scratch dict, the key its `threading.local` values hang off, and its place in the interpreter's list of threads. The operating system thread underneath it knows none of this.",
+            cite="Include/cpython/pystate.h:66-101@v3.15.0rc1#_ts",
+            also=("`PyThreadState`", "`tstate`"),
+            see=("attach and detach", "frame", "daemon thread"),
+            met="C03",
+        ),
+        Term(
+            name="attach and detach",
+            short="A thread taking hold of its thread state before running Python, and letting go after.",
+            long="Attaching sets one int on the thread state and, on a build with the GIL, takes the lock on the way in. Detaching does the reverse and is what `Py_BEGIN_ALLOW_THREADS` expands to, which is why a C function that releases the GIL and a C function that detaches its thread state are the same thing said two ways.",
+            cite="Python/pystate.c:2225-2251@v3.15.0rc1#_PyThreadState_Attach",
+            also=("`PyEval_SaveThread`", "`PyEval_RestoreThread`"),
+            see=("thread state", "GIL", "stop the world"),
+            met="C03",
+        ),
+        Term(
+            name="daemon thread",
+            short="A thread the interpreter will not wait for, and will hang wherever it stands at exit.",
+            long="Shutdown does not ask a daemon thread to stop. It writes one value into that thread's thread state, and the thread carries on until its next periodic check, tries to attach, reads the value and is parked forever. No `finally` block runs and no `with` block exits, which is why a daemon thread should never be the only thing holding a file open.",
+            cite="Python/pystate.c:3199-3212@v3.15.0rc1#_PyThreadState_HangThread",
+            also=("`daemon=True`",),
+            see=("thread state", "attach and detach", "periodic check"),
+            met="C03",
+        ),
     ),
 )
 

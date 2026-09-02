@@ -1572,6 +1572,58 @@ for setting in ("0", "1"):
 '''
 
 
+PROGRAM_FOURTEEN = r'''"""A daemon thread that is still running when the interpreter shuts down.
+
+Shutdown does not ask a daemon thread to stop. It stores one value into that thread's thread
+state, and from then on the thread is allowed to keep running only until its next periodic
+check. At that check it tries to attach, sees the value, and is hung where it stands. Its
+finally blocks do not run, its with blocks do not exit, and nothing it was holding is released.
+
+That is a property of the thread state rather than of the lock, so it should look exactly the
+same on a build that has no lock at all. This program checks that, by starting a child that
+counts in a daemon thread while its main thread sleeps briefly and then returns.
+"""
+
+import subprocess
+import sys
+
+CHILD = """
+import threading
+import time
+
+
+def body():
+    n = 0
+    try:
+        while True:
+            n += 1
+            if n % 1000000 == 0:
+                print("the daemon reached", n, flush=True)
+    finally:
+        print("the daemon's finally ran", flush=True)
+
+
+threading.Thread(target=body, daemon=True).start()
+time.sleep(0.3)
+print("the main thread is done", flush=True)
+"""
+
+print(f"the lock is on: {sys._is_gil_enabled()}")
+done = subprocess.run(
+    [sys.executable, "-c", CHILD],
+    capture_output=True,
+    text=True,
+    check=True,
+)
+said = done.stdout.strip().splitlines()
+ran_the_finally = any("finally ran" in line for line in said)
+print(f"~ lines the child printed: {len(said)}")
+print(f"the last line was: {said[-1]}")
+print(f"the daemon reached its finally block: {ran_the_finally}")
+print(f"the exit status was: {done.returncode}")
+'''
+
+
 THE_SAME_WORK_WITHOUT_THE_LOCK = Experiment(
     slug="c01-the-same-work-without-the-lock",
     lesson="C01",
@@ -1638,6 +1690,24 @@ THE_LOCK_SWITCHED_BACK_ON = Experiment(
 )
 
 
+THE_DAEMON_THAT_NEVER_CAME_BACK = Experiment(
+    slug="c03-the-daemon-that-never-came-back",
+    lesson="C03",
+    title="A daemon thread that is still running when the interpreter shuts down",
+    asks=(
+        "Does a daemon thread still get hung at shutdown on a build that has no lock "
+        "to hang it with?"
+    ),
+    needs=(
+        "the answer is only interesting next to a build configured with --disable-gil, because "
+        "the point is that shutdown hangs the thread through its thread state rather than "
+        "through the GIL, and one build on its own cannot show that"
+    ),
+    build="freethreaded",
+    program=PROGRAM_FOURTEEN,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -1654,6 +1724,7 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     NOTHING_TO_WAIT_FOR,
     ONE_LOCK_EACH_OR_ONE_BETWEEN_THEM,
     THE_LOCK_SWITCHED_BACK_ON,
+    THE_DAEMON_THAT_NEVER_CAME_BACK,
 )
 
 
