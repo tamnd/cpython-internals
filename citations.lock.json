@@ -2675,6 +2675,11 @@
       "first_line": "specializing op(_SPECIALIZE_TO_BOOL, (counter/1, value -- value)) {",
       "lines": 20
     },
+    "Python/bytecodes.c:5948-5978@v3.15.0rc1": {
+      "digest": "580de3f2021f6414",
+      "first_line": "specializing op(_SPECIALIZE_BINARY_OP, (counter/1, lhs, rhs -- lhs, rhs)) {",
+      "lines": 31
+    },
     "Python/bytecodes.c:5987-6015@v3.15.0rc1": {
       "digest": "c9ed3cc5580de68a",
       "first_line": "inst(INSTRUMENTED_LINE, ( -- )) {",
@@ -2750,10 +2755,20 @@
       "first_line": "pure op(_BINARY_OP_ADD_INT, (left, right -- res, l, r)) {",
       "lines": 14
     },
+    "Python/bytecodes.c:702-709@v3.15.0rc1": {
+      "digest": "2867bdf45b62b48d",
+      "first_line": "macro(BINARY_OP_MULTIPLY_INT) =",
+      "lines": 8
+    },
     "Python/bytecodes.c:705-706@v3.15.0rc1": {
       "digest": "226fc0eaee4720b1",
       "first_line": "macro(BINARY_OP_ADD_INT) =",
       "lines": 2
+    },
+    "Python/bytecodes.c:705-709@v3.15.0rc1": {
+      "digest": "c3eeedbc4e83375b",
+      "first_line": "macro(BINARY_OP_ADD_INT) =",
+      "lines": 5
     },
     "Python/bytecodes.c:711-722@v3.15.0rc1": {
       "digest": "4a18d035d958fac4",
@@ -3349,6 +3364,16 @@
       "digest": "b3ee366172fc1041",
       "first_line": "PyObject *",
       "lines": 35
+    },
+    "Python/specialize.c:2364-2400@v3.15.0rc1": {
+      "digest": "4c606f16af60cc7a",
+      "first_line": "_Py_Specialize_BinaryOp(_PyStackRef lhs_st, _PyStackRef rhs_st, _Py_CODEUNIT *instr,",
+      "lines": 37
+    },
+    "Python/specialize.c:2383-2392@v3.15.0rc1": {
+      "digest": "4dc167962a5df30f",
+      "first_line": "if (PyUnicode_CheckExact(lhs)) {",
+      "lines": 10
     },
     "Python/specialize.c:362-374@v3.15.0rc1": {
       "digest": "d95b58cffe8349e3",
