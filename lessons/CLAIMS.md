@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-483 claims across 61 lessons, 35 of them not observable from Python.
+492 claims across 62 lessons, 38 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -425,6 +425,20 @@ Without it the exception becomes the rule and this goes back to being a book.
 | Appending a function to gc.callbacks gets it called twice per collection, once with the phase start and once with stop, and the info it is handed says which generation ran | [`m07-24`](m07-the-collector-nobody-calls/m07.ipynb) |
 | gc.get_stats returns one dictionary per generation, and on 3.15 each one carries a candidates count and a duration that 3.14 does not have | [`m07-26`](m07-the-collector-nobody-calls/m07.ipynb) |
 | gc.freeze moves every tracked object into a generation the collector ignores, gc.get_freeze_count reports how many, and gc.unfreeze puts them all back | [`m07-29`](m07-the-collector-nobody-calls/m07.ipynb) |
+
+## M08. Stop the world
+
+| Claim | Proved by |
+| --- | --- |
+| An ordinary CPython build reports that the GIL is enabled and has no Py_GIL_DISABLED setting, and a free threaded build reports the opposite | [`m08-07`](m08-stop-the-world/m08.ipynb) |
+| gc.get_objects takes a generation, and on an ordinary build the three generations hold different numbers of objects and an ordinary dictionary is in exactly one of them | [`m08-09`](m08-stop-the-world/m08.ipynb) |
+| On an ordinary build a cycle made a moment ago is freed by gc.collect(0) and an identical cycle that has survived five passes is not | [`m08-12`](m08-stop-the-world/m08.ipynb) |
+| On a free threaded build all three generations report the same objects, a new dictionary is in all three at once, and gc.collect(0) frees a cycle that has survived five passes | not observable from Python: generations only stop being lists in a build configured with --disable-gil, so what follows is a recording rather than a cell you run |
+| Making a number of tracked objects and immediately reading gc.get_count from the same thread moves the first number by exactly that many | [`m08-14`](m08-stop-the-world/m08.ipynb) |
+| On a free threaded build a helper thread that has made 400 tracked objects moves the count another thread reads by about 5, and the number the reader sees only moves in steps of 512 | not observable from Python: the per thread allocation buffer only exists in a build configured with --disable-gil, so what follows is a recording rather than a cell you run |
+| A full pass over a heap with two hundred thousand cycles on it takes a measurable number of milliseconds, and a pass over the same heap once those cycles are gone takes almost none | [`m08-17`](m08-stop-the-world/m08.ipynb) |
+| Three threads spinning in a loop that touches nothing lose almost exactly three times the time the collector spends, which is what being stopped for the whole pass looks like | not observable from Python: measuring this needs several threads running Python at once, which only happens in a build configured with --disable-gil |
+| gc.get_stats reports a candidates count on 3.15, and after a full pass over a large heap that count is at least as large as the number of objects the collector is tracking | [`m08-20`](m08-stop-the-world/m08.ipynb) |
 
 ## O01. The header, byte by byte
 

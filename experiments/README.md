@@ -18,6 +18,9 @@ So those programs run somewhere else. They run in the images this project publis
 | [f03-a-parser-nobody-wrote](tier1/f03-a-parser-nobody-wrote.md) | F03 | debug | What does the parser generator actually do, and what does it write? |
 | [m06-the-count-that-is-not-there](tier1/m06-the-count-that-is-not-there.md) | M06 | freethreaded | What does sys.getrefcount return for an object the interpreter has stopped counting? |
 | [m06-one-count-each-way](tier1/m06-one-count-each-way.md) | M06 | freethreaded | Where does a reference go when the thread taking it is not the one that made the object? |
+| [m08-no-lists-to-be-in](tier1/m08-no-lists-to-be-in.md) | M08 | freethreaded | Which generation is an object in on a build that does not keep generation lists? |
+| [m08-the-count-another-thread-cannot-see](tier1/m08-the-count-another-thread-cannot-see.md) | M08 | freethreaded | How stale is the collector's count when another thread is the one doing the allocating? |
+| [m08-nothing-runs-while-it-walks](tier1/m08-nothing-runs-while-it-walks.md) | M08 | freethreaded | How much time does a thread with no interest in the collector lose to a collection? |
 
 ## The commands
 
