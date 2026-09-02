@@ -1309,6 +1309,22 @@ MEMORY = Group(
             met="M01",
         ),
         Term(
+            name="ownership",
+            short="The rule about who is responsible for putting a reference back down.",
+            long="Every function that hands you a pointer to an object either gives you a reference of your own, which you owe back, or lets you look at one somebody else is holding, which you do not. There is no third option and no way to tell from the pointer, so the answer has to be part of what the function promises. Getting it wrong one way leaks and the other way crashes.",
+            cite="Include/refcount.h:285-292@v3.15.0rc1#ob_refcnt",
+            see=("reference count", "new reference", "borrowed reference", "stolen reference"),
+            met="M04",
+        ),
+        Term(
+            name="reentrancy",
+            short="Code being entered again while an earlier call to it is still part way through.",
+            long="Dropping the last reference to an object runs that object's destructor, and a destructor can be arbitrary Python, so any C code that drops a reference has to be finished making sense of itself first. This is why a container empties itself before it releases what it held, rather than the other way round.",
+            cite="Objects/dictobject.c:3073-3098@v3.15.0rc1#clear_lock_held",
+            see=("deallocation", "finalizer", "reference count"),
+            met="M04",
+        ),
+        Term(
             name="deallocation",
             short="What happens the moment an object's reference count reaches zero.",
             long="The type's deallocation function runs, which releases the references the object was holding, so freeing one object often frees a chain of them. This is immediate and it is the main way memory is reclaimed. The cycle collector is the exception rather than the rule.",

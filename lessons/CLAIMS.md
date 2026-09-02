@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-450 claims across 57 lessons, 31 of them not observable from Python.
+456 claims across 58 lessons, 31 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -372,6 +372,17 @@ Without it the exception becomes the rule and this goes back to being a book.
 | The block header and fences from M01 read the same under mimalloc_debug as under pymalloc_debug | [`m03-20`](m03-a-heap-for-every-thread/m03.ipynb) |
 | A free threaded build gives every thread four mimalloc heaps, split by what the cycle collector needs to do with the objects in them | not observable from Python: The struct holding them only exists under Py_GIL_DISABLED, and this notebook is not running such a build. You can read the fields at Include/internal/pycore_mimalloc.h:53-67 and see the array of four heaps and the thread local page list. |
 | The free threaded cycle collector finds objects by walking the mimalloc heaps rather than a linked list, which is why its objects do not carry the two list pointers | not observable from Python: Both halves need a free threaded interpreter to observe. The visiting code is the function cited above, and the two heaps it visits per thread are the gc and gc_pre ones from the enum. |
+
+## M04. Who owns what
+
+| Claim | Proved by |
+| --- | --- |
+| A memory read of the count is exactly one lower than sys.getrefcount, and the difference is the argument | [`m04-07`](m04-who-owns-what/m04.ipynb) |
+| Every distinct way of holding an object adds exactly one to its count, and removing the holder takes exactly one away | [`m04-09`](m04-who-owns-what/m04.ipynb) |
+| The compiler picks the borrowing form of a local variable load wherever the local outlives the value on the stack, and the opcode name says so | [`m04-11`](m04-who-owns-what/m04.ipynb) |
+| A rebinding destroys the old value before the next statement runs, and a container destroys its contents in reverse order | [`m04-13`](m04-who-owns-what/m04.ipynb) |
+| A destructor triggered by replacing or clearing a container sees the container in its finished state, never a half updated one | [`m04-15`](m04-who-owns-what/m04.ipynb) |
+| Two objects that hold each other keep a count of one apiece after every name for them is gone, and nothing in the counting rules will ever take it to zero | [`m04-17`](m04-who-owns-what/m04.ipynb) |
 
 ## O01. The header, byte by byte
 
