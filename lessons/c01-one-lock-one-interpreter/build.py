@@ -454,7 +454,7 @@ The free threaded build runs the same programs with real parallel speedup, and i
 
 ## What is next
 
-C02 goes into that different interpreter properly: what PEP 703 actually removed, what it had to add back, and why an object header got bigger.
+C02 goes into that different interpreter properly: what the one big lock was actually keeping safe, which turns out to be less of your code than you would think, what took its place once it was gone, and how it can come back on while the interpreter is already running.
 """)
 
 

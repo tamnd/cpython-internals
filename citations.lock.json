@@ -90,6 +90,11 @@
       "first_line": "/* redundant values (derived from co_localsplusnames and                   \\",
       "lines": 14
     },
+    "Include/cpython/critical_section.h:44-61@v3.15.0rc1": {
+      "digest": "330556f7efecf9b7",
+      "first_line": "#ifndef Py_GIL_DISABLED",
+      "lines": 18
+    },
     "Include/cpython/listobject.h:5-22@v3.15.0rc1": {
       "digest": "707b180de55e923a",
       "first_line": "typedef struct {",
@@ -139,6 +144,16 @@
       "digest": "b1508e0a85792a2c",
       "first_line": "/* The *real* layout of a type object when allocated on the heap */",
       "lines": 25
+    },
+    "Include/cpython/pylock.h:12-35@v3.15.0rc1": {
+      "digest": "184915eea291de20",
+      "first_line": "// A mutex that occupies one byte. The lock can be zero initialized to",
+      "lines": 24
+    },
+    "Include/cpython/pylock.h:46-59@v3.15.0rc1": {
+      "digest": "53765c89b878fb88",
+      "first_line": "// Locks the mutex.",
+      "lines": 14
     },
     "Include/cpython/pymem.h:16-30@v3.15.0rc1": {
       "digest": "c0f83e3d1b458860",
@@ -224,6 +239,16 @@
       "digest": "9ff8f5ece8c049ee",
       "first_line": "struct _PyWeakReference {",
       "lines": 11
+    },
+    "Include/critical_section.h:7-22@v3.15.0rc1": {
+      "digest": "aa03439460a708b1",
+      "first_line": "// Python critical sections",
+      "lines": 16
+    },
+    "Include/critical_section.h:74-90@v3.15.0rc1": {
+      "digest": "95adda118b78edd0",
+      "first_line": "# define Py_BEGIN_CRITICAL_SECTION(op)                                  \\",
+      "lines": 17
     },
     "Include/errcode.h:23-24@v3.15.0rc1": {
       "digest": "a5b984e92c1cb0d5",
@@ -750,6 +775,11 @@
       "first_line": "#define PyList_Check(op) \\",
       "lines": 3
     },
+    "Include/moduleobject.h:85-89@v3.15.0rc1": {
+      "digest": "bdd96a6e018c5f0c",
+      "first_line": "/* for Py_mod_gil: */",
+      "lines": 5
+    },
     "Include/object.h:127-149@v3.15.0rc1": {
       "digest": "c7e17988b3729573",
       "first_line": "struct _object {",
@@ -1225,6 +1255,11 @@
       "first_line": "/*[clinic input]",
       "lines": 3
     },
+    "Objects/clinic/listobject.c.h:115-126@v3.15.0rc1": {
+      "digest": "e6ef2c84cff29500",
+      "first_line": "",
+      "lines": 12
+    },
     "Objects/codeobject.c:116-137@v3.15.0rc1": {
       "digest": "c109b796d3aee235",
       "first_line": "static int",
@@ -1500,6 +1535,11 @@
       "first_line": "/*[clinic input]",
       "lines": 13
     },
+    "Objects/listobject.c:1222-1239@v3.15.0rc1": {
+      "digest": "bb2a0fbbe5cc7e1f",
+      "first_line": "@critical_section",
+      "lines": 18
+    },
     "Objects/listobject.c:1231-1239@v3.15.0rc1": {
       "digest": "f730dc5836a3bb60",
       "first_line": "static PyObject *",
@@ -1540,6 +1580,11 @@
       "first_line": "static inline PyObject*",
       "lines": 40
     },
+    "Objects/listobject.c:538-550@v3.15.0rc1": {
+      "digest": "5558acb0a5848d91",
+      "first_line": "int",
+      "lines": 13
+    },
     "Objects/listobject.c:565-578@v3.15.0rc1": {
       "digest": "b7da5fd21e3f1bbf",
       "first_line": "i = Py_SIZE(op);",
@@ -1549,6 +1594,11 @@
       "digest": "4bbde8dbb78397f0",
       "first_line": "static PyObject *",
       "lines": 20
+    },
+    "Objects/listobject.c:810-816@v3.15.0rc1": {
+      "digest": "e2d55528c639d9ee",
+      "first_line": "PyListObject *a = (PyListObject *)aa;",
+      "lines": 7
     },
     "Objects/longobject.c:126-142@v3.15.0rc1": {
       "digest": "5e34282136dfdfcc",
@@ -1604,6 +1654,11 @@
       "digest": "21b58141819ca6bc",
       "first_line": "static void",
       "lines": 8
+    },
+    "Objects/moduleobject.c:471-476@v3.15.0rc1": {
+      "digest": "f60714ae03531a1a",
+      "first_line": "case Py_mod_gil:",
+      "lines": 6
     },
     "Objects/object.c:1573-1595@v3.15.0rc1": {
       "digest": "c469a683fb938006",
@@ -3155,6 +3210,16 @@
       "first_line": "static Py_NO_INLINE int",
       "lines": 34
     },
+    "Python/ceval_gil.c:1132-1150@v3.15.0rc1": {
+      "digest": "f9c1e2068d41906c",
+      "first_line": "int",
+      "lines": 19
+    },
+    "Python/ceval_gil.c:1152-1191@v3.15.0rc1": {
+      "digest": "c848f40f07b780d5",
+      "first_line": "int",
+      "lines": 40
+    },
     "Python/ceval_gil.c:1396-1403@v3.15.0rc1": {
       "digest": "27d382206e27c088",
       "first_line": "/* GC scheduled to run */",
@@ -3759,6 +3824,21 @@
       "digest": "08b16a0b876d1642",
       "first_line": "TARGET(LOAD_FAST) {",
       "lines": 16
+    },
+    "Python/import.c:1618-1643@v3.15.0rc1": {
+      "digest": "58c33d09b1e7ef3a",
+      "first_line": "#ifdef Py_GIL_DISABLED",
+      "lines": 26
+    },
+    "Python/import.c:1645-1665@v3.15.0rc1": {
+      "digest": "785ae6580ab9e27f",
+      "first_line": "int",
+      "lines": 21
+    },
+    "Python/initconfig.c:1970-1990@v3.15.0rc1": {
+      "digest": "19e00e6a2eee5295",
+      "first_line": "static PyStatus",
+      "lines": 21
     },
     "Python/instrumentation.c:1190-1216@v3.15.0rc1": {
       "digest": "cea5143d2a582d2a",

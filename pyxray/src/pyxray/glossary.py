@@ -1527,7 +1527,7 @@ MEMORY = Group(
 
 CONCURRENCY = Group(
     "Threads",
-    "The words for what happens when more than one thread wants to run Python at the same time. C01 is the lesson, and most of them are about one lock.",
+    "The words for what happens when more than one thread wants to run Python at the same time. C01 is about the one big lock, and C02 is about the many small ones that took its place.",
     (
         Term(
             name="GIL",
@@ -1564,6 +1564,32 @@ CONCURRENCY = Group(
             also=("`_CHECK_PERIODIC`",),
             see=("eval breaker", "GIL"),
             met="C01",
+        ),
+        Term(
+            name="race condition",
+            short="Two threads touching the same thing, where the answer depends on which got there first.",
+            long="The usual shape is a read, a change and a write back, with another thread reading the old value in between. Nothing about it is specific to Python, but on a build with the GIL a great many of them never happen, because the interpreter only hands the lock over at a periodic check and most short sequences do not contain one.",
+            cite="Python/ceval_macros.h:520-528@v3.15.0rc1#check_periodics",
+            see=("periodic check", "critical section", "per object lock"),
+            met="C02",
+        ),
+        Term(
+            name="per object lock",
+            short="A one byte mutex sitting in every object header on the free threaded build.",
+            long="`PyMutex` uses two bits of one byte: whether it is held, and whether anybody is parked waiting for it. Taking a free one is a single compare and exchange with no system call, which is why it is cheap enough to put one in every object rather than in a table on the side.",
+            cite="Include/cpython/pylock.h:12-35@v3.15.0rc1#PyMutex",
+            also=("`ob_mutex`", "`PyMutex`"),
+            see=("critical section", "free threaded build", "object header"),
+            met="C02",
+        ),
+        Term(
+            name="critical section",
+            short="A block of C that holds an object's lock, and is allowed to let go of it partway.",
+            long="Written as `Py_BEGIN_CRITICAL_SECTION(op)` and `Py_END_CRITICAL_SECTION()`, and compiled to a bare pair of braces on any build that has the GIL. The letting go is the interesting part: an inner section suspends the outer ones rather than nesting inside them, which is what makes deadlock impossible without anybody having to order the locks.",
+            cite="Include/critical_section.h:74-90@v3.15.0rc1#Py_BEGIN_CRITICAL_SECTION",
+            also=("`Py_BEGIN_CRITICAL_SECTION`",),
+            see=("per object lock", "free threaded build"),
+            met="C02",
         ),
     ),
 )
