@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-456 claims across 58 lessons, 31 of them not observable from Python.
+465 claims across 59 lessons, 33 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -383,6 +383,20 @@ Without it the exception becomes the rule and this goes back to being a book.
 | A rebinding destroys the old value before the next statement runs, and a container destroys its contents in reverse order | [`m04-13`](m04-who-owns-what/m04.ipynb) |
 | A destructor triggered by replacing or clearing a container sees the container in its finished state, never a half updated one | [`m04-15`](m04-who-owns-what/m04.ipynb) |
 | Two objects that hold each other keep a count of one apiece after every name for them is gone, and nothing in the counting rules will ever take it to zero | [`m04-17`](m04-who-owns-what/m04.ipynb) |
+
+## M05. The ones that never die
+
+| Claim | Proved by |
+| --- | --- |
+| Putting an immortal object into a hundred thousand containers leaves its count exactly where it was, while an ordinary object's count goes up by a hundred thousand | [`m05-07`](m05-the-ones-that-never-die/m05.ipynb) |
+| an incref on an object shared between threads is a write to a cache line that every other thread wants at the same time, which is the cost immortality removes | not observable from Python: the cost is a hardware effect between cores, so from inside Python you can see that the write does not happen, which is what the cell above shows, but not what the write would have cost |
+| None, True, the small integers, the empty tuple, the one character strings and every built in type and exception never die, while a function object, a module and anything you built yourself are ordinary | [`m05-10`](m05-the-ones-that-never-die/m05.ipynb) |
+| every built in function in builtins is an ordinary object, and the only built in classes that are ordinary are the ones built at run time rather than compiled into the binary | [`m05-12`](m05-the-ones-that-never-die/m05.ipynb) |
+| Exactly 256 one character strings never die, the empty tuple and the empty bytes never die, and a one item tuple built the same way is ordinary | [`m05-15`](m05-the-ones-that-never-die/m05.ipynb) |
+| A binary search over the reference count finds the top of the small integer range, and it is 256 on 3.14 and 1024 on 3.15 | [`m05-17`](m05-the-ones-that-never-die/m05.ipynb) |
+| A name used in your code is both interned and immortal, while a plain string constant in the same code is interned and ordinary | [`m05-20`](m05-the-ones-that-never-die/m05.ipynb) |
+| in the free threaded build every interned string is immortal, not just the ones used as names, because a shared count is the thing that build exists to avoid | not observable from Python: it is a compile time branch on Py_GIL_DISABLED, so seeing it needs a free threaded interpreter, which is a separate build rather than a flag you can pass |
+| sys.intern puts your string into the shared table without making it immortal, and when the text is already in there it hands back the object that was there instead of yours | [`m05-22`](m05-the-ones-that-never-die/m05.ipynb) |
 
 ## O01. The header, byte by byte
 
