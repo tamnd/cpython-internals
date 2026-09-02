@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-437 claims across 55 lessons, 29 of them not observable from Python.
+443 claims across 56 lessons, 29 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -349,6 +349,17 @@ Without it the exception becomes the rule and this goes back to being a book.
 | Writing one byte past the end of a block is caught, and the report says which byte and how far past | [`m01-24`](m01-three-doors-into-the-same-heap/m01.ipynb) |
 | Twenty thousand blocks of 496 bytes costs several new arenas and twenty thousand of 528 bytes costs none | [`m01-27`](m01-three-doors-into-the-same-heap/m01.ipynb) |
 | Starting Python with PYTHONMALLOC=malloc removes CPython's small object allocator entirely, and sys.getallocatedblocks then reports zero | [`m01-30`](m01-three-doors-into-the-same-heap/m01.ipynb) |
+
+## M02. Arenas, pools and blocks
+
+| Claim | Proved by |
+| --- | --- |
+| sys._debugmallocstats prints one row per size class in use, and there are never more than 32 of them | [`m02-07`](m02-arenas-pools-and-blocks/m02.ipynb) |
+| A request is served from the class holding the next multiple of sixteen up, and a request over 512 bytes moves no row of the table at all | [`m02-10`](m02-arenas-pools-and-blocks/m02.ipynb) |
+| One header size explains the block count of every size class in the table, and no other candidate explains more than a few | [`m02-13`](m02-arenas-pools-and-blocks/m02.ipynb) |
+| Every block address is 48 bytes plus a whole number of blocks from the start of its pool, and the highest one is exactly where the arithmetic says the last block goes | [`m02-16`](m02-arenas-pools-and-blocks/m02.ipynb) |
+| Every byte total in the summary can be recomputed from the table above it using nothing but the pool size and the header size | [`m02-20`](m02-arenas-pools-and-blocks/m02.ipynb) |
+| Freeing all but one block in every two hundred returns no arenas at all, and freeing that last one per two hundred returns nearly all of them | [`m02-23`](m02-arenas-pools-and-blocks/m02.ipynb) |
 
 ## O01. The header, byte by byte
 
