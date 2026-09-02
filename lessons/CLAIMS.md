@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-465 claims across 59 lessons, 33 of them not observable from Python.
+474 claims across 60 lessons, 35 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -397,6 +397,20 @@ Without it the exception becomes the rule and this goes back to being a book.
 | A name used in your code is both interned and immortal, while a plain string constant in the same code is interned and ordinary | [`m05-20`](m05-the-ones-that-never-die/m05.ipynb) |
 | in the free threaded build every interned string is immortal, not just the ones used as names, because a shared count is the thing that build exists to avoid | not observable from Python: it is a compile time branch on Py_GIL_DISABLED, so seeing it needs a free threaded interpreter, which is a separate build rather than a flag you can pass |
 | sys.intern puts your string into the shared table without making it immortal, and when the text is already in there it hands back the object that was there instead of yours | [`m05-22`](m05-the-ones-that-never-die/m05.ipynb) |
+
+## M06. Two counts, one object
+
+| Claim | Proved by |
+| --- | --- |
+| sys._is_gil_enabled and the Py_GIL_DISABLED build setting are two ways of asking the same question, and on an ordinary interpreter they say the lock is there | [`m06-07`](m06-two-counts-one-object/m06.ipynb) |
+| The first word of an object is its reference count and the second is a pointer to its type, and an object with no contents of its own is exactly those two words and nothing else | [`m06-09`](m06-two-counts-one-object/m06.ipynb) |
+| Passing an object to a function adds one to its count for the duration of the call, and each extra level of nesting adds another | [`m06-11`](m06-two-counts-one-object/m06.ipynb) |
+| Two reads of the same count followed by two writes leaves the count one lower than the number of holders, which is exactly one holder too few | [`m06-13`](m06-two-counts-one-object/m06.ipynb) |
+| The deferred marker is PY_SSIZE_T_MAX divided by 8, and on a build with the GIL nothing is parked there because the whole mechanism is compiled out | [`m06-15`](m06-two-counts-one-object/m06.ipynb) |
+| on a free threaded build sys.getrefcount returns the deferred marker plus a handful for a top level function, a class, a module and a built in function, and an ordinary number for a list, an instance and a function defined inside another function | not observable from Python: deferred reference counting only exists in a build configured with --disable-gil, so what follows is a recording rather than a cell you run |
+| Shifting a shared count field right by two gives the reference count and masking the bottom two bits gives the flags, which is enough to read any of these fields by hand | [`m06-19`](m06-two-counts-one-object/m06.ipynb) |
+| on a free threaded build a reference taken by the thread that made the object goes into the local count, one taken by any other thread goes into the shared count four at a time, and the reference count you get back is the two added together | not observable from Python: the split only exists in a build configured with --disable-gil, so on any other interpreter these offsets point at other fields entirely and reading them proves nothing |
+| Whether an object pays for the wider header depends on a flag on its type rather than on whether the collector is tracking that object right now | [`m06-22`](m06-two-counts-one-object/m06.ipynb) |
 
 ## O01. The header, byte by byte
 
