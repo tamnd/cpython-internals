@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-508 claims across 64 lessons, 40 of them not observable from Python.
+516 claims across 65 lessons, 43 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -62,6 +62,19 @@ Without it the exception becomes the rule and this goes back to being a book.
 | Turning the switch interval down to a microsecond costs roughly half the total work, and turning it up to half a second means one of the two threads never runs | [`c01-21`](c01-one-lock-one-interpreter/c01.ipynb) |
 | On the free threaded build the same two thread benchmark comes out about twice as fast | not observable from Python: the build has to be configured with --disable-gil, which is a different interpreter rather than a runtime setting |
 | On the free threaded build the second thread keeps running all the way through somebody else's long C call | not observable from Python: the same reason, since on any build with a GIL the answer is decided by the lock rather than by the machine |
+
+## C02. What the lock was actually protecting
+
+| Claim | Proved by |
+| --- | --- |
+| Four threads each adding one to the same global a hundred thousand times end up with exactly four hundred thousand on an ordinary build, even with the switch interval turned all the way down | [`c02-07`](c02-what-the-lock-was-protecting/c02.ipynb) |
+| Putting a function call or a one pass loop between the read and the write makes the same counter start losing increments, on the same build with the same lock | [`c02-10`](c02-what-the-lock-was-protecting/c02.ipynb) |
+| Four threads appending to the same list lose nothing, on any build, because the append itself takes a lock | [`c02-13`](c02-what-the-lock-was-protecting/c02.ipynb) |
+| Every object on the free threaded build carries its own one byte lock, and taking an uncontended one is a single instruction | not observable from Python: the field only exists in a build configured with --disable-gil, and there is no Python level way to look at it even there |
+| On a build with the GIL, four threads sharing one list and four threads with a list each take about the same time as each other | [`c02-18`](c02-what-the-lock-was-protecting/c02.ipynb) |
+| Without the GIL, four threads appending to four lists get real speedup while four threads appending to one list are slower than one thread doing all of it | not observable from Python: both halves of this only differ on a build configured with --disable-gil, and on any other build they are the same measurement taken twice |
+| On an ordinary build, -X gil=1 is accepted and does nothing while -X gil=0 refuses to start the interpreter at all | [`c02-22`](c02-what-the-lock-was-protecting/c02.ipynb) |
+| The same free threaded binary started with -X gil=1 gets the exact answer for the plain counter back, and still loses increments for the other two shapes | not observable from Python: only a build configured with --disable-gil accepts the flag at all, so the two halves cannot be run on one ordinary interpreter |
 
 ## E01. The interpreter nobody wrote by hand
 

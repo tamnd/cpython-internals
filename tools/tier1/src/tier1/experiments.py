@@ -1395,6 +1395,183 @@ print(f"~ longest single pause the other thread saw: {max(gaps) * 1000:.1f} ms")
 '''
 
 
+PROGRAM_TWELVE = r'''"""Four threads appending to one list, and four threads with a list each.
+
+The lesson runs this on a build with a GIL, where the two cases come out as the same
+measurement, because only one thread is running Python either way. What that build cannot show
+is the locking underneath, since the critical section around list.append compiles to a pair of
+braces there and costs nothing.
+
+On a build configured with --disable-gil the two cases stop being the same. Every list carries
+its own one byte mutex in its object header, so four threads appending to four lists take four
+different locks and never wait for each other, while four threads appending to one list all
+queue on one byte.
+
+Everything here is the best of nine runs after a warmup, because this image runs under emulation
+on a virtual machine with a handful of shared cores, and a run that happens to land while the
+host is busy comes out several times slower than the same run on a quiet machine.
+"""
+
+import sys
+import threading
+import time
+
+ROUNDS = 400_000
+THREADS = 4
+TRIES = 9
+
+
+def fill(target):
+    for _ in range(ROUNDS):
+        target.append(1)
+
+
+def one_list(count):
+    """One list, handed to every thread, so every append lands on the same object."""
+    shared = []
+    return [shared] * count
+
+
+def a_list_each(count):
+    """A list per thread, so no two threads ever want the same lock."""
+    return [[] for _ in range(count)]
+
+
+def best(make_targets, count):
+    """Fastest wall clock time out of TRIES runs of the work on `count` threads."""
+    times = []
+    for _ in range(TRIES):
+        targets = make_targets(count)
+        threads = [threading.Thread(target=fill, args=(target,)) for target in targets]
+        start = time.perf_counter()
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+        times.append(time.perf_counter() - start)
+    return min(times)
+
+
+print(f"sys._is_gil_enabled() reports: {sys._is_gil_enabled()}")
+print()
+
+fill([])
+one = best(a_list_each, 1)
+print(f"~ one thread appending to one list: {one * 1000:.0f} ms")
+
+for label, make in (("the same list", one_list), ("a list each", a_list_each)):
+    took = best(make, THREADS)
+    print(f"~ {THREADS} threads appending to {label}: {took * 1000:.0f} ms")
+    print(f"~ speedup over one thread doing all of it: {THREADS * one / took:.2f}x")
+
+total = []
+racers = [threading.Thread(target=fill, args=(total,)) for _ in range(THREADS)]
+for racer in racers:
+    racer.start()
+for racer in racers:
+    racer.join()
+
+print()
+print(f"appends asked for: {ROUNDS * THREADS}")
+print(f"items in the list: {len(total)}")
+'''
+
+
+PROGRAM_THIRTEEN = r'''"""The same racing counter on one binary, with the lock off and then back on.
+
+A free threaded build does not have to stay free threaded. Starting it with -X gil=1 turns the
+lock on before anything runs, and an extension module that has not declared itself safe turns
+the lock on during its own import, while the interpreter is already going.
+
+So this program runs the same three counters twice, in child processes of itself, once with the
+lock off and once with it on. The three differ only in what sits between reading the variable
+and writing it back: nothing at all, a function call, or a loop that goes round once.
+
+The lesson's point is that the exact answer on an ordinary build, four hundred thousand out of
+four hundred thousand, is a property of where the interpreter is allowed to hand the lock over
+rather than of the assignment being one step. With the lock off, none of the three is safe.
+With the same binary and the lock back on, the first one is and the other two are not.
+
+The child turns the switch interval right down, the same as the lesson's cell does, so that the
+handoffs happen often enough to see in a run this short.
+"""
+
+import subprocess
+import sys
+
+CHILD = """
+import sys
+import threading
+
+sys.setswitchinterval(0.000001)
+
+ROUNDS = 100_000
+THREADS = 4
+counter = 0
+
+
+def add_one(value):
+    return value + 1
+
+
+def plain():
+    global counter
+    for _ in range(ROUNDS):
+        counter = counter + 1
+
+
+def through_a_call():
+    global counter
+    for _ in range(ROUNDS):
+        counter = add_one(counter)
+
+
+def with_a_loop():
+    global counter
+    for _ in range(ROUNDS):
+        value = counter
+        for _ in range(1):
+            pass
+        counter = value + 1
+
+
+def go(target):
+    global counter
+    counter = 0
+    hands = [threading.Thread(target=target) for _ in range(THREADS)]
+    for hand in hands:
+        hand.start()
+    for hand in hands:
+        hand.join()
+    return counter
+
+
+shapes = (
+    ("nothing in between", plain),
+    ("a call in between", through_a_call),
+    ("a loop in between", with_a_loop),
+)
+
+print(f"  the lock is on: {sys._is_gil_enabled()}")
+for name, work in shapes:
+    print(f"~   {name}: {go(work)} of {ROUNDS * THREADS}")
+"""
+
+print(f"this process itself started with the lock off: {not sys._is_gil_enabled()}")
+
+for setting in ("0", "1"):
+    print()
+    print(f"the same binary, started with -X gil={setting}")
+    done = subprocess.run(
+        [sys.executable, "-X", f"gil={setting}", "-c", CHILD],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    print(done.stdout, end="")
+'''
+
+
 THE_SAME_WORK_WITHOUT_THE_LOCK = Experiment(
     slug="c01-the-same-work-without-the-lock",
     lesson="C01",
@@ -1425,6 +1602,42 @@ NOTHING_TO_WAIT_FOR = Experiment(
 )
 
 
+ONE_LOCK_EACH_OR_ONE_BETWEEN_THEM = Experiment(
+    slug="c02-one-lock-each-or-one-between-them",
+    lesson="C02",
+    title="Four threads appending to one list, and four threads appending to four",
+    asks=(
+        "Does a lock in every object mean four threads with four lists go faster than "
+        "four threads with one?"
+    ),
+    needs=(
+        "the per object locks only do anything on a build configured with --disable-gil, and "
+        "on every other build both halves of this measurement are the same thing being timed "
+        "twice, so the difference cannot appear"
+    ),
+    build="freethreaded",
+    program=PROGRAM_TWELVE,
+)
+
+
+THE_LOCK_SWITCHED_BACK_ON = Experiment(
+    slug="c02-the-lock-switched-back-on",
+    lesson="C02",
+    title="A racing counter on the same binary, with the lock off and then back on",
+    asks=(
+        "What happens to a racing counter when the same free threaded binary is started "
+        "with the lock back on?"
+    ),
+    needs=(
+        "-X gil=1 is only accepted by a build configured with --disable-gil, and an ordinary "
+        "build refuses -X gil=0 outright, so no single stock interpreter can run both halves "
+        "of this comparison"
+    ),
+    build="freethreaded",
+    program=PROGRAM_THIRTEEN,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -1439,6 +1652,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     NOTHING_RUNS_WHILE_IT_WALKS,
     THE_SAME_WORK_WITHOUT_THE_LOCK,
     NOTHING_TO_WAIT_FOR,
+    ONE_LOCK_EACH_OR_ONE_BETWEEN_THEM,
+    THE_LOCK_SWITCHED_BACK_ON,
 )
 
 

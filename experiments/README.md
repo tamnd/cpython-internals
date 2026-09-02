@@ -23,6 +23,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [m08-nothing-runs-while-it-walks](tier1/m08-nothing-runs-while-it-walks.md) | M08 | freethreaded | How much time does a thread with no interest in the collector lose to a collection? |
 | [c01-the-same-work-without-the-lock](tier1/c01-the-same-work-without-the-lock.md) | C01 | freethreaded | What does the same two thread benchmark do when there is no lock to take? |
 | [c01-nothing-to-wait-for](tier1/c01-nothing-to-wait-for.md) | C01 | freethreaded | How much does another thread get done during one long C call when there is no GIL? |
+| [c02-one-lock-each-or-one-between-them](tier1/c02-one-lock-each-or-one-between-them.md) | C02 | freethreaded | Does a lock in every object mean four threads with four lists go faster than four threads with one? |
+| [c02-the-lock-switched-back-on](tier1/c02-the-lock-switched-back-on.md) | C02 | freethreaded | What happens to a racing counter when the same free threaded binary is started with the lock back on? |
 
 ## The commands
 
