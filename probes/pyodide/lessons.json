@@ -300,7 +300,7 @@
         {
           "name": "e04-09",
           "status": "ok",
-          "printed": "  a plain object   at       22650104   mod 4 0   mod 8 0\n  a list           at       23962840   mod 4 0   mod 8 0\n  a dict           at       25587504   mod 4 0   mod 8 0\n  a string         at       25570456   mod 4 0   mod 8 0\n  a big integer    at       21803024   mod 4 0   mod 8 0\n  a float          at       17540632   mod 4 0   mod 8 0\n  a module         at       14795336   mod 4 0   mod 8 0\n  None             at        3200984   mod 4 0   mod 8 0\n  the number 7     at        3253660   mod 4 0   mod 8 4\n"
+          "printed": "  a plain object   at       24324024   mod 4 0   mod 8 0\n  a list           at       24708880   mod 4 0   mod 8 0\n  a dict           at       24638184   mod 4 0   mod 8 0\n  a string         at       23253736   mod 4 0   mod 8 0\n  a big integer    at       22619936   mod 4 0   mod 8 0\n  a float          at       18330832   mod 4 0   mod 8 0\n  a module         at       14795336   mod 4 0   mod 8 0\n  None             at        3200984   mod 4 0   mod 8 0\n  the number 7     at        3253660   mod 4 0   mod 8 4\n"
         },
         {
           "name": "e04-12",
@@ -369,12 +369,12 @@
         {
           "name": "e05-18",
           "status": "ok",
-          "printed": "  no_try       51.8 ns per iteration\n  with_try     52.5 ns per iteration\n  checking    125.3 ns per iteration\n"
+          "printed": "  no_try       39.7 ns per iteration\n  with_try     40.0 ns per iteration\n  checking     98.0 ns per iteration\n"
         },
         {
           "name": "e05-21",
           "status": "ok",
-          "printed": "  through   1 frames      648.5 ns\n  through   5 frames     1176.4 ns\n  through  20 frames     3352.5 ns\n  through  50 frames     8176.6 ns\n"
+          "printed": "  through   1 frames      472.3 ns\n  through   5 frames      906.3 ns\n  through  20 frames     2542.9 ns\n  through  50 frames     6486.4 ns\n"
         },
         {
           "name": "e05-24",
@@ -389,7 +389,7 @@
         {
           "name": "e05-29",
           "status": "ok",
-          "printed": "  for loop         table  0 bytes    34.2 ns per item\n  while and next   table 12 bytes    49.5 ns per item\n"
+          "printed": "  for loop         table  0 bytes    27.0 ns per item\n  while and next   table 12 bytes    36.6 ns per item\n"
         },
         {
           "name": "e05-32",
@@ -458,7 +458,7 @@
         {
           "name": "e06-31",
           "status": "ok",
-          "printed": "  every value an int            44.4 ns per addition\n  every value a float           46.5 ns per addition\n  alternating between the two   77.4 ns per addition\n"
+          "printed": "  every value an int            15.6 ns per addition\n  every value a float           17.8 ns per addition\n  alternating between the two   30.3 ns per addition\n"
         },
         {
           "name": "e06-34",
@@ -512,7 +512,7 @@
         {
           "name": "e07-25",
           "status": "ok",
-          "printed": "  with the jit on\n  this build has no JIT in it, so there is nothing to switch on\n\n  with the jit off, for comparison\n  arithmetic loop      74.8 ns per iteration\n  loop with a call     77.9 ns per iteration\n"
+          "printed": "  with the jit on\n  this build has no JIT in it, so there is nothing to switch on\n\n  with the jit off, for comparison\n  arithmetic loop      50.6 ns per iteration\n  loop with a call     56.0 ns per iteration\n"
         }
       ]
     },
@@ -541,7 +541,7 @@
         {
           "name": "e08-11",
           "status": "ok",
-          "printed": "  nobody watching               39.8 ns per turn\n  callback counts the line     275.3 ns per turn, 2000015 calls\n  callback returns DISABLE      41.7 ns per turn\n"
+          "printed": "  nobody watching               43.7 ns per turn\n  callback counts the line     279.6 ns per turn, 2000015 calls\n  callback returns DISABLE      67.9 ns per turn\n"
         },
         {
           "name": "e08-14",
@@ -698,17 +698,17 @@
         {
           "name": "e11-15",
           "status": "ok",
-          "printed": "  extra lines   instructions run   nanoseconds   cost of one more\n            0               7010         29695                   \n            5              17010         41934               1.22\n           10              27010        153498              11.16\n           20              47010        246755               4.66\n           40              87010        420005               4.33\n"
+          "printed": "  extra lines   instructions run   nanoseconds   cost of one more\n            0               7010         30299                   \n            5              17010         51055               2.08\n           10              27010        166707              11.57\n           20              47010        272017               5.27\n           40              87010        482339               5.26\n"
         },
         {
           "name": "e11-18",
           "status": "ok",
-          "printed": "  the same job          instructions   nanoseconds   each\n  a while loop                 20012        158952   7.94\n  a for loop                   10008         70162   7.01\n  a comprehension               6011         54110   9.00\n"
+          "printed": "  the same job          instructions   nanoseconds   each\n  a while loop                 20012        113975   5.70\n  a for loop                   10008         49364   4.93\n  a comprehension               6011         39535   6.58\n"
         },
         {
           "name": "e11-21",
           "status": "ok",
-          "printed": "  one bytecode instruction   3.89 ns\n  one call to an empty def   20.33 ns beyond the code that calls it\n  so a call costs about      5 instructions\n"
+          "printed": "  one bytecode instruction   4.63 ns\n  one call to an empty def   25.18 ns beyond the code that calls it\n  so a call costs about      5 instructions\n"
         }
       ]
     },
@@ -1167,7 +1167,7 @@
         {
           "name": "f10-11",
           "status": "ok",
-          "printed": "  --           MAKE_CELL                0 (a)\n               MAKE_CELL                6 (n)\n\n   1           RESUME                   0\n\n   2           LOAD_SMALL_INT           0\n               STORE_DEREF              6 (n)\n\n   4           LOAD_FAST_BORROW         0 (a)\n               LOAD_FAST_BORROW         6 (n)\n               BUILD_TUPLE              2\n               LOAD_CONST               1 (<code object inner at 0x1494df8, file \"f10-09\", line 4>)\n               MAKE_FUNCTION\n               SET_FUNCTION_ATTRIBUTE   8 (closure)\n               STORE_FAST               5 (inner)\n\n   7           LOAD_FAST_BORROW         5 (inner)\n               RETURN_VALUE\n\nDisassembly of <code object inner at 0x1494df8, file \"f10-09\", line 4>:\n  --           COPY_FREE_VARS           2\n\n   4           RESUME                   0\n\n   5           LOAD_DEREF               0 (a)\n               LOAD_DEREF               1 (n)\n               BINARY_OP                0 (+)\n               RETURN_VALUE\n"
+          "printed": "  --           MAKE_CELL                0 (a)\n               MAKE_CELL                6 (n)\n\n   1           RESUME                   0\n\n   2           LOAD_SMALL_INT           0\n               STORE_DEREF              6 (n)\n\n   4           LOAD_FAST_BORROW         0 (a)\n               LOAD_FAST_BORROW         6 (n)\n               BUILD_TUPLE              2\n               LOAD_CONST               1 (<code object inner at 0x16072d8, file \"f10-09\", line 4>)\n               MAKE_FUNCTION\n               SET_FUNCTION_ATTRIBUTE   8 (closure)\n               STORE_FAST               5 (inner)\n\n   7           LOAD_FAST_BORROW         5 (inner)\n               RETURN_VALUE\n\nDisassembly of <code object inner at 0x16072d8, file \"f10-09\", line 4>:\n  --           COPY_FREE_VARS           2\n\n   4           RESUME                   0\n\n   5           LOAD_DEREF               0 (a)\n               LOAD_DEREF               1 (n)\n               BINARY_OP                0 (+)\n               RETURN_VALUE\n"
         },
         {
           "name": "f10-13",
@@ -1259,12 +1259,12 @@
         {
           "name": "f12-07",
           "status": "ok",
-          "printed": "  greet.py is 54 bytes of text\n  greet.cpython-314.pyc is 251 bytes\n\n  header    2b 0e 0d 0a 00 00 00 00 66 94 97 6a 36 00 00 00\n  the rest  235 bytes, and marshal.loads gives back a\n            code object\n"
+          "printed": "  greet.py is 54 bytes of text\n  greet.cpython-314.pyc is 251 bytes\n\n  header    2b 0e 0d 0a 00 00 00 00 c1 9d 97 6a 36 00 00 00\n  the rest  235 bytes, and marshal.loads gives back a\n            code object\n"
         },
         {
           "name": "f12-10",
           "status": "ok",
-          "printed": "  magic     168627755\n  flags             0\n  mtime    1788318822   source 1788318822\n  size             54   source 54\n"
+          "printed": "  magic     168627755\n  flags             0\n  mtime    1788321217   source 1788321217\n  size             54   source 54\n"
         },
         {
           "name": "f12-13",
@@ -1298,7 +1298,66 @@
         {
           "name": "f12-29",
           "status": "ok",
-          "printed": "  one bit flipped in the magic: bad magic number in 'broken': b'*\\x0e\\r\\n'\n\n  put a wrong mtime in greet.cpython-314.pyc: 1788318873\n  imported it with no complaint: 'hi world'\n  and the header now says        1788318873\n  the file was quietly rewritten: False\n"
+          "printed": "  one bit flipped in the magic: bad magic number in 'broken': b'*\\x0e\\r\\n'\n\n  put a wrong mtime in greet.cpython-314.pyc: 1788321086\n  imported it with no complaint: 'hi world'\n  and the header now says        1788321086\n  the file was quietly rewritten: False\n"
+        }
+      ]
+    },
+    {
+      "slug": "m01-three-doors-into-the-same-heap",
+      "cells": [
+        {
+          "name": "m01-03",
+          "status": "ok"
+        },
+        {
+          "name": "m01-05",
+          "status": "ok",
+          "printed": "cpython 3.14.2 on Emscripten wasm32, WebAssembly\n  note: this is 3.14, and everything here is written against 3.15, so bytecode and some object layouts will differ from the prose\n"
+        },
+        {
+          "name": "m01-07",
+          "status": "ok",
+          "printed": "  this build has no small object allocator, so there is nothing for it to count\n"
+        },
+        {
+          "name": "m01-11",
+          "status": "ok",
+          "printed": "ready\n"
+        },
+        {
+          "name": "m01-13",
+          "status": "ok",
+          "printed": "  this runtime cannot start a second interpreter, so try this on a real machine\n"
+        },
+        {
+          "name": "m01-16",
+          "status": "ok",
+          "printed": "  this runtime cannot start a second interpreter, so try this on a real machine\n"
+        },
+        {
+          "name": "m01-19",
+          "status": "ok",
+          "printed": "  this runtime cannot start a second interpreter, so try this on a real machine\n"
+        },
+        {
+          "name": "m01-22",
+          "status": "ok",
+          "printed": "  this runtime cannot start a second interpreter, so try this on a real machine\n"
+        },
+        {
+          "name": "m01-24",
+          "status": "ok",
+          "printed": "  this runtime cannot start a second interpreter, so try this on a real machine\n"
+        },
+        {
+          "name": "m01-27",
+          "status": "ok",
+          "printed": "  this build does not report arena counts, so there is nothing to compare here\n"
+        },
+        {
+          "name": "m01-30",
+          "status": "ok",
+          "printed": "  this runtime cannot start a second interpreter, so try this on a real machine\n"
         }
       ]
     },
@@ -1317,7 +1376,7 @@
         {
           "name": "o01-07",
           "status": "ok",
-          "printed": "  a pointer here is 4 bytes, so the header is 8\n  it lives at 23614368\n\n  first word, read as a count             1\n  sys.getrefcount, less its own argument  1\n  the same number: True\n\n  second word                   24699344\n  id(Thing) is                  24699344\n  so the second word is the type pointer: True\n\n  after a second name, the count reads  2\n  after deleting that name, it reads    1\n"
+          "printed": "  a pointer here is 4 bytes, so the header is 8\n  it lives at 23881456\n\n  first word, read as a count             1\n  sys.getrefcount, less its own argument  1\n  the same number: True\n\n  second word                   22592256\n  id(Thing) is                  22592256\n  so the second word is the type pointer: True\n\n  after a second name, the count reads  2\n  after deleting that name, it reads    1\n"
         },
         {
           "name": "o01-10",
@@ -1935,7 +1994,7 @@
         {
           "name": "o12-24",
           "status": "ok",
-          "printed": "  sizes    same allocator class   same memory\n  19 then 20   100 and 104 bytes    False\n  21 then 22   108 and 112 bytes    True\n"
+          "printed": "  sizes    same allocator class   same memory\n  19 then 20   100 and 104 bytes    False\n  21 then 22   108 and 112 bytes    False\n"
         },
         {
           "name": "o12-27",
@@ -2434,7 +2493,7 @@
         {
           "name": "t04-30",
           "status": "ok",
-          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x16c7c48: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
+          "printed": "free variables: ('total',)\nthe cells:      (<cell at 0x18b9850: int object at 0x31a52c>,)\nfirst call:  1\nsecond call: 2\nthe cell now: 2\n"
         },
         {
           "name": "t04-33",
@@ -2711,7 +2770,7 @@
         {
           "name": "t07-38",
           "status": "ok",
-          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x1657e80, file 't07-38', line 7, code make_one>\nits name: make_one\n"
+          "printed": "asked twice, got the same object: True\nand it is still here after the call returned: <frame at 0x175fac8, file 't07-38', line 7, code make_one>\nits name: make_one\n"
         },
         {
           "name": "t07-40",
@@ -2745,12 +2804,12 @@
         {
           "name": "t08-11",
           "status": "ok",
-          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x1218d70, 3 reference(s), 26 bytes, not tracked\nlist at 0x1774030, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x158c920, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x16efd88, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
+          "printed": "NoneType at 0x30d7d8, refcount is parked, this object is never freed, 8 bytes, not tracked\nint at 0x31a7cc, refcount is parked, this object is never freed, 16 bytes, not tracked\nstr at 0x162ed00, 3 reference(s), 26 bytes, not tracked\nlist at 0x17d52a8, 2 reference(s), 44 bytes, tracked by the cycle collector\ndict at 0x178f570, 2 reference(s), 108 bytes, tracked by the cycle collector\nfunction at 0x132f9c0, 4 reference(s), 84 bytes, tracked by the cycle collector\n"
         },
         {
           "name": "t08-14",
           "status": "ok",
-          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x1551010\nid(b) 0x1692b80\nid(c) 0x1551010\n"
+          "printed": "a == b True   same contents\na is b False   different objects\na is c True   same object\n\nid(a) 0x14c9d88\nid(b) 0x17b9848\nid(c) 0x14c9d88\n"
         },
         {
           "name": "t08-17",
@@ -2790,7 +2849,7 @@
         {
           "name": "t08-35",
           "status": "ok",
-          "printed": "dict at 0x12c36f8\ndict at 0x14b10b0\nlist at 0x1692a68\n"
+          "printed": "dict at 0x169c418\ndict at 0xfc1440\nlist at 0x18a9050\n"
         },
         {
           "name": "t08-37",
@@ -2849,7 +2908,7 @@
         {
           "name": "t09-21",
           "status": "ok",
-          "printed": "Node at 0x17fbcf0 -> Node at 0x12cc8e0 -> Node at 0x16658f0 -> Node at 0x17fbcf0\n"
+          "printed": "Node at 0x177bae0 -> Node at 0x135da08 -> Node at 0x18aa468 -> Node at 0x177bae0\n"
         },
         {
           "name": "t09-23",
@@ -2879,7 +2938,7 @@
         {
           "name": "t09-37",
           "status": "ok",
-          "printed": "first object was at  0x1345670\nsecond object is at  0x1345670\nsame address reused -> True\n"
+          "printed": "first object was at  0x16c4918\nsecond object is at  0x16c4918\nsame address reused -> True\n"
         }
       ]
     },

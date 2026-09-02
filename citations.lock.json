@@ -135,6 +135,16 @@
       "first_line": "/* The *real* layout of a type object when allocated on the heap */",
       "lines": 25
     },
+    "Include/cpython/pymem.h:16-30@v3.15.0rc1": {
+      "digest": "c0f83e3d1b458860",
+      "first_line": "typedef enum {",
+      "lines": 15
+    },
+    "Include/cpython/pymem.h:5-14@v3.15.0rc1": {
+      "digest": "1720879a8badc4f4",
+      "first_line": "typedef enum {",
+      "lines": 10
+    },
     "Include/cpython/pystate.h:121-140@v3.15.0rc1": {
       "digest": "beef1cfb6884fa83",
       "first_line": "/* Thread state (_Py_THREAD_ATTACHED, _Py_THREAD_DETACHED, _Py_THREAD_SUSPENDED).",
@@ -450,6 +460,11 @@
       "first_line": "/*",
       "lines": 19
     },
+    "Include/internal/pycore_obmalloc.h:153-164@v3.15.0rc1": {
+      "digest": "42d1e9479d73daea",
+      "first_line": "* Note: a size threshold of 512 guarantees that newly created dictionaries",
+      "lines": 12
+    },
     "Include/internal/pycore_obmalloc.h:156-164@v3.15.0rc1": {
       "digest": "730e3d06114e6a07",
       "first_line": "* The following invariants must hold:",
@@ -499,6 +514,11 @@
       "digest": "c6671958ae6c8ac8",
       "first_line": "PyAPI_FUNC(void*) _PyArena_Malloc(PyArena *, size_t size);",
       "lines": 1
+    },
+    "Include/internal/pycore_pymem.h:33-42@v3.15.0rc1": {
+      "digest": "ecdb4784c1120715",
+      "first_line": "- PYMEM_CLEANBYTE: clean (newly allocated) memory",
+      "lines": 10
     },
     "Include/internal/pycore_pystate.h:330-341@v3.15.0rc1": {
       "digest": "87187b0442160919",
@@ -1415,10 +1435,35 @@
       "first_line": "int",
       "lines": 37
     },
+    "Objects/obmalloc.c:2540-2554@v3.15.0rc1": {
+      "digest": "f0e5a6a904bef53e",
+      "first_line": "void *",
+      "lines": 15
+    },
     "Objects/obmalloc.c:2594-2607@v3.15.0rc1": {
       "digest": "b8f8c06a6e754647",
       "first_line": "static void",
       "lines": 14
+    },
+    "Objects/obmalloc.c:3088-3097@v3.15.0rc1": {
+      "digest": "46a40dbe01dd5d3d",
+      "first_line": "/* Layout: [SSSS IFFF CCCC...CCCC FFFF NNNN]",
+      "lines": 10
+    },
+    "Objects/obmalloc.c:3114-3128@v3.15.0rc1": {
+      "digest": "d46c00d58c1d7347",
+      "first_line": "/* at p, write size (SST bytes), id (1 byte), pad (SST-1 bytes) */",
+      "lines": 15
+    },
+    "Objects/obmalloc.c:3343-3351@v3.15.0rc1": {
+      "digest": "f2bfce7b02dc6ab9",
+      "first_line": "/* Check the API id */",
+      "lines": 9
+    },
+    "Objects/obmalloc.c:3364-3371@v3.15.0rc1": {
+      "digest": "337aa181a73f6987",
+      "first_line": "nbytes = read_size_t(q - 2*SST);",
+      "lines": 8
     },
     "Objects/obmalloc.c:681-700@v3.15.0rc1": {
       "digest": "35ed0214227df57e",

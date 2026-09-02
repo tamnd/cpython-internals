@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-429 claims across 54 lessons, 29 of them not observable from Python.
+437 claims across 55 lessons, 29 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -336,6 +336,19 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a reader written here decodes a marshalled code object into the fields the interpreter reads | [`f12-21`](f12-what-ends-up-on-disk/f12.ipynb) |
 | a .pyc assembled by hand imports and runs with no source file on disk | [`f12-26`](f12-what-ends-up-on-disk/f12.ipynb) |
 | a wrong magic number raises and a wrong timestamp is fixed silently | [`f12-29`](f12-what-ends-up-on-disk/f12.ipynb) |
+
+## M01. Three doors into the same heap
+
+| Claim | Proved by |
+| --- | --- |
+| Making a hundred thousand objects moves sys.getallocatedblocks by a hundred thousand and one, and dropping them moves it back | [`m01-07`](m01-three-doors-into-the-same-heap/m01.ipynb) |
+| A block allocated through PyMem_RawMalloc, PyMem_Malloc or PyObject_Malloc carries the byte r, m or o in front of it | [`m01-13`](m01-three-doors-into-the-same-heap/m01.ipynb) |
+| A Python object's memory comes through the obj door, and the size stored in front of it is the size of that one block rather than everything sys.getsizeof counts | [`m01-16`](m01-three-doors-into-the-same-heap/m01.ipynb) |
+| A list is two blocks, and the second one came through the mem door rather than the obj door | [`m01-19`](m01-three-doors-into-the-same-heap/m01.ipynb) |
+| Freeing a block through a different door than it was allocated from is a fatal error naming both doors | [`m01-22`](m01-three-doors-into-the-same-heap/m01.ipynb) |
+| Writing one byte past the end of a block is caught, and the report says which byte and how far past | [`m01-24`](m01-three-doors-into-the-same-heap/m01.ipynb) |
+| Twenty thousand blocks of 496 bytes costs several new arenas and twenty thousand of 528 bytes costs none | [`m01-27`](m01-three-doors-into-the-same-heap/m01.ipynb) |
+| Starting Python with PYTHONMALLOC=malloc removes CPython's small object allocator entirely, and sys.getallocatedblocks then reports zero | [`m01-30`](m01-three-doors-into-the-same-heap/m01.ipynb) |
 
 ## O01. The header, byte by byte
 
