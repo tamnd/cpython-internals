@@ -7,10 +7,10 @@ When the interpreter segfaults, which line of Python was responsible?
 - Lesson: B02
 - Build: debug
 - Arch: arm64
-- Image: ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:680365bd8f2592b69a27cbda49dae42a56309e05ab42f3828b50331668d86ea0
+- Image: ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:7d138f4a881a22412e4c40e15234f8a6df34302ba581c1687701100cce332591
 - Interpreter: 3.15.0rc1 (37e98da:37e98da, Aug 29 2026, 09:24:21) [GCC 14.2.0]
 - Debugger: GNU gdb (Debian 16.3-1) 16.3
-- Recorded: 2026-08-31
+- Recorded: 2026-09-02
 
 Why this needs the debug build: a release build is compiled with optimizations, so the arguments read <optimized out> and half the frames have been inlined away, and this image is also the one that ships Tools/gdb/libpython.py, which is where py-bt comes from.
 

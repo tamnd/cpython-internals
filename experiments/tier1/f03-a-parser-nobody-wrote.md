@@ -6,9 +6,9 @@ What does the parser generator actually do, and what does it write?
 
 - Lesson: F03
 - Build: debug
-- Image: ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:de0d69b176872e99c63152b8ab4ebffac7bb131e5422c8eaebc7f455374ea824
+- Image: ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:7baea8f3dd4de2e4c3b020543729b147e636494ae9758dabffb4675793e37170
 - Interpreter: 3.15.0rc1 (37e98da:37e98da, Aug 29 2026, 09:24:21) [GCC 14.2.0]
-- Recorded: 2026-08-31
+- Recorded: 2026-09-02
 
 Why this needs the debug build: Tools/peg_generator is part of the CPython source tree and not part of an installed Python, so there is no interpreter anywhere that can import it out of the box.
 

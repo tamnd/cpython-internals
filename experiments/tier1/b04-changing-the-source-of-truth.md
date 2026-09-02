@@ -6,9 +6,9 @@ What happens to the generated C when you add an instruction to Python/bytecodes.
 
 - Lesson: B04
 - Build: debug
-- Image: ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:de0d69b176872e99c63152b8ab4ebffac7bb131e5422c8eaebc7f455374ea824
+- Image: ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:7baea8f3dd4de2e4c3b020543729b147e636494ae9758dabffb4675793e37170
 - Interpreter: 3.15.0rc1 (37e98da:37e98da, Aug 29 2026, 09:24:21) [GCC 14.2.0]
-- Recorded: 2026-08-31
+- Recorded: 2026-09-02
 
 Why this needs the debug build: the generators are scripts in Tools/cases_generator that read Python/bytecodes.c out of a source tree, and neither the scripts nor the input ship with an installed Python.
 

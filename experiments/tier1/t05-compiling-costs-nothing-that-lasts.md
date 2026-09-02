@@ -6,9 +6,9 @@ Does compiling the same line over and over leave anything behind?
 
 - Lesson: T05
 - Build: debug
-- Image: ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:de0d69b176872e99c63152b8ab4ebffac7bb131e5422c8eaebc7f455374ea824
+- Image: ghcr.io/tamnd/cpython-internals/cpython:debug@sha256:7baea8f3dd4de2e4c3b020543729b147e636494ae9758dabffb4675793e37170
 - Interpreter: 3.15.0rc1 (37e98da:37e98da, Aug 29 2026, 09:24:21) [GCC 14.2.0]
-- Recorded: 2026-08-29
+- Recorded: 2026-09-02
 
 Why this needs the debug build: sys.gettotalrefcount() only exists in a build configured with --with-pydebug, and it is the only way to see every reference in the process rather than one object's.
 
