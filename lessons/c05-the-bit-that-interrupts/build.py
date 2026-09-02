@@ -474,6 +474,8 @@ There is no magic in it. The caller writes the path into a known spot in the tar
 So the same rule applies, across a process boundary this time. If the target is running bytecode the script arrives almost immediately. If the target is inside one long call into C, the script waits for that call to finish, and there is nothing anybody can do about it from the outside.
 
 Most operating systems only allow this between processes owned by the same user, and macOS will not allow it at all without root or a special entitlement, so the cell below prints an honest message on a Mac rather than pretending.
+
+The child prints a line before the ask, and the cell waits for it. A process that has not finished starting up has no running interpreter in it yet, and asking early is an error rather than a wait.
 """)
 
 
@@ -486,6 +488,7 @@ import tempfile
 WAITING = \"\"\"
 import time
 
+print("ready", flush=True)
 while True:
     time.sleep(0.02)
 \"\"\"
@@ -506,12 +509,16 @@ def inject():
     except OSError:
         return "this build cannot start another process, so there is nothing to try"
     try:
+        child.stdout.readline()
+        time.sleep(0.2)
         started = time.perf_counter()
         sys.remote_exec(child.pid, str(note))
         said = child.stdout.readline().strip()
         return f"{said!r} arrived {(time.perf_counter() - started) * 1000:.0f} ms later"
     except PermissionError:
         return "this operating system will not let one process do this to another"
+    except RuntimeError:
+        return "the child had not finished starting up, so there was nothing to ask yet"
     finally:
         child.kill()
         child.wait()
