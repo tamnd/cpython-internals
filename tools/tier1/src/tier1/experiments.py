@@ -1708,6 +1708,102 @@ THE_DAEMON_THAT_NEVER_CAME_BACK = Experiment(
 )
 
 
+#: The program for both c04 recordings, run once on each build.
+PROGRAM_FIFTEEN = r'''"""Four jobs and four operating system threads, in one interpreter or in four.
+
+On an ordinary build the four threads take turns holding the GIL, so four subinterpreters should
+finish the same work in noticeably less wall time, because each of them was given a lock of its
+own. On a build configured with --disable-gil there was never a lock to get out of, so the two
+arrangements should land close together and the ratio should sit near one.
+
+Both sides of this use four operating system threads, which matters more than it looks. Timing
+threaded work against a single threaded baseline is not a fair comparison, because the operating
+system does not schedule one thread the way it schedules four. Keeping the thread count equal
+takes that whole question off the table and leaves only the interpreters.
+"""
+
+import concurrent.interpreters as ci
+import sys
+import threading
+import time
+
+JOBS = 4
+CODE = "n = 4000000\nwhile n:\n    n -= 1\n"
+BLOB = compile(CODE, "<spin>", "exec")
+
+
+def in_threads():
+    hands = [threading.Thread(target=exec, args=(BLOB, {})) for _ in range(JOBS)]
+    for hand in hands:
+        hand.start()
+    for hand in hands:
+        hand.join()
+
+
+def in_interpreters(kids):
+    hands = [threading.Thread(target=kid.exec, args=(CODE,)) for kid in kids]
+    for hand in hands:
+        hand.start()
+    for hand in hands:
+        hand.join()
+
+
+def best(work, rounds=9):
+    seen = []
+    for _ in range(rounds):
+        started = time.perf_counter()
+        work()
+        seen.append(time.perf_counter() - started)
+    return min(seen)
+
+
+kids = [ci.create() for _ in range(JOBS)]
+in_threads()
+in_interpreters(kids)
+threaded = best(in_threads)
+split = best(lambda: in_interpreters(kids))
+
+print(f"the lock is on: {sys._is_gil_enabled()}")
+print(f"how many interpreters this process has: {len(ci.list_all())}")
+print(f"~ {JOBS} jobs in {JOBS} threads and one interpreter: {threaded * 1000:.0f} ms")
+print(f"~ {JOBS} jobs in {JOBS} threads and {JOBS} interpreters: {split * 1000:.0f} ms")
+print(f"~ how many times faster the second arrangement was: {threaded / split:.2f}")
+
+for kid in kids:
+    kid.close()
+'''
+
+
+FOUR_CORES_WITH_THE_LOCK = Experiment(
+    slug="c04-four-cores-with-the-lock",
+    lesson="C04",
+    title="Four jobs in four threads against four jobs in four interpreters, with the GIL",
+    asks="How much does giving each job its own interpreter buy on a build that has a GIL?",
+    needs=(
+        "a laptop schedules a lone process across cores of different speeds, so the same "
+        "measurement taken here moves by a factor of two between runs, and the whole point is "
+        "the ratio between two arrangements measured in one fixed place"
+    ),
+    build="release",
+    program=PROGRAM_FIFTEEN,
+)
+
+
+FOUR_CORES_WITHOUT_THE_LOCK = Experiment(
+    slug="c04-four-cores-without-the-lock",
+    lesson="C04",
+    title="The same two arrangements on a build with no GIL to get out of",
+    asks="Does giving each job its own interpreter still buy anything once there is no GIL?",
+    needs=(
+        "the answer only means something next to the build above, run on the same machine with "
+        "the same program, and a build configured with --disable-gil is not something a reader "
+        "can switch on in the interpreter they already have"
+    ),
+    build="freethreaded",
+    program=PROGRAM_FIFTEEN,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -1725,6 +1821,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     ONE_LOCK_EACH_OR_ONE_BETWEEN_THEM,
     THE_LOCK_SWITCHED_BACK_ON,
     THE_DAEMON_THAT_NEVER_CAME_BACK,
+    FOUR_CORES_WITH_THE_LOCK,
+    FOUR_CORES_WITHOUT_THE_LOCK,
 )
 
 

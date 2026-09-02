@@ -501,7 +501,7 @@ The `state` field is where the GIL handshake actually happens. Attached and deta
 
 ## What is next
 
-C04 stays on the object header and picks up the thing C02 left out. Free threading could not keep one reference count per object updated by every thread without the counter becoming the bottleneck, so it keeps two: one the owning thread can change without any locking at all, and one everybody else has to share. The owning thread is named by `ob_tid`, which is the id from this lesson turning up in every object in the heap.
+C04 goes up a level. The thread states in this lesson were all on one list hanging off the interpreter, and it turns out the interpreter is on a list too, hanging off the runtime. A process can hold several at once, each with its own GIL, its own modules and its own objects, which is a second way of using more than one core that has nothing to do with turning the lock off.
 """)
 
 
