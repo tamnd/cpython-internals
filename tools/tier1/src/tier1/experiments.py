@@ -15,8 +15,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-#: Which build each of these wants. One today, and the field exists because the free
-#: threaded and JIT builds are published too and the concurrency lessons will want them.
+#: Which build each of these wants. Two so far, and the field exists because the JIT and
+#: tailcall builds are published too and later lessons will want them.
 BUILDS = ("debug", "freethreaded", "jit", "tailcall", "release")
 
 #: A line the checker does not compare. The program marks a line this way when what it
@@ -630,6 +630,325 @@ A_PARSER_NOBODY_WROTE = Experiment(
 )
 
 
+#: The program for m06-the-count-that-is-not-there.
+PROGRAM_FIVE = r'''"""What the reference count says when nothing is counting it.
+
+M06 says the free threaded build has more than one answer to the cost of counting references,
+and that one of them is to stop counting some objects at all. On a real free threaded
+interpreter the effect is not subtle: ask for the reference count of an ordinary function and
+you get a number close to a quintillion.
+
+That number is a marker, not a count. `_Py_REF_DEFERRED` is `PY_SSIZE_T_MAX / 8`, big enough
+that the count can never come back down to zero by accident, so nothing will ever free the
+object by counting it. The garbage collector is the only thing that can, and the only thing
+that looks.
+"""
+
+import sys
+import sysconfig
+
+DEFERRED = sys.maxsize // 8
+
+print("the interpreter this ran on")
+print()
+print(f"    version              {sys.version.split()[0]}")
+print(f"    sys._is_gil_enabled  {sys._is_gil_enabled()}")
+print(f"    Py_GIL_DISABLED      {sysconfig.get_config_var('Py_GIL_DISABLED')}")
+print()
+
+assert not sys._is_gil_enabled()
+assert sysconfig.get_config_var("Py_GIL_DISABLED") == 1
+
+
+def a_function_at_the_top_level():
+    pass
+
+
+class AClassIWrote:
+    def a_method(self):
+        pass
+
+    @staticmethod
+    def a_staticmethod():
+        pass
+
+
+def outer():
+    """A function defined inside another one, which is the case that is treated differently."""
+
+    def nested():
+        pass
+
+    return nested
+
+
+print("which objects the interpreter has stopped counting")
+print()
+for label, obj in [
+    ("a list", ["a list"]),
+    ("a dict", {}),
+    ("a tuple", tuple([1, 2])),
+    ("a generator", (n for n in range(3))),
+    ("an instance", AClassIWrote()),
+    ("a top level function", a_function_at_the_top_level),
+    ("a method", AClassIWrote.a_method),
+    ("a staticmethod", AClassIWrote.__dict__["a_staticmethod"]),
+    ("a nested function", outer()),
+    ("a class", AClassIWrote),
+    ("the builtin len", len),
+    ("the sys module", sys),
+]:
+    deferred = sys.getrefcount(obj) > DEFERRED
+    print(f"    {label:22} {'not counted' if deferred else 'counted normally'}")
+print()
+
+print("the actual number, for two of them")
+print()
+print(f"    sys.getrefcount(a top level function)  {sys.getrefcount(a_function_at_the_top_level)}")
+print(f"    sys.getrefcount(the class)             {sys.getrefcount(AClassIWrote)}")
+print()
+print("and the marker they are both sitting on, which you can work out anywhere")
+print()
+print(f"    PY_SSIZE_T_MAX             {sys.maxsize}")
+print(f"    PY_SSIZE_T_MAX // 8        {DEFERRED}")
+print(f"    the same, shifted up by 2  {DEFERRED << 2}")
+print()
+on_top = sys.getrefcount(a_function_at_the_top_level)
+print(f"    the function is the marker plus {on_top - DEFERRED}")
+print(f"    the class is the marker plus    {sys.getrefcount(AClassIWrote) - DEFERRED}")
+print()
+
+assert sys.getrefcount(a_function_at_the_top_level) > DEFERRED
+assert sys.getrefcount(AClassIWrote) > DEFERRED
+assert sys.getrefcount(sys) > DEFERRED
+assert sys.getrefcount(len) > DEFERRED
+assert sys.getrefcount(outer()) < 100, "a nested function is not supposed to be deferred"
+assert sys.getrefcount([]) < 100
+assert sys.getrefcount(AClassIWrote()) < 100
+
+print("the odd one out is worth a second look")
+print()
+print("    a function written at the top level of a module gets deferred counting.")
+print("    a function written inside another function does not. A nested function has")
+print("    probably closed over a variable, and somebody is relying on that variable")
+print("    being freed when the function is, rather than whenever the collector next runs.")
+print()
+
+import json  # noqa: E402
+
+deferred = sum(1 for value in vars(json).values() if sys.getrefcount(value) > DEFERRED)
+total = len(vars(json))
+print(f"~ names in the json module that are not counted, out of {total}: {deferred}")
+'''
+
+
+#: The program for m06-one-count-each-way.
+PROGRAM_SIX = r'''"""One object, two reference counts, and which thread gets which.
+
+M06 says the free threaded build splits an object's reference count in two: a plain 32 bit
+number that only the owning thread ever writes, and a shared number that everybody else has to
+use an atomic for. This is that split, read straight out of memory with ctypes on a real free
+threaded interpreter.
+
+Nothing here is a special API. The object header is at `id(x)` and the fields are at fixed
+offsets, so the first thing the program does is prove it is reading the right bytes by
+checking that the pointer at offset 24 really is the object's type.
+"""
+
+import ctypes
+import sys
+import sysconfig
+import threading
+import time
+
+#: The free threaded object header, field by field. ob_tid is a thread id or zero, ob_flags
+#: and ob_gc_bits are bookkeeping, and the two counts are the point of this program.
+TID, FLAGS, GC_BITS, LOCAL, SHARED, TYPE = 0, 8, 11, 12, 16, 24
+
+#: The bottom two bits of ob_ref_shared are flags, not part of the count.
+SHIFT, FLAG_MASK = 2, 0x3
+FLAG_NAMES = {0x0: "init", 0x1: "maybe weakref", 0x2: "queued", 0x3: "merged"}
+
+
+def u64(at):
+    return ctypes.c_size_t.from_address(at).value
+
+
+def u32(at):
+    return ctypes.c_uint32.from_address(at).value
+
+
+def u8(at):
+    return ctypes.c_uint8.from_address(at).value
+
+
+def read(at):
+    """The three numbers that matter, for the object living at this address."""
+    return u64(at + TID), u32(at + LOCAL), ctypes.c_ssize_t.from_address(at + SHARED).value
+
+
+print("the interpreter this ran on")
+print()
+print(f"    version              {sys.version.split()[0]}")
+print(f"    sys._is_gil_enabled  {sys._is_gil_enabled()}")
+print(f"    Py_GIL_DISABLED      {sysconfig.get_config_var('Py_GIL_DISABLED')}")
+print()
+
+assert not sys._is_gil_enabled()
+
+watched = ["one list, one name"]
+AT = id(watched)
+
+print("proving the offsets before trusting anything read through them")
+print()
+print(f"    the pointer at offset 24 is the list type:  {u64(AT + TYPE) == id(list)}")
+print(f"    ob_gc_bits says the collector tracks it:    {bool(u8(AT + GC_BITS) & 1)}")
+print()
+
+assert u64(AT + TYPE) == id(list)
+
+
+def line(where, at):
+    tid, local, shared = read(at)
+    count = local + (shared >> SHIFT)
+    flag = FLAG_NAMES[shared & FLAG_MASK]
+    owned = "yes" if tid else "no"
+    print(
+        f"    {where:24} owned {owned:3}  local {local:>3}  shared {shared >> SHIFT:>3}"
+        f"  flags {flag:<13} total {count}"
+    )
+
+
+print("the same list, held by more names, then borrowed by another thread")
+print()
+line("just the one name", AT)
+
+box = [watched, watched, watched]
+line("three more from here", AT)
+
+seen = []
+
+
+def borrow():
+    """Take three references from a thread that does not own the object, and look."""
+    also = [watched] * 3
+    seen.append(read(AT))
+    del also
+
+
+worker = threading.Thread(target=borrow)
+worker.start()
+worker.join()
+
+tid, local, shared = seen[0]
+flag = FLAG_NAMES[shared & FLAG_MASK]
+print(
+    f"    {'three from a worker':24} owned yes  local {local:>3}  shared {shared >> SHIFT:>3}"
+    f"  flags {flag:<13} total {local + (shared >> SHIFT)}"
+)
+
+line("the worker has finished", AT)
+del box
+line("back to the one name", AT)
+print()
+
+assert seen[0][2] >> SHIFT >= 3, "the worker's references should have gone to the shared count"
+assert read(AT)[2] >> SHIFT == 0, "and should have come back off it"
+
+print("which thread owns which object")
+print()
+made = {}
+
+
+def make_one():
+    mine = ["made over here"]
+    made["at"] = id(mine)
+    made["tid"] = read(id(mine))[0]
+    made["keep"] = mine
+
+
+second = threading.Thread(target=make_one)
+second.start()
+second.join()
+
+print(f"    a list made on the main thread has a thread id:   {read(AT)[0] != 0}")
+print(f"    a list made on a worker has one too:              {made['tid'] != 0}")
+print(f"    and it is a different one:                        {made['tid'] != read(AT)[0]}")
+print(f"    None has no owner at all, its ob_tid is:          {read(id(None))[0]}")
+print()
+
+assert made["tid"] != read(AT)[0]
+assert read(id(None))[0] == 0
+
+print("immortal looks different here")
+print()
+print(f"    None's ob_ref_local is        {read(id(None))[1]}")
+print(f"    which is UINT32_MAX:          {read(id(None))[1] == 2**32 - 1}")
+print(f"    sys.getrefcount(None) is      {sys.getrefcount(None)}")
+print(f"    which is 3 << 30:             {sys.getrefcount(None) == 3 << 30}")
+print()
+print("and so does interning, which on this build always means immortal")
+print()
+built = "".join(["not", "_", "seen", "_", "before"])
+IMMORTAL = 2**32 - 1
+print(f"    a string you just built:      {read(id(built))[1] == IMMORTAL}")
+print(f"    the same after sys.intern:    {read(id(sys.intern(built)))[1] == IMMORTAL}")
+print()
+
+print("what the wider header costs")
+print()
+for label, obj in [
+    ("object()", object()),
+    ("an empty tuple", ()),
+    ("a one character string", "x"),
+    ("an empty list", []),
+    ("an empty dict", {}),
+]:
+    print(f"    {label:24} {sys.getsizeof(obj)} bytes")
+print()
+print("    an object the collector does not track pays the whole 16 bytes.")
+print("    one it does track pays nothing, because this build dropped the separate")
+print("    collector header and put those bits in the object header instead.")
+print()
+
+started = time.monotonic()
+holder = []
+for _ in range(200000):
+    holder.append(watched)
+del holder
+took = time.monotonic() - started
+print(f"~ how long two hundred thousand references took, in seconds: {took:.2f}")
+'''
+
+
+THE_COUNT_THAT_IS_NOT_THERE = Experiment(
+    slug="m06-the-count-that-is-not-there",
+    lesson="M06",
+    title="What the reference count says when nothing is counting",
+    asks="What does sys.getrefcount return for an object the interpreter has stopped counting?",
+    needs=(
+        "deferred reference counting only exists in a build configured with --disable-gil, and "
+        "there is no flag or setting that turns it on in the interpreter a reader already has"
+    ),
+    build="freethreaded",
+    program=PROGRAM_FIVE,
+)
+
+
+ONE_COUNT_EACH_WAY = Experiment(
+    slug="m06-one-count-each-way",
+    lesson="M06",
+    title="One object, two counts, and which thread writes which",
+    asks="Where does a reference go when the thread taking it is not the one that made the object?",
+    needs=(
+        "the object header only has separate local and shared counts in a build configured with "
+        "--disable-gil, so on any other interpreter these offsets point at other fields entirely"
+    ),
+    build="freethreaded",
+    program=PROGRAM_SIX,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -637,6 +956,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     CHANGING_THE_SOURCE_OF_TRUTH,
     ONE_LINE_AT_A_TIME,
     A_PARSER_NOBODY_WROTE,
+    THE_COUNT_THAT_IS_NOT_THERE,
+    ONE_COUNT_EACH_WAY,
 )
 
 
