@@ -25,6 +25,7 @@ So those programs run somewhere else. They run in the images this project publis
 | [c01-nothing-to-wait-for](tier1/c01-nothing-to-wait-for.md) | C01 | freethreaded | How much does another thread get done during one long C call when there is no GIL? |
 | [c02-one-lock-each-or-one-between-them](tier1/c02-one-lock-each-or-one-between-them.md) | C02 | freethreaded | Does a lock in every object mean four threads with four lists go faster than four threads with one? |
 | [c02-the-lock-switched-back-on](tier1/c02-the-lock-switched-back-on.md) | C02 | freethreaded | What happens to a racing counter when the same free threaded binary is started with the lock back on? |
+| [c03-the-daemon-that-never-came-back](tier1/c03-the-daemon-that-never-came-back.md) | C03 | freethreaded | Does a daemon thread still get hung at shutdown on a build that has no lock to hang it with? |
 
 ## The commands
 
