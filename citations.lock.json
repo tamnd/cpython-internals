@@ -225,6 +225,16 @@
       "first_line": "#define E_EOF            11      /* End Of File */",
       "lines": 2
     },
+    "Include/internal/mimalloc/mimalloc/types.h:203-211@v3.15.0rc1": {
+      "digest": "ec93e4470862f3c7",
+      "first_line": "#define MI_SEGMENT_SLICE_SHIFT            (13 + MI_INTPTR_SHIFT)         // 64KiB  (32KiB on 32-bit)",
+      "lines": 9
+    },
+    "Include/internal/mimalloc/mimalloc/types.h:225-232@v3.15.0rc1": {
+      "digest": "27c582f4fe1a8a3b",
+      "first_line": "#define MI_SMALL_OBJ_SIZE_MAX             (MI_SMALL_PAGE_SIZE/4)   // 8KiB on 64-bit",
+      "lines": 8
+    },
     "Include/internal/pycore_asdl.h:24-26@v3.15.0rc1": {
       "digest": "4ddf5b195dc099ab",
       "first_line": "#define _ASDL_SEQ_HEAD \\",
@@ -424,6 +434,21 @@
       "digest": "bec5b6831965f61c",
       "first_line": "#define PYC_MAGIC_NUMBER 3666",
       "lines": 6
+    },
+    "Include/internal/pycore_mimalloc.h:12-18@v3.15.0rc1": {
+      "digest": "0e44cf8fb8659572",
+      "first_line": "typedef enum {",
+      "lines": 7
+    },
+    "Include/internal/pycore_mimalloc.h:22-33@v3.15.0rc1": {
+      "digest": "a2e2a56d59c9419b",
+      "first_line": "#ifdef WITH_MIMALLOC",
+      "lines": 12
+    },
+    "Include/internal/pycore_mimalloc.h:53-67@v3.15.0rc1": {
+      "digest": "bf3d6d525c8b94cf",
+      "first_line": "#ifdef Py_GIL_DISABLED",
+      "lines": 15
     },
     "Include/internal/pycore_object.h:83-89@v3.15.0rc1": {
       "digest": "70fca12f791324cc",
@@ -1490,6 +1515,11 @@
       "first_line": "nbytes = read_size_t(q - 2*SST);",
       "lines": 8
     },
+    "Objects/obmalloc.c:3667-3687@v3.15.0rc1": {
+      "digest": "038779af0f26ff0c",
+      "first_line": "static void",
+      "lines": 21
+    },
     "Objects/obmalloc.c:3781-3796@v3.15.0rc1": {
       "digest": "c47d6bf59ba2ce66",
       "first_line": "for (i = 0; i < numclasses; ++i) {",
@@ -1504,6 +1534,11 @@
       "digest": "35ed0214227df57e",
       "first_line": "void",
       "lines": 20
+    },
+    "Objects/obmalloc.c:781-796@v3.15.0rc1": {
+      "digest": "c1c7e97354e77c1b",
+      "first_line": "#if defined(WITH_PYMALLOC) && !defined(Py_GIL_DISABLED)",
+      "lines": 16
     },
     "Objects/tupleobject.c:36-62@v3.15.0rc1": {
       "digest": "f34cb653c115854b",
@@ -3284,6 +3319,11 @@
       "digest": "57a053f14db0fa41",
       "first_line": "/* Headache time.  `op` is going away, and is weakly referenced by",
       "lines": 30
+    },
+    "Python/gc_free_threading.c:381-399@v3.15.0rc1": {
+      "digest": "0c17d494d2a8f663",
+      "first_line": "// visit each thread's heaps for GC objects",
+      "lines": 19
     },
     "Python/gc_gil.c:6-15@v3.15.0rc1": {
       "digest": "ff88abe1b50962f4",

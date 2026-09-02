@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-443 claims across 56 lessons, 29 of them not observable from Python.
+450 claims across 57 lessons, 31 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -360,6 +360,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | Every block address is 48 bytes plus a whole number of blocks from the start of its pool, and the highest one is exactly where the arithmetic says the last block goes | [`m02-16`](m02-arenas-pools-and-blocks/m02.ipynb) |
 | Every byte total in the summary can be recomputed from the table above it using nothing but the pool size and the header size | [`m02-20`](m02-arenas-pools-and-blocks/m02.ipynb) |
 | Freeing all but one block in every two hundred returns no arenas at all, and freeing that last one per two hundred returns nearly all of them | [`m02-23`](m02-arenas-pools-and-blocks/m02.ipynb) |
+
+## M03. A heap for every thread
+
+| Claim | Proved by |
+| --- | --- |
+| An ordinary CPython build contains both allocators, and the free threaded build contains only mimalloc | [`m03-07`](m03-a-heap-for-every-thread/m03.ipynb) |
+| mimalloc serves requests up to 16384 bytes across 73 size classes, against 512 bytes across 32 | [`m03-10`](m03-a-heap-for-every-thread/m03.ipynb) |
+| Four thousand blocks of any small size land in a single 32 MiB segment, spread over as many 64 KiB pages as they need | [`m03-13`](m03-a-heap-for-every-thread/m03.ipynb) |
+| Under obmalloc no block address is a multiple of its own size, and under mimalloc every one is | [`m03-16`](m03-a-heap-for-every-thread/m03.ipynb) |
+| The block header and fences from M01 read the same under mimalloc_debug as under pymalloc_debug | [`m03-20`](m03-a-heap-for-every-thread/m03.ipynb) |
+| A free threaded build gives every thread four mimalloc heaps, split by what the cycle collector needs to do with the objects in them | not observable from Python: The struct holding them only exists under Py_GIL_DISABLED, and this notebook is not running such a build. You can read the fields at Include/internal/pycore_mimalloc.h:53-67 and see the array of four heaps and the thread local page list. |
+| The free threaded cycle collector finds objects by walking the mimalloc heaps rather than a linked list, which is why its objects do not carry the two list pointers | not observable from Python: Both halves need a free threaded interpreter to observe. The visiting code is the function cited above, and the two heaps it visits per thread are the gc and gc_pre ones from the enum. |
 
 ## O01. The header, byte by byte
 
