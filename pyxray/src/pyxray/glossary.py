@@ -1325,6 +1325,23 @@ MEMORY = Group(
             met="M04",
         ),
         Term(
+            name="immortalization",
+            short="Switching an object that is already alive over to the immortal count.",
+            long="The runtime does this to the strings it interns for names while a module is being compiled, and to the objects it sets up at startup. There is no way to ask for it from Python, which is deliberate, because there is no way to undo it either. An object that gets the treatment is never freed again for the life of the process.",
+            cite="Objects/unicodeobject.c:14196-14214@v3.15.0rc1#immortalize_interned",
+            see=("immortal object", "interning", "reference count"),
+            met="M05",
+        ),
+        Term(
+            name="single character cache",
+            short="The 256 one character strings the runtime builds once before your code runs.",
+            long="Every string of one byte comes out of this table rather than being built, which is why slicing or indexing a string of ASCII never allocates. They are immortal, so nothing ever counts references to them, and the table is one of the reasons a program that shuffles short strings around does far less allocation than it looks like it should.",
+            also=("`_Py_LATIN1_CHR`",),
+            cite="Objects/unicodeobject.c:1809-1814@v3.15.0rc1#get_latin1_char",
+            see=("small integer cache", "immortal object", "interning"),
+            met="M05",
+        ),
+        Term(
             name="deallocation",
             short="What happens the moment an object's reference count reaches zero.",
             long="The type's deallocation function runs, which releases the references the object was holding, so freeing one object often frees a chain of them. This is immediate and it is the main way memory is reclaimed. The cycle collector is the exception rather than the rule.",

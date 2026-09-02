@@ -430,6 +430,11 @@
       "first_line": "* fits a ~2126 bit decimal number.",
       "lines": 6
     },
+    "Include/internal/pycore_long.h:61-68@v3.15.0rc1": {
+      "digest": "a674601ef5174548",
+      "first_line": "// _PyLong_GetZero() and _PyLong_GetOne() must always be available",
+      "lines": 8
+    },
     "Include/internal/pycore_magic_number.h:313-318@v3.15.0rc1": {
       "digest": "bec5b6831965f61c",
       "first_line": "#define PYC_MAGIC_NUMBER 3666",
@@ -805,6 +810,11 @@
       "first_line": "#define _Py_IMMORTAL_INITIAL_REFCNT (3ULL << 30)",
       "lines": 1
     },
+    "Include/refcount.h:47-50@v3.15.0rc1": {
+      "digest": "8ef54d5ad4f6b47b",
+      "first_line": "#define _Py_IMMORTAL_INITIAL_REFCNT (3ULL << 30)",
+      "lines": 4
+    },
     "Include/refcount.h:527-538@v3.15.0rc1": {
       "digest": "4b12e8e078a88f82",
       "first_line": "// Create a new strong reference to an object:",
@@ -1110,10 +1120,20 @@
       "first_line": "static void",
       "lines": 25
     },
+    "Objects/codeobject.c:181-197@v3.15.0rc1": {
+      "digest": "929755a1fef3d1ed",
+      "first_line": "static int",
+      "lines": 17
+    },
     "Objects/codeobject.c:182-197@v3.15.0rc1": {
       "digest": "3a64a82f8560281c",
       "first_line": "intern_strings(PyObject *tuple)",
       "lines": 16
+    },
+    "Objects/codeobject.c:199-218@v3.15.0rc1": {
+      "digest": "7c147fa4729d0c2a",
+      "first_line": "/* Intern constants. In the default build, this interns selected string",
+      "lines": 20
     },
     "Objects/codeobject.c:206-213@v3.15.0rc1": {
       "digest": "9041a001a2343637",
@@ -1800,10 +1820,20 @@
       "first_line": "if (_PyUnicode_HAS_UTF8_MEMORY(self))",
       "lines": 2
     },
+    "Objects/unicodeobject.c:14196-14214@v3.15.0rc1": {
+      "digest": "e558eb72936b414c",
+      "first_line": "static void",
+      "lines": 19
+    },
     "Objects/unicodeobject.c:14244-14248@v3.15.0rc1": {
       "digest": "41c060b793dfd641",
       "first_line": "/* If it's a subclass, we don't really know what putting",
       "lines": 5
+    },
+    "Objects/unicodeobject.c:14271-14282@v3.15.0rc1": {
+      "digest": "4caf22350b73da6f",
+      "first_line": "/* Statically allocated strings must be already interned. */",
+      "lines": 12
     },
     "Objects/unicodeobject.c:14284-14291@v3.15.0rc1": {
       "digest": "33aace2b4a2b4663",
@@ -1814,6 +1844,11 @@
       "digest": "ee71fe2fe91d3ebc",
       "first_line": "find_maxchar_surrogates(const wchar_t *begin, const wchar_t *end,",
       "lines": 15
+    },
+    "Objects/unicodeobject.c:1809-1814@v3.15.0rc1": {
+      "digest": "adf4014d74807f9f",
+      "first_line": "static PyObject*",
+      "lines": 6
     },
     "Objects/unicodeobject.c:4104-4125@v3.15.0rc1": {
       "digest": "8cdf22af96e90026",
@@ -3589,6 +3624,16 @@
       "digest": "4fe0cd2b7b537c3b",
       "first_line": "if (flags & DEF_NONLOCAL) {",
       "lines": 15
+    },
+    "Python/sysmodule.c:1004-1019@v3.15.0rc1": {
+      "digest": "3152714401dce48f",
+      "first_line": "static PyObject *",
+      "lines": 16
+    },
+    "Python/sysmodule.c:1049-1054@v3.15.0rc1": {
+      "digest": "9422e5cf25fedc1d",
+      "first_line": "static int",
+      "lines": 6
     },
     "Python/sysmodule.c:1931-1946@v3.15.0rc1": {
       "digest": "8780fbda3fa7cd5f",
