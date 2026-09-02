@@ -541,7 +541,7 @@ And the payoff is real but conditional. Four interpreters run four counting jobs
 
 ## What is next
 
-C05 goes back to the very beginning and asks what happens before any of this exists. The runtime struct that owns the interpreter list has to be built before there is an interpreter to build it from, and the order that startup does things in is the reason a handful of odd rules exist, like why you cannot change the encoding of `sys.stdout` after the fact.
+C05 goes back down to a single thread and looks at the one word that lets anything interrupt it. C01 named it in passing, the eval breaker, and then went back to timing the lock. It turns out to be how Ctrl-C works, how the garbage collector gets a turn, how one thread throws an exception into another, and how a debugger in a completely different process can make this one run a script. All of that is eight bits and one check in the eval loop.
 """)
 
 

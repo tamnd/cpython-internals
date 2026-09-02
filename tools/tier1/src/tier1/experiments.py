@@ -1804,6 +1804,106 @@ FOUR_CORES_WITHOUT_THE_LOCK = Experiment(
 )
 
 
+#: The program for both c05 recordings, run once on each build.
+PROGRAM_SIXTEEN = r'''"""How long an injected script waits, and what the target was doing.
+
+`sys.remote_exec` writes a path into another process and sets one bit in that process's eval
+breaker. Nothing else happens until the target reaches its next periodic check, so what the wait
+measures is not the injection. It is what the target happened to be doing at the time.
+
+Two children, one program each. The first runs an ordinary Python loop, which passes a check
+every few instructions. The second calls sort once on a large shuffled list, which is one C call
+with no check anywhere inside it. Both are asked to print the same line, and the gap between the
+two answers is the whole point.
+
+macOS refuses this without root, so a reader on a laptop usually cannot run it. In a container
+on Linux, asking a child process is allowed.
+"""
+
+import pathlib
+import subprocess
+import sys
+import tempfile
+import time
+
+SPIN = """
+print("ready", flush=True)
+while True:
+    pass
+"""
+
+SORT = """
+import random
+
+data = list(range(9000000))
+random.shuffle(data)
+print("ready", flush=True)
+data.sort()
+"""
+
+HELLO = "print('a script the child never imported', flush=True)\n"
+
+
+def measure(program):
+    """Start a child, wait until it says it is busy, inject, and time the reply."""
+    note = pathlib.Path(tempfile.mkdtemp()) / "hello.py"
+    note.write_text(HELLO)
+    child = subprocess.Popen(
+        [sys.executable, "-c", program],
+        stdout=subprocess.PIPE,
+        text=True,
+    )
+    child.stdout.readline()
+    time.sleep(0.2)
+    started = time.perf_counter()
+    sys.remote_exec(child.pid, str(note))
+    child.stdout.readline()
+    waited = time.perf_counter() - started
+    child.kill()
+    child.wait()
+    return waited
+
+
+loop = measure(SPIN)
+call = measure(SORT)
+
+print(f"the lock is on: {sys._is_gil_enabled()}")
+print(f"~ waited on a child running ordinary bytecode: {loop * 1000:.1f} ms")
+print(f"~ waited on a child inside one call to sort: {call * 1000:.0f} ms")
+print(f"~ how many times longer the second one took: {call / loop:.0f}")
+'''
+
+
+THE_MESSAGE_THAT_WAITED = Experiment(
+    slug="c05-the-message-that-waited",
+    lesson="C05",
+    title="How long sys.remote_exec waits, on a child in bytecode and a child in one C call",
+    asks="How late can an injected script be when the target never reaches a periodic check?",
+    needs=(
+        "macOS refuses to let one process do this to another without root, so the cell in the "
+        "lesson prints an apology on a Mac, and the answer only means anything on a machine "
+        "where the injection is allowed in the first place"
+    ),
+    build="release",
+    program=PROGRAM_SIXTEEN,
+)
+
+
+THE_SAME_MESSAGE_WITHOUT_THE_LOCK = Experiment(
+    slug="c05-the-same-message-without-the-lock",
+    lesson="C05",
+    title="The same two children on a build with no GIL",
+    asks="Does taking the GIL away change how late an injected script can be?",
+    needs=(
+        "the eval breaker is easy to mistake for a part of the GIL, and the only way to show "
+        "that it is not is to run the same program on a build configured with --disable-gil, "
+        "which is not something a reader can switch on in the interpreter they already have"
+    ),
+    build="freethreaded",
+    program=PROGRAM_SIXTEEN,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -1823,6 +1923,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     THE_DAEMON_THAT_NEVER_CAME_BACK,
     FOUR_CORES_WITH_THE_LOCK,
     FOUR_CORES_WITHOUT_THE_LOCK,
+    THE_MESSAGE_THAT_WAITED,
+    THE_SAME_MESSAGE_WITHOUT_THE_LOCK,
 )
 
 
