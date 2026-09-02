@@ -26,6 +26,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [c02-one-lock-each-or-one-between-them](tier1/c02-one-lock-each-or-one-between-them.md) | C02 | freethreaded | Does a lock in every object mean four threads with four lists go faster than four threads with one? |
 | [c02-the-lock-switched-back-on](tier1/c02-the-lock-switched-back-on.md) | C02 | freethreaded | What happens to a racing counter when the same free threaded binary is started with the lock back on? |
 | [c03-the-daemon-that-never-came-back](tier1/c03-the-daemon-that-never-came-back.md) | C03 | freethreaded | Does a daemon thread still get hung at shutdown on a build that has no lock to hang it with? |
+| [c04-four-cores-with-the-lock](tier1/c04-four-cores-with-the-lock.md) | C04 | release | How much does giving each job its own interpreter buy on a build that has a GIL? |
+| [c04-four-cores-without-the-lock](tier1/c04-four-cores-without-the-lock.md) | C04 | freethreaded | Does giving each job its own interpreter still buy anything once there is no GIL? |
 
 ## The commands
 

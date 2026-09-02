@@ -1618,6 +1618,33 @@ CONCURRENCY = Group(
             see=("thread state", "attach and detach", "periodic check"),
             met="C03",
         ),
+        Term(
+            name="interpreter state",
+            short="The struct holding one interpreter's modules, its heap, its threads and its lock.",
+            long="A `PyInterpreterState` is one level up from a thread state. It owns the list of threads belonging to it, its own `sys.modules`, its own allocator arenas and, since PEP 684, its own GIL. One process can hold several of them, chained newest first off a list hanging on the runtime.",
+            cite="Include/internal/pycore_runtime_structs.h:184-201@v3.15.0rc1#pyinterpreters",
+            also=("`PyInterpreterState`", "`interp`"),
+            see=("subinterpreter", "thread state", "GIL"),
+            met="C04",
+        ),
+        Term(
+            name="subinterpreter",
+            short="A second interpreter inside the same process, with its own modules and its own lock.",
+            long="Made from Python with `concurrent.interpreters.create()` and from C with `Py_NewInterpreterFromConfig`. It shares the process, the address space and the immortal objects, and almost nothing else. Because it has a lock of its own, work running in one is not held up by work running in another.",
+            cite="Include/cpython/pylifecycle.h:40-64@v3.15.0rc1#_PyInterpreterConfig_INIT",
+            also=("`concurrent.interpreters`", "PEP 734"),
+            see=("interpreter state", "GIL", "shareable object"),
+            met="C04",
+        ),
+        Term(
+            name="shareable object",
+            short="An object the runtime knows how to hand from one interpreter to another.",
+            long="Seven types are registered for it: `None`, `int`, `bytes`, `str`, `bool`, `float` and `tuple`. Anything else has to be turned into bytes on the way in and built again on the way out, which means what arrives is a copy, so changing it on one side is invisible on the other.",
+            cite="Python/crossinterp_data_lookup.h:790-829@v3.15.0rc1#_register_builtins_for_crossinterpreter_data",
+            also=("`is_shareable`", "`concurrent.interpreters.Queue`"),
+            see=("subinterpreter", "immortal object"),
+            met="C04",
+        ),
     ),
 )
 

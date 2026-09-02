@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-522 claims across 66 lessons, 44 of them not observable from Python.
+529 claims across 67 lessons, 45 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -86,6 +86,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | The threading.local values, the scratch dict and the exception being handled all live on the thread state, so one thread never sees another thread's | [`c03-16`](c03-every-thread-gets-a-struct/c03.ipynb) |
 | Py_BEGIN_ALLOW_THREADS is a detach of the thread state and Py_END_ALLOW_THREADS is an attach, which is why releasing the GIL and detaching are the same operation | not observable from Python: both macros are C, and the only thing visible from Python is that a C function which uses them lets other threads run |
 | A daemon thread still running at shutdown is hung at its next periodic check, and its finally blocks do not run | [`c03-20`](c03-every-thread-gets-a-struct/c03.ipynb) |
+
+## C04. More than one interpreter in one process
+
+| Claim | Proved by |
+| --- | --- |
+| The runtime keeps its interpreters on a linked list with the newest first, each interpreter has its own list of thread states, and both lists shrink again when the interpreters are closed | [`c04-07`](c04-more-than-one-interpreter/c04.ipynb) |
+| Each interpreter created by concurrent.interpreters has a GIL of its own, so sys.setswitchinterval in one of them does not change the value the other one reads | [`c04-10`](c04-more-than-one-interpreter/c04.ipynb) |
+| The singletons, the small ints, the one character strings and the built in types have one address in both interpreters, and everything else including sys has a different address in each | [`c04-13`](c04-more-than-one-interpreter/c04.ipynb) |
+| A queue moves a list between interpreters as a copy, so the object on the other side has a different address and changes made to it are not visible back here | [`c04-16`](c04-more-than-one-interpreter/c04.ipynb) |
+| Inside a subinterpreter an ordinary thread and a nested interpreter are allowed, while a daemon thread, os.fork, os.execv and importing readline all raise | [`c04-19`](c04-more-than-one-interpreter/c04.ipynb) |
+| Four counting jobs in four threads and four interpreters finish in noticeably less wall time than the same four jobs in four threads and one interpreter, on a build that has a GIL | [`c04-22`](c04-more-than-one-interpreter/c04.ipynb) |
+| On a free threaded build the same two arrangements land close together, because four threads in one interpreter were already running on four cores | not observable from Python: it needs a build configured with --disable-gil, which is not something a reader can switch on in the interpreter they already have |
 
 ## E01. The interpreter nobody wrote by hand
 
