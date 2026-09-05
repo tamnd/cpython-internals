@@ -36,6 +36,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [c07-what-one-thread-pays-with-the-lock](tier1/c07-what-one-thread-pays-with-the-lock.md) | C07 | release | What do the same eight workloads cost on a build that kept the lock? |
 | [c08-three-ways-to-split-the-work](tier1/c08-three-ways-to-split-the-work.md) | C08 | release | Does handing work to another interpreter pay, and what decides whether it does? |
 | [c08-three-ways-without-the-lock](tier1/c08-three-ways-without-the-lock.md) | C08 | freethreaded | Once plain threads run in parallel too, is there anything left for interpreters? |
+| [r01-what-startup-costs](tier1/r01-what-startup-costs.md) | R01 | release | How much is already loaded before your program starts, and how long did that take? |
+| [r01-what-startup-costs-on-a-debug-build](tier1/r01-what-startup-costs-on-a-debug-build.md) | R01 | debug | Does a debug build do more work at startup, or the same work more slowly? |
 
 ## The commands
 

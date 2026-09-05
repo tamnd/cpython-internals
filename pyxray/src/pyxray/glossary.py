@@ -1754,6 +1754,41 @@ CONCURRENCY = Group(
 )
 
 
+STARTUP = Group(
+    "Starting up and shutting down",
+    "The words for what happens before your first line runs and after your last one does. R01 through R09 are the lessons, and most of what they cover has already happened by the time you get a prompt.",
+    (
+        Term(
+            name="two phase initialisation",
+            short="Startup split in half, because the first half cannot import anything.",
+            long="Core initialisation builds the runtime, the main interpreter and the built in types, and it has to work with no import system, no `sys.path` and no encodings. Main initialisation is everything that needs those, including computing `sys.path` itself. The split is why a configuration error can be reported as a fatal error with a plain C string rather than as a Python exception: at that point there is nothing to raise.",
+            cite="Python/pylifecycle.c:1609-1639@v3.15.0rc1#Py_InitializeFromConfig",
+            also=("`pyinit_core`", "`pyinit_main`", "`Py_InitializeFromConfig`"),
+            see=("path configuration", "safe path"),
+            met="R01",
+        ),
+        Term(
+            name="path configuration",
+            short="The set of paths worked out at startup, of which sys.path is the visible part.",
+            long="`sys.prefix`, `sys.exec_prefix`, `sys.executable`, `sys._base_executable` and `sys.path` are all decided together by one program, `Modules/getpath.py`, which is compiled to bytecode at build time and evaluated during main initialisation. It is written in Python and it is not on `sys.path`, because `sys.path` is what it is there to produce, so it is handed eleven C functions to stand in for the `os.path` it cannot import.",
+            cite="Modules/getpath.c:855-894@v3.15.0rc1#_PyConfig_InitPathConfig",
+            also=("`Modules/getpath.py`", "`_PyConfig_InitPathConfig`"),
+            see=("two phase initialisation", "safe path"),
+            met="R01",
+        ),
+        Term(
+            name="safe path",
+            short="The switch that stops the script's own directory going on the front of sys.path.",
+            long="`-P` on the command line or `PYTHONSAFEPATH` in the environment. Without it the interpreter puts the script's directory, or the empty string for `-c` and `-m`, at `sys.path[0]` after everything else is already set up, which is what makes a file called `random.py` next to your script shadow the standard library. With it, that entry is simply not added.",
+            cite="Modules/main.c:696-728@v3.15.0rc1#safe_path",
+            also=("`-P`", "`PYTHONSAFEPATH`", "`config->safe_path`"),
+            see=("path configuration",),
+            met="R01",
+        ),
+    ),
+)
+
+
 BUILDING = Group(
     "Building the interpreter",
     "The words that turn out to be about the binary rather than about the language. B01 through B04 are the lessons, and several numbers in the earlier lessons move when the build does.",
@@ -1965,6 +2000,7 @@ GROUPS: tuple[Group, ...] = (
     OBJECTS,
     MEMORY,
     CONCURRENCY,
+    STARTUP,
     BUILDING,
     DEBUGGING,
     TESTING,

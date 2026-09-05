@@ -2244,6 +2244,124 @@ THREE_WAYS_WITHOUT_THE_LOCK = Experiment(
 )
 
 
+#: The program for both r01 recordings, run once on each build.
+PROGRAM_TWENTY = r'''"""What has already happened before your first line runs, and what it cost.
+
+Nothing here is about your code. Every number is the interpreter getting itself ready: reading a
+configuration, building a runtime, creating the main interpreter, importing the modules it cannot
+run without, working out where the standard library is, and importing site.
+
+The module counts come from a child process asking itself what is in sys.modules before it does
+anything. The timings are the fastest of twenty runs of a child that does nothing at all, so what
+is being measured is startup and only startup.
+
+Running this on a debug build as well as a release one is the point. The work is identical, the
+counts come out the same, and the clock does not, which puts a number on what the assertions and
+the reference count bookkeeping cost before your program even begins.
+"""
+
+import subprocess
+import sys
+import time
+
+COUNT = """
+import sys
+kinds = {"built-in": 0, "frozen": 0, "from a file": 0}
+for module in sys.modules.values():
+    origin = getattr(getattr(module, "__spec__", None), "origin", None)
+    if origin in ("built-in", "frozen"):
+        kinds[origin] += 1
+    elif origin is not None:
+        kinds["from a file"] += 1
+print(len(sys.modules), kinds["built-in"], kinds["frozen"], kinds["from a file"])
+"""
+
+WAYS = [
+    ("everything", []),
+    ("no site", ["-S"]),
+    ("isolated and no site", ["-I", "-S"]),
+]
+
+
+def child(flags, code):
+    """Run a fresh interpreter with those flags and hand back what it printed."""
+    done = subprocess.run(
+        [sys.executable, *flags, "-c", code], capture_output=True, text=True, check=True
+    )
+    return done.stdout.strip()
+
+
+def best(flags, rounds=20):
+    """The fastest of a few runs, which is the honest number on a shared machine."""
+    fastest = None
+    for _ in range(rounds):
+        started = time.perf_counter()
+        subprocess.run([sys.executable, *flags, "-c", "pass"], capture_output=True, check=True)
+        taken = time.perf_counter() - started
+        fastest = taken if fastest is None else min(fastest, taken)
+    return fastest
+
+
+def import_cost():
+    """Add up the self times that -X importtime prints, in milliseconds."""
+    done = subprocess.run(
+        [sys.executable, "-X", "importtime", "-c", "pass"], capture_output=True, text=True
+    )
+    total = 0
+    for line in done.stderr.splitlines():
+        parts = line.split("|")
+        if len(parts) == 3 and parts[0].startswith("import time:"):
+            head = parts[0].removeprefix("import time:").strip()
+            if head.isdigit():
+                total += int(head)
+    return total / 1000
+
+
+print(f"~ this is a debug build: {hasattr(sys, 'gettotalrefcount')}")
+
+for label, flags in WAYS:
+    total, builtin, frozen, files = child(flags, COUNT).split()
+    print(f"modules at the first line, {label}: {total}")
+    print(f"  of those, built into the binary: {builtin}")
+    print(f"  of those, frozen bytecode: {frozen}")
+    print(f"  of those, read from a file on disk: {files}")
+
+for label, flags in WAYS:
+    print(f"~ starting up, {label}: {best(flags) * 1000:.1f} ms")
+
+print(f"~ of that, spent importing: {import_cost():.1f} ms")
+'''
+
+
+WHAT_STARTUP_COSTS = Experiment(
+    slug="r01-what-startup-costs",
+    lesson="R01",
+    title="What the interpreter has already done before your first line, on a release build",
+    asks="How much is already loaded before your program starts, and how long did that take?",
+    needs=(
+        "it starts twenty child interpreters and takes the fastest, so it needs a machine that is "
+        "not doing anything else and an interpreter installed the ordinary way rather than a "
+        "source tree, because the path search is part of what is being timed"
+    ),
+    build="release",
+    program=PROGRAM_TWENTY,
+)
+
+
+WHAT_STARTUP_COSTS_ON_A_DEBUG_BUILD = Experiment(
+    slug="r01-what-startup-costs-on-a-debug-build",
+    lesson="R01",
+    title="The same startup on a build with the assertions left in",
+    asks="Does a debug build do more work at startup, or the same work more slowly?",
+    needs=(
+        "it needs an interpreter configured with --with-pydebug, and it has to come out of the "
+        "same image pipeline as the release half or the two sets of timings cannot be compared"
+    ),
+    build="debug",
+    program=PROGRAM_TWENTY,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -2271,6 +2389,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     WHAT_ONE_THREAD_PAYS_WITH_THE_LOCK,
     THREE_WAYS_TO_SPLIT_THE_WORK,
     THREE_WAYS_WITHOUT_THE_LOCK,
+    WHAT_STARTUP_COSTS,
+    WHAT_STARTUP_COSTS_ON_A_DEBUG_BUILD,
 )
 
 

@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-557 claims across 71 lessons, 53 of them not observable from Python.
+564 claims across 72 lessons, 54 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -711,6 +711,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | a reference cycle whose objects have __del__ methods is collected normally, every finalizer runs, and gc.garbage stays empty | [`o14-16`](o14-the-last-thing-an-object-does/o14.ipynb) |
 | if the finalizers in a cycle store self, that collection frees nothing, and a later one frees the objects without calling any finalizer again | [`o14-18`](o14-the-last-thing-an-object-does/o14.ipynb) |
 | dropping a half consumed generator runs its finally block, and weakref.finalize gives the same effect for an ordinary object without defining __del__ | [`o14-20`](o14-the-last-thing-an-object-does/o14.ipynb) |
+
+## R01. Before your first line
+
+| Claim | Proved by |
+| --- | --- |
+| A fresh interpreter has a few dozen modules in sys.modules before it runs any of your code, and with site turned off not one of them was read from a file on disk | [`r01-07`](r01-before-your-first-line/r01.ipynb) |
+| The imports that happen before your first line add up to a few milliseconds, and the ones that show up include the import machinery, the codecs, os and site | [`r01-10`](r01-before-your-first-line/r01.ipynb) |
+| When the command line and the environment disagree about the optimization level, neither wins by being nearer, the higher of the two is what you get, and -E removes the environment from the argument entirely | [`r01-13`](r01-before-your-first-line/r01.ipynb) |
+| sys.path contains an entry for a zip file next to the standard library, and on an ordinary install that file is not there | [`r01-15`](r01-before-your-first-line/r01.ipynb) |
+| With -P the entry that would have gone on the front of sys.path is never added at all, so sys.path[0] becomes the first of the standard library entries instead | [`r01-18`](r01-before-your-first-line/r01.ipynb) |
+| Starting an interpreter that runs none of your code takes tens of milliseconds, and -S takes a noticeable slice off that because site is a real import | [`r01-21`](r01-before-your-first-line/r01.ipynb) |
+| A debug build starts in about twice the time of a release build, and most of the extra is not the assertions, it is the fourteen modules it reads off the disk because a debug build turns frozen modules off | not observable from Python: it is a comparison between two builds of the same source, and one interpreter cannot be both of them |
 
 ## T01. One line, seven stages
 
