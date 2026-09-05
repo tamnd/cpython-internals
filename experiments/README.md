@@ -42,6 +42,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [r02-what-a-second-interpreter-costs-without-the-lock](tier1/r02-what-a-second-interpreter-costs-without-the-lock.md) | R02 | freethreaded | Does an interpreter cost the same to make and to keep on a build with no lock? |
 | [r03-how-much-of-an-import-is-parallel](tier1/r03-how-much-of-an-import-is-parallel.md) | R03 | release | Does the import lock stop two threads importing at once, or does something else? |
 | [r03-how-much-of-an-import-is-parallel-without-the-lock](tier1/r03-how-much-of-an-import-is-parallel-without-the-lock.md) | R03 | freethreaded | With the GIL out of the way, do four imports on four threads finish in the time of one? |
+| [r04-what-freezing-saves-at-startup](tier1/r04-what-freezing-saves-at-startup.md) | R04 | release | What does compiling the standard library into the binary actually save at startup? |
+| [r04-what-freezing-saves-on-a-debug-build](tier1/r04-what-freezing-saves-on-a-debug-build.md) | R04 | debug | Does a debug build behave the same way, and does freezing still pay for itself there? |
 
 ## The commands
 

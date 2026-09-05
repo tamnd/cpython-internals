@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-580 claims across 74 lessons, 56 of them not observable from Python.
+589 claims across 75 lessons, 57 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -749,6 +749,20 @@ Without it the exception becomes the rule and this goes back to being a book.
 | A directory created after it was already looked up stays invisible to imports until importlib.invalidate_caches is called, because the failed lookup was cached as None | [`r03-20`](r03-what-import-does/r03.ipynb) |
 | The first import of a module from a source file costs hundreds of times what asking for the same module again costs, and most of that gap survives even once a .pyc file exists | [`r03-22`](r03-what-import-does/r03.ipynb) |
 | What stops two threads importing two different modules at the same time is the GIL and not the import lock, which a build configured with --disable-gil shows by keeping three and a half cores busy on the same program | not observable from Python: it compares two builds of the same source in two containers, and one notebook cannot be both of them |
+
+## R04. Frozen modules
+
+| Claim | Proved by |
+| --- | --- |
+| The module body of importlib._bootstrap contains no IMPORT_NAME opcodes, because the two modules it needs are passed in as arguments and assigned to globals rather than imported | [`r04-07`](r04-frozen-modules/r04.ipynb) |
+| A stock 3.15 build has 33 frozen names in three groups, three of which are the import system itself and eleven of which are hello world modules that exist for the test suite | [`r04-10`](r04-frozen-modules/r04.ipynb) |
+| A frozen module is a marshalled code object with a co_filename of angle bracket frozen name, and _imp will hand it to you as an ordinary code object you can disassemble | [`r04-13`](r04-frozen-modules/r04.ipynb) |
+| A frozen module reports an origin of frozen and a cached of None while still carrying a real path on __file__, which is what lets a traceback through frozen code show you the source line | [`r04-16`](r04-frozen-modules/r04.ipynb) |
+| Turning frozen modules off in process removes the standard library and test names from the frozen table and leaves exactly the three bootstrap names, which no setting can remove | [`r04-19`](r04-frozen-modules/r04.ipynb) |
+| The same import statement produces a module with an origin of frozen or an origin of a file path depending only on the switch, and the module works identically either way | [`r04-22`](r04-frozen-modules/r04.ipynb) |
+| Loading a module from a file and loading it out of the binary end in the same unmarshal of the same bytes, and what freezing removes is the finder search and the file read in front of that | [`r04-25`](r04-frozen-modules/r04.ipynb) |
+| Every file a bare startup reads only when frozen modules are switched off holds a module that is in the frozen standard library group, and on an install with cached bytecode every one of them is an already compiled pyc | [`r04-29`](r04-frozen-modules/r04.ipynb) |
+| A build configured with --with-pydebug leaves frozen modules off by default while a release build leaves them on, so the same interpreter version can disagree with itself about where os came from | not observable from Python: it needs two builds of the same source in two containers, and one notebook is only ever one of them |
 
 ## T01. One line, seven stages
 
