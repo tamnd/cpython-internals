@@ -761,7 +761,7 @@ Without it the exception becomes the rule and this goes back to being a book.
 | Turning frozen modules off in process removes the standard library and test names from the frozen table and leaves exactly the three bootstrap names, which no setting can remove | [`r04-19`](r04-frozen-modules/r04.ipynb) |
 | The same import statement produces a module with an origin of frozen or an origin of a file path depending only on the switch, and the module works identically either way | [`r04-22`](r04-frozen-modules/r04.ipynb) |
 | Loading a module from a file and loading it out of the binary end in the same unmarshal of the same bytes, and what freezing removes is the finder search and the file read in front of that | [`r04-25`](r04-frozen-modules/r04.ipynb) |
-| Every file a bare startup reads only when frozen modules are switched off is a pyc for a module in the frozen standard library group, which means freezing saves file reading rather than compiling | [`r04-29`](r04-frozen-modules/r04.ipynb) |
+| Every file a bare startup reads only when frozen modules are switched off holds a module that is in the frozen standard library group, and on an install with cached bytecode every one of them is an already compiled pyc | [`r04-29`](r04-frozen-modules/r04.ipynb) |
 | A build configured with --with-pydebug leaves frozen modules off by default while a release build leaves them on, so the same interpreter version can disagree with itself about where os came from | not observable from Python: it needs two builds of the same source in two containers, and one notebook is only ever one of them |
 
 ## T01. One line, seven stages

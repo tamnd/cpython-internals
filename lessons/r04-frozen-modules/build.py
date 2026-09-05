@@ -407,7 +407,7 @@ Which brings us to the number people actually want. A whole interpreter startup,
 
 The list is the part that travels. Timings depend on your disk and your processor, but which files a startup opens does not, and `-v` prints one line for each code object it reads.
 
-{lesson.claim("Every file a bare startup reads only when frozen modules are switched off is a pyc for a module in the frozen standard library group, which means freezing saves file reading rather than compiling")}
+{lesson.claim("Every file a bare startup reads only when frozen modules are switched off holds a module that is in the frozen standard library group, and on an install with cached bytecode every one of them is an already compiled pyc")}
 """)
 
 
@@ -424,15 +424,18 @@ def files_read(flags):
     started = subprocess.run(
         [sys.executable, *flags, "-v", "-c", "pass"], capture_output=True, text=True, check=True
     )
+    marker = "# code object from "
     lines = started.stderr.splitlines()
-    return [line.split("'")[1] for line in lines if line.startswith("# code object from")]
+    return [line.removeprefix(marker).strip("'") for line in lines if line.startswith(marker)]
 
 
 def module_name(path):
-    \"\"\"Turn the path of a pyc file back into the name of the module it holds.\"\"\"
+    \"\"\"Turn the path of a file back into the name of the module whose code it holds.\"\"\"
     parts = pathlib.Path(path).parts
     stem = parts[-1].split(".")[0]
-    return parts[-3] if stem == "__init__" else stem
+    if stem != "__init__":
+        return stem
+    return parts[-3] if parts[-2] == "__pycache__" else parts[-2]
 
 
 try:
@@ -443,20 +446,22 @@ try:
     tails = {name.rpartition(".")[2] for name in names}
     for path in [one for one in off if one not in on]:
         held = module_name(path)
-        print(f"    {held:20} is in the frozen list: {held in tails}")
+        kind = pathlib.Path(path).suffix.lstrip(".")
+        print(f"    {held:20} a {kind:3} for a frozen name: {held in tails}")
 except OSError:
     print("  this runtime cannot start a second process, so this cell has nothing to show")
 """,
     varies=(
         "the totals depend on what your interpreter loads at startup, and a virtual environment "
         "adds a handful of files to both runs, but the list underneath is the frozen standard "
-        "library either way, minus whichever of those names your version had not frozen yet"
+        "library either way, minus whichever of those names your version had not frozen yet. An "
+        "install with no cached bytecode next to the source reads py files there rather than pyc"
     ),
 )
 
 
 lesson.md(f"""
-Every name on that list is a `.pyc` that had already been compiled, so what freezing saves at startup is not compiling anything. It is a dozen rounds of asking finders, listing directories, opening files and checking timestamps.
+Every name on that list is in the frozen standard library group, which is the point of the cell. The middle column is worth a look too. Where it says `pyc`, that file had already been compiled, so what freezing saved there was not compilation at all, it was a round of asking finders, listing directories, opening a file and checking a timestamp. Where it says `py`, which happens on an install that ships no cached bytecode, the flag off run pays for the compile as well.
 
 Now the clock. Two Tier 1 recordings run the same program in a container, once on a release build and once on a debug build, and the interesting part is that the two builds disagree about the default.
 
