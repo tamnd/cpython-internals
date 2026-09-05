@@ -1210,6 +1210,71 @@
       "first_line": "def _parse_exception_table(code):",
       "lines": 15
     },
+    "Lib/importlib/_bootstrap.py:1198-1223@v3.15.0rc1": {
+      "digest": "10232b40fdaf68e3",
+      "first_line": "def _find_spec(name, path, target=None):",
+      "lines": 26
+    },
+    "Lib/importlib/_bootstrap.py:1263-1302@v3.15.0rc1": {
+      "digest": "c1db7df4f62a6ae9",
+      "first_line": "def _find_and_load_unlocked(name, import_, *, lazy_submodule=False):",
+      "lines": 40
+    },
+    "Lib/importlib/_bootstrap.py:1333-1371@v3.15.0rc1": {
+      "digest": "78f65c56cec6262d",
+      "first_line": "def _find_and_load(name, import_, *, lazy_submodule=False):",
+      "lines": 39
+    },
+    "Lib/importlib/_bootstrap.py:1457-1491@v3.15.0rc1": {
+      "digest": "6f0df08440560169",
+      "first_line": "def __import__(name, globals=None, locals=None, fromlist=(), level=0):",
+      "lines": 35
+    },
+    "Lib/importlib/_bootstrap.py:226-240@v3.15.0rc1": {
+      "digest": "54c579dcaffdc305",
+      "first_line": "class _ModuleLock:",
+      "lines": 15
+    },
+    "Lib/importlib/_bootstrap.py:605-640@v3.15.0rc1": {
+      "digest": "ff909c98b6b6c885",
+      "first_line": "class ModuleSpec:",
+      "lines": 36
+    },
+    "Lib/importlib/_bootstrap.py:641-654@v3.15.0rc1": {
+      "digest": "bda0fa4c580e7c5b",
+      "first_line": "def __init__(self, name, loader, *, origin=None, loader_state=None,",
+      "lines": 14
+    },
+    "Lib/importlib/_bootstrap.py:837-870@v3.15.0rc1": {
+      "digest": "5089b46322b603c0",
+      "first_line": "def module_from_spec(spec):",
+      "lines": 34
+    },
+    "Lib/importlib/_bootstrap.py:899-932@v3.15.0rc1": {
+      "digest": "5fa4c3822a0ba5f5",
+      "first_line": "def _load_unlocked(spec):",
+      "lines": 34
+    },
+    "Lib/importlib/_bootstrap.py:950-980@v3.15.0rc1": {
+      "digest": "315b0e3dda25c884",
+      "first_line": "class BuiltinImporter:",
+      "lines": 31
+    },
+    "Lib/importlib/_bootstrap_external.py:1176-1199@v3.15.0rc1": {
+      "digest": "7a9ef71fd9194d40",
+      "first_line": "class PathFinder:",
+      "lines": 24
+    },
+    "Lib/importlib/_bootstrap_external.py:1211-1231@v3.15.0rc1": {
+      "digest": "7237ee6b813ea959",
+      "first_line": "@classmethod",
+      "lines": 21
+    },
+    "Lib/importlib/_bootstrap_external.py:1403-1432@v3.15.0rc1": {
+      "digest": "a9233e70e5ae3110",
+      "first_line": "def _fill_cache(self):",
+      "lines": 30
+    },
     "Lib/importlib/_bootstrap_external.py:413-444@v3.15.0rc1": {
       "digest": "10d980231fcac381",
       "first_line": "def _classify_pyc(data, name, exc_details):",
@@ -3370,6 +3435,11 @@
       "first_line": "op(_IS_OP, (left, right -- b, l, r)) {",
       "lines": 8
     },
+    "Python/bytecodes.c:3497-3517@v3.15.0rc1": {
+      "digest": "2d97331c6d586cd4",
+      "first_line": "inst(IMPORT_NAME, (level, fromlist -- res)) {",
+      "lines": 21
+    },
     "Python/bytecodes.c:3539-3554@v3.15.0rc1": {
       "digest": "edc4782a05b22ee4",
       "first_line": "family(JUMP_BACKWARD, 1) = {",
@@ -3539,6 +3609,11 @@
       "digest": "f816c4c48d43b078",
       "first_line": "_PyEval_EvalFrameDefault(PyThreadState *tstate, _PyInterpreterFrame *frame, int throwflag)",
       "lines": 1
+    },
+    "Python/ceval.c:2993-3010@v3.15.0rc1": {
+      "digest": "960c25b04deabf4c",
+      "first_line": "PyObject *",
+      "lines": 18
     },
     "Python/ceval.c:306-322@v3.15.0rc1": {
       "digest": "4390314e2832e359",
@@ -4309,6 +4384,16 @@
       "digest": "785ae6580ab9e27f",
       "first_line": "int",
       "lines": 21
+    },
+    "Python/import.c:258-271@v3.15.0rc1": {
+      "digest": "18c4a42699cdf13d",
+      "first_line": "static PyObject *",
+      "lines": 14
+    },
+    "Python/import.c:4190-4227@v3.15.0rc1": {
+      "digest": "40a1544a3fd82833",
+      "first_line": "PyImport_ImportModuleLevelObject(PyObject *name, PyObject *globals,",
+      "lines": 38
     },
     "Python/initconfig.c:1193-1201@v3.15.0rc1": {
       "digest": "0cd6d8c3fdac2d2a",

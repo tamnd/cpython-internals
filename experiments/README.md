@@ -40,6 +40,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [r01-what-startup-costs-on-a-debug-build](tier1/r01-what-startup-costs-on-a-debug-build.md) | R01 | debug | Does a debug build do more work at startup, or the same work more slowly? |
 | [r02-what-a-second-interpreter-costs](tier1/r02-what-a-second-interpreter-costs.md) | R02 | release | How expensive is a whole interpreter next to a thread, and what do two of them share? |
 | [r02-what-a-second-interpreter-costs-without-the-lock](tier1/r02-what-a-second-interpreter-costs-without-the-lock.md) | R02 | freethreaded | Does an interpreter cost the same to make and to keep on a build with no lock? |
+| [r03-how-much-of-an-import-is-parallel](tier1/r03-how-much-of-an-import-is-parallel.md) | R03 | release | Does the import lock stop two threads importing at once, or does something else? |
+| [r03-how-much-of-an-import-is-parallel-without-the-lock](tier1/r03-how-much-of-an-import-is-parallel-without-the-lock.md) | R03 | freethreaded | With the GIL out of the way, do four imports on four threads finish in the time of one? |
 
 ## The commands
 

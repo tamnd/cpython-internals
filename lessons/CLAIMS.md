@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-571 claims across 73 lessons, 55 of them not observable from Python.
+580 claims across 74 lessons, 56 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -735,6 +735,20 @@ Without it the exception becomes the rule and this goes back to being a book.
 | signal.signal only works on the main thread of the main interpreter, and it raises ValueError both on another thread of the main interpreter and on the main thread of a second interpreter | [`r02-18`](r02-where-the-state-lives/r02.ipynb) |
 | Two threads can each be handling a different exception at the same time, and sys.exception() gives each of them its own answer while the main thread sees None | [`r02-20`](r02-where-the-state-lives/r02.ipynb) |
 | Making an interpreter costs roughly fifty times what making an operating system thread costs, and a build without the GIL charges more for both because mimalloc heaps and obmalloc pools do not price an extra interpreter the same way | not observable from Python: it compares two builds of the same source in two containers, and one interpreter cannot be both of them |
+
+## R03. What import does
+
+| Claim | Proved by |
+| --- | --- |
+| An import statement compiles to one IMPORT_NAME for the module being imported plus zero or more IMPORT_FROM, and import a.b binds the name a rather than a.b | [`r03-07`](r03-what-import-does/r03.ipynb) |
+| Importing a dotted name searches for each part in turn from the outside in, and each part after the first is searched for in the parent package's __path__ rather than in sys.path | [`r03-09`](r03-what-import-does/r03.ipynb) |
+| A module name can be answered by more than one finder, and the earlier finder wins, which is why import os never reads os.py even though os.py is right there on sys.path | [`r03-11`](r03-what-import-does/r03.ipynb) |
+| A module is in sys.modules from before its body starts running, so a module it imports can read back the names defined so far and not the ones defined later, and if the body raises the entry is taken back out again | [`r03-13`](r03-what-import-does/r03.ipynb) |
+| A class with find_spec and exec_module methods, put on the front of sys.meta_path, is enough to make a normal import statement produce a module built from a string with no file on disk anywhere | [`r03-15`](r03-what-import-does/r03.ipynb) |
+| Each sys.path entry gets one finder object, kept in sys.path_importer_cache, and a directory that is not there is remembered as None, while each FileFinder holds a set of the directory listing that it refills when the directory's modification time changes | [`r03-17`](r03-what-import-does/r03.ipynb) |
+| A directory created after it was already looked up stays invisible to imports until importlib.invalidate_caches is called, because the failed lookup was cached as None | [`r03-20`](r03-what-import-does/r03.ipynb) |
+| The first import of a module from a source file costs hundreds of times what asking for the same module again costs, and most of that gap survives even once a .pyc file exists | [`r03-22`](r03-what-import-does/r03.ipynb) |
+| What stops two threads importing two different modules at the same time is the GIL and not the import lock, which a build configured with --disable-gil shows by keeping three and a half cores busy on the same program | not observable from Python: it compares two builds of the same source in two containers, and one notebook cannot be both of them |
 
 ## T01. One line, seven stages
 
