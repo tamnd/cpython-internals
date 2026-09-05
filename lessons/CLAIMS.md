@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-564 claims across 72 lessons, 54 of them not observable from Python.
+571 claims across 73 lessons, 55 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -723,6 +723,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | With -P the entry that would have gone on the front of sys.path is never added at all, so sys.path[0] becomes the first of the standard library entries instead | [`r01-18`](r01-before-your-first-line/r01.ipynb) |
 | Starting an interpreter that runs none of your code takes tens of milliseconds, and -S takes a noticeable slice off that because site is a real import | [`r01-21`](r01-before-your-first-line/r01.ipynb) |
 | A debug build starts in about twice the time of a release build, and most of the extra is not the assertions, it is the fourteen modules it reads off the disk because a debug build turns frozen modules off | not observable from Python: it is a comparison between two builds of the same source, and one interpreter cannot be both of them |
+
+## R02. Where the state lives
+
+| Claim | Proved by |
+| --- | --- |
+| Two interpreters in one process return the same id for None, for True, for small ints, for one character strings and for the built in type objects, and different ids for the sys module, for sys.modules and for anything either of them built for itself | [`r02-07`](r02-where-the-state-lives/r02.ipynb) |
+| The ints that two interpreters agree on are a contiguous run starting at minus five, and where that run ends is a compile time constant rather than anything the two interpreters negotiate | [`r02-09`](r02-where-the-state-lives/r02.ipynb) |
+| The main interpreter is always id 0, new interpreters get the next number that has never been used, and closing one does not put its number back in the pool | [`r02-12`](r02-where-the-state-lives/r02.ipynb) |
+| Setting the recursion limit, adding a warnings filter and importing a module all change one interpreter and are invisible to another interpreter in the same process | [`r02-15`](r02-where-the-state-lives/r02.ipynb) |
+| signal.signal only works on the main thread of the main interpreter, and it raises ValueError both on another thread of the main interpreter and on the main thread of a second interpreter | [`r02-18`](r02-where-the-state-lives/r02.ipynb) |
+| Two threads can each be handling a different exception at the same time, and sys.exception() gives each of them its own answer while the main thread sees None | [`r02-20`](r02-where-the-state-lives/r02.ipynb) |
+| Making an interpreter costs roughly fifty times what making an operating system thread costs, and a build without the GIL charges more for both because mimalloc heaps and obmalloc pools do not price an extra interpreter the same way | not observable from Python: it compares two builds of the same source in two containers, and one interpreter cannot be both of them |
 
 ## T01. One line, seven stages
 
