@@ -1672,6 +1672,32 @@ CONCURRENCY = Group(
             see=("eval breaker", "pending call"),
             met="C05",
         ),
+        Term(
+            name="optimistic read",
+            short="Take a reference first, then check that what you took it on has not moved.",
+            long="`_Py_TryIncrefCompare` reads a pointer, tries to bump the count on whatever it found, and then reads the pointer a second time. If the two reads disagree the object was replaced underneath it, so it drops the reference and the caller starts again. No lock is taken on the way in, which is why four threads can read the same list at once.",
+            cite="Include/internal/pycore_object.h:571-586@v3.15.0rc1#_Py_TryIncrefCompare",
+            also=("`_Py_TryIncrefCompare`", "`_Py_TryXGetRef`"),
+            see=("critical section", "free threaded build", "reference count"),
+            met="C06",
+        ),
+        Term(
+            name="safe memory reclamation",
+            short="Freeing memory only once every thread has been seen to move on past it.",
+            long="Also written QSBR. A thread that replaces a container's storage cannot free the old block straight away, because another thread may still be reading it. So the block goes on a queue with a sequence number, and the memory is handed back later, once every thread has reached a point where it is certainly no longer looking. The draining happens at the periodic check, which is the same eval breaker C05 was about.",
+            cite="Include/internal/pycore_qsbr.h:1-30@v3.15.0rc1#QSBR",
+            also=("QSBR", "`_PyMem_FreeDelayed`"),
+            see=("optimistic read", "periodic check", "free threaded build"),
+            met="C06",
+        ),
+        Term(
+            name="reference count contention",
+            short="Several threads writing the same count, which is the slowest thing a CPU does.",
+            long="A reference count lives in one cache line, and a core has to own that line exclusively to write to it. Four threads reading the same object therefore take turns on the hardware even though nothing in Python is locked, and the result can be slower than one thread on its own. It is the reason immortal objects exist, and the reason the free threaded build immortalizes every constant it compiles.",
+            also=("cache line ping pong",),
+            see=("immortal object", "biased reference counting", "free threaded build"),
+            met="C06",
+        ),
     ),
 )
 
