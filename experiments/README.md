@@ -32,6 +32,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [c05-the-same-message-without-the-lock](tier1/c05-the-same-message-without-the-lock.md) | C05 | freethreaded | Does taking the GIL away change how late an injected script can be? |
 | [c06-reading-what-nobody-counts](tier1/c06-reading-what-nobody-counts.md) | C06 | freethreaded | Does taking the lock away make reads scale, or does it depend on what is being read? |
 | [c06-the-same-two-lists-with-the-lock](tier1/c06-the-same-two-lists-with-the-lock.md) | C06 | release | Do the two lists behave differently on a build where the threads take turns anyway? |
+| [c07-what-one-thread-pays](tier1/c07-what-one-thread-pays.md) | C07 | freethreaded | What does a build with no GIL charge a program that only ever has one thread? |
+| [c07-what-one-thread-pays-with-the-lock](tier1/c07-what-one-thread-pays-with-the-lock.md) | C07 | release | What do the same eight workloads cost on a build that kept the lock? |
 
 ## The commands
 

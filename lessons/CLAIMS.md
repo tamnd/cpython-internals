@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-543 claims across 69 lessons, 49 of them not observable from Python.
+550 claims across 70 lessons, 52 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -122,6 +122,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | A single thread writing in a loop costs the four readers much more than the four readers cost each other | [`c06-18`](c06-reading-without-a-lock/c06.ipynb) |
 | A reader that pulls an object out of a slot while another thread replaces it never gets back an object that has already been freed, on either build | [`c06-22`](c06-reading-without-a-lock/c06.ipynb) |
 | Removing the GIL turns what a list holds into a performance decision, and on a build that still has the GIL that decision does not exist | not observable from Python: the pair of runs needs both an ordinary build and one configured with --disable-gil, and no single interpreter can be both |
+
+## C07. The lock that comes back
+
+| Claim | Proved by |
+| --- | --- |
+| Whether a build was compiled without the lock and whether the lock is on right now are two separate questions with two separate answers | [`c07-07`](c07-the-lock-that-comes-back/c07.ipynb) |
+| A build that has the lock refuses to start at all when asked to run without it, rather than ignoring the request | [`c07-10`](c07-the-lock-that-comes-back/c07.ipynb) |
+| On a free threaded build all four requests are honoured, so the same binary can be started with the lock on or off | not observable from Python: it needs an interpreter configured with --disable-gil, which is a separate build rather than a flag you can turn on in the one you already have |
+| On a build that has the lock, importing an extension that says nothing about threads changes nothing and produces no warning | [`c07-13`](c07-the-lock-that-comes-back/c07.ipynb) |
+| Importing one compiled module that has not declared itself safe turns the lock on for the rest of the process, on a build that started without it | not observable from Python: the flip only happens on an interpreter configured with --disable-gil, and this notebook cannot become one |
+| Most of what a fresh interpreter has loaded is built into the binary rather than being a separate shared library that would have to declare itself | [`c07-16`](c07-the-lock-that-comes-back/c07.ipynb) |
+| A build with no lock is somewhat slower on single threaded work that touches many objects, and faster on work dominated by allocation, because removing the lock also changed the allocator | not observable from Python: it takes two builds of the same source with the same optimisation flags on the same hardware, and one interpreter cannot be both of them |
 
 ## E01. The interpreter nobody wrote by hand
 
