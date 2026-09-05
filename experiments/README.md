@@ -38,6 +38,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [c08-three-ways-without-the-lock](tier1/c08-three-ways-without-the-lock.md) | C08 | freethreaded | Once plain threads run in parallel too, is there anything left for interpreters? |
 | [r01-what-startup-costs](tier1/r01-what-startup-costs.md) | R01 | release | How much is already loaded before your program starts, and how long did that take? |
 | [r01-what-startup-costs-on-a-debug-build](tier1/r01-what-startup-costs-on-a-debug-build.md) | R01 | debug | Does a debug build do more work at startup, or the same work more slowly? |
+| [r02-what-a-second-interpreter-costs](tier1/r02-what-a-second-interpreter-costs.md) | R02 | release | How expensive is a whole interpreter next to a thread, and what do two of them share? |
+| [r02-what-a-second-interpreter-costs-without-the-lock](tier1/r02-what-a-second-interpreter-costs-without-the-lock.md) | R02 | freethreaded | Does an interpreter cost the same to make and to keep on a build with no lock? |
 
 ## The commands
 

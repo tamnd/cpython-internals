@@ -2362,6 +2362,139 @@ WHAT_STARTUP_COSTS_ON_A_DEBUG_BUILD = Experiment(
 )
 
 
+PROGRAM_TWENTYONE = r'''"""What a second interpreter costs, and which objects the two of them share.
+
+An interpreter is a struct with a few hundred fields in it, and this measures the struct rather
+than talking about it. How long one takes to make next to how long an operating system thread
+takes, how much resident memory each extra one costs, how many modules a brand new one starts
+with, and which objects have the same address on both sides.
+
+That last table is the point of the whole lesson this belongs to. An address that matches means
+the object lives in the runtime and every interpreter in the process is looking at the same
+bytes. An address that does not match means each interpreter built its own.
+
+Running it on a build without the lock as well as one with it is worth doing because the two
+builds do not allocate the same way. A build with the lock gives each interpreter its own
+obmalloc pools, and a free threaded build uses mimalloc heaps instead, so the memory each extra
+interpreter costs is not the same number and the reason is structural rather than noise.
+"""
+
+import concurrent.interpreters as ci
+import resource
+import sys
+import sysconfig
+import threading
+import time
+
+ASK = """
+import sys
+out = []
+for what, thing in [
+    ("None", None),
+    ("the int 5", 5),
+    ("the int 1024", 1024),
+    ("the int 1025", 1025),
+    ("the one character string a", "a"),
+    ("the type object int", int),
+    ("the sys module", sys),
+    ("the builtins dict", __builtins__),
+]:
+    out.append((what, id(thing)))
+out.append(("how many modules", len(sys.modules)))
+post.put(tuple(out))
+"""
+
+
+def best(make, rounds=20):
+    """The fastest of a few goes, in microseconds, which is the honest number here."""
+    fastest = None
+    for _ in range(rounds):
+        started = time.perf_counter()
+        make()
+        taken = time.perf_counter() - started
+        fastest = taken if fastest is None else min(fastest, taken)
+    return fastest * 1_000_000
+
+
+def make_a_thread():
+    """Start an operating system thread that does nothing and wait for it to finish."""
+    worker = threading.Thread(target=lambda: None)
+    worker.start()
+    worker.join()
+
+
+def make_an_interpreter():
+    """Make a whole interpreter and throw it away again."""
+    ci.create().close()
+
+
+def resident_kb():
+    """Peak resident memory in kilobytes. Linux reports kilobytes, macOS reports bytes."""
+    raw = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    return raw if sys.platform.startswith("linux") else raw / 1024
+
+
+print(f"~ this build has the lock: {not sysconfig.get_config_var('Py_GIL_DISABLED')}")
+
+print(f"~ starting an os thread: {best(make_a_thread):.0f} us")
+print(f"~ making an interpreter: {best(make_an_interpreter):.0f} us")
+
+before = resident_kb()
+held = [ci.create() for _ in range(10)]
+after = resident_kb()
+print(f"~ resident memory each extra interpreter costs: {(after - before) / 10:.0f} kB")
+
+post = ci.create_queue()
+worker = held[0]
+worker.prepare_main(post=post)
+worker.exec(ASK)
+theirs = dict(post.get())
+
+here = {}
+exec(ASK.replace("post.put(tuple(out))", "pass"), here)
+mine = dict(here["out"])
+
+for what in mine:
+    if what == "how many modules":
+        continue
+    print(f"same address in both interpreters, {what}: {mine[what] == theirs[what]}")
+
+print(f"modules a brand new interpreter starts with: {theirs['how many modules']}")
+
+for one in held:
+    one.close()
+'''
+
+
+WHAT_A_SECOND_INTERPRETER_COSTS = Experiment(
+    slug="r02-what-a-second-interpreter-costs",
+    lesson="R02",
+    title="What an interpreter costs to make, and what two of them share",
+    asks="How expensive is a whole interpreter next to a thread, and what do two of them share?",
+    needs=(
+        "it reads peak resident memory out of the operating system and makes ten interpreters at "
+        "once, so it needs a machine with a known memory reporting unit and nothing else running "
+        "on it, and it has to be the same machine as the other half of the pair"
+    ),
+    build="release",
+    program=PROGRAM_TWENTYONE,
+)
+
+
+WHAT_A_SECOND_INTERPRETER_COSTS_WITHOUT_THE_LOCK = Experiment(
+    slug="r02-what-a-second-interpreter-costs-without-the-lock",
+    lesson="R02",
+    title="The same interpreter, on a build that allocates differently",
+    asks="Does an interpreter cost the same to make and to keep on a build with no lock?",
+    needs=(
+        "it needs a build configured with --disable-gil, because the whole question is whether "
+        "mimalloc heaps and obmalloc pools charge the same for one more interpreter"
+    ),
+    build="freethreaded",
+    program=PROGRAM_TWENTYONE,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -2391,6 +2524,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     THREE_WAYS_WITHOUT_THE_LOCK,
     WHAT_STARTUP_COSTS,
     WHAT_STARTUP_COSTS_ON_A_DEBUG_BUILD,
+    WHAT_A_SECOND_INTERPRETER_COSTS,
+    WHAT_A_SECOND_INTERPRETER_COSTS_WITHOUT_THE_LOCK,
 )
 
 

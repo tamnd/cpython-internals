@@ -1619,6 +1619,15 @@ CONCURRENCY = Group(
             met="C03",
         ),
         Term(
+            name="runtime state",
+            short="The one struct per process, holding everything that sits above a single interpreter.",
+            long="`_PyRuntime` is a plain global variable rather than a pointer, so it exists before anything has been set up. It holds the list of interpreters, the process wide table of signal handlers, the objects every interpreter shares, and the field offsets an out of process debugger needs in order to read the rest. There is exactly one and you cannot make another.",
+            cite="Include/internal/pycore_runtime.h:14-22@v3.15.0rc1#_PyRuntime",
+            also=("`_PyRuntimeState`", "`_PyRuntime`"),
+            see=("interpreter state", "thread state", "static object"),
+            met="R02",
+        ),
+        Term(
             name="interpreter state",
             short="The struct holding one interpreter's modules, its heap, its threads and its lock.",
             long="A `PyInterpreterState` is one level up from a thread state. It owns the list of threads belonging to it, its own `sys.modules`, its own allocator arenas and, since PEP 684, its own GIL. One process can hold several of them, chained newest first off a list hanging on the runtime.",
@@ -1644,6 +1653,15 @@ CONCURRENCY = Group(
             also=("`is_shareable`", "`concurrent.interpreters.Queue`"),
             see=("subinterpreter", "immortal object"),
             met="C04",
+        ),
+        Term(
+            name="static object",
+            short="An object built into the runtime struct itself, shared by every interpreter in the process.",
+            long="`_Py_static_objects` holds `None`, the small ints from minus five up to 1024, the empty bytes and the 256 one byte bytes objects, every one character latin-1 string and a table of fixed identifier strings. They are fields of the runtime rather than allocations, so `id()` gives the same answer whichever interpreter you ask, and they are immortal because there is no allocation to hand back.",
+            cite="Include/internal/pycore_runtime_structs.h:102-126@v3.15.0rc1#_Py_static_objects",
+            also=("`_PY_NSMALLPOSINTS`", "`_Py_global_strings`"),
+            see=("runtime state", "immortal object", "static type"),
+            met="R02",
         ),
         Term(
             name="pending call",
