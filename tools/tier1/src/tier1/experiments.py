@@ -2606,6 +2606,158 @@ HOW_MUCH_OF_AN_IMPORT_IS_PARALLEL_WITHOUT_THE_LOCK = Experiment(
 )
 
 
+PROGRAM_TWENTYTHREE = r'''"""What freezing the standard library into the binary is worth at startup.
+
+Import is written in Python, so it cannot be imported. CPython gets around that by compiling a
+handful of modules during its own build and writing the bytecode into the binary as C arrays. The
+first three are the import system itself, and they are what lets the interpreter get going at all.
+
+Everything after those three is a speed decision rather than a correctness one, and it can be
+switched off with -X frozen_modules=off, so the cost of it can be measured rather than guessed.
+Which way the switch sits by default is a build choice, so this program never relies on the
+default. It asks for on and off explicitly and reports what the default happens to be.
+
+Two numbers matter. The first is how many code objects a bare startup reads off disk, which -v
+prints one line for, so it is a count rather than a timing and it is the same on any machine. The
+second is wall clock, measured with the two cases alternating, because anything that runs one case
+forty times and then the other forty times is measuring the state of the page cache instead.
+"""
+
+import _imp
+import statistics
+import subprocess
+import sys
+import time
+
+ROUNDS = 40
+ON = ["-X", "frozen_modules=on"]
+OFF = ["-X", "frozen_modules=off"]
+ORIGIN = "import os; print(os.__spec__.origin)"
+BOOTSTRAP = "import sys; print(sys.modules['_frozen_importlib'].__spec__.origin)"
+COUNT = (
+    "import sys\n"
+    "specs = [getattr(m, '__spec__', None) for m in sys.modules.values()]\n"
+    "print(len(sys.modules), sum(1 for s in specs if s is not None and s.origin == 'frozen'))\n"
+)
+
+
+def child(flags, args):
+    """Run this same interpreter again with those flags and hand back the finished process."""
+    return subprocess.run(
+        [sys.executable, *flags, *args], capture_output=True, text=True, check=True
+    )
+
+
+def origin(flags):
+    """Ask a fresh interpreter where the os module it just imported came from."""
+    return child(flags, ["-c", ORIGIN]).stdout.strip()
+
+
+def loaded(flags):
+    """Ask a fresh interpreter how many modules it loaded and how many came out of the binary."""
+    return [int(part) for part in child(flags, ["-c", COUNT]).stdout.split()]
+
+
+def files_read(flags):
+    """Count the code objects a fresh interpreter reads off disk, which -v prints one per line."""
+    printed = child(flags, ["-v", "-c", "pass"]).stderr
+    return sum(1 for line in printed.splitlines() if line.startswith("# code object from"))
+
+
+def import_work(flags):
+    """Add up the self time -X importtime reports, in microseconds."""
+    printed = child(["-X", "importtime", *flags], ["-c", "pass"]).stderr
+    total = 0
+    for line in printed.splitlines():
+        if line.startswith("import time:"):
+            first = line.removeprefix("import time:").split("|")[0].strip()
+            if first.isdigit():
+                total += int(first)
+    return total
+
+
+def startup_ms(flags):
+    """Wall clock milliseconds for one whole interpreter startup that does nothing at all."""
+    started = time.perf_counter()
+    child(flags, ["-c", "pass"])
+    return (time.perf_counter() - started) * 1000
+
+
+def alternating(measure, rounds):
+    """Measure both cases once each per round, so neither one gets the cold cache every time."""
+    got = {"on": [], "off": []}
+    for _ in range(rounds):
+        got["on"].append(measure(ON))
+        got["off"].append(measure(OFF))
+    return got
+
+
+_imp._override_frozen_modules_for_tests(1)
+names = _imp._frozen_module_names()
+frozen_os = _imp.get_frozen_object("os")
+_imp._override_frozen_modules_for_tests(0)
+
+print("names compiled into this binary:", len(names))
+print("the three that cannot be turned off:", ", ".join(names[:3]))
+print("filename on the frozen code object for os:", frozen_os.co_filename)
+print("bytes of bytecode in it:", len(frozen_os.co_code))
+print("this build uses them unless told otherwise:", origin([]) == "frozen")
+print("where os comes from with the flag on:", origin(ON))
+print("where os comes from with the flag off:", origin(OFF).rpartition("/")[2])
+print("_frozen_importlib with the flag off:", child(OFF, ["-c", BOOTSTRAP]).stdout.strip())
+
+on_total, on_frozen = loaded(ON)
+off_total, off_frozen = loaded(OFF)
+print("modules a bare startup loads, flag on:", on_total)
+print("modules a bare startup loads, flag off:", off_total)
+print("of those, frozen with the flag on:", on_frozen)
+print("of those, frozen with the flag off:", off_frozen)
+print("code objects read off disk with the flag on:", files_read(ON))
+print("code objects read off disk with the flag off:", files_read(OFF))
+
+work = alternating(import_work, 10)
+print(f"~ import work reported by importtime, frozen on: {min(work['on'])} us")
+print(f"~ import work reported by importtime, frozen off: {min(work['off'])} us")
+
+runs = alternating(startup_ms, ROUNDS)
+fast_on, fast_off = min(runs["on"]), min(runs["off"])
+print(f"~ fastest startup with the flag on: {fast_on:.1f} ms")
+print(f"~ fastest startup with the flag off: {fast_off:.1f} ms")
+print(f"~ middle startup with the flag on: {statistics.median(runs['on']):.1f} ms")
+print(f"~ middle startup with the flag off: {statistics.median(runs['off']):.1f} ms")
+share = (1 - fast_on / fast_off) * 100
+print(f"~ share of a startup that freezing gives back: {share:.1f} percent")
+'''
+
+
+WHAT_FREEZING_SAVES_AT_STARTUP = Experiment(
+    slug="r04-what-freezing-saves-at-startup",
+    lesson="R04",
+    title="A startup with the frozen standard library, and the same startup without it",
+    asks="What does compiling the standard library into the binary actually save at startup?",
+    needs=(
+        "it wants a machine that is not busy with anything else, because half of what it reports "
+        "is wall clock for a process that only lives for a few milliseconds"
+    ),
+    build="release",
+    program=PROGRAM_TWENTYTHREE,
+)
+
+
+WHAT_FREEZING_SAVES_ON_A_DEBUG_BUILD = Experiment(
+    slug="r04-what-freezing-saves-on-a-debug-build",
+    lesson="R04",
+    title="The same two startups on a build that does not use the frozen copies",
+    asks="Does a debug build behave the same way, and does freezing still pay for itself there?",
+    needs=(
+        "it needs a build configured with --with-pydebug, which is the one build that leaves the "
+        "frozen copies switched off by default, so the same program reports a different default"
+    ),
+    build="debug",
+    program=PROGRAM_TWENTYTHREE,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -2639,6 +2791,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     WHAT_A_SECOND_INTERPRETER_COSTS_WITHOUT_THE_LOCK,
     HOW_MUCH_OF_AN_IMPORT_IS_PARALLEL,
     HOW_MUCH_OF_AN_IMPORT_IS_PARALLEL_WITHOUT_THE_LOCK,
+    WHAT_FREEZING_SAVES_AT_STARTUP,
+    WHAT_FREEZING_SAVES_ON_A_DEBUG_BUILD,
 )
 
 

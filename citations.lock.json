@@ -1210,6 +1210,26 @@
       "first_line": "def _parse_exception_table(code):",
       "lines": 15
     },
+    "Lib/importlib/_bootstrap.py:1000-1011@v3.15.0rc1": {
+      "digest": "6ccd8a9547a7d8c2",
+      "first_line": "class FrozenImporter:",
+      "lines": 12
+    },
+    "Lib/importlib/_bootstrap.py:1106-1133@v3.15.0rc1": {
+      "digest": "21e719984e0eaeb5",
+      "first_line": "def find_spec(cls, fullname, path=None, target=None):",
+      "lines": 28
+    },
+    "Lib/importlib/_bootstrap.py:1148-1153@v3.15.0rc1": {
+      "digest": "63fc1959306d2042",
+      "first_line": "@staticmethod",
+      "lines": 6
+    },
+    "Lib/importlib/_bootstrap.py:1155-1165@v3.15.0rc1": {
+      "digest": "04de1062682f64e4",
+      "first_line": "@classmethod",
+      "lines": 11
+    },
     "Lib/importlib/_bootstrap.py:1198-1223@v3.15.0rc1": {
       "digest": "10232b40fdaf68e3",
       "first_line": "def _find_spec(name, path, target=None):",
@@ -1229,6 +1249,16 @@
       "digest": "6f0df08440560169",
       "first_line": "def __import__(name, globals=None, locals=None, fromlist=(), level=0):",
       "lines": 35
+    },
+    "Lib/importlib/_bootstrap.py:1501-1539@v3.15.0rc1": {
+      "digest": "175a08818ad49605",
+      "first_line": "def _setup(sys_module, _imp_module):",
+      "lines": 39
+    },
+    "Lib/importlib/_bootstrap.py:1541-1546@v3.15.0rc1": {
+      "digest": "a8ccfaac3e1ef22d",
+      "first_line": "def _install(sys_module, _imp_module):",
+      "lines": 6
     },
     "Lib/importlib/_bootstrap.py:226-240@v3.15.0rc1": {
       "digest": "54c579dcaffdc305",
@@ -1290,10 +1320,20 @@
       "first_line": "def getsourcelines(object):",
       "lines": 20
     },
+    "Lib/inspect.py:3386-3400@v3.15.0rc1": {
+      "digest": "1460bc9e4c86a95e",
+      "first_line": "reported_target = reported_module_name",
+      "lines": 15
+    },
     "Lib/inspect.py:886-897@v3.15.0rc1": {
       "digest": "108c22eee97b22a8",
       "first_line": "def getsourcefile(object):",
       "lines": 12
+    },
+    "Lib/linecache.py:122-140@v3.15.0rc1": {
+      "digest": "80a479410cfbbe4e",
+      "first_line": "entry = cache.pop(filename, None)",
+      "lines": 19
     },
     "Lib/opcode.py:16-23@v3.15.0rc1": {
       "digest": "e4e79270a74738f6",
@@ -4135,6 +4175,21 @@
       "first_line": "static void",
       "lines": 22
     },
+    "Python/frozen.c:127-137@v3.15.0rc1": {
+      "digest": "1992fe1133dc64e4",
+      "first_line": "static const struct _module_alias aliases[] = {",
+      "lines": 11
+    },
+    "Python/frozen.c:140-144@v3.15.0rc1": {
+      "digest": "50e0058411e2f488",
+      "first_line": "",
+      "lines": 5
+    },
+    "Python/frozen.c:74-79@v3.15.0rc1": {
+      "digest": "6c90a431b887b976",
+      "first_line": "static const struct _frozen bootstrap_modules[] = {",
+      "lines": 6
+    },
     "Python/gc.c:1011-1039@v3.15.0rc1": {
       "digest": "63bcba6da6794191",
       "first_line": "/* Handle uncollectable garbage (cycles with tp_del slots, and stuff reachable",
@@ -4389,6 +4444,31 @@
       "digest": "18c4a42699cdf13d",
       "first_line": "static PyObject *",
       "lines": 14
+    },
+    "Python/import.c:3104-3129@v3.15.0rc1": {
+      "digest": "d8230b80e5b80f4e",
+      "first_line": "static const struct _frozen *",
+      "lines": 26
+    },
+    "Python/import.c:3130-3150@v3.15.0rc1": {
+      "digest": "1af64cf35596eb29",
+      "first_line": "// Frozen stdlib modules may be disabled.",
+      "lines": 21
+    },
+    "Python/import.c:3152-3159@v3.15.0rc1": {
+      "digest": "51c97e549dbb2884",
+      "first_line": "struct frozen_info {",
+      "lines": 8
+    },
+    "Python/import.c:3210-3229@v3.15.0rc1": {
+      "digest": "96bd53170c95c4ee",
+      "first_line": "static PyObject *",
+      "lines": 20
+    },
+    "Python/import.c:3389-3428@v3.15.0rc1": {
+      "digest": "cc9ed48c09b8fb3d",
+      "first_line": "static int",
+      "lines": 40
     },
     "Python/import.c:4190-4227@v3.15.0rc1": {
       "digest": "40a1544a3fd82833",
@@ -4829,6 +4909,11 @@
       "digest": "76e605558f4b7595",
       "first_line": "int",
       "lines": 36
+    },
+    "Tools/build/freeze_modules.py:37-76@v3.15.0rc1": {
+      "digest": "9d354f9c964e4b4f",
+      "first_line": "FROZEN = [",
+      "lines": 40
     },
     "Tools/cases_generator/README.md:14-34@v3.15.0rc1": {
       "digest": "fb06409a976b7a51",
