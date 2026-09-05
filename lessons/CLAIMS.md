@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-536 claims across 68 lessons, 47 of them not observable from Python.
+543 claims across 69 lessons, 49 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -110,6 +110,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | Building the same sixty thousand dictionaries from C runs the cycle collector far fewer times than building them from Python, because a single C call never reaches a periodic check | [`c05-18`](c05-the-bit-that-interrupts/c05.ipynb) |
 | An injected script arrives about a thousand times later when the target is inside one long call into C than when it is running ordinary bytecode | not observable from Python: macOS refuses to let one process do this to another without root or a special entitlement, so a reader on a Mac cannot run it at all |
 | Removing the GIL changes none of this, because the lock is one bit out of eight and the periodic check is what the other seven are waiting for | not observable from Python: it needs a build configured with --disable-gil, which is not something a reader can switch on in the interpreter they already have |
+
+## C06. Four threads reading the same list
+
+| Claim | Proved by |
+| --- | --- |
+| On a build that still has the GIL, four threads reading one shared list, dict or set get through about as much work as a single thread, and no more | [`c06-07`](c06-reading-without-a-lock/c06.ipynb) |
+| On a build without the GIL all three of them scale, because reads of a list, a dict and a set are all lock free in 3.15 | not observable from Python: it needs an interpreter configured with --disable-gil, which is a separate build rather than a flag you can turn on in the one you already have |
+| On a build with the GIL it makes no difference what the list holds, because the threads were taking turns either way | [`c06-11`](c06-reading-without-a-lock/c06.ipynb) |
+| None and small integers have no reference count at all, while a larger literal and a string built at run time each have an ordinary one | [`c06-15`](c06-reading-without-a-lock/c06.ipynb) |
+| A single thread writing in a loop costs the four readers much more than the four readers cost each other | [`c06-18`](c06-reading-without-a-lock/c06.ipynb) |
+| A reader that pulls an object out of a slot while another thread replaces it never gets back an object that has already been freed, on either build | [`c06-22`](c06-reading-without-a-lock/c06.ipynb) |
+| Removing the GIL turns what a list holds into a performance decision, and on a build that still has the GIL that decision does not exist | not observable from Python: the pair of runs needs both an ordinary build and one configured with --disable-gil, and no single interpreter can be both |
 
 ## E01. The interpreter nobody wrote by hand
 

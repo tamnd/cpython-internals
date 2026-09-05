@@ -1904,6 +1904,95 @@ THE_SAME_MESSAGE_WITHOUT_THE_LOCK = Experiment(
 )
 
 
+#: The program for both c06 recordings, run once on each build.
+PROGRAM_SEVENTEEN = r'''"""Four threads reading one list, with two different things in the list.
+
+The reads are identical. The subscript is the same, the index is the same, the number of reads
+is the same. The only thing that changes is what the list holds: immortal small integers in one
+case and ordinary objects in the other.
+
+An immortal object has no reference count to touch, so reading one is a load and nothing else.
+An ordinary object has a count, and four threads reading the same one all have to write to the
+same cache line, over and over, which is the most expensive thing a multicore machine does.
+
+On a build with the GIL both come out the same, because neither of them was going to scale.
+"""
+
+import sys
+import threading
+import time
+
+READS = 2000000
+SMALL = list(range(1000))
+FRESH = [object() for _ in range(1000)]
+
+
+def make_reader(data):
+    """One thread's job: read the same slot over and over and throw the answer away."""
+
+    def read():
+        local = data
+        for _ in range(READS):
+            got = local[500]
+        return got
+
+    return read
+
+
+def run(work, threads):
+    crew = [threading.Thread(target=work) for _ in range(threads)]
+    started = time.perf_counter()
+    for one in crew:
+        one.start()
+    for one in crew:
+        one.join()
+    return time.perf_counter() - started
+
+
+def best(work, threads, rounds=3):
+    return min(run(work, threads) for _ in range(rounds))
+
+
+print(f"the lock is on: {sys._is_gil_enabled()}")
+for label, data in [("small ints", SMALL), ("ordinary objects", FRESH)]:
+    reader = make_reader(data)
+    one = best(reader, 1)
+    four = best(reader, 4)
+    print(f"~ one thread reading a list of {label}: {one * 1000:.0f} ms")
+    print(f"~ four threads reading a list of {label}: {four * 1000:.0f} ms")
+    print(f"~ reads per second against one thread, {label}: {4 * one / four:.2f}")
+'''
+
+
+READING_WHAT_NOBODY_COUNTS = Experiment(
+    slug="c06-reading-what-nobody-counts",
+    lesson="C06",
+    title="Four threads reading one list, holding immortal integers and holding ordinary objects",
+    asks="Does taking the lock away make reads scale, or does it depend on what is being read?",
+    needs=(
+        "the whole question is what happens when four threads run Python at the same instant, "
+        "and a build with the GIL cannot answer it because nothing runs at the same instant "
+        "there, so the lesson needs a build configured with --disable-gil"
+    ),
+    build="freethreaded",
+    program=PROGRAM_SEVENTEEN,
+)
+
+
+THE_SAME_TWO_LISTS_WITH_THE_LOCK = Experiment(
+    slug="c06-the-same-two-lists-with-the-lock",
+    lesson="C06",
+    title="The same two lists on a build that still has the GIL",
+    asks="Do the two lists behave differently on a build where the threads take turns anyway?",
+    needs=(
+        "the point of the pair is that the difference between the two lists only exists on one "
+        "of the two builds, and that is not something a single run can show"
+    ),
+    build="release",
+    program=PROGRAM_SEVENTEEN,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -1925,6 +2014,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     FOUR_CORES_WITHOUT_THE_LOCK,
     THE_MESSAGE_THAT_WAITED,
     THE_SAME_MESSAGE_WITHOUT_THE_LOCK,
+    READING_WHAT_NOBODY_COUNTS,
+    THE_SAME_TWO_LISTS_WITH_THE_LOCK,
 )
 
 

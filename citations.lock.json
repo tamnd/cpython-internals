@@ -585,6 +585,21 @@
       "first_line": "// non-deferred reference count drops to zero.",
       "lines": 5
     },
+    "Include/internal/pycore_object.h:520-545@v3.15.0rc1": {
+      "digest": "2d4402eeb2f40dbb",
+      "first_line": "/* Tries to increment an object's reference count",
+      "lines": 26
+    },
+    "Include/internal/pycore_object.h:547-569@v3.15.0rc1": {
+      "digest": "6f46a87a22fa60bc",
+      "first_line": "static inline int",
+      "lines": 23
+    },
+    "Include/internal/pycore_object.h:571-586@v3.15.0rc1": {
+      "digest": "a6331d082a45f95a",
+      "first_line": "/* Tries to incref the object op and ensures that *src still points to it. */",
+      "lines": 16
+    },
     "Include/internal/pycore_object.h:83-89@v3.15.0rc1": {
       "digest": "70fca12f791324cc",
       "first_line": "#if SIZEOF_VOID_P > 4",
@@ -714,6 +729,11 @@
       "digest": "5582657bc0b8a96a",
       "first_line": "#define _PyOS_STACK_MARGIN (1 << _PyOS_LOG2_STACK_MARGIN)",
       "lines": 13
+    },
+    "Include/internal/pycore_qsbr.h:1-30@v3.15.0rc1": {
+      "digest": "b75dceab175da8e0",
+      "first_line": "// The QSBR APIs (quiescent state-based reclamation) provide a mechanism for",
+      "lines": 30
     },
     "Include/internal/pycore_runtime_structs.h:134-170@v3.15.0rc1": {
       "digest": "ada3da14c486fca9",
@@ -1390,6 +1410,11 @@
       "first_line": "static void",
       "lines": 25
     },
+    "Objects/codeobject.c:139-158@v3.15.0rc1": {
+      "digest": "eab27081a89851c6",
+      "first_line": "#ifdef Py_GIL_DISABLED",
+      "lines": 20
+    },
     "Objects/codeobject.c:181-197@v3.15.0rc1": {
       "digest": "929755a1fef3d1ed",
       "first_line": "static int",
@@ -1419,6 +1444,11 @@
       "digest": "83840c731b19be0c",
       "first_line": "code_richcompare(PyObject *self, PyObject *other, int op)",
       "lines": 40
+    },
+    "Objects/codeobject.c:283-300@v3.15.0rc1": {
+      "digest": "b9dcd6246010ef84",
+      "first_line": "// Intern non-string constants in the free-threaded build",
+      "lines": 18
     },
     "Objects/codeobject.c:423-443@v3.15.0rc1": {
       "digest": "9429e466c83d6c29",
@@ -1494,6 +1524,16 @@
       "digest": "4385385afec4f891",
       "first_line": "do_lookup(PyDictObject *mp, PyDictKeysObject *dk, PyObject *key, Py_hash_t hash,",
       "lines": 24
+    },
+    "Objects/dictobject.c:1389-1411@v3.15.0rc1": {
+      "digest": "5abc537e904cff31",
+      "first_line": "#ifdef Py_GIL_DISABLED",
+      "lines": 23
+    },
+    "Objects/dictobject.c:1566-1600@v3.15.0rc1": {
+      "digest": "3c3d64de01cfa260",
+      "first_line": "_Py_dict_lookup_threadsafe(PyDictObject *mp, PyObject *key, Py_hash_t hash, PyObject **value_addr)",
+      "lines": 35
     },
     "Objects/dictobject.c:1908-1936@v3.15.0rc1": {
       "digest": "c390c0045047d340",
@@ -1645,6 +1685,11 @@
       "first_line": "/* Bypass realloc() when a previous overallocation is large enough",
       "lines": 9
     },
+    "Objects/listobject.c:1158-1170@v3.15.0rc1": {
+      "digest": "99c565e7e6a4f058",
+      "first_line": "}",
+      "lines": 13
+    },
     "Objects/listobject.c:119-129@v3.15.0rc1": {
       "digest": "19d58359fdabe4d2",
       "first_line": "/* This over-allocates proportional to the list size, making room",
@@ -1689,6 +1734,16 @@
       "digest": "3bffd02a2c699957",
       "first_line": "static int",
       "lines": 13
+    },
+    "Objects/listobject.c:336-352@v3.15.0rc1": {
+      "digest": "22f9deaf83366117",
+      "first_line": "list_item_impl(PyListObject *self, Py_ssize_t idx)",
+      "lines": 17
+    },
+    "Objects/listobject.c:353-379@v3.15.0rc1": {
+      "digest": "a782cead1b5d73a0",
+      "first_line": "static inline PyObject*",
+      "lines": 27
     },
     "Objects/listobject.c:3578-3592@v3.15.0rc1": {
       "digest": "244e925d459ab317",
@@ -1845,6 +1900,21 @@
       "first_line": "int",
       "lines": 37
     },
+    "Objects/obmalloc.c:1396-1427@v3.15.0rc1": {
+      "digest": "8bbbd57375b14355",
+      "first_line": "",
+      "lines": 32
+    },
+    "Objects/obmalloc.c:1430-1440@v3.15.0rc1": {
+      "digest": "d532964d81f46f20",
+      "first_line": "static void",
+      "lines": 11
+    },
+    "Objects/obmalloc.c:1500-1530@v3.15.0rc1": {
+      "digest": "9e9bfb737d92b183",
+      "first_line": "if (buf->wr_idx == WORK_ITEMS_PER_CHUNK) {",
+      "lines": 31
+    },
     "Objects/obmalloc.c:2540-2554@v3.15.0rc1": {
       "digest": "f0e5a6a904bef53e",
       "first_line": "void *",
@@ -1904,6 +1974,16 @@
       "digest": "c1c7e97354e77c1b",
       "first_line": "#if defined(WITH_PYMALLOC) && !defined(Py_GIL_DISABLED)",
       "lines": 16
+    },
+    "Objects/setobject.c:75-94@v3.15.0rc1": {
+      "digest": "93851c7b9dec1716",
+      "first_line": "#ifdef Py_GIL_DISABLED",
+      "lines": 20
+    },
+    "Objects/setobject.c:96-110@v3.15.0rc1": {
+      "digest": "58c8db80fed4170c",
+      "first_line": "static inline Py_ALWAYS_INLINE int",
+      "lines": 15
     },
     "Objects/tupleobject.c:138-157@v3.15.0rc1": {
       "digest": "a6459d600063ec40",
@@ -3364,6 +3444,11 @@
       "digest": "d257c40a49df210e",
       "first_line": "int",
       "lines": 40
+    },
+    "Python/ceval_gil.c:1380-1395@v3.15.0rc1": {
+      "digest": "2b8ea23787f0c1ec",
+      "first_line": "return -1;",
+      "lines": 16
     },
     "Python/ceval_gil.c:1396-1403@v3.15.0rc1": {
       "digest": "27d382206e27c088",

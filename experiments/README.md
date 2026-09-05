@@ -30,6 +30,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [c04-four-cores-without-the-lock](tier1/c04-four-cores-without-the-lock.md) | C04 | freethreaded | Does giving each job its own interpreter still buy anything once there is no GIL? |
 | [c05-the-message-that-waited](tier1/c05-the-message-that-waited.md) | C05 | release | How late can an injected script be when the target never reaches a periodic check? |
 | [c05-the-same-message-without-the-lock](tier1/c05-the-same-message-without-the-lock.md) | C05 | freethreaded | Does taking the GIL away change how late an injected script can be? |
+| [c06-reading-what-nobody-counts](tier1/c06-reading-what-nobody-counts.md) | C06 | freethreaded | Does taking the lock away make reads scale, or does it depend on what is being read? |
+| [c06-the-same-two-lists-with-the-lock](tier1/c06-the-same-two-lists-with-the-lock.md) | C06 | release | Do the two lists behave differently on a build where the threads take turns anyway? |
 
 ## The commands
 
