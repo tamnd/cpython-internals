@@ -2134,6 +2134,116 @@ WHAT_ONE_THREAD_PAYS_WITH_THE_LOCK = Experiment(
 )
 
 
+#: The program for both c08 recordings, run once on each build.
+PROGRAM_NINETEEN = r'''"""Three ways to split work over four cores, and what decides which one wins.
+
+C04 measured four threads against four interpreters and found that interpreters win on a build
+with the lock. This asks the next question, which is what it costs to hand work over.
+
+Two workloads. One does a lot of arithmetic on a small argument, so almost nothing has to cross
+between interpreters. The other adds up a list that has to be sent across in full, so the
+crossing is most of the job. Each is run three ways: one after another, in a pool of threads,
+and in a pool of interpreters.
+
+The last few lines time the channel on its own, so you can see roughly what one crossing costs.
+"""
+
+import concurrent.interpreters as interpreters
+import sys
+import time
+from concurrent.futures import InterpreterPoolExecutor, ThreadPoolExecutor
+from functools import partial
+
+
+def spin(n):
+    total = 0
+    for i in range(n):
+        total += i * i
+    return total
+
+
+def add_up(numbers):
+    return sum(numbers)
+
+
+def serial(work, jobs):
+    return [work(job) for job in jobs]
+
+
+def pooled(pool_type, work, jobs):
+    with pool_type(max_workers=4) as pool:
+        return list(pool.map(work, jobs))
+
+
+def best(run, rounds=3):
+    """The fastest of a few runs, which is the honest number on a shared machine."""
+    fastest = None
+    for _ in range(rounds):
+        started = time.perf_counter()
+        run()
+        taken = time.perf_counter() - started
+        fastest = taken if fastest is None else min(fastest, taken)
+    return fastest
+
+
+SMALL = [2000000] * 4
+BIG = [list(range(400000)) for _ in range(4)]
+
+print(f"the lock is on: {sys._is_gil_enabled()}")
+
+for label, work, jobs in [("arithmetic", spin, SMALL), ("adding up a big list", add_up, BIG)]:
+    one = best(partial(serial, work, jobs))
+    threads = best(partial(pooled, ThreadPoolExecutor, work, jobs))
+    interps = best(partial(pooled, InterpreterPoolExecutor, work, jobs))
+    print(f"~ {label}, one after another: {one * 1000:.0f} ms")
+    print(f"~ {label}, four threads: {threads * 1000:.0f} ms")
+    print(f"~ {label}, four interpreters: {interps * 1000:.0f} ms")
+
+queue = interpreters.create_queue()
+for label, payload in [
+    ("a small int", 7),
+    ("a thousand byte string", "x" * 1000),
+    ("a hundred item list", list(range(100))),
+]:
+    rounds = 20000
+    started = time.perf_counter()
+    for _ in range(rounds):
+        queue.put(payload)
+        queue.get()
+    taken = time.perf_counter() - started
+    print(f"~ round trips per second, {label}: {rounds / taken:.0f}")
+'''
+
+
+THREE_WAYS_TO_SPLIT_THE_WORK = Experiment(
+    slug="c08-three-ways-to-split-the-work",
+    lesson="C08",
+    title="Two workloads split three ways on a build that has the lock",
+    asks="Does handing work to another interpreter pay, and what decides whether it does?",
+    needs=(
+        "the answer is a ratio between one worker and four, so it has to come from a machine "
+        "with a fixed number of cores and nothing else competing for them"
+    ),
+    build="release",
+    program=PROGRAM_NINETEEN,
+)
+
+
+THREE_WAYS_WITHOUT_THE_LOCK = Experiment(
+    slug="c08-three-ways-without-the-lock",
+    lesson="C08",
+    title="The same two workloads split three ways on a build with no lock",
+    asks="Once plain threads run in parallel too, is there anything left for interpreters?",
+    needs=(
+        "it needs an interpreter configured with --disable-gil, which is a separate build "
+        "rather than a flag, and it has to be the same image pipeline as the other half or "
+        "the two sets of numbers cannot be compared"
+    ),
+    build="freethreaded",
+    program=PROGRAM_NINETEEN,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -2159,6 +2269,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     THE_SAME_TWO_LISTS_WITH_THE_LOCK,
     WHAT_ONE_THREAD_PAYS,
     WHAT_ONE_THREAD_PAYS_WITH_THE_LOCK,
+    THREE_WAYS_TO_SPLIT_THE_WORK,
+    THREE_WAYS_WITHOUT_THE_LOCK,
 )
 
 

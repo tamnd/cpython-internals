@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-550 claims across 70 lessons, 52 of them not observable from Python.
+557 claims across 71 lessons, 53 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -134,6 +134,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | Importing one compiled module that has not declared itself safe turns the lock on for the rest of the process, on a build that started without it | not observable from Python: the flip only happens on an interpreter configured with --disable-gil, and this notebook cannot become one |
 | Most of what a fresh interpreter has loaded is built into the binary rather than being a separate shared library that would have to declare itself | [`c07-16`](c07-the-lock-that-comes-back/c07.ipynb) |
 | A build with no lock is somewhat slower on single threaded work that touches many objects, and faster on work dominated by allocation, because removing the lock also changed the allocator | not observable from Python: it takes two builds of the same source with the same optimisation flags on the same hardware, and one interpreter cannot be both of them |
+
+## C08. Sending work to another interpreter
+
+| Claim | Proved by |
+| --- | --- |
+| Interpreter.call accepts a function that reads no module level names and a lambda, and refuses both a function that reads a global and a closure, with a message naming statelessness as the reason | [`c08-07`](c08-sending-work-to-another-interpreter/c08.ipynb) |
+| A lambda is not shareable and cannot be pickled, and a queue carries it regardless, which means the queue is trying something that is neither the direct route nor pickle | [`c08-09`](c08-sending-work-to-another-interpreter/c08.ipynb) |
+| An exception raised in another interpreter arrives here as an ExecutionFailed carrying a snapshot, so the object it describes is not an instance of the class it names | [`c08-11`](c08-sending-work-to-another-interpreter/c08.ipynb) |
+| Some compiled standard library modules import normally in the main interpreter and raise ImportError in a subinterpreter, with a message saying the module does not support loading in subinterpreters | [`c08-13`](c08-sending-work-to-another-interpreter/c08.ipynb) |
+| A small int and a thousand byte string make round trips through a queue roughly ten times faster than a hundred item list does, because the first two take the direct route and the third has to be pickled and rebuilt | [`c08-16`](c08-sending-work-to-another-interpreter/c08.ipynb) |
+| Four interpreters beat one on work with a small argument and lose badly on work whose argument is a large list, on the same machine in the same cell | [`c08-19`](c08-sending-work-to-another-interpreter/c08.ipynb) |
+| Interpreters win the compute job on a build with the lock and lose it to plain threads on a build without one, while the data heavy job is slower across interpreters on both builds | not observable from Python: it is a comparison between two separate builds of the same source on the same hardware, and one interpreter cannot be both of them |
 
 ## E01. The interpreter nobody wrote by hand
 
