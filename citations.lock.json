@@ -1930,6 +1930,11 @@
       "first_line": "/* All the rest is arena management.  We just freed",
       "lines": 18
     },
+    "Objects/obmalloc.c:28-32@v3.15.0rc1": {
+      "digest": "585da5c7dfcd4e0c",
+      "first_line": "#endif",
+      "lines": 5
+    },
     "Objects/obmalloc.c:3088-3097@v3.15.0rc1": {
       "digest": "46a40dbe01dd5d3d",
       "first_line": "/* Layout: [SSSS IFFF CCCC...CCCC FFFF NNNN]",
@@ -1964,6 +1969,11 @@
       "digest": "ac1b46cbcae79177",
       "first_line": "total = printone(out, \"# bytes in allocated blocks\", allocated_bytes);",
       "lines": 12
+    },
+    "Objects/obmalloc.c:428-443@v3.15.0rc1": {
+      "digest": "993037c72be92d59",
+      "first_line": "#  define PYMALLOC_ALLOC {NULL, _PyObject_Malloc, _PyObject_Calloc, _PyObject_Realloc, _PyObject_Free}",
+      "lines": 16
     },
     "Objects/obmalloc.c:681-700@v3.15.0rc1": {
       "digest": "35ed0214227df57e",
@@ -3430,10 +3440,25 @@
       "first_line": "static Py_NO_INLINE int",
       "lines": 34
     },
+    "Python/ceval_gil.c:1080-1114@v3.15.0rc1": {
+      "digest": "fba87073990e0eb6",
+      "first_line": "int",
+      "lines": 35
+    },
+    "Python/ceval_gil.c:1105-1130@v3.15.0rc1": {
+      "digest": "2c074b350820b151",
+      "first_line": "// Enabling the GIL changes what it means to be an \"attached\" thread. To",
+      "lines": 26
+    },
     "Python/ceval_gil.c:1132-1150@v3.15.0rc1": {
       "digest": "f9c1e2068d41906c",
       "first_line": "int",
       "lines": 19
+    },
+    "Python/ceval_gil.c:1152-1180@v3.15.0rc1": {
+      "digest": "f578f9eee8c1d544",
+      "first_line": "int",
+      "lines": 29
     },
     "Python/ceval_gil.c:1152-1191@v3.15.0rc1": {
       "digest": "c848f40f07b780d5",
@@ -4120,6 +4145,11 @@
       "first_line": "#ifdef Py_GIL_DISABLED",
       "lines": 26
     },
+    "Python/import.c:1645-1660@v3.15.0rc1": {
+      "digest": "5d436df0f9e01bce",
+      "first_line": "int",
+      "lines": 16
+    },
     "Python/import.c:1645-1665@v3.15.0rc1": {
       "digest": "785ae6580ab9e27f",
       "first_line": "int",
@@ -4129,6 +4159,11 @@
       "digest": "19e00e6a2eee5295",
       "first_line": "static PyStatus",
       "lines": 21
+    },
+    "Python/initconfig.c:1971-2000@v3.15.0rc1": {
+      "digest": "0640132f25de9e86",
+      "first_line": "config_read_gil(PyConfig *config, size_t len, wchar_t first_char)",
+      "lines": 30
     },
     "Python/instrumentation.c:1190-1216@v3.15.0rc1": {
       "digest": "cea5143d2a582d2a",
@@ -4484,6 +4519,11 @@
       "digest": "0cdc73499efc6f1a",
       "first_line": "/*[clinic input]",
       "lines": 29
+    },
+    "Python/sysmodule.c:2658-2675@v3.15.0rc1": {
+      "digest": "97ee7bc3b56392c4",
+      "first_line": "",
+      "lines": 18
     },
     "Python/sysmodule.c:2665-2674@v3.15.0rc1": {
       "digest": "91f723f20650e7c6",

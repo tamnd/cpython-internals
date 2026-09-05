@@ -487,7 +487,7 @@ Instead the old storage goes on a queue and is freed later, once every thread ha
 
 ## What is next
 
-C07 stays on the free threaded build and asks what all of this cost the ordinary case. Every one of those atomic operations is real work on a single threaded program too, and the answer that CPython arrived at is a second interpreter loop with the checks compiled out of it, turned on and off while the program is running. That switch is a bit on a word you have already met.
+C07 stays on the free threaded build and asks two things about it. The first is what all of this cost the ordinary case, because every atomic operation in this lesson is real work on a program that only ever has one thread and never wanted any of it. The second is stranger. The lock is not really a property of the build at all. It is a counter the runtime can raise while your program is running, and importing one compiled module that was written before any of this existed is enough to raise it for good.
 """)
 
 

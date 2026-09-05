@@ -1698,6 +1698,32 @@ CONCURRENCY = Group(
             see=("immortal object", "biased reference counting", "free threaded build"),
             met="C06",
         ),
+        Term(
+            name="thread safety declaration",
+            short="A slot an extension module fills in to say it can run without the lock.",
+            long="A compiled module can add `Py_mod_gil` to its slot table with the value `Py_MOD_GIL_NOT_USED`. Saying nothing is not neutral, because a module written before free threading existed could not have said anything, so the runtime treats silence as a request for the lock and turns it back on when the module is imported.",
+            cite="Include/moduleobject.h:85-89@v3.15.0rc1#Py_MOD_GIL_NOT_USED",
+            also=("`Py_mod_gil`", "`Py_MOD_GIL_NOT_USED`", "`Py_MOD_GIL_USED`"),
+            see=("free threaded build", "transient GIL", "slot"),
+            met="C07",
+        ),
+        Term(
+            name="transient GIL",
+            short="The lock switched on for the length of one import and then switched off again.",
+            long="An extension's init function runs before anyone can ask whether the module is safe, so the runtime turns the lock on before running it and off again afterwards if the answer turns out to be yes. Enabling it is not free: the calling thread detaches, the world stops, a counter goes up, and the world starts again.",
+            cite="Python/ceval_gil.c:1080-1114@v3.15.0rc1#_PyEval_EnableGILTransient",
+            also=("`_PyEval_EnableGILTransient`", "`_PyEval_DisableGIL`", "`gil->enabled`"),
+            see=("thread safety declaration", "free threaded build", "stop the world"),
+            met="C07",
+        ),
+        Term(
+            name="abi flags",
+            short="The letters in a build's file names that say which builds it can load.",
+            long="`sys.abiflags` is `t` on a free threaded build and empty on an ordinary one, and that letter goes into the file name of every compiled module the build can import. It is what stops a wheel built for one from being loaded into the other, since the two disagree about the shape of every object header.",
+            also=("`sys.abiflags`", "`EXT_SUFFIX`", "abi3t"),
+            see=("free threaded build", "thread safety declaration"),
+            met="C07",
+        ),
     ),
 )
 

@@ -1993,6 +1993,147 @@ THE_SAME_TWO_LISTS_WITH_THE_LOCK = Experiment(
 )
 
 
+#: The program for both c07 recordings, run once on each build.
+PROGRAM_EIGHTEEN = r'''"""What a build with no GIL charges a program that only ever has one thread.
+
+Removing the lock was not free. A reference count that used to be a plain add is now an atomic
+one, containers check whether they are shared, and the allocator became per thread. All of that
+is real work on a program with a single thread, which never wanted any of it.
+
+So this is eight ordinary single threaded workloads, nothing shared and nothing concurrent, run
+on one build and then on the other. The two images come out of the same build pipeline with the
+same optimisation flags, which is the only way this comparison means anything.
+
+The lock state is printed first so there is no doubt which build produced which numbers.
+"""
+
+import sys
+import time
+
+
+def fib(n):
+    return n if n < 2 else fib(n - 1) + fib(n - 2)
+
+
+class Point:
+    __slots__ = ("x", "y")
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+
+def attributes():
+    """Read two slots off the same object, over and over."""
+    point = Point(1, 2)
+    total = 0
+    for _ in range(300000):
+        total += point.x + point.y
+    return total
+
+
+def lists():
+    out = []
+    for n in range(300000):
+        out.append(n)
+    return len(out)
+
+
+def dicts():
+    seen = {}
+    for n in range(200000):
+        seen[n % 1000] = n
+    return len(seen)
+
+
+def strings():
+    out = []
+    for n in range(100000):
+        out.append(f"item {n}")
+    return len(out)
+
+
+def calls():
+    def leaf(a, b):
+        return a + b
+
+    total = 0
+    for n in range(300000):
+        total = leaf(total, n)
+    return total
+
+
+def sorting():
+    data = [(n * 7919) % 100000 for n in range(100000)]
+    data.sort()
+    return data[0]
+
+
+def catching():
+    caught = 0
+    for n in range(200000):
+        try:
+            if n % 3 == 0:
+                raise ValueError(n)
+        except ValueError:
+            caught += 1
+    return caught
+
+
+def best(work, rounds=5):
+    fastest = None
+    for _ in range(rounds):
+        started = time.perf_counter()
+        work()
+        taken = time.perf_counter() - started
+        fastest = taken if fastest is None else min(fastest, taken)
+    return fastest
+
+
+print(f"the lock is on: {sys._is_gil_enabled()}")
+for name, work in [
+    ("fib(25)", lambda: fib(25)),
+    ("six hundred thousand attribute reads", attributes),
+    ("three hundred thousand list appends", lists),
+    ("two hundred thousand dict stores", dicts),
+    ("one hundred thousand f-strings", strings),
+    ("three hundred thousand calls", calls),
+    ("sorting a hundred thousand ints", sorting),
+    ("raising and catching sixty six thousand times", catching),
+]:
+    print(f"~ one thread, {name}: {best(work) * 1000:.0f} ms")
+'''
+
+
+WHAT_ONE_THREAD_PAYS = Experiment(
+    slug="c07-what-one-thread-pays",
+    lesson="C07",
+    title="Eight single threaded workloads on a build with no GIL",
+    asks="What does a build with no GIL charge a program that only ever has one thread?",
+    needs=(
+        "the question is about a build rather than about a program, and the only way to answer "
+        "it is to run the same code on an interpreter configured with --disable-gil and on an "
+        "ordinary one, which no single interpreter can do"
+    ),
+    build="freethreaded",
+    program=PROGRAM_EIGHTEEN,
+)
+
+
+WHAT_ONE_THREAD_PAYS_WITH_THE_LOCK = Experiment(
+    slug="c07-what-one-thread-pays-with-the-lock",
+    lesson="C07",
+    title="The same eight workloads on an ordinary build",
+    asks="What do the same eight workloads cost on a build that kept the lock?",
+    needs=(
+        "half of a comparison is not a measurement, and the two halves have to come from images "
+        "built the same way on the same hardware or the difference is just noise"
+    ),
+    build="release",
+    program=PROGRAM_EIGHTEEN,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -2016,6 +2157,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     THE_SAME_MESSAGE_WITHOUT_THE_LOCK,
     READING_WHAT_NOBODY_COUNTS,
     THE_SAME_TWO_LISTS_WITH_THE_LOCK,
+    WHAT_ONE_THREAD_PAYS,
+    WHAT_ONE_THREAD_PAYS_WITH_THE_LOCK,
 )
 
 
