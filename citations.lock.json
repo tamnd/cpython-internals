@@ -1375,15 +1375,55 @@
       "first_line": "static PyObject *",
       "lines": 14
     },
+    "Modules/getpath.c:560-582@v3.15.0rc1": {
+      "digest": "bacacbf121ce39c5",
+      "first_line": "#endif",
+      "lines": 23
+    },
+    "Modules/getpath.c:830-840@v3.15.0rc1": {
+      "digest": "30c0ddbe82894ce3",
+      "first_line": "",
+      "lines": 11
+    },
+    "Modules/getpath.c:855-894@v3.15.0rc1": {
+      "digest": "0f1a2db7ace0f0ec",
+      "first_line": "PyStatus",
+      "lines": 40
+    },
+    "Modules/main.c:37-76@v3.15.0rc1": {
+      "digest": "0290f26f3c232762",
+      "first_line": "pymain_init(const _PyArgv *args)",
+      "lines": 40
+    },
     "Modules/main.c:446-446@v3.15.0rc1": {
       "digest": "d5c57b74dc318fbb",
       "first_line": "pymain_run_file(const PyConfig *config)",
       "lines": 1
     },
+    "Modules/main.c:657-696@v3.15.0rc1": {
+      "digest": "3b8b28f1f23a697a",
+      "first_line": "static void",
+      "lines": 40
+    },
+    "Modules/main.c:696-728@v3.15.0rc1": {
+      "digest": "38ac6f2f84817165",
+      "first_line": "PyObject *path0 = NULL;",
+      "lines": 33
+    },
     "Modules/main.c:830-852@v3.15.0rc1": {
       "digest": "b15e6301c9c95772",
       "first_line": "int",
       "lines": 23
+    },
+    "Modules/main.c:831-852@v3.15.0rc1": {
+      "digest": "2980a854547fda9d",
+      "first_line": "Py_RunMain(void)",
+      "lines": 22
+    },
+    "Modules/main.c:855-868@v3.15.0rc1": {
+      "digest": "8c43d6304d18923c",
+      "first_line": "static int",
+      "lines": 14
     },
     "Modules/posixmodule.c:8660-8672@v3.15.0rc1": {
       "digest": "3f3960989b85426a",
@@ -4210,6 +4250,11 @@
       "first_line": "int",
       "lines": 21
     },
+    "Python/initconfig.c:1193-1201@v3.15.0rc1": {
+      "digest": "0cd6d8c3fdac2d2a",
+      "first_line": "#ifdef MS_WINDOWS",
+      "lines": 9
+    },
     "Python/initconfig.c:1970-1990@v3.15.0rc1": {
       "digest": "19e00e6a2eee5295",
       "first_line": "static PyStatus",
@@ -4219,6 +4264,21 @@
       "digest": "0640132f25de9e86",
       "first_line": "config_read_gil(PyConfig *config, size_t len, wchar_t first_char)",
       "lines": 30
+    },
+    "Python/initconfig.c:1995-2020@v3.15.0rc1": {
+      "digest": "a936b285993c1090",
+      "first_line": "{",
+      "lines": 26
+    },
+    "Python/initconfig.c:2849-2866@v3.15.0rc1": {
+      "digest": "ea23f8c25d79e425",
+      "first_line": "/* -X frozen_modules=[on|off] */",
+      "lines": 18
+    },
+    "Python/initconfig.c:3210-3222@v3.15.0rc1": {
+      "digest": "cf83f51eca363edc",
+      "first_line": "case 'E':",
+      "lines": 13
     },
     "Python/instrumentation.c:1190-1216@v3.15.0rc1": {
       "digest": "cea5143d2a582d2a",
@@ -4334,6 +4394,21 @@
       "digest": "c1776f8ba6e05181",
       "first_line": "Logically, all symbols begin as UNKNOWN, and can transition downwards along the",
       "lines": 24
+    },
+    "Python/preconfig.c:560-578@v3.15.0rc1": {
+      "digest": "83631839f7dcfc98",
+      "first_line": "}",
+      "lines": 19
+    },
+    "Python/pylifecycle.c:1150-1172@v3.15.0rc1": {
+      "digest": "b9c5af5cdd32a97b",
+      "first_line": "",
+      "lines": 23
+    },
+    "Python/pylifecycle.c:1589-1606@v3.15.0rc1": {
+      "digest": "f26bda3613cf2a5c",
+      "first_line": "static PyStatus",
+      "lines": 18
     },
     "Python/pylifecycle.c:1609-1639@v3.15.0rc1": {
       "digest": "332183fc478125a5",
