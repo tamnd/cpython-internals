@@ -1120,6 +1120,31 @@
       "first_line": "def start_trace(self):",
       "lines": 5
     },
+    "Lib/concurrent/futures/interpreter.py:59-71@v3.15.0rc1": {
+      "digest": "0f992195270a1de9",
+      "first_line": "def initialize(self):",
+      "lines": 13
+    },
+    "Lib/concurrent/futures/interpreter.py:82-91@v3.15.0rc1": {
+      "digest": "2604c5736f4aecc5",
+      "first_line": "def run(self, task):",
+      "lines": 10
+    },
+    "Lib/concurrent/interpreters/__init__.py:197-217@v3.15.0rc1": {
+      "digest": "9089701ca3f17047",
+      "first_line": "def exec(self, code, /):",
+      "lines": 21
+    },
+    "Lib/concurrent/interpreters/__init__.py:225-238@v3.15.0rc1": {
+      "digest": "6aa74f48a760c138",
+      "first_line": "def call(self, callable, /, *args, **kwargs):",
+      "lines": 14
+    },
+    "Lib/concurrent/interpreters/__init__.py:35-57@v3.15.0rc1": {
+      "digest": "617b6909ae54553b",
+      "first_line": "class ExecutionFailed(InterpreterError):",
+      "lines": 23
+    },
     "Lib/concurrent/interpreters/__init__.py:63-66@v3.15.0rc1": {
       "digest": "040e6b65bbea5b6a",
       "first_line": "def create():",
@@ -1304,6 +1329,11 @@
       "digest": "63a3e4ee6e69928e",
       "first_line": "/*[clinic input]",
       "lines": 19
+    },
+    "Modules/_interpretersmodule.c:389-414@v3.15.0rc1": {
+      "digest": "d6dcb0a4fa2752e1",
+      "first_line": "static int",
+      "lines": 26
     },
     "Modules/_threadmodule.c:1376-1388@v3.15.0rc1": {
       "digest": "86fee8dd578fa284",
@@ -3735,10 +3765,30 @@
       "first_line": "_PyCompile_StaticAttributesAsTuple(compiler *c)",
       "lines": 15
     },
+    "Python/crossinterp.c:530-558@v3.15.0rc1": {
+      "digest": "d78108ddd539ac73",
+      "first_line": "int",
+      "lines": 29
+    },
+    "Python/crossinterp_data_lookup.h:715-730@v3.15.0rc1": {
+      "digest": "c41e58fbde97ff48",
+      "first_line": "",
+      "lines": 16
+    },
+    "Python/crossinterp_data_lookup.h:755-780@v3.15.0rc1": {
+      "digest": "519f9f51514436b1",
+      "first_line": "",
+      "lines": 26
+    },
     "Python/crossinterp_data_lookup.h:790-829@v3.15.0rc1": {
       "digest": "33c881d5386258f0",
       "first_line": "_register_builtins_for_crossinterpreter_data(dlregistry_t *xidregistry)",
       "lines": 40
+    },
+    "Python/crossinterp_data_lookup.h:798-831@v3.15.0rc1": {
+      "digest": "0e8a005b44ecc9f5",
+      "first_line": "// None",
+      "lines": 34
     },
     "Python/executor_cases.c.h:2729-2744@v3.15.0rc1": {
       "digest": "4430981ca716fced",
@@ -4134,6 +4184,11 @@
       "digest": "08b16a0b876d1642",
       "first_line": "TARGET(LOAD_FAST) {",
       "lines": 16
+    },
+    "Python/import.c:1587-1616@v3.15.0rc1": {
+      "digest": "c21f5e5c0c4eab2a",
+      "first_line": "static bool",
+      "lines": 30
     },
     "Python/import.c:1604-1616@v3.15.0rc1": {
       "digest": "86742118fb28b33f",

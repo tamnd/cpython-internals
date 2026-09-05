@@ -34,6 +34,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [c06-the-same-two-lists-with-the-lock](tier1/c06-the-same-two-lists-with-the-lock.md) | C06 | release | Do the two lists behave differently on a build where the threads take turns anyway? |
 | [c07-what-one-thread-pays](tier1/c07-what-one-thread-pays.md) | C07 | freethreaded | What does a build with no GIL charge a program that only ever has one thread? |
 | [c07-what-one-thread-pays-with-the-lock](tier1/c07-what-one-thread-pays-with-the-lock.md) | C07 | release | What do the same eight workloads cost on a build that kept the lock? |
+| [c08-three-ways-to-split-the-work](tier1/c08-three-ways-to-split-the-work.md) | C08 | release | Does handing work to another interpreter pay, and what decides whether it does? |
+| [c08-three-ways-without-the-lock](tier1/c08-three-ways-without-the-lock.md) | C08 | freethreaded | Once plain threads run in parallel too, is there anything left for interpreters? |
 
 ## The commands
 

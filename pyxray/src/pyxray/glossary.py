@@ -1724,6 +1724,32 @@ CONCURRENCY = Group(
             see=("free threaded build", "thread safety declaration"),
             met="C07",
         ),
+        Term(
+            name="cross interpreter data",
+            short="The plain bytes an object is reduced to so a second interpreter can rebuild it.",
+            long="Written xidata in the source. Seven types have a direct route, and everything else falls back: first the object itself, then the function path for a callable that carries no state, then pickle. Whichever route is taken, what arrives on the other side is a new object at a new address, so nothing is shared and nothing can be changed from both sides.",
+            cite="Python/crossinterp.c:530-558@v3.15.0rc1#_PyObject_GetXIData",
+            also=("xidata", "`_PyXIData_t`", "`_PyObject_GetXIData`"),
+            see=("shareable object", "subinterpreter", "stateless function"),
+            met="C08",
+        ),
+        Term(
+            name="stateless function",
+            short="A function that reads no globals and closes over nothing, so it can be sent whole.",
+            long="`Interpreter.call` can hand one of these to another interpreter by sending the code itself rather than a name to look up. A function that reads a global cannot go that way, because the name would have to be resolved on the other side, where the module it came from does not exist. It is the reason a recursive function written at the top level will not cross.",
+            cite="Python/crossinterp_data_lookup.h:755-780@v3.15.0rc1#_PyFunction_GetXIData",
+            also=("`Interpreter.call`", "`_PyFunction_GetXIData`"),
+            see=("cross interpreter data", "subinterpreter"),
+            met="C08",
+        ),
+        Term(
+            name="interpreter pool",
+            short="A pool of workers where each worker is an interpreter rather than a thread.",
+            long="`InterpreterPoolExecutor` has the same shape as the thread and process pools, so `submit` and `map` work the way you already expect. The difference is what happens to the arguments and the return value, which have to be turned into bytes and rebuilt on each hop, so it is worth using only when a job does much more work than it carries.",
+            also=("`concurrent.futures.InterpreterPoolExecutor`",),
+            see=("subinterpreter", "cross interpreter data"),
+            met="C08",
+        ),
     ),
 )
 
