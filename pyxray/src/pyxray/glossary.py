@@ -1902,6 +1902,37 @@ STARTUP = Group(
             see=("module lock", "import placeholder"),
             met="R05",
         ),
+        Term(
+            name="interpreter finalisation",
+            short="Everything that happens after your last line, laid out in one C function.",
+            long="`_Py_Finalize` runs the whole ending in a fixed order: the pre finalization calls, which join your non daemon threads and run the atexit callbacks, then the flag that says shutdown has begun, then the other thread states go, then one garbage collection, then the modules are torn down and cleared, then the interpreter and the runtime themselves. Nothing in the second half is a normal place to be running Python.",
+            cite="Python/pylifecycle.c:2380-2419@v3.15.0rc1#_Py_Finalize",
+            also=("`_Py_Finalize`", "`Py_FinalizeEx`", "`make_pre_finalization_calls`"),
+            see=("atexit callback", "finalizing flag", "daemon thread"),
+            met="R08",
+        ),
+        Term(
+            name="atexit callback",
+            short="A function you register to run at the end, while Python still works properly.",
+            long="`atexit.register` inserts at the front of one list, so callbacks come back in the reverse of the order you registered them. The list is copied before it is walked and then emptied, which is why a callback that registers another one during shutdown is never called. If a callback raises, the error is printed as an ignored exception and the process exit status does not change.",
+            cite="Modules/atexitmodule.c:102-141@v3.15.0rc1#atexit_callfuncs",
+            also=("`atexit.register`", "`atexit._ncallbacks`", "`atexit_callfuncs`"),
+            see=("interpreter finalisation", "finalizing flag"),
+            met="R08",
+        ),
+        Term(
+            name="finalizing flag",
+            short="The bit that says shutdown has started, readable as sys.is_finalizing().",
+            long="It is set after the atexit callbacks have already run, so a callback sees `False` and a `__del__` on a module global sees `True`. That one bit is the honest test for whether you are in the part of shutdown where the usual rules have stopped applying. By then `sys.modules` has been emptied and any import, even of a module you already imported, raises `ImportError` saying `sys.meta_path is None`.",
+            cite="Python/pylifecycle.c:2380-2419@v3.15.0rc1#_PyInterpreterState_SetFinalizing",
+            also=(
+                "`sys.is_finalizing`",
+                "`_PyInterpreterState_SetFinalizing`",
+                "`interp->finalizing`",
+            ),
+            see=("interpreter finalisation", "atexit callback"),
+            met="R08",
+        ),
     ),
 )
 

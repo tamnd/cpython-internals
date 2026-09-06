@@ -1,7 +1,7 @@
 {
   "runtime": "pyodide",
   "python": "3.14.2",
-  "seconds": 1.626,
+  "seconds": 4.324,
   "payload_bytes": 13508566,
   "outcomes": [
     {

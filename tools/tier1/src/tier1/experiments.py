@@ -3328,6 +3328,216 @@ WHAT_A_BUILD_WILL_LOAD_WITHOUT_THE_LOCK = Experiment(
 )
 
 
+PROGRAM_TWENTYEIGHT = r'''"""Nine ways a process can end, and what each one still runs.
+
+Shutdown is the part of the runtime with the fewest promises, and the only honest way to watch
+it is from outside. So this program starts a child interpreter for each hazard and reports
+what the child managed to run and what status it left behind.
+
+Every child registers an atexit callback and keeps one object with a finalizer in a module
+global. Whether those two things run is the whole question, and the answer is not always yes.
+
+On a debug build there is one more section. `-X showrefcount` prints how many references and
+how many allocated blocks were still there when the interpreter stopped, so the cost of the
+one case that goes wrong can be counted rather than described.
+"""
+
+import re
+import subprocess
+import sys
+
+PREAMBLE = """
+import atexit, os, sys
+
+
+def note(label, _w=os.write, _f=sys.is_finalizing):
+    _w(2, f"{label} finalizing={_f()}\\n".encode())
+
+
+class Late:
+    def __del__(self, _note=note):
+        _note("finalizer")
+
+
+def snooze():
+    import time
+    time.sleep(30)
+
+
+atexit.register(note, "atexit")
+keeper = Late()
+"""
+
+CASES = (
+    ("an ordinary exit", ""),
+    ("sys.exit with a status", "sys.exit(3)"),
+    ("an unhandled exception", "raise SystemError('on purpose')"),
+    ("os._exit, which skips everything", "os._exit(0)"),
+    ("an atexit callback that raises", "atexit.register(lambda: 1 / 0)"),
+    (
+        "a finalizer that raises",
+        "class Angry:\n    def __del__(self):\n        1 / 0\nbad = Angry()",
+    ),
+    (
+        "a daemon thread inside time.sleep",
+        "import threading, time\n"
+        "threading.Thread(target=time.sleep, args=(30,), daemon=True).start()",
+    ),
+    (
+        "a daemon thread running your code",
+        "import threading\nthreading.Thread(target=snooze, daemon=True).start()",
+    ),
+    ("a subinterpreter nobody closed", "import concurrent.interpreters as it\nkid = it.create()"),
+)
+
+ORDER = """
+import atexit, os, sys, threading, time
+
+
+def note(label, _w=os.write, _f=sys.is_finalizing):
+    _w(2, f"  {label:38} finalizing={_f()}\\n".encode())
+
+
+class Late:
+    def __init__(self, label):
+        self.label = label
+
+    def __del__(self, _note=note):
+        _note(f"finalizer of {self.label}")
+
+
+def worker():
+    time.sleep(0.2)
+    note("a thread you started finishing")
+
+
+atexit.register(note, "atexit registered first")
+atexit.register(note, "atexit registered second")
+keeper = Late("a module global")
+threading.Thread(target=worker).start()
+note("your last line")
+"""
+
+HELD = """
+import atexit, os, sys
+
+
+def snooze():
+    import time
+    time.sleep(30)
+
+
+class Held:
+    pass
+
+
+keeper = [Held() for _ in range(5000)]
+"""
+
+SHAPES = (
+    ("nothing left behind", ""),
+    ("five thousand objects in a module global", HELD),
+    (
+        "the same, plus a daemon thread running your code",
+        HELD + "import threading\nthreading.Thread(target=snooze, daemon=True).start()\n",
+    ),
+)
+
+LEFTOVER = re.compile(r"\[(\d+) refs, (\d+) blocks\]")
+
+
+def run(program, flags=()):
+    """Start a child interpreter with that program and hand back what it did."""
+    return subprocess.run(
+        [sys.executable, *flags, "-c", program], capture_output=True, text=True, timeout=180
+    )
+
+
+def leftover(program):
+    """What a debug build reports was still alive after it finished shutting down."""
+    found = LEFTOVER.search(run(program, ("-X", "showrefcount")).stderr)
+    return (int(found.group(1)), int(found.group(2))) if found else None
+
+
+DEBUG = hasattr(sys, "gettotalrefcount")
+
+print("version:", sys.version.split()[0])
+print("debug build:", DEBUG)
+print("free threaded:", hasattr(sys, "_is_gil_enabled") and not sys._is_gil_enabled())
+print()
+
+print("the order things happen in, watched from one child")
+for line in run(ORDER).stderr.splitlines():
+    print(line.rstrip())
+print()
+
+print("what each kind of ending still runs")
+print(f"  {'the child':38} {'status':>6} {'atexit':>7} {'finalizer':>10}  warned")
+ran_atexit = 0
+ran_finalizer = 0
+zero = 0
+for label, body in CASES:
+    done = run(PREAMBLE + body)
+    saw_atexit = "atexit finalizing" in done.stderr
+    saw_final = "finalizer finalizing" in done.stderr
+    warned = "yes" if "RuntimeWarning" in done.stderr else ""
+    ran_atexit += saw_atexit
+    ran_finalizer += saw_final
+    zero += done.returncode == 0
+    yes_atexit = "yes" if saw_atexit else "no"
+    yes_final = "yes" if saw_final else "no"
+    columns = f"{done.returncode:>6} {yes_atexit:>7} {yes_final:>10}"
+    print(f"  {label:38} {columns}  {warned}".rstrip())
+print()
+
+stranded = 0
+if DEBUG:
+    print("what this build says was still alive when the interpreter stopped")
+    base = leftover("")
+    for label, program in SHAPES:
+        now = leftover(program)
+        stranded = max(stranded, now[0] - base[0])
+        print(f"  {label:50} {now[0] - base[0]:+8} refs {now[1] - base[1]:+8} blocks")
+else:
+    print("a debug build would also count what was left over, and this is not one")
+print()
+
+print(f"~ children that ran their atexit callback: {ran_atexit} of {len(CASES)}")
+print(f"~ children that ran their finalizer: {ran_finalizer} of {len(CASES)}")
+print(f"~ children whose exit status was zero: {zero} of {len(CASES)}")
+if DEBUG:
+    print(f"~ references stranded by one daemon thread: {stranded}")
+'''
+
+
+WHAT_THE_END_STILL_RUNS = Experiment(
+    slug="r08-what-the-end-still-runs",
+    lesson="R08",
+    title="Nine ways a process can end, and what each one still runs on the way out",
+    asks="Which of the things you registered actually run when the interpreter stops?",
+    needs=(
+        "it needs to start child interpreters, because the only honest way to watch a shutdown "
+        "is from a process that outlives it"
+    ),
+    build="release",
+    program=PROGRAM_TWENTYEIGHT,
+)
+
+
+WHAT_THE_END_LEAVES_BEHIND = Experiment(
+    slug="r08-what-the-end-leaves-behind",
+    lesson="R08",
+    title="The same nine endings on a build that counts what was still alive at the end",
+    asks="How much does one daemon thread leave stranded when the interpreter stops?",
+    needs=(
+        "it needs a debug build, because only that build has the counters that -X showrefcount "
+        "prints once shutdown is over"
+    ),
+    build="debug",
+    program=PROGRAM_TWENTYEIGHT,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -3370,6 +3580,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     WHAT_LEAVES_THE_BINARY_ON_A_FREE_THREADED_BUILD,
     WHAT_A_BUILD_WILL_LOAD,
     WHAT_A_BUILD_WILL_LOAD_WITHOUT_THE_LOCK,
+    WHAT_THE_END_STILL_RUNS,
+    WHAT_THE_END_LEAVES_BEHIND,
 )
 
 

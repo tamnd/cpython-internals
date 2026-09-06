@@ -1335,6 +1335,11 @@
       "first_line": "@classmethod",
       "lines": 11
     },
+    "Lib/importlib/_bootstrap.py:1196-1210@v3.15.0rc1": {
+      "digest": "f595e101683b44a2",
+      "first_line": "",
+      "lines": 15
+    },
     "Lib/importlib/_bootstrap.py:1198-1223@v3.15.0rc1": {
       "digest": "10232b40fdaf68e3",
       "first_line": "def _find_spec(name, path, target=None):",
@@ -1624,6 +1629,16 @@
       "digest": "266911385a94a62e",
       "first_line": "static PyObject *",
       "lines": 11
+    },
+    "Modules/atexitmodule.c:102-141@v3.15.0rc1": {
+      "digest": "2e4925e1f91b08de",
+      "first_line": "static void",
+      "lines": 40
+    },
+    "Modules/atexitmodule.c:202-213@v3.15.0rc1": {
+      "digest": "447c2b5107c71614",
+      "first_line": "}",
+      "lines": 12
     },
     "Modules/gcmodule.c:215-240@v3.15.0rc1": {
       "digest": "4052c86f7bd5bcf1",
@@ -4844,6 +4859,46 @@
       "digest": "332183fc478125a5",
       "first_line": "PyStatus",
       "lines": 31
+    },
+    "Python/pylifecycle.c:1683-1702@v3.15.0rc1": {
+      "digest": "bc251e9f9fb1614a",
+      "first_line": "finalize_modules_delete_special(PyThreadState *tstate, int verbose)",
+      "lines": 20
+    },
+    "Python/pylifecycle.c:1931-1948@v3.15.0rc1": {
+      "digest": "ece3dfff4f4b0004",
+      "first_line": "// Remove all modules from sys.modules, hoping that garbage collection",
+      "lines": 18
+    },
+    "Python/pylifecycle.c:2272-2311@v3.15.0rc1": {
+      "digest": "1987a8783ab134bd",
+      "first_line": "static void",
+      "lines": 40
+    },
+    "Python/pylifecycle.c:2380-2419@v3.15.0rc1": {
+      "digest": "b8304b4b99bef7b6",
+      "first_line": "_Py_Finalize(_PyRuntimeState *runtime)",
+      "lines": 40
+    },
+    "Python/pylifecycle.c:2460-2485@v3.15.0rc1": {
+      "digest": "19310ee1282c48df",
+      "first_line": "/* Flush sys.stdout and sys.stderr */",
+      "lines": 26
+    },
+    "Python/pylifecycle.c:2604-2612@v3.15.0rc1": {
+      "digest": "00104a577c218a68",
+      "first_line": "int",
+      "lines": 9
+    },
+    "Python/pylifecycle.c:2843-2872@v3.15.0rc1": {
+      "digest": "5601b470aa385a95",
+      "first_line": "finalize_subinterpreters(void)",
+      "lines": 30
+    },
+    "Python/pylifecycle.c:3843-3862@v3.15.0rc1": {
+      "digest": "21c00bc96c6b61b7",
+      "first_line": "wait_for_thread_shutdown(PyThreadState *tstate)",
+      "lines": 20
     },
     "Python/pylifecycle.c:638-653@v3.15.0rc1": {
       "digest": "3d23cdac0820f2d9",
