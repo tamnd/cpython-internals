@@ -9,7 +9,7 @@
       "status": "ok",
       "value": {
         "python": "3.14.7",
-        "platform": "macosx-15.0-arm64",
+        "platform": "macosx-11.0-arm64",
         "pointer_bytes": 8,
         "free_threaded": false
       }

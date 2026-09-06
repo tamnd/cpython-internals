@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-601 claims across 76 lessons, 59 of them not observable from Python.
+610 claims across 77 lessons, 59 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -780,6 +780,20 @@ Without it the exception becomes the rule and this goes back to being a book.
 | Resolving one placeholder runs a module body that can declare placeholders of its own, so a name can appear in sys.lazy_modules as a result of resolving a different one | [`r05-34`](r05-lazy-imports/r05.ipynb) |
 | A file with twelve imports at the top that uses one runs several times faster with them deferred, and eleven of the twelve module bodies never run | [`r05-37`](r05-lazy-imports/r05.ipynb) |
 | On a free threaded build, four threads importing four different modules run about three and a half times over, while four threads waking four different deferred imports run one at a time, because reification takes the interpreter wide import lock | not observable from Python: it needs a build configured with --disable-gil and several processors, and one notebook is only ever one build |
+
+## R06. The C API tiers
+
+| Claim | Proved by |
+| --- | --- |
+| Most of CPython's header surface is in the directory extensions are not meant to open. | [`r06-07`](r06-the-c-api-tiers/r06.ipynb) |
+| Defining Py_LIMITED_API removes about a quarter of the functions declared in the public headers, and all of the other two directories. | [`r06-10`](r06-the-c-api-tiers/r06.ipynb) |
+| The internal headers are protected by a compiler error and nothing else. | [`r06-13`](r06-the-c-api-tiers/r06.ipynb) |
+| The naming convention and the directory disagree about a few dozen functions, in both directions. | [`r06-16`](r06-the-c-api-tiers/r06.ipynb) |
+| The tier a function belongs to makes no difference to whether you can find it at run time. | [`r06-19`](r06-the-c-api-tiers/r06.ipynb) |
+| Inside the internal headers, the two spellings decide what leaves the binary, and almost nothing crosses over. | [`r06-21`](r06-the-c-api-tiers/r06.ipynb) |
+| The internal function, the dunder and sys.getsizeof are the same measurement with one thing added. | [`r06-24`](r06-the-c-api-tiers/r06.ipynb) |
+| Some C API names are a macro and an exported function at once, and which one you get depends on your build. | [`r06-26`](r06-the-c-api-tiers/r06.ipynb) |
+| Which tier an installed extension was built against is written on the outside of the file. | [`r06-29`](r06-the-c-api-tiers/r06.ipynb) |
 
 ## T01. One line, seven stages
 

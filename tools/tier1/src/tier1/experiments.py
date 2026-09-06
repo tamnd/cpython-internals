@@ -3020,6 +3020,123 @@ HOW_MUCH_OF_A_WAKE_UP_IS_PARALLEL_WITHOUT_THE_LOCK = Experiment(
 )
 
 
+PROGRAM_TWENTYSIX = r'''"""Which of the C API's private declarations actually leave the binary.
+
+The headers put the C API in three directories. `Include/` is what any extension may use,
+`Include/cpython/` is the part that only makes sense compiled against this exact CPython, and
+`Include/internal/` says at the top of nearly every file that it will not compile unless you
+claim to be CPython itself.
+
+That is all a compile time arrangement. This program asks what survives into the built
+interpreter, by taking every name the headers declare and asking the dynamic linker for it
+through `ctypes.pythonapi`. A name that resolves is a name any program can call, whatever the
+header said about it.
+
+The interesting split is inside the internal headers, which use two different spellings.
+`PyAPI_FUNC` means the symbol leaves the shared library. A plain `extern` means it does not.
+Both spellings sit in the same file, often two lines apart.
+"""
+
+import ctypes
+import pathlib
+import re
+import sys
+import sysconfig
+from collections import Counter
+
+API = re.compile(r"^PyAPI_FUNC\([^)]*\)\s*\**\s*(\w+)", re.M)
+EXTERN = re.compile(r"^extern\s+[\w *]+?\**\s*(\w+)\s*\(", re.M)
+NOTE = re.compile(r"^//\s*Export for (.+?)\.?$", re.M)
+
+TIERS = (("public", "*.h"), ("cpython only", "cpython/*.h"), ("internal", "internal/*.h"))
+
+api = ctypes.pythonapi
+include = pathlib.Path(sysconfig.get_paths()["include"])
+
+
+def resolves(name):
+    """Ask the linker for a name, the way any program with a handle on the process can."""
+    return hasattr(api, name)
+
+
+def read(pattern):
+    """Every header matching the pattern, as one blob of text per file."""
+    return [path.read_text(errors="replace") for path in sorted(include.glob(pattern))]
+
+
+print("include directory:", include)
+print("build has the gil disabled:", sysconfig.get_config_var("Py_GIL_DISABLED"))
+print("abi flags:", repr(sys.abiflags))
+print()
+
+for tier, pattern in TIERS:
+    blobs = read(pattern)
+    declared = set()
+    for blob in blobs:
+        declared |= set(API.findall(blob))
+    found = sum(1 for name in declared if resolves(name))
+    print(f"{tier}: {len(blobs)} header files")
+    print(f"  declared with PyAPI_FUNC: {len(declared)}")
+    print(f"  of those, resolve in this process: {found}")
+
+internal = read("internal/*.h")
+exported = set()
+kept_in = set()
+notes = []
+for blob in internal:
+    exported |= set(API.findall(blob))
+    kept_in |= set(EXTERN.findall(blob))
+    notes += NOTE.findall(blob)
+kept_in -= exported
+
+leaked = sum(1 for name in exported if resolves(name))
+held = sum(1 for name in kept_in if resolves(name))
+
+print()
+print("inside the internal headers")
+print("  names spelled PyAPI_FUNC:", len(exported))
+print("  names spelled plain extern:", len(kept_in))
+print("  comments naming who needs the export:", len(notes))
+for who, count in Counter(notes).most_common(5):
+    print(f"    {count} for {who}")
+
+print()
+exported_share = leaked / len(exported) * 100
+extern_share = held / len(kept_in) * 100
+print("~ private names that leave the binary: {}".format(leaked))
+print("~ share of PyAPI_FUNC internal names that resolve: {:.1f} percent".format(exported_share))
+print("~ share of plain extern internal names that resolve: {:.1f} percent".format(extern_share))
+'''
+
+
+WHAT_LEAVES_THE_BINARY = Experiment(
+    slug="r06-what-leaves-the-binary",
+    lesson="R06",
+    title="Every name the headers declare, handed to the linker one at a time",
+    asks="How much of the C API that the headers call private is callable anyway?",
+    needs=(
+        "it needs the headers next to the interpreter, which a normal install has and a "
+        "browser tab does not, and it needs ctypes to reach the process it is running in"
+    ),
+    build="release",
+    program=PROGRAM_TWENTYSIX,
+)
+
+
+WHAT_LEAVES_THE_BINARY_ON_A_FREE_THREADED_BUILD = Experiment(
+    slug="r06-what-leaves-the-binary-on-a-free-threaded-build",
+    lesson="R06",
+    title="The same sweep on the build that compiles a different half of the headers",
+    asks="Does dropping the global interpreter lock change what the C API exports?",
+    needs=(
+        "it needs a build configured with --disable-gil, because the question is whether the "
+        "names behind Py_GIL_DISABLED are the ones that were missing on the ordinary build"
+    ),
+    build="freethreaded",
+    program=PROGRAM_TWENTYSIX,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -3058,6 +3175,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     WHAT_DEFERRING_AN_IMPORT_IS_WORTH,
     HOW_MUCH_OF_A_WAKE_UP_IS_PARALLEL,
     HOW_MUCH_OF_A_WAKE_UP_IS_PARALLEL_WITHOUT_THE_LOCK,
+    WHAT_LEAVES_THE_BINARY,
+    WHAT_LEAVES_THE_BINARY_ON_A_FREE_THREADED_BUILD,
 )
 
 

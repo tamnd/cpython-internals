@@ -47,6 +47,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [r05-what-deferring-an-import-is-worth](tier1/r05-what-deferring-an-import-is-worth.md) | R05 | release | What does a program get back for not importing what it turns out not to need? |
 | [r05-how-much-of-a-wake-up-is-parallel](tier1/r05-how-much-of-a-wake-up-is-parallel.md) | R05 | release | Do two threads waking up two different deferred imports wait for each other? |
 | [r05-how-much-of-a-wake-up-is-parallel-without-the-lock](tier1/r05-how-much-of-a-wake-up-is-parallel-without-the-lock.md) | R05 | freethreaded | With the global interpreter lock gone, does waking up a deferred import scale? |
+| [r06-what-leaves-the-binary](tier1/r06-what-leaves-the-binary.md) | R06 | release | How much of the C API that the headers call private is callable anyway? |
+| [r06-what-leaves-the-binary-on-a-free-threaded-build](tier1/r06-what-leaves-the-binary-on-a-free-threaded-build.md) | R06 | freethreaded | Does dropping the global interpreter lock change what the C API exports? |
 
 ## The commands
 
