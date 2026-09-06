@@ -480,7 +480,7 @@ An extension has to get past two gates. The first is its file name, and it is ch
 
 The tag is the implementation, the version, a `t` when the build has no global interpreter lock, and the platform. The `abi3` and `abi3t` tags say the file was built against the stable ABI instead. A free threaded build takes only `abi3t`, an ordinary 3.15 build takes both and prefers `abi3`, and 3.14 has never heard of `abi3t`.
 
-The second gate is twelve bytes of struct, new in 3.15 and opt in. It compares four things: whether the extension claims the stable ABI, which version it was built against, whether that version is allowed to be older than yours, and which side of the free threading split it is on. Four of the seven sample extensions in this lesson were refused, each for a different reason.
+The second gate is twelve bytes of struct, new in 3.15 and opt in. It compares four things: whether the extension claims the stable ABI, which version it was built against, whether that version is allowed to be older than yours, and which side of the free threading split it is on. Four of the eight sample extensions in this lesson were refused, and no two of them for the same reason.
 
 Neither gate is a real safety net. The name check happens before anything is read, so it catches the common mistake and nothing else. The struct check happens after the extension's code has already run, and only if the extension asked for it.
 

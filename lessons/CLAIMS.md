@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-618 claims across 78 lessons, 59 of them not observable from Python.
+625 claims across 79 lessons, 59 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -807,6 +807,18 @@ Without it the exception becomes the rule and this goes back to being a book.
 | The check refuses four of these eight, and no two of them for the same reason. | [`r07-22`](r07-the-stable-abi/r07.ipynb) |
 | Every function added to the stable ABI since 3.2 is dated by the preprocessor gate around it, and you can read the dates straight out of the headers. | [`r07-25`](r07-the-stable-abi/r07.ipynb) |
 | A function's stable ABI version is readable from the header line it is declared on. | [`r07-28`](r07-the-stable-abi/r07.ipynb) |
+
+## R08. When the interpreter stops
+
+| Claim | Proved by |
+| --- | --- |
+| Your threads finish first, then your atexit callbacks, then the finalizers on your module globals. | [`r08-07`](r08-when-the-interpreter-stops/r08.ipynb) |
+| Callbacks run newest first, and one registered during shutdown never runs at all. | [`r08-09`](r08-when-the-interpreter-stops/r08.ipynb) |
+| A finalizer running during shutdown can read your module globals but cannot import anything, not even a module already imported. | [`r08-11`](r08-when-the-interpreter-stops/r08.ipynb) |
+| An exception in an atexit callback or a finalizer is printed and ignored, and the process still exits with status zero. | [`r08-14`](r08-when-the-interpreter-stops/r08.ipynb) |
+| One daemon thread running a function from your own module stops every finalizer in that module from running. | [`r08-16`](r08-when-the-interpreter-stops/r08.ipynb) |
+| One full collection of generation two runs during shutdown, and the finalizing flag is already set when it does. | [`r08-18`](r08-when-the-interpreter-stops/r08.ipynb) |
+| A subinterpreter you never closed is finalised for you, with a RuntimeWarning, before the main interpreter finishes. | [`r08-20`](r08-when-the-interpreter-stops/r08.ipynb) |
 
 ## T01. One line, seven stages
 

@@ -51,6 +51,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [r06-what-leaves-the-binary-on-a-free-threaded-build](tier1/r06-what-leaves-the-binary-on-a-free-threaded-build.md) | R06 | freethreaded | Does dropping the global interpreter lock change what the C API exports? |
 | [r07-what-a-build-will-load](tier1/r07-what-a-build-will-load.md) | R07 | release | What does the interpreter check before it agrees to load an extension? |
 | [r07-what-a-build-will-load-without-the-lock](tier1/r07-what-a-build-will-load-without-the-lock.md) | R07 | freethreaded | How much of the stable ABI does dropping the global interpreter lock rule out? |
+| [r08-what-the-end-still-runs](tier1/r08-what-the-end-still-runs.md) | R08 | release | Which of the things you registered actually run when the interpreter stops? |
+| [r08-what-the-end-leaves-behind](tier1/r08-what-the-end-leaves-behind.md) | R08 | debug | How much does one daemon thread leave stranded when the interpreter stops? |
 
 ## The commands
 
