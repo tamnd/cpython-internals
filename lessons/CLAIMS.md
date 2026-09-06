@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-610 claims across 77 lessons, 59 of them not observable from Python.
+618 claims across 78 lessons, 59 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -794,6 +794,19 @@ Without it the exception becomes the rule and this goes back to being a book.
 | The internal function, the dunder and sys.getsizeof are the same measurement with one thing added. | [`r06-24`](r06-the-c-api-tiers/r06.ipynb) |
 | Some C API names are a macro and an exported function at once, and which one you get depends on your build. | [`r06-26`](r06-the-c-api-tiers/r06.ipynb) |
 | Which tier an installed extension was built against is written on the outside of the file. | [`r06-29`](r06-the-c-api-tiers/r06.ipynb) |
+
+## R07. The stable ABI
+
+| Claim | Proved by |
+| --- | --- |
+| An interpreter will only look at extension files whose names carry a tag it recognises, and it has a short fixed list of those. | [`r07-07`](r07-the-stable-abi/r07.ipynb) |
+| The version in the file name is the Python version, and the 3 in abi3 is not. | [`r07-10`](r07-the-stable-abi/r07.ipynb) |
+| A file with the wrong version in its name is invisible to the finder, not an error. | [`r07-13`](r07-the-stable-abi/r07.ipynb) |
+| When more than one acceptable file is present, the first suffix in the list wins, not the best match. | [`r07-16`](r07-the-stable-abi/r07.ipynb) |
+| The struct an extension carries is twelve bytes, and Python can build one and hand it to the real check function. | [`r07-19`](r07-the-stable-abi/r07.ipynb) |
+| The check refuses four of these eight, and no two of them for the same reason. | [`r07-22`](r07-the-stable-abi/r07.ipynb) |
+| Every function added to the stable ABI since 3.2 is dated by the preprocessor gate around it, and you can read the dates straight out of the headers. | [`r07-25`](r07-the-stable-abi/r07.ipynb) |
+| A function's stable ABI version is readable from the header line it is declared on. | [`r07-28`](r07-the-stable-abi/r07.ipynb) |
 
 ## T01. One line, seven stages
 

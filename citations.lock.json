@@ -1,5 +1,10 @@
 {
   "citations": {
+    "Doc/c-api/stable.rst:100-105@v3.15.0rc1": {
+      "digest": "1376594fb65566a6",
+      "first_line": "On some platforms, Python will look for and load shared library files named",
+      "lines": 6
+    },
     "Doc/c-api/stable.rst:21-35@v3.15.0rc1": {
       "digest": "9299cb98031d1463",
       "first_line": "There are two tiers of C API with different stability expectations:",
@@ -149,6 +154,11 @@
       "digest": "b345490b62b5451b",
       "first_line": "typedef struct _PyLongValue {",
       "lines": 9
+    },
+    "Include/cpython/modsupport.h:41-45@v3.15.0rc1": {
+      "digest": "e20f48a944439662",
+      "first_line": "#ifdef Py_BUILD_CORE",
+      "lines": 5
     },
     "Include/cpython/object.h:147-151@v3.15.0rc1": {
       "digest": "5c8d29cfecbeeaa4",
@@ -960,10 +970,20 @@
       "first_line": "#define PyList_Check(op) \\",
       "lines": 3
     },
+    "Include/modsupport.h:135-143@v3.15.0rc1": {
+      "digest": "53f1e39873eb54fa",
+      "first_line": "#define _PyABIInfo_DEFAULT {                                \\",
+      "lines": 9
+    },
     "Include/modsupport.h:85-101@v3.15.0rc1": {
       "digest": "88ce91d467657676",
       "first_line": "/* ABI info & checking (new in 3.15) */",
       "lines": 17
+    },
+    "Include/modsupport.h:86-101@v3.15.0rc1": {
+      "digest": "2f4ed0e32c8ed1fb",
+      "first_line": "#if !defined(Py_LIMITED_API) || Py_LIMITED_API+0 >= _Py_PACK_VERSION(3, 15)",
+      "lines": 16
     },
     "Include/moduleobject.h:78-89@v3.15.0rc1": {
       "digest": "391087226de90dc4",
@@ -1069,6 +1089,11 @@
       "digest": "9aed78be51b439f4",
       "first_line": "#define ANNOTATIONS_PLACEHOLDER                256",
       "lines": 11
+    },
+    "Include/patchlevel.h:53-62@v3.15.0rc1": {
+      "digest": "3dae732b1e88bab7",
+      "first_line": "/* The API and ABI versions are left for backwards compatibility.",
+      "lines": 10
     },
     "Include/refcount.h:105-117@v3.15.0rc1": {
       "digest": "38a06fa5fe8a79cd",
@@ -2164,6 +2189,11 @@
       "digest": "f60714ae03531a1a",
       "first_line": "case Py_mod_gil:",
       "lines": 6
+    },
+    "Objects/moduleobject.c:471-481@v3.15.0rc1": {
+      "digest": "051ece003855e3a8",
+      "first_line": "case Py_mod_gil:",
+      "lines": 11
     },
     "Objects/object.c:1573-1595@v3.15.0rc1": {
       "digest": "c469a683fb938006",
@@ -4125,6 +4155,11 @@
       "first_line": "// None",
       "lines": 34
     },
+    "Python/dynload_shlib.c:39-60@v3.15.0rc1": {
+      "digest": "a07dedafcbd988d4",
+      "first_line": "const char *_PyImport_DynLoadFiletab[] = {",
+      "lines": 22
+    },
     "Python/executor_cases.c.h:2729-2744@v3.15.0rc1": {
       "digest": "4430981ca716fced",
       "first_line": "case _UNARY_NOT_r01: {",
@@ -4625,6 +4660,11 @@
       "first_line": "// Check if the filter disables the lazy import.",
       "lines": 25
     },
+    "Python/import.c:5175-5204@v3.15.0rc1": {
+      "digest": "655604314e26eb8e",
+      "first_line": "static PyObject *",
+      "lines": 30
+    },
     "Python/initconfig.c:1193-1201@v3.15.0rc1": {
       "digest": "0cd6d8c3fdac2d2a",
       "first_line": "#ifdef MS_WINDOWS",
@@ -4719,6 +4759,16 @@
       "digest": "0d8965a71f54691c",
       "first_line": "#define TYPE_NULL               '0'",
       "lines": 39
+    },
+    "Python/modsupport.c:731-753@v3.15.0rc1": {
+      "digest": "e64c5435101ed32f",
+      "first_line": "if (info->flags & PyABIInfo_STABLE) {",
+      "lines": 23
+    },
+    "Python/modsupport.c:768-782@v3.15.0rc1": {
+      "digest": "209293eecfaefc64",
+      "first_line": "/* Free-threading/GIL */",
+      "lines": 15
     },
     "Python/opcode_targets.h:1-12@v3.15.0rc1": {
       "digest": "1e469cc6f9bf653e",
