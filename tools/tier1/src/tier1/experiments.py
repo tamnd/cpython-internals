@@ -3538,6 +3538,208 @@ WHAT_THE_END_LEAVES_BEHIND = Experiment(
 )
 
 
+PROGRAM_TWENTYNINE = r'''"""What the reference leak hunter catches that an ordinary run does not.
+
+Four small tests, written into a directory of their own, run twice each. Once the way
+anybody runs a test suite, and once under the flag CPython's buildbots use, which runs
+every test six times and counts what the interpreter is still holding afterwards.
+"""
+
+import os
+import pathlib
+import re
+import subprocess
+import sys
+import tempfile
+
+CASES = {
+    "test_clean": """
+import unittest
+
+
+class Clean(unittest.TestCase):
+    def test_it(self):
+        held = [object()]
+        self.assertTrue(held)
+""",
+    "test_cached": """
+import unittest
+
+CACHE = []
+
+
+class Cached(unittest.TestCase):
+    def test_it(self):
+        if len(CACHE) < 4:
+            CACHE.append(object())
+        self.assertTrue(CACHE)
+""",
+    "test_leaky": """
+import unittest
+
+HOARD = []
+
+
+class Leaky(unittest.TestCase):
+    def test_it(self):
+        HOARD.append(object())
+        self.assertTrue(HOARD)
+""",
+    "test_handles": """
+import os
+import unittest
+
+
+class Handles(unittest.TestCase):
+    def test_it(self):
+        copy = os.dup(0)
+        self.assertGreater(copy, 0)
+""",
+}
+
+REPORT = re.compile(r"^\w+ leaked (\[[^]]*\]) ([a-z ]+), sum=(-?\d+)(.*)$")
+
+ROOT = pathlib.Path(tempfile.mkdtemp())
+for name, body in CASES.items():
+    (ROOT / f"{name}.py").write_text(body)
+
+
+def run(name, flags=()):
+    """Run one of the four tests, with or without the leak hunting flag."""
+    return subprocess.run(
+        [sys.executable, "-m", "test", "--testdir", str(ROOT), *flags, name],
+        capture_output=True,
+        text=True,
+        timeout=600,
+        env=os.environ | {"PYTHON_COLORS": "0"},
+    )
+
+
+print("four small tests, run the way anybody runs a test suite")
+print()
+ordinary = 0
+for name in CASES:
+    done = run(name)
+    ordinary += done.returncode == 0
+    print(f"  {name:14} {'failed' if done.returncode else 'passed'}")
+
+print()
+print("the same four, run six times each with the leak hunter watching")
+print()
+hunted = 0
+for name in CASES:
+    done = run(name, ("-R", "3:3"))
+    hunted += done.returncode == 0
+    said = [m for m in map(REPORT.match, done.stderr.splitlines()) if m]
+    counts = ", ".join(f"{m.group(1)} {m.group(2)}" for m in said)
+    excused = " (which the hunter calls fine)" if said and said[0].group(4) else ""
+    verdict = "failed" if done.returncode else "passed"
+    print(f"  {name:14} {verdict:7} {counts or 'nothing was left behind'}{excused}")
+
+print()
+print(f"~ tests that pass an ordinary run: {ordinary} of {len(CASES)}")
+print(f"~ tests that pass the leak hunter: {hunted} of {len(CASES)}")
+print("~ repetitions the hunter ran each test for: 6")
+print("~ of those repetitions that were warm ups: 3")
+'''
+
+
+WHAT_THE_LEAK_HUNTER_CATCHES = Experiment(
+    slug="r09-what-the-leak-hunter-catches",
+    lesson="R09",
+    title="Four small tests, run once the ordinary way and once with the leak hunter watching",
+    asks="What does CPython's own leak hunter see that an ordinary test run walks straight past?",
+    needs=(
+        "it needs a debug build, because counting what the interpreter is still holding is "
+        "something only that build keeps a total of"
+    ),
+    build="debug",
+    program=PROGRAM_TWENTYNINE,
+)
+
+
+PROGRAM_THIRTY = r'''"""What a module has to declare before a free threaded build will trust it.
+
+CPython's own test suite ships a shared object that exports several init functions, two
+of which differ only in one line: whether they say the module can run without the lock.
+Loading each one in a child of its own shows what that line is worth.
+"""
+
+import os
+import subprocess
+import sys
+import textwrap
+
+CHILD = """
+import importlib.machinery, importlib.util, sys, _testmultiphase
+
+name = sys.argv[1]
+print(f"    the lock before the import: {sys._is_gil_enabled()}")
+loader = importlib.machinery.ExtensionFileLoader(name, _testmultiphase.__file__)
+spec = importlib.util.spec_from_loader(name, loader)
+loader.exec_module(importlib.util.module_from_spec(spec))
+print(f"    the lock after the import:  {sys._is_gil_enabled()}")
+"""
+
+CASES = (
+    ("_test_from_modexport", "which declares Py_MOD_GIL_NOT_USED", {}),
+    ("_test_from_modexport_gil_used", "which declares Py_MOD_GIL_USED", {}),
+    ("_test_from_modexport_gil_used", "the same one, in a child started with PYTHON_GIL=0", {}),
+)
+
+OVERRIDE = {"PYTHON_GIL": "0"}
+
+
+def load(name, extra):
+    """Import one init function out of that shared object, in a child of its own."""
+    return subprocess.run(
+        [sys.executable, "-c", CHILD, name],
+        capture_output=True,
+        text=True,
+        timeout=180,
+        env=os.environ | {"PYTHON_COLORS": "0"} | extra,
+    )
+
+
+print("what a compiled module has to declare before this build will trust it")
+print()
+print(f"  the abi flags on this build: {sys.abiflags!r}")
+print()
+
+turned_on = 0
+for position, (name, what, _) in enumerate(CASES):
+    done = load(name, OVERRIDE if position == 2 else {})
+    print(f"  {name}, {what}")
+    print(done.stdout, end="")
+    turned_on += "the lock after the import:  True" in done.stdout
+    said = [one for one in done.stderr.splitlines() if "RuntimeWarning" in one]
+    if not said:
+        print("    it went through without a word")
+    for one in said:
+        print("    on the way it warned, at some length:")
+        text = one.split("RuntimeWarning: ")[1]
+        print(textwrap.indent(textwrap.fill(text, 74), "      "))
+    print()
+
+print(f"~ ways of loading the same shared object: {len(CASES)}")
+print(f"~ of those that turned the lock back on: {turned_on}")
+'''
+
+
+WHAT_A_MODULE_MUST_DECLARE = Experiment(
+    slug="r09-what-a-module-must-declare",
+    lesson="R09",
+    title="One shared object, three ways to load it, and what each one does to the lock",
+    asks="What is the line at the bottom of an extension module that declares itself safe worth?",
+    needs=(
+        "it needs a free threaded build, because a build that always has the lock has nothing "
+        "to turn back on"
+    ),
+    build="freethreaded",
+    program=PROGRAM_THIRTY,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -3582,6 +3784,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     WHAT_A_BUILD_WILL_LOAD_WITHOUT_THE_LOCK,
     WHAT_THE_END_STILL_RUNS,
     WHAT_THE_END_LEAVES_BEHIND,
+    WHAT_THE_LEAK_HUNTER_CATCHES,
+    WHAT_A_MODULE_MUST_DECLARE,
 )
 
 

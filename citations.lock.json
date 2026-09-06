@@ -1060,6 +1060,11 @@
       "first_line": "",
       "lines": 6
     },
+    "Include/object.h:520-530@v3.15.0rc1": {
+      "digest": "bf1a330c8709fac8",
+      "first_line": "/* Set while the type is being 'readied', to prevent recursive ready calls */",
+      "lines": 11
+    },
     "Include/object.h:580-583@v3.15.0rc1": {
       "digest": "323df69ccd90ebf9",
       "first_line": "// Flag values for ob_flags (16 bits available, if SIZEOF_VOID_P > 4).",
@@ -1154,6 +1159,11 @@
       "digest": "8ef54d5ad4f6b47b",
       "first_line": "#define _Py_IMMORTAL_INITIAL_REFCNT (3ULL << 30)",
       "lines": 4
+    },
+    "Include/refcount.h:483-500@v3.15.0rc1": {
+      "digest": "54d3f1d1d6989131",
+      "first_line": "#define Py_CLEAR(op) \\",
+      "lines": 18
     },
     "Include/refcount.h:527-538@v3.15.0rc1": {
       "digest": "4b12e8e078a88f82",
@@ -1514,6 +1524,11 @@
       "digest": "869aec32c3329e0f",
       "first_line": "def check_rc_deltas(deltas):",
       "lines": 14
+    },
+    "Lib/test/libregrtest/refleak.py:214-236@v3.15.0rc1": {
+      "digest": "227d5cb7c44aee81",
+      "first_line": "failed = False",
+      "lines": 23
     },
     "Lib/test/libregrtest/results.py:18-22@v3.15.0rc1": {
       "digest": "2e112c114c5a2a06",
@@ -2190,6 +2205,11 @@
       "first_line": "/* For int multiplication, use the O(N**2) school algorithm unless",
       "lines": 6
     },
+    "Objects/moduleobject.c:1027-1035@v3.15.0rc1": {
+      "digest": "f6011b09ee3ae4fa",
+      "first_line": "void*",
+      "lines": 9
+    },
     "Objects/moduleobject.c:1330-1360@v3.15.0rc1": {
       "digest": "b890e50fe279a649",
       "first_line": "PyObject*",
@@ -2274,6 +2294,11 @@
       "digest": "e10296261f3835fe",
       "first_line": "int",
       "lines": 37
+    },
+    "Objects/object.c:595-630@v3.15.0rc1": {
+      "digest": "d74c897f83ac2a9b",
+      "first_line": "PyObject_CallFinalizerFromDealloc(PyObject *self)",
+      "lines": 36
     },
     "Objects/obmalloc.c:1396-1427@v3.15.0rc1": {
       "digest": "8bbbd57375b14355",
@@ -2485,6 +2510,11 @@
       "first_line": "_PyType_AllocNoTrack(PyTypeObject *type, Py_ssize_t nitems)",
       "lines": 20
     },
+    "Objects/typeobject.c:2607-2645@v3.15.0rc1": {
+      "digest": "b894ed89d3d54d12",
+      "first_line": "subtype_traverse(PyObject *self, visitproc visit, void *arg)",
+      "lines": 39
+    },
     "Objects/typeobject.c:2794-2815@v3.15.0rc1": {
       "digest": "66d90d9277fe53a4",
       "first_line": "has_finalizer = type->tp_finalize || type->tp_del;",
@@ -2539,6 +2569,11 @@
       "digest": "d00edf674dc71dbb",
       "first_line": "if (ctx->add_weak) {",
       "lines": 5
+    },
+    "Objects/typeobject.c:5973-6005@v3.15.0rc1": {
+      "digest": "e5c739ab6a2a7086",
+      "first_line": "PyType_GetModuleByDef(PyTypeObject *type, PyModuleDef *def)",
+      "lines": 33
     },
     "Objects/typeobject.c:6144-6180@v3.15.0rc1": {
       "digest": "a16a8c9e914d75f2",
@@ -4380,6 +4415,11 @@
       "first_line": "static void",
       "lines": 29
     },
+    "Python/gc.c:1083-1120@v3.15.0rc1": {
+      "digest": "7663d57dedc7bbab",
+      "first_line": "delete_garbage(PyThreadState *tstate, GCState *gcstate,",
+      "lines": 38
+    },
     "Python/gc.c:1221-1236@v3.15.0rc1": {
       "digest": "dc27d9361032699d",
       "first_line": "/* Handle objects that may have resurrected after a call to 'finalize_garbage', moving",
@@ -4450,6 +4490,11 @@
       "first_line": "void",
       "lines": 21
     },
+    "Python/gc.c:2026-2044@v3.15.0rc1": {
+      "digest": "a6ecf3b2252cc226",
+      "first_line": "_PyObject_GC_New(PyTypeObject *tp)",
+      "lines": 19
+    },
     "Python/gc.c:2118-2123@v3.15.0rc1": {
       "digest": "35669478a7a4e47e",
       "first_line": "GCState *gcstate = get_gc_state();",
@@ -4460,10 +4505,20 @@
       "first_line": "/* Set all gc_refs = ob_refcnt.  After this, gc_refs is > 0 and",
       "lines": 20
     },
+    "Python/gc.c:438-465@v3.15.0rc1": {
+      "digest": "5a6bfa74ee2f5f63",
+      "first_line": "/* A traversal callback for subtract_refs. */",
+      "lines": 28
+    },
     "Python/gc.c:485-501@v3.15.0rc1": {
       "digest": "2e571c593e6b01da",
       "first_line": "/* Subtract internal references from gc_refs.  After this, gc_refs is >= 0",
       "lines": 17
+    },
+    "Python/gc.c:490-515@v3.15.0rc1": {
+      "digest": "fd15d95adf539c91",
+      "first_line": "subtract_refs(PyGC_Head *containers)",
+      "lines": 26
     },
     "Python/gc.c:566-583@v3.15.0rc1": {
       "digest": "ec0b2854fab4f304",

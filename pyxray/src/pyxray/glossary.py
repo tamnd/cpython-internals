@@ -1521,6 +1521,24 @@ MEMORY = Group(
             see=("finalizer", "resurrection"),
             met="O14",
         ),
+        Term(
+            name="traverse function",
+            short="The slot where a container tells the collector what it is holding.",
+            long="`tp_traverse` is handed a callback and calls it once for every object this one owns a reference to. The collector uses that to subtract the references living inside the set it is examining, so a field you forget to report looks exactly like a reference from somewhere outside and the whole cycle survives. A heap type has to report `Py_TYPE(self)` as well, since an instance holds a reference to its own type.",
+            cite="Objects/typeobject.c:2607-2645@v3.15.0rc1#subtype_traverse",
+            also=("`tp_traverse`", "`Py_VISIT`", "`visitproc`"),
+            see=("cycle collector", "reference cycle", "heap type"),
+            met="R09",
+        ),
+        Term(
+            name="clear function",
+            short="The slot the collector calls to break a cycle it has decided is garbage.",
+            long="`tp_clear` drops the references `tp_traverse` reported, usually one `Py_CLEAR` per field. It is the only part of a collection that changes anything, and it is called across the whole unreachable set before any of it is freed, so an object still has to behave while the rest of its cycle is being emptied around it. Anything the object owns that is not a Python object belongs in `tp_dealloc` instead.",
+            cite="Python/gc.c:1083-1120@v3.15.0rc1#delete_garbage",
+            also=("`tp_clear`", "`Py_CLEAR`"),
+            see=("traverse function", "cycle collector", "finalizer"),
+            met="R09",
+        ),
     ),
 )
 
@@ -2041,6 +2059,15 @@ BUILDING = Group(
             also=("`.so`", "`.pyd`"),
             see=("stable ABI", "SOABI", "PyABIInfo"),
             met="R07",
+        ),
+        Term(
+            name="module state",
+            short="A struct hanging off a module object, one copy per module rather than per process.",
+            long="A module definition with a positive `m_size` gets that many bytes allocated alongside every module object, reachable with `PyModule_GetState`. It is where an extension keeps what a C file would otherwise keep in statics, which matters because statics are shared by every interpreter in the process and module state is not. A type built from a spec can find its own module's state again through `PyType_GetModuleByDef`.",
+            cite="Objects/moduleobject.c:1027-1035@v3.15.0rc1#PyModule_GetState",
+            also=("`m_size`", "`PyModule_GetState`", "`PyType_GetModuleByDef`"),
+            see=("extension module", "two phase initialisation", "subinterpreter"),
+            met="R09",
         ),
         Term(
             name="SOABI",
