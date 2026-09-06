@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-625 claims across 79 lessons, 59 of them not observable from Python.
+630 claims across 80 lessons, 60 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -819,6 +819,16 @@ Without it the exception becomes the rule and this goes back to being a book.
 | One daemon thread running a function from your own module stops every finalizer in that module from running. | [`r08-16`](r08-when-the-interpreter-stops/r08.ipynb) |
 | One full collection of generation two runs during shutdown, and the finalizing flag is already set when it does. | [`r08-18`](r08-when-the-interpreter-stops/r08.ipynb) |
 | A subinterpreter you never closed is finalised for you, with a RuntimeWarning, before the main interpreter finishes. | [`r08-20`](r08-when-the-interpreter-stops/r08.ipynb) |
+
+## R09. Writing a C extension properly
+
+| Claim | Proved by |
+| --- | --- |
+| Missing one Py_DECREF on an error branch costs two references per failed call, and nothing in the process complains | [`r09-07`](r09-writing-a-c-extension-properly/r09.ipynb) |
+| The GC flag on its own is not enough. A tp_traverse that forgets a field leaks just as completely as no tp_traverse at all | [`r09-13`](r09-writing-a-c-extension-properly/r09.ipynb) |
+| A tp_finalize runs exactly once per object whether the object died on a reference count or inside a cycle | [`r09-15`](r09-writing-a-c-extension-properly/r09.ipynb) |
+| One imported module that has not declared itself safe turns the lock back on for the whole process | not observable from Python: the flip only happens on an interpreter built with --disable-gil, and this notebook is almost certainly not one |
+| An ordinary test run cannot see a reference leak at all, which is why CPython runs its own suite a second way | [`r09-17`](r09-writing-a-c-extension-properly/r09.ipynb) |
 
 ## T01. One line, seven stages
 

@@ -53,6 +53,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [r07-what-a-build-will-load-without-the-lock](tier1/r07-what-a-build-will-load-without-the-lock.md) | R07 | freethreaded | How much of the stable ABI does dropping the global interpreter lock rule out? |
 | [r08-what-the-end-still-runs](tier1/r08-what-the-end-still-runs.md) | R08 | release | Which of the things you registered actually run when the interpreter stops? |
 | [r08-what-the-end-leaves-behind](tier1/r08-what-the-end-leaves-behind.md) | R08 | debug | How much does one daemon thread leave stranded when the interpreter stops? |
+| [r09-what-the-leak-hunter-catches](tier1/r09-what-the-leak-hunter-catches.md) | R09 | debug | What does CPython's own leak hunter see that an ordinary test run walks straight past? |
+| [r09-what-a-module-must-declare](tier1/r09-what-a-module-must-declare.md) | R09 | freethreaded | What is the line at the bottom of an extension module that declares itself safe worth? |
 
 ## The commands
 
