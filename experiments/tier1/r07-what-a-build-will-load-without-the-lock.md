@@ -30,6 +30,11 @@ check function on each one.
 The point of running it on two builds is that both gates move. A free threaded build will not
 look at a name with `abi3` in it, and it refuses a struct that says the extension wants the
 global interpreter lock.
+
+One thing is printed differently from how the interpreter spells it. The last part of a file
+name tag is the machine the build was made for, which is `x86_64-linux-gnu` on one runner and
+`aarch64-linux-gnu` on another. That part says nothing about the ABI question, so it is
+replaced with the word `PLATFORM` everywhere below and the recording is the same either way.
 """
 
 import ctypes
@@ -76,23 +81,30 @@ TAGS = importlib.machinery.EXTENSION_SUFFIXES
 here = sysconfig.get_config_var("EXT_SUFFIX")
 flipped = VERSIONED.sub(lambda m: m.group(1) + m.group(2) + ("" if m.group(3) else "t"), here)
 future = VERSIONED.sub(lambda m: m.group(1) + "999" + m.group(3), here)
+machine = re.sub(r"^\.cpython-\d+t?-?", "", here).removesuffix(".so")
+
+
+def tidy(text):
+    """Take the machine out of a file name tag, since it says nothing about the ABI."""
+    return text.replace(machine, "PLATFORM") if machine else text
+
 
 print("version:", sys.version.split()[0])
 print("abiflags:", repr(sys.abiflags))
 print("gil disabled:", sysconfig.get_config_var("Py_GIL_DISABLED"))
-print("soabi:", sysconfig.get_config_var("SOABI"))
+print("soabi:", tidy(sysconfig.get_config_var("SOABI")))
 print("api version, unchanged since 2006:", sys.api_version)
 print()
 
 print("file name tags this build will load:")
 for suffix in TAGS:
-    print("   ", suffix)
+    print("   ", tidy(suffix))
 print()
 
 print("what the finder does with one file of each kind")
 for name in ("demo" + here, "demo" + flipped, "demo" + future, "demo.abi3.so", "demo.abi3t.so"):
     verdict = "considered" if considered(name) else "invisible, the name is wrong"
-    print(f"  {name:40} {verdict}")
+    print(f"  {tidy(name):34} {verdict}")
 print()
 
 check = ctypes.pythonapi.PyABIInfo_Check
@@ -171,21 +183,21 @@ print(f"~ public functions behind a stable abi version gate: {len(arrived)}")
 version: 3.15.0rc1
 abiflags: 't'
 gil disabled: 1
-soabi: cpython-315t-aarch64-linux-gnu
+soabi: cpython-315t-PLATFORM
 api version, unchanged since 2006: 1013
 
 file name tags this build will load:
-    .cpython-315t-aarch64-linux-gnu.so
-    .abi3t-aarch64-linux-gnu.so
+    .cpython-315t-PLATFORM.so
+    .abi3t-PLATFORM.so
     .abi3t.so
     .so
 
 what the finder does with one file of each kind
-  demo.cpython-315t-aarch64-linux-gnu.so   considered
-  demo.cpython-315-aarch64-linux-gnu.so    invisible, the name is wrong
-  demo.cpython-999t-aarch64-linux-gnu.so   invisible, the name is wrong
-  demo.abi3.so                             invisible, the name is wrong
-  demo.abi3t.so                            considered
+  demo.cpython-315t-PLATFORM.so      considered
+  demo.cpython-315-PLATFORM.so       invisible, the name is wrong
+  demo.cpython-999t-PLATFORM.so      invisible, the name is wrong
+  demo.abi3.so                       invisible, the name is wrong
+  demo.abi3t.so                      considered
 
 what PyABIInfo_Check makes of each kind of extension
   built for this exact version     refused: incompatible with free-threaded CPython
