@@ -3137,6 +3137,185 @@ WHAT_LEAVES_THE_BINARY_ON_A_FREE_THREADED_BUILD = Experiment(
 )
 
 
+PROGRAM_TWENTYSEVEN = r'''"""What a build agrees to load, and the two gates that decide it.
+
+An extension arrives as a file with a long name. The interpreter decides whether to consider
+it at all from that name alone, before it opens it. If it does open it, and the extension was
+built against 3.15 or later, there is a second gate: a five field `PyABIInfo` struct the
+extension carries, which `PyABIInfo_Check` compares against the running interpreter.
+
+This program runs both gates by hand. It asks the finder which file names it is willing to
+look at, by putting empty files in a temporary directory and asking for the module. Then it
+builds `PyABIInfo` structs in ctypes for a row of hypothetical extensions and calls the real
+check function on each one.
+
+The point of running it on two builds is that both gates move. A free threaded build will not
+look at a name with `abi3` in it, and it refuses a struct that says the extension wants the
+global interpreter lock.
+"""
+
+import ctypes
+import importlib.machinery
+import pathlib
+import re
+import sys
+import sysconfig
+import tempfile
+
+VERSIONED = re.compile(r"(cpython-)(\d+)(t?)")
+
+STABLE = 0x0001
+GIL = 0x0002
+FREETHREADED = 0x0004
+INTERNAL = 0x0008
+
+
+class PyABIInfo(ctypes.Structure):
+    """The struct an extension built against 3.15 or later carries about itself."""
+
+    _fields_ = [
+        ("abiinfo_major_version", ctypes.c_uint8),
+        ("abiinfo_minor_version", ctypes.c_uint8),
+        ("flags", ctypes.c_uint16),
+        ("build_version", ctypes.c_uint32),
+        ("abi_version", ctypes.c_uint32),
+    ]
+
+
+def pack(major, minor):
+    """The version format the C API uses, which is the two numbers in the top two bytes."""
+    return (major << 24) | (minor << 16)
+
+
+def considered(name):
+    """Put one empty file in a directory of its own and ask whether the finder sees it."""
+    room = pathlib.Path(tempfile.mkdtemp())
+    (room / name).write_bytes(b"")
+    return importlib.machinery.PathFinder.find_spec("demo", [str(room)]) is not None
+
+
+TAGS = importlib.machinery.EXTENSION_SUFFIXES
+here = sysconfig.get_config_var("EXT_SUFFIX")
+flipped = VERSIONED.sub(lambda m: m.group(1) + m.group(2) + ("" if m.group(3) else "t"), here)
+future = VERSIONED.sub(lambda m: m.group(1) + "999" + m.group(3), here)
+
+print("version:", sys.version.split()[0])
+print("abiflags:", repr(sys.abiflags))
+print("gil disabled:", sysconfig.get_config_var("Py_GIL_DISABLED"))
+print("soabi:", sysconfig.get_config_var("SOABI"))
+print("api version, unchanged since 2006:", sys.api_version)
+print()
+
+print("file name tags this build will load:")
+for suffix in TAGS:
+    print("   ", suffix)
+print()
+
+print("what the finder does with one file of each kind")
+for name in ("demo" + here, "demo" + flipped, "demo" + future, "demo.abi3.so", "demo.abi3t.so"):
+    verdict = "considered" if considered(name) else "invisible, the name is wrong"
+    print(f"  {name:40} {verdict}")
+print()
+
+check = ctypes.pythonapi.PyABIInfo_Check
+check.argtypes = [ctypes.POINTER(PyABIInfo), ctypes.c_char_p]
+check.restype = ctypes.c_int
+
+CASES = (
+    ("built for this exact version", GIL, pack(*sys.version_info[:2])),
+    ("built for 3.13 and nothing else", GIL, pack(3, 13)),
+    ("stable abi since 3.2", STABLE | GIL, pack(3, 2)),
+    ("stable abi since 3.14", STABLE | GIL, pack(3, 14)),
+    ("stable abi from the future", STABLE | GIL, pack(3, 99)),
+    ("free threaded only", STABLE | FREETHREADED, pack(3, 14)),
+    ("happy either way", STABLE | GIL | FREETHREADED, pack(3, 14)),
+    ("claims internal and stable", STABLE | INTERNAL | GIL, sys.hexversion),
+)
+
+print("what PyABIInfo_Check makes of each kind of extension")
+refused = 0
+for label, flags, version in CASES:
+    info = PyABIInfo(1, 0, flags, sys.hexversion, version)
+    try:
+        check(ctypes.byref(info), label.encode())
+    except ImportError as problem:
+        refused += 1
+        print(f"  {label:32} refused: {str(problem).split(': ', 1)[1]}")
+    else:
+        print(f"  {label:32} loads")
+print()
+
+DECLARED = re.compile(r"^PyAPI_FUNC\([^)]*\)\s*\**\s*(\w+)", re.M)
+OPENS = re.compile(r"^\s*#\s*if")
+CLOSES = re.compile(r"^\s*#\s*endif")
+OLD = re.compile(r"Py_LIMITED_API\+0\s*>=\s*0x03([0-9a-fA-F]{2})0000")
+NEW = re.compile(r"Py_LIMITED_API\+0\s*>=\s*_Py_PACK_VERSION\((\d+),\s*(\d+)\)")
+
+
+def gate(line):
+    """The stable ABI version a preprocessor line gates on, when it gates on one."""
+    found = NEW.search(line)
+    if found:
+        return int(found.group(2))
+    found = OLD.search(line)
+    return int(found.group(1), 16) if found else None
+
+
+include = pathlib.Path(sysconfig.get_paths()["include"])
+arrived = {}
+for path in sorted(include.glob("*.h")):
+    stack = []
+    for line in path.read_text(errors="replace").splitlines():
+        if OPENS.match(line):
+            stack.append(gate(line))
+        elif CLOSES.match(line) and stack:
+            stack.pop()
+        found = DECLARED.match(line)
+        if found and any(v for v in stack):
+            arrived[found.group(1)] = max(v for v in stack if v)
+
+print("when the public headers say each gated function arrived")
+counted = {}
+for version in arrived.values():
+    counted[version] = counted.get(version, 0) + 1
+for version in sorted(counted):
+    print(f"  3.{version:<4} {counted[version]:4}")
+print()
+
+print(f"~ file name tags this build will load: {len(TAGS)}")
+print(f"~ hypothetical extensions refused: {refused} of {len(CASES)}")
+print(f"~ public functions behind a stable abi version gate: {len(arrived)}")
+'''
+
+
+WHAT_A_BUILD_WILL_LOAD = Experiment(
+    slug="r07-what-a-build-will-load",
+    lesson="R07",
+    title="Both gates an extension has to pass, run by hand on an ordinary build",
+    asks="What does the interpreter check before it agrees to load an extension?",
+    needs=(
+        "it needs 3.15 for PyABIInfo_Check, the headers next to the interpreter for the version "
+        "gate scan, and a real filesystem to put the empty files in"
+    ),
+    build="release",
+    program=PROGRAM_TWENTYSEVEN,
+)
+
+
+WHAT_A_BUILD_WILL_LOAD_WITHOUT_THE_LOCK = Experiment(
+    slug="r07-what-a-build-will-load-without-the-lock",
+    lesson="R07",
+    title="The same two gates on the build that abi3t was invented for",
+    asks="How much of the stable ABI does dropping the global interpreter lock rule out?",
+    needs=(
+        "it needs a build configured with --disable-gil, because the whole question is which "
+        "file names and which ABI flags that build is willing to accept"
+    ),
+    build="freethreaded",
+    program=PROGRAM_TWENTYSEVEN,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -3177,6 +3356,8 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     HOW_MUCH_OF_A_WAKE_UP_IS_PARALLEL_WITHOUT_THE_LOCK,
     WHAT_LEAVES_THE_BINARY,
     WHAT_LEAVES_THE_BINARY_ON_A_FREE_THREADED_BUILD,
+    WHAT_A_BUILD_WILL_LOAD,
+    WHAT_A_BUILD_WILL_LOAD_WITHOUT_THE_LOCK,
 )
 
 

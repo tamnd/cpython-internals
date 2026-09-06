@@ -49,6 +49,8 @@ So those programs run somewhere else. They run in the images this project publis
 | [r05-how-much-of-a-wake-up-is-parallel-without-the-lock](tier1/r05-how-much-of-a-wake-up-is-parallel-without-the-lock.md) | R05 | freethreaded | With the global interpreter lock gone, does waking up a deferred import scale? |
 | [r06-what-leaves-the-binary](tier1/r06-what-leaves-the-binary.md) | R06 | release | How much of the C API that the headers call private is callable anyway? |
 | [r06-what-leaves-the-binary-on-a-free-threaded-build](tier1/r06-what-leaves-the-binary-on-a-free-threaded-build.md) | R06 | freethreaded | Does dropping the global interpreter lock change what the C API exports? |
+| [r07-what-a-build-will-load](tier1/r07-what-a-build-will-load.md) | R07 | release | What does the interpreter check before it agrees to load an extension? |
+| [r07-what-a-build-will-load-without-the-lock](tier1/r07-what-a-build-will-load-without-the-lock.md) | R07 | freethreaded | How much of the stable ABI does dropping the global interpreter lock rule out? |
 
 ## The commands
 
