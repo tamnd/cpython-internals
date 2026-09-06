@@ -1875,6 +1875,33 @@ STARTUP = Group(
             see=("frozen module", "import bootstrap"),
             met="R04",
         ),
+        Term(
+            name="lazy import",
+            short="An import statement that binds the name now and loads the module later, or never.",
+            long="`lazy import json` is new in 3.15. It compiles to the same `IMPORT_NAME` opcode as a plain import, with two spare bits of the argument saying which kind this is, and the finding, reading and running of the module happen the first time something reads the name back. It is only allowed at module scope and not inside a `try` block, and the symbol table is what refuses the other spellings.",
+            cite="Grammar/python.gram:227-236@v3.15.0rc1#import_name",
+            also=("`lazy import`", "`lazy from`", "`__lazy_modules__`"),
+            see=("import placeholder", "global import lock", "soft keyword"),
+            met="R05",
+        ),
+        Term(
+            name="import placeholder",
+            short="The five field object a lazy import binds instead of a module.",
+            long="It holds the builtins it was declared in, the name, the attribute for a `from` import, and the code object and instruction offset of the line that declared it, which is what lets a later failure point back at the import. It is not in `sys.modules`, its name is in `sys.lazy_modules` until it resolves, and only two opcodes know about it, so a dict lookup or a repr leaves it alone.",
+            cite="Include/internal/pycore_lazyimportobject.h:17-25@v3.15.0rc1#PyLazyImportObject",
+            also=("`PyLazyImportObject`", "`sys.lazy_modules`", "`resolve`"),
+            see=("lazy import", "global import lock"),
+            met="R05",
+        ),
+        Term(
+            name="global import lock",
+            short="One recursive mutex per interpreter, taken while a lazy import resolves.",
+            long="An ordinary import takes a lock keyed on the module name, so two threads loading two different modules never wait for each other. Waking a placeholder does not use that lock. It takes the interpreter wide one and holds it for the whole resolution including the module body, which the source calls serialising reification. On a free threaded build that is the difference between deferred imports scaling across threads and not.",
+            cite="Python/import.c:150-158@v3.15.0rc1#_PyImport_AcquireLock",
+            also=("`_PyImport_AcquireLock`", "`IMPORT_LOCK`", "`_PyRecursiveMutex`"),
+            see=("module lock", "import placeholder"),
+            met="R05",
+        ),
     ),
 )
 

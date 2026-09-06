@@ -2758,6 +2758,268 @@ WHAT_FREEZING_SAVES_ON_A_DEBUG_BUILD = Experiment(
 )
 
 
+PROGRAM_TWENTYFOUR = r'''"""What deferring an import until somebody touches the name is worth.
+
+A program that imports twelve standard library modules at the top and then uses one of them is
+not a strawman, it is what most command line tools look like. PEP 810 adds a spelling that says
+bind this name now and do the work later, and a mode that applies the same rule to every plain
+import in the file, so the cost of the eleven you did not need can be measured rather than
+argued about.
+
+The child processes here run the same source twice, once with the default mode and once with
+-X lazy_imports=all. Three kinds of number come back. How many modules end up in sys.modules is
+a count, so it is the same on any machine. How many code objects the interpreter reads off disk
+is also a count, and -v prints one line for each. Wall clock is the one that depends on the
+machine, and it is measured with the two cases alternating, because running one case forty
+times and then the other measures the page cache instead.
+"""
+
+import statistics
+import subprocess
+import sys
+import time
+
+ROUNDS = 40
+LAZY = ["-X", "lazy_imports=all"]
+MODULES = (
+    "argparse",
+    "csv",
+    "dataclasses",
+    "email.parser",
+    "http.client",
+    "json",
+    "logging",
+    "sqlite3",
+    "typing",
+    "unittest",
+    "urllib.request",
+    "xml.etree.ElementTree",
+)
+BODY = "\n".join("import " + name for name in MODULES)
+WORK = "print(json.dumps({'used': 1}))"
+COUNT = "import sys; print(len(sys.modules), len(sys.lazy_modules))"
+
+
+def child(flags, args):
+    """Run this same interpreter again with those flags and hand back the finished process."""
+    return subprocess.run(
+        [sys.executable, *flags, *args], capture_output=True, text=True, check=True
+    )
+
+
+def asked(question):
+    """Ask a fresh interpreter one question and hand back the single line it prints."""
+    return child([], ["-c", "import sys; print({})".format(question)]).stdout.strip()
+
+
+def loaded(flags):
+    """Import the twelve, use one, and ask how many modules the process ended up with."""
+    printed = child(flags, ["-c", BODY + "\n" + WORK + "\n" + COUNT + "\n"]).stdout
+    return [int(part) for part in printed.splitlines()[-1].split()]
+
+
+def files_read(flags):
+    """Count the code objects the run reads off disk, which -v prints one line for."""
+    printed = child(flags, ["-v", "-c", BODY + "\n" + WORK + "\n"]).stderr
+    return sum(1 for line in printed.splitlines() if line.startswith("# code object from"))
+
+
+def run_ms(flags):
+    """Wall clock milliseconds for one whole run, startup included."""
+    started = time.perf_counter()
+    child(flags, ["-c", BODY + "\n" + WORK + "\n"])
+    return (time.perf_counter() - started) * 1000
+
+
+def alternating(rounds):
+    """Measure both cases once each per round, so neither one gets the cold cache every time."""
+    got = {"eager": [], "lazy": []}
+    for _ in range(rounds):
+        got["eager"].append(run_ms([]))
+        got["lazy"].append(run_ms(LAZY))
+    return got
+
+
+print("modules this program imports at the top:", len(MODULES))
+print("modules it actually uses:", 1)
+print("the mode this build starts in:", asked("sys.get_lazy_imports()"))
+print("names the standard library defers at startup:", asked("len(sys.lazy_modules)"))
+print("which names those are:", asked("sorted(sys.lazy_modules)"))
+
+eager_total, eager_waiting = loaded([])
+lazy_total, lazy_waiting = loaded(LAZY)
+print("modules in sys.modules at the end, eager:", eager_total)
+print("modules in sys.modules at the end, lazy:", lazy_total)
+print("names still waiting in sys.lazy_modules, eager:", eager_waiting)
+print("names still waiting in sys.lazy_modules, lazy:", lazy_waiting)
+print("code objects read off disk, eager:", files_read([]))
+print("code objects read off disk, lazy:", files_read(LAZY))
+
+runs = alternating(ROUNDS)
+fast_eager, fast_lazy = min(runs["eager"]), min(runs["lazy"])
+print("~ fastest run with plain imports: {:.1f} ms".format(fast_eager))
+print("~ fastest run with lazy imports: {:.1f} ms".format(fast_lazy))
+print("~ middle run with plain imports: {:.1f} ms".format(statistics.median(runs["eager"])))
+print("~ middle run with lazy imports: {:.1f} ms".format(statistics.median(runs["lazy"])))
+share = (1 - fast_lazy / fast_eager) * 100
+print("~ share of the run that deferring gives back: {:.1f} percent".format(share))
+'''
+
+
+PROGRAM_TWENTYFIVE = r'''"""What happens when several threads wake up deferred imports at once.
+
+An ordinary import takes a lock on the name being imported, so two threads importing two
+different modules do not wait for each other. Waking up a deferred import is a different code
+path, and _PyImport_LoadLazyImportTstate takes the interpreter wide import lock instead, and
+holds it for as long as the module body runs.
+
+That difference is invisible on a build with the global interpreter lock, because nothing runs
+in parallel there anyway. On a free threaded build it should be visible, and this program is
+the measurement. Both cases are reported as cores kept busy, which is processor time divided by
+wall clock, because that is the only honest way to compare several threads against one on a
+machine whose scheduler moves work between cores.
+
+Each generated module burns processor time in its body rather than sleeping, so a case that
+really overlaps reads well above one core and a case that takes turns reads about one.
+"""
+
+import importlib
+import os
+import pathlib
+import sys
+import tempfile
+import threading
+import time
+
+THREADS = 4
+BURN = 3_000_000
+SOURCE = "total = 0\nfor i in range({burn}):\n    total += i\nBURNED = total\n"
+
+folder = pathlib.Path(tempfile.mkdtemp())
+sys.path.insert(0, str(folder))
+
+
+def write_modules(prefix):
+    """Write one module per thread, each of which does real arithmetic in its body."""
+    names = []
+    for index in range(THREADS):
+        name = "{}_{}".format(prefix, index)
+        (folder / (name + ".py")).write_text(SOURCE.format(burn=BURN))
+        names.append(name)
+    return names
+
+
+def toucher(name):
+    """Build a function whose body reads that global, because reading it is what wakes it up."""
+    namespace = {}
+    body = "def touch():\n    return {}.BURNED\n".format(name)
+    exec(compile(body, "<touch>", "exec"), globals(), namespace)
+    return namespace["touch"]
+
+
+def together(jobs):
+    """Run one thread per job, all released at the same instant, and time the whole batch."""
+    ready = threading.Barrier(len(jobs))
+    seen = []
+
+    def work(job):
+        ready.wait()
+        seen.append(job())
+
+    threads = [threading.Thread(target=work, args=(job,)) for job in jobs]
+    wall = time.perf_counter()
+    cpu = time.process_time()
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    wall = time.perf_counter() - wall
+    cpu = time.process_time() - cpu
+    return len(seen), wall, cpu / wall
+
+
+def one_thread():
+    """The same arithmetic on one thread, as a reading of what one busy core looks like here."""
+    wall = time.perf_counter()
+    cpu = time.process_time()
+    total = 0
+    for i in range(BURN):
+        total += i
+    wall = time.perf_counter() - wall
+    return (time.process_time() - cpu) / wall, wall
+
+
+plain = write_modules("plain")
+deferred = write_modules("deferred")
+exec(compile("\n".join("lazy import " + name for name in deferred), "<declare>", "exec"), globals())
+
+print("threads:", THREADS)
+print("processors this container can see:", os.process_cpu_count())
+print("gil enabled:", sys._is_gil_enabled())
+print("names declared and still waiting:", sum(1 for n in deferred if n in sys.lazy_modules))
+print("any of them in sys.modules yet:", any(n in sys.modules for n in deferred))
+
+control_cores, control_wall = one_thread()
+
+done, wall_plain, cores_plain = together([lambda n=n: importlib.import_module(n) for n in plain])
+print("threads that finished a plain import:", done)
+
+done, wall_lazy, cores_lazy = together([toucher(n) for n in deferred])
+print("threads that woke up a deferred import:", done)
+print("all of them in sys.modules now:", all(n in sys.modules for n in deferred))
+print("names still waiting afterwards:", sum(1 for n in deferred if n in sys.lazy_modules))
+
+print("~ cores kept busy by one thread doing the arithmetic: {:.2f}".format(control_cores))
+print("~ cores kept busy importing four modules the plain way: {:.2f}".format(cores_plain))
+print("~ cores kept busy waking four deferred imports: {:.2f}".format(cores_lazy))
+print("~ wall clock for one thread, ms: {:.0f}".format(control_wall * 1000))
+print("~ wall clock for the plain imports, ms: {:.0f}".format(wall_plain * 1000))
+print("~ wall clock for the deferred ones, ms: {:.0f}".format(wall_lazy * 1000))
+'''
+
+
+WHAT_DEFERRING_AN_IMPORT_IS_WORTH = Experiment(
+    slug="r05-what-deferring-an-import-is-worth",
+    lesson="R05",
+    title="Twelve imports at the top of a file, once as written and once deferred",
+    asks="What does a program get back for not importing what it turns out not to need?",
+    needs=(
+        "it wants a machine that is not busy with anything else, because half of what it "
+        "reports is wall clock for a process that only lives for a fraction of a second"
+    ),
+    build="release",
+    program=PROGRAM_TWENTYFOUR,
+)
+
+
+HOW_MUCH_OF_A_WAKE_UP_IS_PARALLEL = Experiment(
+    slug="r05-how-much-of-a-wake-up-is-parallel",
+    lesson="R05",
+    title="Four threads reaching for four different deferred imports, with the lock on",
+    asks="Do two threads waking up two different deferred imports wait for each other?",
+    needs=(
+        "it needs several processors and a quiet machine, because the answer is a ratio of "
+        "processor time to wall clock and both halves of that move when something else runs"
+    ),
+    build="release",
+    program=PROGRAM_TWENTYFIVE,
+)
+
+
+HOW_MUCH_OF_A_WAKE_UP_IS_PARALLEL_WITHOUT_THE_LOCK = Experiment(
+    slug="r05-how-much-of-a-wake-up-is-parallel-without-the-lock",
+    lesson="R05",
+    title="The same four threads on the build that can really run them at the same time",
+    asks="With the global interpreter lock gone, does waking up a deferred import scale?",
+    needs=(
+        "it needs a build configured with --disable-gil, because the comparison only means "
+        "anything once the global interpreter lock has stopped serialising everything anyway"
+    ),
+    build="freethreaded",
+    program=PROGRAM_TWENTYFIVE,
+)
+
+
 EXPERIMENTS: tuple[Experiment, ...] = (
     COMPILING_COSTS_NOTHING_THAT_LASTS,
     A_LEAK_YOU_CAN_SEE,
@@ -2793,6 +3055,9 @@ EXPERIMENTS: tuple[Experiment, ...] = (
     HOW_MUCH_OF_AN_IMPORT_IS_PARALLEL_WITHOUT_THE_LOCK,
     WHAT_FREEZING_SAVES_AT_STARTUP,
     WHAT_FREEZING_SAVES_ON_A_DEBUG_BUILD,
+    WHAT_DEFERRING_AN_IMPORT_IS_WORTH,
+    HOW_MUCH_OF_A_WAKE_UP_IS_PARALLEL,
+    HOW_MUCH_OF_A_WAKE_UP_IS_PARALLEL_WITHOUT_THE_LOCK,
 )
 
 

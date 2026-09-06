@@ -12,7 +12,7 @@ header, what the allocator does with a freed block, the shape of the eval loop. 
 marked with the reason, and a lesson is allowed at most 3 of them. The cap is the point.
 Without it the exception becomes the rule and this goes back to being a book.
 
-589 claims across 75 lessons, 57 of them not observable from Python.
+601 claims across 76 lessons, 59 of them not observable from Python.
 
 ## B01. Building CPython, and whether you need to
 
@@ -763,6 +763,23 @@ Without it the exception becomes the rule and this goes back to being a book.
 | Loading a module from a file and loading it out of the binary end in the same unmarshal of the same bytes, and what freezing removes is the finder search and the file read in front of that | [`r04-25`](r04-frozen-modules/r04.ipynb) |
 | Every file a bare startup reads only when frozen modules are switched off holds a module that is in the frozen standard library group, and on an install with cached bytecode every one of them is an already compiled pyc | [`r04-29`](r04-frozen-modules/r04.ipynb) |
 | A build configured with --with-pydebug leaves frozen modules off by default while a release build leaves them on, so the same interpreter version can disagree with itself about where os came from | not observable from Python: it needs two builds of the same source in two containers, and one notebook is only ever one of them |
+
+## R05. Lazy imports
+
+| Claim | Proved by |
+| --- | --- |
+| Importing xml.etree.ElementTree brings in most of a package and a C extension underneath it, and a program that never parses any XML carries every one of those modules for its whole run | [`r05-07`](r05-lazy-imports/r05.ipynb) |
+| A module made by LazyLoader replaces its own __getattribute__, so any attribute access at all wakes it up, including reading __name__ or __dict__ to see whether it is awake yet | [`r05-10`](r05-lazy-imports/r05.ipynb) |
+| A lazy import compiles to the same IMPORT_NAME opcode as a plain one, with the low two bits of the argument set to 1 for lazy and 2 for forced eager, and dis prints the difference | [`r05-13`](r05-lazy-imports/r05.ipynb) |
+| A lazy import binds an object of type lazy_import, leaves sys.modules untouched, adds the name to sys.lazy_modules, and offers exactly one public method | [`r05-19`](r05-lazy-imports/r05.ipynb) |
+| Dict lookups, membership tests and reprs all leave the placeholder alone, while reading the name resolves it, and a placeholder copied into another variable resolves when that variable is read rather than when it was copied | [`r05-22`](r05-lazy-imports/r05.ipynb) |
+| An unresolved placeholder blocks LOAD_GLOBAL_MODULE and LOAD_ATTR_MODULE from specialising | not observable from Python: the bail out is recorded in specialisation statistics that only a build configured with --enable-pystats collects, and this notebook is not one |
+| Each of the four ways of misusing the keyword produces a different message naming the specific thing that is wrong, rather than one generic syntax error | [`r05-25`](r05-lazy-imports/r05.ipynb) |
+| A filter installed with sys.set_lazy_imports_filter is asked about every lazy import with three arguments, and returning false for one name makes that one import eagerly while the other stays deferred | [`r05-28`](r05-lazy-imports/r05.ipynb) |
+| A failure inside a deferred module arrives as the exception the module raised, with an ImportError attached as its __cause__ whose traceback points at the lazy import line rather than at the use site | [`r05-31`](r05-lazy-imports/r05.ipynb) |
+| Resolving one placeholder runs a module body that can declare placeholders of its own, so a name can appear in sys.lazy_modules as a result of resolving a different one | [`r05-34`](r05-lazy-imports/r05.ipynb) |
+| A file with twelve imports at the top that uses one runs several times faster with them deferred, and eleven of the twelve module bodies never run | [`r05-37`](r05-lazy-imports/r05.ipynb) |
+| On a free threaded build, four threads importing four different modules run about three and a half times over, while four threads waking four different deferred imports run one at a time, because reification takes the interpreter wide import lock | not observable from Python: it needs a build configured with --disable-gil and several processors, and one notebook is only ever one build |
 
 ## T01. One line, seven stages
 
