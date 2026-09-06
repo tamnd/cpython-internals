@@ -398,10 +398,17 @@ print(f"  what it listed:  {sorted(finder._path_cache)}")
 
 remembered = finder._path_mtime
 (folder / "three.py").write_text("value = 3\\n")
-import three  # noqa: F401, E402
 
+try:
+    import three
+except ModuleNotFoundError:
+    # Some filesystems keep whole seconds only, so the directory can still look untouched.
+    sys.path_importer_cache.pop(str(folder))
+    import three  # noqa: F401
+
+listed = sys.path_importer_cache[str(folder)]._path_cache
 print(f"  after adding a file the mtime moved: {remembered != finder._path_mtime}")
-print(f"  and it listed again: {sorted(finder._path_cache)}")
+print(f"  and it listed again: {sorted(listed)}")
 """,
     varies=(
         "the number of finders already cached depends on how many directories your runtime has "
@@ -414,7 +421,7 @@ print(f"  and it listed again: {sorted(finder._path_cache)}")
 lesson.md(f"""
 {figure("three-caches", "a table of the three caches an import passes through, what each is keyed by, what it saves and what clears it")}
 
-Two of those three are yours to break. Writing a file into a directory that is already on `sys.path` usually works, because the modification time moves and the listing refills, and that is what the cell just showed. Creating the directory itself after the fact usually does not, because `None` is already sitting in `sys.path_importer_cache`. `importlib.invalidate_caches()` is the supported way to clear both, and it is exactly what a program that generates code at runtime has to call.
+Two of those three are yours to break. Writing a file into a directory that is already on `sys.path` usually works, because the modification time moves and the listing refills, and that is what the cell just showed. When the second to last line says the mtime did not move, the filesystem underneath keeps whole seconds only, so the directory still looks untouched and the cell has to drop the finder to get the file seen. Creating the directory itself after the fact usually does not, because `None` is already sitting in `sys.path_importer_cache`. `importlib.invalidate_caches()` is the supported way to clear both, and it is exactly what a program that generates code at runtime has to call.
 
 {lesson.claim("A directory created after it was already looked up stays invisible to imports until importlib.invalidate_caches is called, because the failed lookup was cached as None")}
 """)

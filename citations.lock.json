@@ -1,5 +1,10 @@
 {
   "citations": {
+    "Grammar/python.gram:121-124@v3.15.0rc1": {
+      "digest": "816f44568467b4ce",
+      "first_line": "simple_stmt[stmt_ty] (memo):",
+      "lines": 4
+    },
     "Grammar/python.gram:1248-1248@v3.15.0rc1": {
       "digest": "e623c37c2424441f",
       "first_line": "\"Missing parentheses in call to '%U'. Did you mean %U(...)?\", a->v.Name.id, a->v.Name.id) : NULL}",
@@ -10,6 +15,11 @@
       "first_line": "| a=disjunction 'if' b=disjunction !('else'|':') { RAISE_SYNTAX_ERROR_KNOWN_RANGE(a, b, \"expected 'else' after 'if' expression\") }",
       "lines": 1
     },
+    "Grammar/python.gram:1446-1449@v3.15.0rc1": {
+      "digest": "4a531bd580488aec",
+      "first_line": "invalid_import_from:",
+      "lines": 4
+    },
     "Grammar/python.gram:1451-1453@v3.15.0rc1": {
       "digest": "18203f3829a45c7f",
       "first_line": "invalid_import_from_targets:",
@@ -19,6 +29,11 @@
       "digest": "04708b385acbae9e",
       "first_line": "| 'try' ':' block !('except' | 'finally') { RAISE_SYNTAX_ERROR(\"expected 'except' or 'finally' block\") }",
       "lines": 1
+    },
+    "Grammar/python.gram:227-236@v3.15.0rc1": {
+      "digest": "64af95c84814b147",
+      "first_line": "import_name[stmt_ty]:",
+      "lines": 10
     },
     "Grammar/python.gram:32-34@v3.15.0rc1": {
       "digest": "4eb32bcf7691bfb1",
@@ -569,6 +584,11 @@
       "digest": "74f58ba468dde9c2",
       "first_line": "/* _PyGenObject_HEAD defines the initial segment of generator",
       "lines": 18
+    },
+    "Include/internal/pycore_lazyimportobject.h:17-25@v3.15.0rc1": {
+      "digest": "dcb539aeef5d91f2",
+      "first_line": "typedef struct {",
+      "lines": 9
     },
     "Include/internal/pycore_list.h:36-54@v3.15.0rc1": {
       "digest": "2bd7a09b0ff20224",
@@ -1175,6 +1195,11 @@
       "first_line": "def start_trace(self):",
       "lines": 5
     },
+    "Lib/collections/__init__.py:35-36@v3.15.0rc1": {
+      "digest": "4fec9c1a0a4fe7c5",
+      "first_line": "lazy from copy import copy as _copy",
+      "lines": 2
+    },
     "Lib/concurrent/futures/interpreter.py:59-71@v3.15.0rc1": {
       "digest": "0f992195270a1de9",
       "first_line": "def initialize(self):",
@@ -1315,6 +1340,11 @@
       "first_line": "def _validate_timestamp_pyc(data, source_mtime, source_size, name,",
       "lines": 31
     },
+    "Lib/importlib/util.py:167-205@v3.15.0rc1": {
+      "digest": "b1cd0e31d94ae50f",
+      "first_line": "class _LazyModule(types.ModuleType):",
+      "lines": 39
+    },
     "Lib/inspect.py:1162-1181@v3.15.0rc1": {
       "digest": "6c675095c18cbe18",
       "first_line": "def getsourcelines(object):",
@@ -1354,6 +1384,11 @@
       "digest": "d04eb71b0382467a",
       "first_line": "class Pdb(bdb.Bdb, cmd.Cmd):",
       "lines": 1
+    },
+    "Lib/site.py:46-54@v3.15.0rc1": {
+      "digest": "241cbf95311a00fd",
+      "first_line": "import _sitebuiltins",
+      "lines": 9
     },
     "Lib/sysconfig/__init__.py:438-438@v3.15.0rc1": {
       "digest": "01a0f7b6f0bc767c",
@@ -2059,6 +2094,11 @@
       "digest": "869444282f9614d7",
       "first_line": "/* For int multiplication, use the O(N**2) school algorithm unless",
       "lines": 6
+    },
+    "Objects/moduleobject.c:1330-1360@v3.15.0rc1": {
+      "digest": "b890e50fe279a649",
+      "first_line": "PyObject*",
+      "lines": 31
     },
     "Objects/moduleobject.c:227-234@v3.15.0rc1": {
       "digest": "21b58141819ca6bc",
@@ -3445,6 +3485,11 @@
       "first_line": "tier1 inst(RERAISE, (values[oparg], exc_st -- values[oparg])) {",
       "lines": 12
     },
+    "Python/bytecodes.c:2280-2298@v3.15.0rc1": {
+      "digest": "eefacd112c794f0a",
+      "first_line": "inst(LOAD_NAME, (-- v)) {",
+      "lines": 19
+    },
     "Python/bytecodes.c:271-280@v3.15.0rc1": {
       "digest": "a63de5613d11a6e2",
       "first_line": "inst(LOAD_FAST_CHECK, (-- value)) {",
@@ -3654,6 +3699,16 @@
       "digest": "960c25b04deabf4c",
       "first_line": "PyObject *",
       "lines": 18
+    },
+    "Python/ceval.c:3021-3057@v3.15.0rc1": {
+      "digest": "d47c6185838e1a36",
+      "first_line": "static int",
+      "lines": 37
+    },
+    "Python/ceval.c:3059-3064@v3.15.0rc1": {
+      "digest": "383dc8a7c325cb65",
+      "first_line": "static int",
+      "lines": 6
     },
     "Python/ceval.c:306-322@v3.15.0rc1": {
       "digest": "4390314e2832e359",
@@ -3894,6 +3949,16 @@
       "digest": "a7d3d7b726d154c4",
       "first_line": "/* compile the body proper */",
       "lines": 11
+    },
+    "Python/codegen.c:2891-2900@v3.15.0rc1": {
+      "digest": "3b6efe56d32d2d55",
+      "first_line": "static int",
+      "lines": 10
+    },
+    "Python/codegen.c:2902-2933@v3.15.0rc1": {
+      "digest": "c8cd33cf88e1a58f",
+      "first_line": "static int",
+      "lines": 32
     },
     "Python/codegen.c:3101-3113@v3.15.0rc1": {
       "digest": "5f861ef490e10a9e",
@@ -4415,6 +4480,11 @@
       "first_line": "TARGET(LOAD_FAST) {",
       "lines": 16
     },
+    "Python/import.c:150-158@v3.15.0rc1": {
+      "digest": "511ad46dbd666e76",
+      "first_line": "/* Locking primitives to prevent parallel imports of the same module",
+      "lines": 9
+    },
     "Python/import.c:1587-1616@v3.15.0rc1": {
       "digest": "c21f5e5c0c4eab2a",
       "first_line": "static bool",
@@ -4470,10 +4540,35 @@
       "first_line": "static int",
       "lines": 40
     },
+    "Python/import.c:3883-3895@v3.15.0rc1": {
+      "digest": "6f1a432d984ea43b",
+      "first_line": "_PyImport_LoadLazyImportTstate(PyThreadState *tstate, PyObject *lazy_import)",
+      "lines": 13
+    },
+    "Python/import.c:3897-3925@v3.15.0rc1": {
+      "digest": "b22d00e8d4ff4553",
+      "first_line": "// Check if we are already importing this module, if so, then we want to",
+      "lines": 29
+    },
+    "Python/import.c:4055-4086@v3.15.0rc1": {
+      "digest": "c0ff3e89ddc195d1",
+      "first_line": "// Create a cause exception showing where the lazy import was declared.",
+      "lines": 32
+    },
     "Python/import.c:4190-4227@v3.15.0rc1": {
       "digest": "40a1544a3fd82833",
       "first_line": "PyImport_ImportModuleLevelObject(PyObject *name, PyObject *globals,",
       "lines": 38
+    },
+    "Python/import.c:4538-4545@v3.15.0rc1": {
+      "digest": "362ea5cf6ba547ad",
+      "first_line": "PyInterpreterState *interp = tstate->interp;",
+      "lines": 8
+    },
+    "Python/import.c:4547-4571@v3.15.0rc1": {
+      "digest": "c5dc8eb51cd3bff5",
+      "first_line": "// Check if the filter disables the lazy import.",
+      "lines": 25
     },
     "Python/initconfig.c:1193-1201@v3.15.0rc1": {
       "digest": "0cd6d8c3fdac2d2a",
@@ -4494,6 +4589,11 @@
       "digest": "a936b285993c1090",
       "first_line": "{",
       "lines": 26
+    },
+    "Python/initconfig.c:2456-2487@v3.15.0rc1": {
+      "digest": "8da1c14cd42b91e1",
+      "first_line": "config_init_lazy_imports(PyConfig *config)",
+      "lines": 32
     },
     "Python/initconfig.c:2849-2866@v3.15.0rc1": {
       "digest": "ea23f8c25d79e425",
@@ -4765,6 +4865,11 @@
       "first_line": "PyObject *",
       "lines": 35
     },
+    "Python/specialize.c:1364-1374@v3.15.0rc1": {
+      "digest": "c93d644c0ac2b8ca",
+      "first_line": "}",
+      "lines": 11
+    },
     "Python/specialize.c:2364-2400@v3.15.0rc1": {
       "digest": "4c606f16af60cc7a",
       "first_line": "_Py_Specialize_BinaryOp(_PyStackRef lhs_st, _PyStackRef rhs_st, _Py_CODEUNIT *instr,",
@@ -4800,10 +4905,20 @@
       "first_line": "static int",
       "lines": 5
     },
+    "Python/symtable.c:1846-1876@v3.15.0rc1": {
+      "digest": "73695084ea4df34d",
+      "first_line": "static int",
+      "lines": 31
+    },
     "Python/symtable.c:21-22@v3.15.0rc1": {
       "digest": "17661c40e20cefa5",
       "first_line": "",
       "lines": 2
+    },
+    "Python/symtable.c:2185-2196@v3.15.0rc1": {
+      "digest": "685d5633ff4742ad",
+      "first_line": "// Check for import *",
+      "lines": 12
     },
     "Python/symtable.c:2651-2657@v3.15.0rc1": {
       "digest": "bb6003ec598d0ead",
@@ -4889,6 +5004,11 @@
       "digest": "91f723f20650e7c6",
       "first_line": "static int",
       "lines": 10
+    },
+    "Python/sysmodule.c:2841-2855@v3.15.0rc1": {
+      "digest": "c4171c0304c0bc8f",
+      "first_line": "sys.set_lazy_imports",
+      "lines": 15
     },
     "Python/traceback.c:311-330@v3.15.0rc1": {
       "digest": "9bb9eee832e371b9",

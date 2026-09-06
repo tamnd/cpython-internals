@@ -44,6 +44,9 @@ So those programs run somewhere else. They run in the images this project publis
 | [r03-how-much-of-an-import-is-parallel-without-the-lock](tier1/r03-how-much-of-an-import-is-parallel-without-the-lock.md) | R03 | freethreaded | With the GIL out of the way, do four imports on four threads finish in the time of one? |
 | [r04-what-freezing-saves-at-startup](tier1/r04-what-freezing-saves-at-startup.md) | R04 | release | What does compiling the standard library into the binary actually save at startup? |
 | [r04-what-freezing-saves-on-a-debug-build](tier1/r04-what-freezing-saves-on-a-debug-build.md) | R04 | debug | Does a debug build behave the same way, and does freezing still pay for itself there? |
+| [r05-what-deferring-an-import-is-worth](tier1/r05-what-deferring-an-import-is-worth.md) | R05 | release | What does a program get back for not importing what it turns out not to need? |
+| [r05-how-much-of-a-wake-up-is-parallel](tier1/r05-how-much-of-a-wake-up-is-parallel.md) | R05 | release | Do two threads waking up two different deferred imports wait for each other? |
+| [r05-how-much-of-a-wake-up-is-parallel-without-the-lock](tier1/r05-how-much-of-a-wake-up-is-parallel-without-the-lock.md) | R05 | freethreaded | With the global interpreter lock gone, does waking up a deferred import scale? |
 
 ## The commands
 
