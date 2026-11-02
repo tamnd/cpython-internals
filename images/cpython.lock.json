@@ -5,89 +5,89 @@
   "images": {
     "debug": {
       "amd64": {
-        "digest": "sha256:6ae95a549a95e610ad784052f35e44a50c164e7b9cdeb8279985a02698e513e5",
-        "built": "2026-08-31",
+        "digest": "sha256:f0c83dfc26f0c6dc28b1a908c670e0659d84ea5b1f8a2d576b1987752b82bdd4",
+        "built": "2026-11-02",
         "size": 0
       },
       "arm64": {
-        "digest": "sha256:7d138f4a881a22412e4c40e15234f8a6df34302ba581c1687701100cce332591",
-        "built": "2026-08-31",
+        "digest": "sha256:a5db35782b3712b9603ff9a1bcd43eca76da30128cb768e9b72f27a6d83dfd59",
+        "built": "2026-11-02",
         "size": 0
       }
     },
     "freethreaded": {
       "amd64": {
-        "digest": "sha256:aa0d69b1f72f88d311ff0e3cac90ab1c461e1bc6d6682a3c663b46a0e306a6e5",
-        "built": "2026-08-31",
+        "digest": "sha256:0f137bd5e9687d104e3ca292a6e4e6fcda54293e3dfbfaae7693b4d8f22ea7e8",
+        "built": "2026-11-02",
         "size": 0
       },
       "arm64": {
-        "digest": "sha256:ad567a3c4b6e2bf6da384c70765befd30ea59cd06b65563b2750bc83ace3c554",
-        "built": "2026-08-31",
+        "digest": "sha256:e44cff8bf9b2a24f1c7ed8003726b478ff27cd05bedabcdf875c3d46dad9291b",
+        "built": "2026-11-02",
         "size": 0
       }
     },
     "jit": {
       "amd64": {
-        "digest": "sha256:5ef434298ec1e128e21bf8260e84d32e48ce5d4c6b1df8a254b544d082c8027e",
-        "built": "2026-08-31",
+        "digest": "sha256:59e69432f06e4662affd14115545cdd6ec48079e0ac81be8db33c9783feba65e",
+        "built": "2026-11-02",
         "size": 0
       },
       "arm64": {
-        "digest": "sha256:1400137f3e46a86b2ac83fc0c500675e358caff67cfb2afae337678074c489ce",
-        "built": "2026-08-31",
+        "digest": "sha256:b1dc20f1166eeedf373d52b03fa99258d41c6cf42b397e733392d50c37a82c0e",
+        "built": "2026-11-02",
         "size": 0
       }
     },
     "release": {
       "amd64": {
-        "digest": "sha256:77f2fb432f8da2151ab8466580846cfc85fffd0331c27290b45fe52c1244df35",
-        "built": "2026-08-31",
+        "digest": "sha256:5f5107a86d486011e06c4eb189ee23eba7b8c19767672a47bec190551dd3acc2",
+        "built": "2026-11-02",
         "size": 0
       },
       "arm64": {
-        "digest": "sha256:177697c75a931fd68deed4c29f5112675f78b117e7db57f608952ee92fc45e2c",
-        "built": "2026-08-31",
+        "digest": "sha256:dafbd1a961c28f460e78068b9fec64fbe591997ab8df384b99e2ed84a9ac4d83",
+        "built": "2026-11-02",
         "size": 0
       }
     },
     "tailcall": {
       "amd64": {
-        "digest": "sha256:d7e4abd234eb4331352e6b2c5380456cfa864fd4e42173a6bab8965a20bce808",
-        "built": "2026-08-31",
+        "digest": "sha256:be2cd3f23ba5ab6941c5e35d3bfbed00cac4bfa60d6e3b84d4cf25ef1a9e7e4f",
+        "built": "2026-11-02",
         "size": 0
       },
       "arm64": {
-        "digest": "sha256:06d84df644d64b9e6d9c721245b8fccbbd466671651833ffbb34aa44f997418f",
-        "built": "2026-08-31",
+        "digest": "sha256:a128a7894de479b51d720ad0b48221a9e8a8a3c35c9c2b1c75d7d7e7aeee64a1",
+        "built": "2026-11-02",
         "size": 0
       }
     }
   },
   "indexes": {
     "debug": {
-      "digest": "sha256:7baea8f3dd4de2e4c3b020543729b147e636494ae9758dabffb4675793e37170",
-      "built": "2026-08-31",
+      "digest": "sha256:429ca012e5a182cd94268cd349603163d77295a505ca3fd57ec037ed642517a9",
+      "built": "2026-11-02",
       "size": 0
     },
     "freethreaded": {
-      "digest": "sha256:db72284e3a49f43c38b96bec2baed1380b8348e27ea6f54f6e8d0810b59c3144",
-      "built": "2026-08-31",
+      "digest": "sha256:dd81cbe720edb3702ec47d8644c4f8edf28915c96f2fe22f4b5ca086af22dd5a",
+      "built": "2026-11-02",
       "size": 0
     },
     "jit": {
-      "digest": "sha256:5f5383fc23837e7b3ea7792bd94cc8fa5c4cc436d8f7fc8ff5f854eab4eb7ccb",
-      "built": "2026-08-31",
+      "digest": "sha256:2d1cbe0b40fd68ce5b3147c811d8e726a2fc7594cae9223c9c5ec1ba17f0bbcf",
+      "built": "2026-11-02",
       "size": 0
     },
     "release": {
-      "digest": "sha256:fb55d6afcf053c974de6447fafbd2be6af20cdb9f596e25a0445607b8af981e3",
-      "built": "2026-08-31",
+      "digest": "sha256:43609111edd078c436a0f06654890afcfd11fd460b23d1268320f13574f58d88",
+      "built": "2026-11-02",
       "size": 0
     },
     "tailcall": {
-      "digest": "sha256:e598c8e7336a48053f4b744fd28cd1e01b2d5bf4281629380afd9d06b7d7428a",
-      "built": "2026-08-31",
+      "digest": "sha256:fdb2db1ad69afa0748256d681134b8683b5cbcf7fc8c5cbcdd7c42dbf4374f39",
+      "built": "2026-11-02",
       "size": 0
     }
   }
